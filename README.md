@@ -1,1 +1,1 @@
-# MMP
+# MMP College Management System
