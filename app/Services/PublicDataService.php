@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\{AcademicSession, Department, Notice, Banner, Alumni, Download, Page, Staff, SiteSetting, Facility, Executive};
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * PublicDataService — The ONLY authorized pathway for public pages to access institutional data.
@@ -86,6 +88,10 @@ class PublicDataService
     public function getPage(string $slug): Page
     {
         return Cache::remember("public:page:{$slug}", self::CACHE_TTL, function () use ($slug) {
+            if ($page = $this->buildManagedPage($slug)) {
+                return $page;
+            }
+
             return Page::published()
                 ->where('slug', $slug)
                 ->firstOrFail();
@@ -115,6 +121,8 @@ class PublicDataService
     public function getSiteSettings(): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember('public:site_settings', self::CACHE_TTL, function () {
+            SiteSetting::ensureDefaults();
+
             return SiteSetting::all();
         });
     }
@@ -135,11 +143,65 @@ class PublicDataService
     public static function invalidate(string $key = '*'): void
     {
         if ($key === '*') {
-            Cache::forget('public:homepage');
-            Cache::forget('public:departments');
-            Cache::forget('public:downloads');
+            $cacheKeys = [
+                'public:homepage',
+                'public:departments',
+                'public:downloads',
+                'public:facilities',
+                'public:staff',
+                'public:leadership',
+                'public:site_settings',
+            ];
+
+            foreach (array_keys(SiteSetting::managedPageDefinitions()) as $slug) {
+                $cacheKeys[] = "public:page:{$slug}";
+            }
+
+            foreach ($cacheKeys as $cacheKey) {
+                Cache::forget($cacheKey);
+            }
         } else {
             Cache::forget("public:{$key}");
         }
+    }
+
+    private function buildManagedPage(string $slug): ?Page
+    {
+        $definition = SiteSetting::managedPageDefinition($slug);
+
+        if (!$definition) {
+            return null;
+        }
+
+        $settings = $this->getSiteSettings()->keyBy('key');
+        $content = trim((string) optional($settings->get($definition['content_key']))->value);
+
+        if ($slug === 'contact-us' && $content === '') {
+            $content = $this->buildContactPageSummary($settings);
+        }
+
+        return new Page([
+            'title' => $definition['title'],
+            'slug' => $slug,
+            'content' => $content,
+            'meta_title' => $definition['title'],
+            'meta_description' => $definition['meta_description'] ?? Str::limit(strip_tags($content), 160, ''),
+            'is_published' => true,
+        ]);
+    }
+
+    private function buildContactPageSummary(Collection $settings): string
+    {
+        $details = array_filter([
+            optional($settings->get('contact_address'))->value ? '<p><strong>Address:</strong> '.e(optional($settings->get('contact_address'))->value).'</p>' : null,
+            optional($settings->get('contact_email'))->value ? '<p><strong>Email:</strong> '.e(optional($settings->get('contact_email'))->value).'</p>' : null,
+            optional($settings->get('contact_phone'))->value ? '<p><strong>Phone:</strong> '.e(optional($settings->get('contact_phone'))->value).'</p>' : null,
+        ]);
+
+        if ($details === []) {
+            return '';
+        }
+
+        return '<p>Reach out to our team using the official contact details below.</p>'.implode('', $details);
     }
 }

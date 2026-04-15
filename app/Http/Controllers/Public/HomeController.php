@@ -51,7 +51,9 @@ class HomeController extends Controller
     public function page(string $slug)
     {
         $page = $this->service->getPage($slug);
-        return view('public.page', compact('page'));
+        $siteSettings = $this->service->getSiteSettings()->keyBy('key');
+
+        return view('public.content-page', compact('page', 'siteSettings'));
     }
 
     public function leadership()

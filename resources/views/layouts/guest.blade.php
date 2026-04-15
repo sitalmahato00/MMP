@@ -69,7 +69,7 @@
     </div>
 
     {{-- ── LOGO BAR (White, matching mmp.edu.np) ──────────────── --}}
-    <div class="bg-white py-3 border-b border-gray-200">
+    <div class="bg-gradient-to-r from-[#650000] via-[#8B0000] to-[#5B0000] py-3 border-b border-yellow-500/30 shadow-sm">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center justify-between">
             <a href="{{ route('home') }}" class="flex items-center gap-4">
                 {{-- MMP Seal/Emblem --}}
@@ -77,14 +77,14 @@
                     <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
                 <div>
-                    <div class="text-xl font-black font-serif leading-tight" style="color: #00008B;">Manmohan Memorial Polytechnic</div>
-                    <div class="text-sm italic font-semibold" style="color: #8B0000;">Best Technical College in Koshi Province</div>
-                    <div class="text-xs text-gray-500 font-medium">A Constituent College of Manmohan Technical University</div>
+                    <div class="text-xl font-black font-serif leading-tight text-white">Manmohan Memorial Polytechnic</div>
+                    <div class="text-sm italic font-semibold text-yellow-300">Best Technical College in Koshi Province</div>
+                    <div class="text-xs text-red-100 font-medium">A Constituent College of Manmohan Technical University</div>
                 </div>
             </a>
             {{-- Right side small image/badge area --}}
             <div class="hidden lg:flex items-center gap-4">
-                <div class="w-24 h-14 rounded overflow-hidden opacity-80">
+                <div class="w-24 h-14 rounded overflow-hidden border border-yellow-500/40 shadow-sm">
                     <img src="{{ asset('assets/image.png') }}" alt="MMP" class="w-full h-full object-cover rounded">
                 </div>
             </div>
