@@ -9,7 +9,7 @@
         <p class="text-sm text-gray-500 mt-1 font-medium">System Overview & Live KPIs for {{ $stats['active_session'] }}</p>
     </div>
     <div class="hidden sm:block">
-        <a href="#" class="inline-flex items-center px-4 py-2 bg-[#8B0000] border border-transparent rounded shadow-sm text-sm font-bold text-white hover:bg-[#6A0000] focus:outline-none transition-colors">
+        <a href="{{ route('admin.students.index') }}" class="inline-flex items-center px-4 py-2 bg-[#8B0000] border border-transparent rounded shadow-sm text-sm font-bold text-white hover:bg-[#6A0000] focus:outline-none transition-colors">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
             Generate Report
         </a>
@@ -105,7 +105,7 @@
     <x-card class="shadow-md">
         <x-slot name="header">
             <h3 class="font-bold text-gray-800">Upcoming Events</h3>
-            <a href="#" class="text-xs font-bold text-[#8B0000] hover:underline uppercase">Full Calendar</a>
+            <a href="{{ route('admin.notices.index') }}" class="text-xs font-bold text-[#8B0000] hover:underline uppercase">View All</a>
         </x-slot>
         <div class="space-y-4">
             @forelse($upcomingEvents as $event)
@@ -132,7 +132,7 @@
     <x-card class="shadow-md">
         <x-slot name="header">
             <h3 class="font-bold text-gray-800">Department Overview</h3>
-            <a href="#" class="text-xs font-bold text-gray-500 hover:text-[#8B0000] uppercase">Manage</a>
+            <a href="{{ route('admin.departments.index') }}" class="text-xs font-bold text-gray-500 hover:text-[#8B0000] uppercase">Manage</a>
         </x-slot>
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-500">
@@ -168,7 +168,7 @@
     <x-card class="shadow-md">
         <x-slot name="header">
             <h3 class="font-bold text-gray-800">Notice Board Feed</h3>
-            <a href="#" class="text-xs font-bold text-[#8B0000] hover:underline uppercase">Post Notice</a>
+            <a href="{{ route('admin.notices.create') }}" class="text-xs font-bold text-[#8B0000] hover:underline uppercase">Post Notice</a>
         </x-slot>
         
         <div class="space-y-4">
