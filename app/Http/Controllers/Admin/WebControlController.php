@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
+use App\Models\Facility;
 use Illuminate\Http\Request;
 
 class WebControlController extends Controller
@@ -11,7 +12,9 @@ class WebControlController extends Controller
     public function index()
     {
         $settings = SiteSetting::all()->groupBy('group');
-        return view('admin.web-control.index', compact('settings'));
+        $facilities = Facility::with(['department', 'program'])->latest()->get();
+        $executives = \App\Models\Executive::orderBy('order')->get();
+        return view('admin.web-control.index', compact('settings', 'facilities', 'executives'));
     }
 
     public function update(Request $request)

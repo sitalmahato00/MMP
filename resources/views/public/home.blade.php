@@ -72,41 +72,37 @@
                 </ul>
             </div>
 
-            {{-- People/Officials --}}
+            {{-- People/Officials (Dynamic) --}}
             <div class="bg-white border text-sm shadow-sm">
                 <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <i class="ri-user-star-line text-lg"></i>
                     Managements
                 </div>
                 <div class="p-4 space-y-5">
+                    @php
+                        $currentPrincipal = $leadership['principals']->firstWhere('is_current', true);
+                        $currentPresident = $leadership['presidents']->firstWhere('is_current', true);
+                    @endphp
+                    @foreach(array_filter([$currentPresident, $currentPrincipal]) as $exec)
                     <div class="flex gap-4 items-center">
-                        <div class="w-14 h-16 bg-gray-200 border shadow-sm flex-shrink-0 flex items-center justify-center -ml-1">
-                            <img src="https://ui-avatars.com/api/?name=Sudip&background=fff" class="w-full h-full object-cover">
+                        <div class="w-14 h-16 bg-gray-200 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
+                            @if($exec->avatar)
+                                <img src="{{ asset('storage/'.$exec->avatar) }}" class="w-full h-full object-cover">
+                            @else
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($exec->name) }}&background=fff" class="w-full h-full object-cover">
+                            @endif
                         </div>
                         <div>
-                            <div class="font-bold text-[#8B0000] text-[13px]">Dr. Sudip Adhikari</div>
-                            <div class="text-[11px] text-gray-500 mt-0.5">Principal</div>
+                            <div class="font-bold text-[#8B0000] text-[13px]">{{ $exec->name }}</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">{{ $exec->designation ?: ucfirst($exec->type) }}</div>
                         </div>
                     </div>
-                    <div class="flex gap-4 items-center">
-                        <div class="w-14 h-16 bg-gray-200 border shadow-sm flex-shrink-0 flex items-center justify-center -ml-1">
-                            <img src="https://ui-avatars.com/api/?name=Ramesh&background=fff" class="w-full h-full object-cover">
-                        </div>
-                        <div>
-                            <div class="font-bold text-[#8B0000] text-[13px]">Er. Ramesh K. Thapa</div>
-                            <div class="text-[11px] text-gray-500 mt-0.5">HOD, Computer</div>
-                        </div>
-                    </div>
-                    <div class="flex gap-4 items-center">
-                        <div class="w-14 h-16 bg-gray-200 border shadow-sm flex-shrink-0 flex items-center justify-center -ml-1">
-                            <img src="https://ui-avatars.com/api/?name=Sita&background=fff" class="w-full h-full object-cover">
-                        </div>
-                        <div>
-                            <div class="font-bold text-[#8B0000] text-[13px]">Mrs. Sita K.C</div>
-                            <div class="text-[11px] text-gray-500 mt-0.5">Admin Officer</div>
-                        </div>
-                    </div>
+                    @endforeach
+                    @if(empty(array_filter([$currentPresident ?? null, $currentPrincipal ?? null])))
+                        <p class="text-xs text-gray-400 text-center">Management details coming soon.</p>
+                    @endif
                 </div>
+                <a href="{{ route('public.leadership') }}" class="block p-2.5 bg-gray-50 border-t text-xs font-bold text-[#8B0000] hover:underline text-center">View All Presidents & Principals »</a>
             </div>
         </div>
 
@@ -118,10 +114,7 @@
                 <div class="relative z-10">
                     <h2 class="font-serif text-2xl font-bold mb-3">Welcome to MMP</h2>
                     <p class="text-[13px] leading-relaxed mb-4 text-gray-100 px-4">
-                        Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal. Established under the CTEVT framework, MMP is committed to producing skilled technical and engineering professionals required for the nation's development.
-                    </p>
-                    <p class="text-[13px] leading-relaxed mb-6 text-gray-100 px-4">
-                        We offer state-of-the-art laboratory facilities, experienced faculty, and industry-relevant curriculum designed by CTEVT to ensure our graduates excel both in national and international labour markets.
+                        {{ optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.' }}
                     </p>
                     <a href="{{ route('public.page', 'what-is-mmp') }}" class="inline-block border border-white text-white px-6 py-2 text-xs font-bold hover:bg-white hover:text-[#8B0000] transition-colors uppercase tracking-wide">
                         About MMP
@@ -249,23 +242,30 @@
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8 items-start">
+        @php $currentPrincipal = $leadership['principals']->firstWhere('is_current', true); @endphp
         <div class="text-center w-full lg:w-48 flex-shrink-0">
             <div class="w-32 h-[140px] mx-auto bg-gray-200 border-[6px] border-white shadow-md overflow-hidden mb-3">
-                <img src="https://ui-avatars.com/api/?name=Sudip+Adhikari&background=fff&size=200" alt="Principal" class="w-full h-full object-cover">
+                @if($currentPrincipal?->avatar)
+                    <img src="{{ asset('storage/'.$currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($currentPrincipal?->name ?? 'Principal') }}&background=fff&size=200" alt="Principal" class="w-full h-full object-cover">
+                @endif
             </div>
-            <div class="font-bold text-[#8B0000] text-[15px]">Dr. Sudip Adhikari</div>
-            <div class="text-xs text-gray-500 font-medium">Principal, MMP</div>
+            <div class="font-bold text-[#8B0000] text-[15px]">{{ $currentPrincipal?->name ?? 'Principal' }}</div>
+            <div class="text-xs text-gray-500 font-medium">{{ $currentPrincipal?->designation ?? 'Principal, MMP' }}</div>
         </div>
         <div class="flex-1">
             <div class="space-y-4 text-gray-700 text-[13px] leading-[1.8] text-justify">
-                <p>It is with immense pleasure that I welcome you to Manmohan Memorial Polytechnic. Here at MMP, we are confident that you will experience an enriching academic journey coupled with robust technical skill enhancement.</p>
-                <p>We provide a vibrant learning environment that ensures our students gain hands-on practical knowledge that satisfies the needs of modern industries, preparing them for national and international career opportunities.</p>
-                <p>MMP stands as the first formally established engineering constituent college under Manmohan Technical University CTEVT umbrella in Nepal. We strive for dedication, discipline, and devotion to shape the future of our nation through skilled professionals.</p>
-                <p>We promise dedicated management, highly experienced faculty, and strong administration to guarantee you the highest quality learning environment at MMP.</p>
+                @if($currentPrincipal?->message)
+                    {!! nl2br(e(Str::limit($currentPrincipal->message, 600))) !!}
+                @else
+                    <p>It is with immense pleasure that I welcome you to Manmohan Memorial Polytechnic. Here at MMP, we are confident that you will experience an enriching academic journey coupled with robust technical skill enhancement.</p>
+                    <p>We provide a vibrant learning environment that ensures our students gain hands-on practical knowledge that satisfies the needs of modern industries, preparing them for national and international career opportunities.</p>
+                @endif
             </div>
             <div class="mt-4 border-l-2 border-red-500 pl-4 py-1">
-                <a href="{{ route('public.page', 'presidents-and-principals') }}" class="text-[#8B0000] font-bold text-xs hover:underline flex items-center gap-1 uppercase tracking-wide">
-                    Read Message by Principal »
+                <a href="{{ route('public.leadership') }}" class="text-[#8B0000] font-bold text-xs hover:underline flex items-center gap-1 uppercase tracking-wide">
+                    View All Presidents & Principals »
                 </a>
             </div>
         </div>

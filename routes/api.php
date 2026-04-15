@@ -16,6 +16,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/alumni', [PublicApiController::class, 'alumni']);
         Route::get('/downloads', [PublicApiController::class, 'downloads']);
         Route::get('/pages/{slug}', [PublicApiController::class, 'page']);
+        Route::get('/facilities', [PublicApiController::class, 'facilities']);
+        Route::get('/staff', [PublicApiController::class, 'staff']);
+        Route::get('/leadership', [PublicApiController::class, 'leadership']);
+        Route::get('/site-settings', [PublicApiController::class, 'siteSettings']);
     });
 
     // Authenticated API (future mobile/PWA use)

@@ -105,7 +105,7 @@
                         ['label' => 'ABOUT US', 'items' => [
                             ['href' => route('public.page', 'what-is-mmp'), 'label' => 'What is MMP'],
                             ['href' => route('public.page', 'objectives'), 'label' => 'Objectives'],
-                            ['href' => route('public.page', 'presidents-and-principals'), 'label' => 'Presidents & Principals'],
+                            ['href' => route('public.leadership'), 'label' => 'Presidents & Principals'],
                             ['href' => route('public.page', 'contact-us'), 'label' => 'Contact Us'],
                         ]],
                         ['label' => 'COURSES', 'items' => [
@@ -118,10 +118,8 @@
                             ['href' => '#', 'label' => 'Short Term Trainings'],
                         ]],
                         ['label' => 'FEATURES', 'items' => [
-                            ['href' => route('public.page', 'classrooms-and-labs'), 'label' => 'Classrooms & Labs'],
-                            ['href' => route('public.page', 'workshops'), 'label' => 'Workshops'],
+                            ['href' => route('public.facilities'), 'label' => 'Campus Facilities & Resources'],
                             ['href' => route('public.page', 'scholarship-schemes'), 'label' => 'Scholarship Schemes'],
-                            ['href' => route('public.page', 'transportation'), 'label' => 'Transportation'],
                             ['href' => route('public.page', 'internships'), 'label' => 'Internships & Placements'],
                         ]],
                         ['label' => 'PEOPLES', 'items' => [

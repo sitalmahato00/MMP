@@ -10,6 +10,8 @@ Route::get('/notices', [HomeController::class, 'notices'])->name('public.notices
 Route::get('/departments', [HomeController::class, 'departments'])->name('public.departments');
 Route::get('/departments/{slug}', [HomeController::class, 'departmentShow'])->name('public.department.show');
 Route::get('/downloads', [HomeController::class, 'downloads'])->name('public.downloads');
+Route::get('/leadership', [HomeController::class, 'leadership'])->name('public.leadership');
+Route::get('/facilities', [HomeController::class, 'facilities'])->name('public.facilities');
 Route::get('/page/{slug}', [HomeController::class, 'page'])->name('public.page');
 
 // ─── Auth Routes ──────────────────────────────────────────

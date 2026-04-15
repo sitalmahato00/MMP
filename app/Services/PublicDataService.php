@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\{AcademicSession, Department, Notice, Banner, Alumni, Download, Page};
+use App\Models\{AcademicSession, Department, Notice, Banner, Alumni, Download, Page, Staff, SiteSetting, Facility, Executive};
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -89,6 +89,43 @@ class PublicDataService
             return Page::published()
                 ->where('slug', $slug)
                 ->firstOrFail();
+        });
+    }
+
+    public function getFacilities(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember('public:facilities', self::CACHE_TTL, function () {
+            return Facility::where('is_published', true)
+                ->with('department:id,name,code')
+                ->with('program:id,name,code')
+                ->latest()
+                ->get();
+        });
+    }
+
+    public function getStaff(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember('public:staff', self::CACHE_TTL, function () {
+            return Staff::where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        });
+    }
+
+    public function getSiteSettings(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember('public:site_settings', self::CACHE_TTL, function () {
+            return SiteSetting::all();
+        });
+    }
+
+    public function getLeadership(): array
+    {
+        return Cache::remember('public:leadership', self::CACHE_TTL, function () {
+            return [
+                'presidents' => Executive::presidents()->get(),
+                'principals' => Executive::principals()->get(),
+            ];
         });
     }
 

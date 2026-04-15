@@ -18,7 +18,10 @@ class HomeController extends Controller
     public function index()
     {
         $data = $this->service->getHomepageData();
-        return view('public.home', $data);
+        $leadership = $this->service->getLeadership();
+        $siteSettings = $this->service->getSiteSettings()->keyBy('key');
+        $staff = $this->service->getStaff();
+        return view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff')));
     }
 
     public function notices()
@@ -49,5 +52,29 @@ class HomeController extends Controller
     {
         $page = $this->service->getPage($slug);
         return view('public.page', compact('page'));
+    }
+
+    public function leadership()
+    {
+        $leadership = $this->service->getLeadership();
+        return view('public.leadership', $leadership);
+    }
+
+    public function facilities()
+    {
+        $facilities = $this->service->getFacilities();
+        return view('public.facilities', compact('facilities'));
+    }
+
+    public function about()
+    {
+        $siteSettings = $this->service->getSiteSettings()->keyBy('key');
+        return view('public.about', compact('siteSettings'));
+    }
+
+    public function contact()
+    {
+        $siteSettings = $this->service->getSiteSettings()->keyBy('key');
+        return view('public.contact', compact('siteSettings'));
     }
 }

@@ -125,7 +125,8 @@
 
             {{-- Web CMS --}}
             @include('components.sidebar-items.nav-section', ['label' => 'WEB & CONTENT'])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.web-control.index'), 'iconName' => 'cog',        'label' => 'Web Control',   'isActive' => $active('admin.web-control.*'),'accent' => $accent])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.web-control.index'), 'iconName' => 'cog',        'label' => 'Web Settings',  'isActive' => $active('admin.web-control.*'),'accent' => $accent])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.facilities.index'),  'iconName' => 'building',   'label' => 'Facilities',    'isActive' => $active('admin.facilities.*'),'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.notices.index'),   'iconName' => 'bell',       'label' => 'Notices',       'isActive' => $active('admin.notices.*'),   'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.banners.index'),   'iconName' => 'collection', 'label' => 'Banners',       'isActive' => $active('admin.banners.*'),   'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.media.index'),     'iconName' => 'photo',      'label' => 'Media Gallery', 'isActive' => $active('admin.media.*'),     'accent' => $accent])

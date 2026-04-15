@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\WebControlController;
+use App\Http\Controllers\Admin\FacilityController;
+use App\Http\Controllers\Admin\ExecutiveController;
 
 // ── Dashboard ──────────────────────────────────────────────
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -46,6 +48,8 @@ Route::patch('exams/{exam}/publish', [ExamController::class, 'publish'])->name('
 
 // ── Content & Communications ───────────────────────────────
 Route::resource('notices', NoticeController::class);
+Route::resource('facilities', FacilityController::class);
+Route::resource('executives', ExecutiveController::class);
 Route::resource('media', MediaController::class);
 Route::resource('downloads', DownloadController::class);
 Route::resource('banners', BannerController::class);

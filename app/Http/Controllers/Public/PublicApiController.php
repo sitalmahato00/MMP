@@ -58,4 +58,28 @@ class PublicApiController extends Controller
     {
         return response()->json($this->service->getPage($slug));
     }
+
+    /** GET /api/v1/public/facilities */
+    public function facilities(): JsonResponse
+    {
+        return response()->json($this->service->getFacilities());
+    }
+
+    /** GET /api/v1/public/staff */
+    public function staff(): JsonResponse
+    {
+        return response()->json($this->service->getStaff());
+    }
+
+    /** GET /api/v1/public/site-settings */
+    public function siteSettings(): JsonResponse
+    {
+        return response()->json($this->service->getSiteSettings());
+    }
+
+    /** GET /api/v1/public/leadership */
+    public function leadership(): JsonResponse
+    {
+        return response()->json($this->service->getLeadership());
+    }
 }
