@@ -7,9 +7,13 @@ use App\Http\Controllers\Public\HomeController;
 // ─── Public Routes (SEO-optimized) ────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/notices', [HomeController::class, 'notices'])->name('public.notices');
+Route::get('/news-events', [HomeController::class, 'newsEvents'])->name('public.news-events');
 Route::get('/departments', [HomeController::class, 'departments'])->name('public.departments');
 Route::get('/departments/{slug}', [HomeController::class, 'departmentShow'])->name('public.department.show');
 Route::get('/downloads', [HomeController::class, 'downloads'])->name('public.downloads');
+Route::get('/question-bank', [HomeController::class, 'questionBank'])->name('public.question-bank');
+Route::get('/gallery', [HomeController::class, 'gallery'])->name('public.gallery');
+Route::get('/staff', [HomeController::class, 'staff'])->name('public.staff');
 Route::get('/leadership', [HomeController::class, 'leadership'])->name('public.leadership');
 Route::get('/facilities', [HomeController::class, 'facilities'])->name('public.facilities');
 Route::get('/page/{slug}', [HomeController::class, 'page'])->name('public.page');

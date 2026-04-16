@@ -52,6 +52,16 @@ class SiteSetting extends Model
                 'content_key' => 'contact_us_content',
                 'meta_description' => 'Get in touch with Manmohan Memorial Polytechnic using the official contact details.',
             ],
+            'scholarship-schemes' => [
+                'title' => 'Scholarship Schemes',
+                'content_key' => 'scholarship_schemes',
+                'meta_description' => 'Explore scholarship schemes available at Manmohan Memorial Polytechnic.',
+            ],
+            'internships' => [
+                'title' => 'Internships & Placements',
+                'content_key' => 'internships_placements',
+                'meta_description' => 'Learn about internship and placement opportunities at MMP.',
+            ],
         ];
     }
 

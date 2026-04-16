@@ -60,7 +60,11 @@ class HomeController extends Controller
         }
 
         $staff = $this->service->getStaff();
-        return view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff')));
+        $newsEvents = $this->service->getLatestNewsEvents(5);
+        $recentDownloads = $this->service->getRecentDownloads(4);
+        $stats = $this->service->getHomepageStats();
+
+        return view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff', 'newsEvents', 'recentDownloads', 'stats')));
     }
 
     public function notices(Request $request)
@@ -110,6 +114,31 @@ class HomeController extends Controller
     {
         $facilities = $this->service->getFacilities();
         return view('public.facilities', compact('facilities'));
+    }
+
+    public function newsEvents(Request $request)
+    {
+        $notices = $this->service->getNotices(12, 'news');
+        return view('public.news-events', compact('notices'));
+    }
+
+    public function gallery()
+    {
+        $media = $this->service->getGalleryMedia();
+        return view('public.gallery', compact('media'));
+    }
+
+    public function questionBank()
+    {
+        $downloads = $this->service->getQuestionBankDownloads();
+        return view('public.question-bank', compact('downloads'));
+    }
+
+    public function staff()
+    {
+        $staff = $this->service->getStaff();
+        $departments = $this->service->getDepartments();
+        return view('public.staff', compact('staff', 'departments'));
     }
 
     public function about()

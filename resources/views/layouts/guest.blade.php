@@ -124,7 +124,6 @@
                             ['href' => route('public.department.show', 'electronics-engineering'), 'label' => 'Diploma in Electronics Engineering'],
                             ['href' => route('public.department.show', 'mechanical-engineering'), 'label' => 'Diploma in Mechanical Engineering'],
                             ['href' => route('public.department.show', 'civil-engineering'), 'label' => 'Diploma in Civil Engineering'],
-                            ['href' => '#', 'label' => 'Short Term Trainings'],
                         ]],
                         ['label' => 'FEATURES', 'items' => [
                             ['href' => route('public.facilities'), 'label' => 'Campus Facilities & Resources'],
@@ -132,9 +131,8 @@
                             ['href' => route('public.page', 'internships'), 'label' => 'Internships & Placements'],
                         ]],
                         ['label' => 'PEOPLES', 'items' => [
-                            ['href' => '#', 'label' => 'Administrative Staffs'],
-                            ['href' => '#', 'label' => 'Dept. of Architecture Engineering'],
-                            ['href' => '#', 'label' => 'Dept. of Information Technology'],
+                            ['href' => route('public.staff'), 'label' => 'Administrative Staff'],
+                            ['href' => route('public.leadership'), 'label' => 'Presidents & Principals'],
                         ]],
                     ] as $menu)
                         <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
@@ -153,8 +151,8 @@
                         </div>
                     @endforeach
 
-                    <a href="{{ route('public.notices') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 border-transparent hover:border-white">NEWS & EVENTS</a>
-                    <a href="{{ route('public.page', 'gallery') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 border-transparent hover:border-white">GALLERY</a>
+                    <a href="{{ route('public.news-events') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NEWS & EVENTS</a>
+                    <a href="{{ route('public.gallery') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">GALLERY</a>
                     
                     {{-- RESOURCES Dropdown --}}
                     <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
@@ -165,7 +163,7 @@
                         <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
                             class="absolute top-full left-0 mt-0 w-56 bg-[#404040] py-2 z-50 shadow-xl border-t-2 border-white">
                             <a href="{{ route('public.downloads') }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5">Forms & Downloads</a>
-                            <a href="#" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium">Question Bank</a>
+                            <a href="{{ route('public.question-bank') }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium">Question Bank</a>
                         </div>
                     </div>
                 </div>
@@ -206,13 +204,35 @@
                     <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
                         <a href="{{ route('public.department.show', 'information-technology') }}" class="block hover:text-white">Information Technology</a>
                         <a href="{{ route('public.department.show', 'civil-engineering') }}" class="block hover:text-white">Civil Engineering</a>
-                        <a href="#" class="block hover:text-white">Other Departments...</a>
+                        <a href="{{ route('public.department.show', 'electrical-engineering') }}" class="block hover:text-white">Electrical Engineering</a>
+                        <a href="{{ route('public.department.show', 'mechanical-engineering') }}" class="block hover:text-white">Mechanical Engineering</a>
+                        <a href="{{ route('public.department.show', 'electronics-engineering') }}" class="block hover:text-white">Electronics Engineering</a>
+                        <a href="{{ route('public.department.show', 'architecture-engineering') }}" class="block hover:text-white">Architecture Engineering</a>
+                    </div>
+                </div>
+
+                <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
+                    <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors">
+                        PEOPLES <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
+                        <a href="{{ route('public.staff') }}" class="block hover:text-white">Administrative Staff</a>
+                        <a href="{{ route('public.leadership') }}" class="block hover:text-white">Presidents & Principals</a>
                     </div>
                 </div>
                 
-                <a href="{{ route('public.notices') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 border-transparent">NEWS & EVENTS</a>
-                <a href="{{ route('public.page', 'gallery') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 border-transparent">GALLERY</a>
-                <a href="{{ route('public.downloads') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 border-transparent">RESOURCES</a>
+                <a href="{{ route('public.news-events') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent' }}">NEWS & EVENTS</a>
+                <a href="{{ route('public.gallery') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent' }}">GALLERY</a>
+
+                <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
+                    <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors">
+                        RESOURCES <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
+                        <a href="{{ route('public.downloads') }}" class="block hover:text-white">Forms & Downloads</a>
+                        <a href="{{ route('public.question-bank') }}" class="block hover:text-white">Question Bank</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>

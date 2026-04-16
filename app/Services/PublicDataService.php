@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\{AcademicSession, Department, Notice, Banner, Alumni, Download, Page, Staff, SiteSetting, Facility, Executive};
+use App\Models\{AcademicSession, Department, Notice, Banner, Alumni, Download, Page, Program, Staff, Student, SiteSetting, Facility, Executive, Media, Teacher};
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -45,11 +45,11 @@ class PublicDataService
     public function getNotices(int $perPage = 15, ?string $type = 'general')
     {
         return Notice::published()
-            ->when(in_array($type, ['general', 'exam'], true), function ($query) use ($type) {
+            ->when(in_array($type, ['general', 'exam', 'news'], true), function ($query) use ($type) {
                 $query->where('type', $type);
             })
             ->latest()
-            ->paginate($perPage, ['id', 'title', 'slug', 'type', 'attachment', 'published_at', 'created_at']);
+            ->paginate($perPage, ['id', 'title', 'slug', 'type', 'attachment', 'content', 'published_at', 'created_at']);
     }
 
     public function getDepartments(): \Illuminate\Support\Collection
@@ -120,8 +120,63 @@ class PublicDataService
     {
         return Cache::remember('public:staff', self::CACHE_TTL, function () {
             return Staff::where('is_active', true)
+                ->with('user:id,avatar')
                 ->orderBy('order')
                 ->get();
+        });
+    }
+
+    public function getGalleryMedia(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember('public:gallery', self::CACHE_TTL, function () {
+            return Media::where('file_type', 'image')
+                ->with('department:id,name,code')
+                ->latest()
+                ->get(['id', 'title', 'file_path', 'file_type', 'mime_type', 'size', 'department_id', 'created_at']);
+        });
+    }
+
+    public function getQuestionBankDownloads(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember('public:question_bank', self::CACHE_TTL, function () {
+            return Download::where('category', 'question-bank')
+                ->with('department:id,name,code')
+                ->latest()
+                ->get(['id', 'title', 'file_path', 'category', 'department_id', 'created_at']);
+        });
+    }
+
+    public function getLatestNewsEvents(int $limit = 5): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember("public:news_events:{$limit}", self::CACHE_TTL, function () use ($limit) {
+            return Notice::published()
+                ->where('type', 'news')
+                ->latest()
+                ->take($limit)
+                ->get(['id', 'title', 'slug', 'type', 'content', 'attachment', 'published_at', 'created_at']);
+        });
+    }
+
+    public function getRecentDownloads(int $limit = 4): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember("public:recent_downloads:{$limit}", self::CACHE_TTL, function () use ($limit) {
+            return Download::with('department:id,name,code')
+                ->latest()
+                ->take($limit)
+                ->get(['id', 'title', 'file_path', 'category', 'department_id', 'created_at']);
+        });
+    }
+
+    public function getHomepageStats(): array
+    {
+        return Cache::remember('public:homepage_stats', self::CACHE_TTL, function () {
+            return [
+                'graduates'     => Alumni::verified()->count(),
+                'students'      => Student::active()->count(),
+                'faculty_staff' => Teacher::active()->count() + Staff::where('is_active', true)->count(),
+                'programs'      => Program::active()->count(),
+                'years'         => now()->year - 2010,
+            ];
         });
     }
 
@@ -158,6 +213,9 @@ class PublicDataService
                 'public:staff',
                 'public:leadership',
                 'public:site_settings',
+                'public:gallery',
+                'public:question_bank',
+                'public:homepage_stats',
             ];
 
             foreach (array_keys(SiteSetting::managedPageDefinitions()) as $slug) {

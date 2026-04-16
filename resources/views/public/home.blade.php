@@ -6,52 +6,127 @@
 
 @section('content')
 
-{{-- ── HERO SLIDER SECTION ───────────────────────────────────── --}}
-<section class="relative w-full h-[500px] overflow-hidden bg-gray-900 group">
-    {{-- Background Image --}}
-    <div class="absolute inset-0">
-        <img src="{{ asset('assets/image.png') }}" alt="MMP Campus" class="w-full h-full object-cover mix-blend-overlay opacity-90">
-        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
-    </div>
+{{-- ── HERO SLIDER (Alpine.js Auto-Slide) ────────────────────── --}}
+@php
+    $bannerSlides = ($banners ?? collect())->where('is_active', true)->sortBy('order')->values();
+    $hasSlides = $bannerSlides->count() > 0;
+@endphp
+<section class="relative w-full h-[500px] overflow-hidden bg-gray-900"
+    x-data="{
+        current: 0,
+        total: {{ $hasSlides ? $bannerSlides->count() : 1 }},
+        autoplay: null,
+        init() {
+            this.autoplay = setInterval(() => { this.next() }, 5000);
+        },
+        next() {
+            this.current = (this.current + 1) % this.total;
+        },
+        prev() {
+            this.current = (this.current - 1 + this.total) % this.total;
+        },
+        goTo(i) {
+            this.current = i;
+            clearInterval(this.autoplay);
+            this.autoplay = setInterval(() => { this.next() }, 5000);
+        }
+    }">
 
-    {{-- Slider Arrows (Decorative) --}}
-    <button class="absolute left-6 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 opacity-60 hover:opacity-100 transition-opacity z-10 hidden md:block text-4xl">
-        <i class="ri-arrow-left-s-line"></i>
-    </button>
-    <button class="absolute right-6 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 opacity-60 hover:opacity-100 transition-opacity z-10 hidden md:block text-4xl">
-        <i class="ri-arrow-right-s-line"></i>
-    </button>
-
-    <div class="absolute inset-0 flex flex-col justify-center">
-        <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
-            <div class="max-w-3xl pl-4 md:pl-10">
-                <span class="bg-[#e74c3c] bg-opacity-90 text-[10px] font-bold px-2 py-1 mb-3 inline-block uppercase text-white shadow">
-                    New Admission
-                </span>
-                <h1 class="text-3xl md:text-5xl lg:text-[50px] font-bold font-serif leading-[1.15] mb-4 text-white drop-shadow-lg">
-                    ADMISSION OPEN FOR DIPLOMA<br>COURSES
-                </h1>
-                <div class="text-sm md:text-[15px] mb-8 text-gray-200 drop-shadow flex flex-wrap items-center gap-1 md:gap-2 tracking-wide font-light">
-                    <span>Information Technology</span> <span class="text-red-400">|</span> 
-                    <span>Civil</span> <span class="text-red-400">|</span> 
-                    <span>Electrical</span> <span class="text-red-400">|</span> 
-                    <span>Mechanical</span> <span class="text-red-400">|</span> 
-                    <span>Electronics Engineering</span>
+    @if($hasSlides)
+        @foreach($bannerSlides as $i => $banner)
+            <div class="absolute inset-0 transition-opacity duration-700"
+                 :class="current === {{ $i }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+                <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 flex flex-col justify-center">
+                    <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
+                        <div class="max-w-3xl pl-4 md:pl-10">
+                            @if($banner->subtitle)
+                                <span class="bg-[#e74c3c] text-[10px] font-bold px-3 py-1 mb-3 inline-block uppercase text-white shadow-sm tracking-wide">{{ $banner->subtitle }}</span>
+                            @endif
+                            <h2 class="text-3xl md:text-5xl lg:text-[50px] font-bold font-serif leading-[1.15] mb-4 text-white drop-shadow-lg">
+                                {{ $banner->title }}
+                            </h2>
+                            @if($banner->link)
+                                <a href="{{ $banner->link }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-5 py-2.5 text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-2 rounded-sm leading-none mt-2">
+                                    Learn More <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <a href="{{ route('public.departments') }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-5 py-2.5 text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-2 rounded-sm leading-none">
-                    Apply Now <i class="ri-arrow-right-line text-lg"></i>
-                </a>
+            </div>
+        @endforeach
+    @else
+        {{-- Default slide when no banners in DB --}}
+        <div class="absolute inset-0">
+            <img src="{{ asset('assets/image.png') }}" alt="MMP Campus" class="w-full h-full object-cover mix-blend-overlay opacity-90">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+        </div>
+        <div class="absolute inset-0 flex flex-col justify-center">
+            <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
+                <div class="max-w-3xl pl-4 md:pl-10">
+                    <span class="bg-[#e74c3c] text-[10px] font-bold px-3 py-1 mb-3 inline-block uppercase text-white shadow-sm tracking-wide">New Admission</span>
+                    <h1 class="text-3xl md:text-5xl lg:text-[50px] font-bold font-serif leading-[1.15] mb-4 text-white drop-shadow-lg">
+                        ADMISSION OPEN FOR DIPLOMA<br>COURSES
+                    </h1>
+                    <div class="text-sm md:text-[15px] mb-8 text-gray-200 drop-shadow flex flex-wrap items-center gap-1 md:gap-2 tracking-wide font-light">
+                        <span>Information Technology</span> <span class="text-red-400">|</span>
+                        <span>Civil</span> <span class="text-red-400">|</span>
+                        <span>Electrical</span> <span class="text-red-400">|</span>
+                        <span>Mechanical</span> <span class="text-red-400">|</span>
+                        <span>Electronics Engineering</span>
+                    </div>
+                    <a href="{{ route('public.departments') }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-5 py-2.5 text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-2 rounded-sm leading-none">
+                        Apply Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Slider Controls --}}
+    @if($hasSlides && $bannerSlides->count() > 1)
+        <button @click="prev(); clearInterval(autoplay); autoplay = setInterval(() => next(), 5000)" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/60 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button @click="next(); clearInterval(autoplay); autoplay = setInterval(() => next(), 5000)" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/60 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <div class="absolute bottom-6 left-0 w-full flex justify-center gap-2 z-20">
+            @foreach($bannerSlides as $i => $banner)
+                <button @click="goTo({{ $i }})" class="w-2.5 h-2.5 rounded-full transition-all duration-300" :class="current === {{ $i }} ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/70'"></button>
+            @endforeach
+        </div>
+    @endif
+</section>
+
+{{-- ── SCROLLING NOTICE TICKER ──────────────────────────────────── --}}
+@if(($notices ?? collect())->count() > 0)
+<div class="bg-[#2c2c2c] text-white overflow-hidden border-b-2 border-yellow-500">
+    <div class="w-full flex items-center">
+        <div class="bg-[#8B0000] flex-shrink-0 flex items-center gap-2 px-4 py-2.5 font-bold text-sm z-10 shadow-md relative">
+            <svg class="w-4 h-4 text-yellow-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+            Latest Notices
+            <div class="absolute right-0 top-0 h-full w-4 bg-gradient-to-r from-[#8B0000] to-transparent translate-x-full"></div>
+        </div>
+        <div class="flex-1 overflow-hidden" x-data="{}" x-init="$nextTick(() => { const el = $el.querySelector('.ticker-content'); if (el) { const clone = el.cloneNode(true); el.parentNode.appendChild(clone); } })">
+            <div class="flex animate-ticker whitespace-nowrap py-2.5">
+                <div class="ticker-content flex items-center gap-8 pl-6">
+                    @foreach(($notices ?? collect())->take(8) as $notice)
+                        <a href="{{ route('public.notices', ['type' => 'general']) }}" class="flex items-center gap-2 text-sm text-gray-200 hover:text-yellow-400 transition-colors flex-shrink-0">
+                            <span class="text-yellow-500">●</span>
+                            <span class="font-medium">{{ $notice->title }}</span>
+                            @php $nd = $notice->published_at ?? $notice->created_at; @endphp
+                            <span class="text-[11px] text-gray-500">({{ optional($nd)->format('M d') }})</span>
+                        </a>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
-
-    {{-- Slider Dots --}}
-    <div class="absolute bottom-6 left-0 w-full flex justify-center gap-2">
-        <div class="w-2 h-2 bg-white rounded-full"></div>
-        <div class="w-2 h-2 bg-white/40 rounded-full"></div>
-        <div class="w-2 h-2 bg-white/40 rounded-full"></div>
-    </div>
-</section>
+</div>
+@endif
 
 {{-- ── MAIN CONTENT TOP (3 COLUMNS) ────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-10 bg-[#f9f9f9]">
@@ -62,12 +137,21 @@
             {{-- Quick Links Card --}}
             <div class="bg-white border text-sm shadow-sm">
                 <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
-                    <i class="ri-links-line text-lg"></i>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                     Quick Links
                 </div>
                 <ul class="divide-y divide-gray-100 p-1">
-                    @foreach(['MMP AT A GLANCE', 'Courses/Department - PDF', 'Academic System', 'Student Life at MMP', 'e-Learning Portal (LMS)', 'Constituent Schools', 'Alumni Portal', 'Internships & Placements'] as $link)
-                    <li><a href="#" class="block px-4 py-2.5 text-gray-700 hover:text-[#8B0000] hover:bg-red-50 text-[13px] transition-colors"><span class="text-red-500 font-bold mr-2">›</span> {{ $link }}</a></li>
+                    @foreach([
+                        ['label' => 'MMP At A Glance', 'href' => route('public.page', 'what-is-mmp')],
+                        ['label' => 'Courses & Programs', 'href' => route('public.departments')],
+                        ['label' => 'Notice Board', 'href' => route('public.notices')],
+                        ['label' => 'Downloads & Forms', 'href' => route('public.downloads')],
+                        ['label' => 'Question Bank', 'href' => route('public.question-bank')],
+                        ['label' => 'Campus Facilities', 'href' => route('public.facilities')],
+                        ['label' => 'Scholarship Schemes', 'href' => route('public.page', 'scholarship-schemes')],
+                        ['label' => 'Internships & Placements', 'href' => route('public.page', 'internships')],
+                    ] as $link)
+                    <li><a href="{{ $link['href'] }}" class="block px-4 py-2.5 text-gray-700 hover:text-[#8B0000] hover:bg-red-50 text-[13px] transition-colors"><span class="text-red-500 font-bold mr-2">›</span> {{ $link['label'] }}</a></li>
                     @endforeach
                 </ul>
             </div>
@@ -75,7 +159,7 @@
             {{-- People/Officials (Dynamic) --}}
             <div class="bg-white border text-sm shadow-sm">
                 <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
-                    <i class="ri-user-star-line text-lg"></i>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Managements
                 </div>
                 <div class="p-4 space-y-5">
@@ -87,9 +171,9 @@
                     <div class="flex gap-4 items-center">
                         <div class="w-14 h-16 bg-gray-200 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
                             @if($exec->avatar)
-                                <img src="{{ asset('storage/'.$exec->avatar) }}" class="w-full h-full object-cover">
+                                <img src="{{ asset('storage/'.$exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($exec->name) }}&background=fff" class="w-full h-full object-cover">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($exec->name) }}&background=f3f4f6&color=8B0000&size=112" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @endif
                         </div>
                         <div>
@@ -99,14 +183,14 @@
                     </div>
                     @endforeach
                     @if(empty(array_filter([$currentPresident ?? null, $currentPrincipal ?? null])))
-                        <p class="text-xs text-gray-400 text-center">Management details coming soon.</p>
+                        <p class="text-xs text-gray-400 text-center py-2">Management details coming soon.</p>
                     @endif
                 </div>
                 <a href="{{ route('public.leadership') }}" class="block p-2.5 bg-gray-50 border-t text-xs font-bold text-[#8B0000] hover:underline text-center">View All Presidents & Principals »</a>
             </div>
         </div>
 
-        {{-- CENTER COLUMN (Welcome & Nav Tabs) --}}
+        {{-- CENTER COLUMN (Welcome & Notice Tabs) --}}
         <div class="lg:col-span-6 space-y-6">
             {{-- Welcome Box --}}
             <div class="bg-[#8B0000] text-white p-8 text-center rounded-sm relative overflow-hidden shadow-sm">
@@ -114,7 +198,7 @@
                 <div class="relative z-10">
                     <h2 class="font-serif text-2xl font-bold mb-3">Welcome to MMP</h2>
                     <p class="text-[13px] leading-relaxed mb-4 text-gray-100 px-4 whitespace-pre-line text-left">
-                        {{ optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.' }}
+                        {{ Str::limit(optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.', 300) }}
                     </p>
                     <a href="{{ route('public.page', 'what-is-mmp') }}" class="inline-block border border-white text-white px-6 py-2 text-xs font-bold hover:bg-white hover:text-[#8B0000] transition-colors uppercase tracking-wide">
                         About MMP
@@ -126,12 +210,12 @@
             <div class="bg-white border shadow-sm flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general' }">
                 <div class="flex">
                     <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
-                        <i class="ri-pushpin-line text-lg"></i>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                         Notice Board
                     </button>
                     <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
-                        <i class="ri-file-text-line text-lg"></i>
-                        Exam Schedules & Results
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Exam Results
                     </button>
                 </div>
                 <div class="p-0 overflow-y-auto flex-1">
@@ -140,9 +224,12 @@
                         <li>
                             <a href="{{ route('public.notices', ['type' => 'general']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
-                                <div class="text-[11px] text-gray-500 font-medium whitespace-nowrap pt-0.5 w-[75px]">{{ optional($noticeDate)->format('Y-m-d') }}</div>
-                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug">{{ $notice->title }}</div>
-                                <div class="text-gray-300 group-hover:text-[#8B0000]"><i class="ri-arrow-right-s-line text-lg"></i></div>
+                                <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                    <span class="text-[8px] font-bold uppercase leading-none">{{ optional($noticeDate)->format('M') }}</span>
+                                    <span class="text-sm font-black leading-tight">{{ optional($noticeDate)->format('d') }}</span>
+                                </div>
+                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                             </a>
                         </li>
                         @empty
@@ -154,9 +241,12 @@
                         <li>
                             <a href="{{ route('public.notices', ['type' => 'exam']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
-                                <div class="text-[11px] text-gray-500 font-medium whitespace-nowrap pt-0.5 w-[75px]">{{ optional($noticeDate)->format('Y-m-d') }}</div>
-                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug">{{ $notice->title }}</div>
-                                <div class="text-gray-300 group-hover:text-[#8B0000]"><i class="ri-arrow-right-s-line text-lg"></i></div>
+                                <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                    <span class="text-[8px] font-bold uppercase leading-none">{{ optional($noticeDate)->format('M') }}</span>
+                                    <span class="text-sm font-black leading-tight">{{ optional($noticeDate)->format('d') }}</span>
+                                </div>
+                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                             </a>
                         </li>
                         @empty
@@ -165,92 +255,101 @@
                     </ul>
                 </div>
                 <div class="px-4 py-2 border-t bg-white">
-                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices', ['type' => 'general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View More »</a>
-                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices', ['type' => 'exam']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View More »</a>
+                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices', ['type' => 'general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
+                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices', ['type' => 'exam']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Exam Results »</a>
                 </div>
             </div>
         </div>
 
-        {{-- RIGHT COLUMN (Events) --}}
+        {{-- RIGHT COLUMN (News & Events - Dynamic) --}}
         <div class="lg:col-span-3 space-y-6 flex flex-col">
             <div class="bg-white border shadow-sm flex-1 flex flex-col">
                 <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
-                    <i class="ri-calendar-event-line text-lg"></i>
-                    Events
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    News & Events
                 </div>
-                <div class="p-4 space-y-4 flex-1">
-                    @foreach(['Annual Tech Fest & Exhibition 2080', 'Industry Training Seminar for Faculty', 'Quality Assurance in Tech Education', 'World Environment Day Campaign', 'Staff Management Training'] as $index => $eventTitle)
-                    <div class="flex gap-3">
-                        <div class="w-[60px] h-12 bg-gray-200 border shadow-sm flex-shrink-0 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" class="w-full h-full object-cover">
+                <div class="p-4 space-y-4 flex-1 overflow-y-auto">
+                    @forelse(($newsEvents ?? collect())->take(5) as $event)
+                        @php $eventDate = $event->published_at ?? $event->created_at; @endphp
+                        <div class="flex gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 text-white flex flex-col items-center justify-center rounded text-center shadow-sm" style="background-color: #8B0000;">
+                                <span class="text-[8px] font-bold uppercase leading-none">{{ optional($eventDate)->format('M') }}</span>
+                                <span class="text-sm font-black leading-tight">{{ optional($eventDate)->format('d') }}</span>
+                            </div>
+                            <div class="flex-1 w-full overflow-hidden">
+                                <div class="text-[10px] font-bold text-gray-400 mb-0.5">{{ optional($eventDate)->format('F d, Y') }}</div>
+                                <a href="{{ route('public.news-events') }}" class="font-medium text-gray-800 text-[12px] leading-tight hover:text-[#8B0000] block transition-colors line-clamp-2">{{ $event->title }}</a>
+                            </div>
                         </div>
-                        <div class="flex-1 w-full overflow-hidden">
-                            <div class="text-[10px] font-bold text-[#8B0000] mb-0.5">Apr 1{{ $index }}, 2026</div>
-                            <a href="#" class="font-medium text-gray-800 text-[12px] leading-tight hover:text-[#8B0000] block truncate whitespace-normal" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{{ $eventTitle }}</a>
+                    @empty
+                        <div class="text-center py-6 text-gray-400">
+                            <svg class="w-10 h-10 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-xs">No news or events yet.</p>
                         </div>
-                    </div>
-                    @endforeach
+                    @endforelse
                 </div>
-                <div class="p-2.5 bg-[#8B0000] text-white text-xs font-bold text-left hover:bg-red-900 transition-colors cursor-pointer px-4">
-                    View More »
-                </div>
+                <a href="{{ route('public.news-events') }}" class="block p-2.5 bg-[#8B0000] text-white text-xs font-bold text-left hover:bg-red-900 transition-colors px-4">
+                    View All News & Events »
+                </a>
             </div>
         </div>
 
     </div>
 </div>
 
-{{-- ── DIPLOMA PROGRAMS (5 COLUMNS GRID) ───────────────────────── --}}
+{{-- ── DIPLOMA PROGRAMS (GRID) ───────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12 bg-white border-t border-[#f9f9f9]">
     <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-100">
         <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
             Our Diploma Programs
         </h2>
-        <a href="{{ route('public.departments') }}" class="text-xs font-bold text-gray-500 hover:text-[#8B0000] flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-sm hover:border-[#8B0000] transition-colors"><i class="ri-function-line"></i> VIEW ALL PROGRAMS</a>
+        <a href="{{ route('public.departments') }}" class="text-xs font-bold text-gray-500 hover:text-[#8B0000] flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-sm hover:border-[#8B0000] transition-colors">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            VIEW ALL
+        </a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
         @php
             $programIcons = [
-                'Information Technology' => 'ri-computer-line',
-                'Civil Engineering' => 'ri-building-2-line',
-                'Electrical Engineering' => 'ri-flashlight-line',
-                'Mechanical Engineering' => 'ri-settings-3-line',
-                'Electronics Engineering' => 'ri-cpu-line',
+                'Information Technology' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
+                'Civil Engineering' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>',
+                'Electrical Engineering' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>',
+                'Mechanical Engineering' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
+                'Electronics Engineering' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>',
+                'Architecture Engineering' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>',
             ];
-            $programData = $departments->take(5);
+            $programData = $departments->take(6);
             if ($programData->isEmpty()) {
-                $programData = collect(array_keys($programIcons))->map(fn($n) => (object)['name'=>$n, 'slug'=>Str::slug($n)]);
+                $programData = collect(array_keys($programIcons))->map(fn($n) => (object)['name'=>$n, 'slug'=>\Illuminate\Support\Str::slug($n)]);
             }
         @endphp
 
         @foreach($programData as $prog)
-            <a href="{{ route('public.department.show', $prog->slug) }}" class="group border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] rounded-sm p-6 text-center flex flex-col items-center hover:bg-[#8B0000] hover:text-white transition-all h-full">
-                <div class="w-14 h-14 bg-white border border-gray-100 rounded-full shadow-sm flex items-center justify-center text-blue-600 group-hover:text-[#8B0000] text-2xl mb-4 group-hover:bg-white transition-colors relative">
-                    <i class="{{ $programIcons[$prog->name] ?? 'ri-book-read-line' }}"></i>
-                    <div class="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-[8px] text-white font-black opacity-0 group-hover:opacity-100 transition-opacity">!</div>
+            <a href="{{ route('public.department.show', $prog->slug) }}" class="group border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] rounded-sm p-6 text-center flex flex-col items-center hover:bg-[#8B0000] hover:text-white transition-all duration-200 h-full hover:shadow-lg hover:-translate-y-0.5">
+                <div class="w-14 h-14 bg-red-50 border border-red-100 rounded-full shadow-sm flex items-center justify-center text-[#8B0000] group-hover:text-[#8B0000] mb-4 group-hover:bg-white transition-colors">
+                    {!! $programIcons[$prog->name] ?? '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' !!}
                 </div>
                 <h3 class="font-bold text-[13px] leading-snug mb-1.5 text-gray-900 group-hover:text-white transition-colors">Diploma in<br>{{ str_replace('Diploma in ', '', $prog->name) }}</h3>
-                <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wide group-hover:text-red-200 mb-3">( 3 Years / 6 Semesters )</p>
-                <div class="text-[11px] text-gray-500 mt-auto leading-relaxed group-hover:text-gray-100">Preparing skilled professionals for the modern industry.</div>
-                <div class="mt-4 text-[#8B0000] font-bold text-xs group-hover:text-yellow-400 transition-colors">3 Years</div>
+                <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wide group-hover:text-red-200 mb-3">3 Years / 6 Semesters</p>
             </a>
         @endforeach
     </div>
-    
+
     <div class="text-center mt-10">
-        <a href="{{ route('public.departments') }}" class="bg-[#8B0000] text-white px-6 py-2.5 rounded-sm font-bold shadow hover:bg-red-900 transition-colors inline-flex items-center gap-2 text-sm drop-shadow-md">
-            <i class="ri-eye-line"></i> View All Programs
+        <a href="{{ route('public.departments') }}" class="bg-[#8B0000] text-white px-6 py-2.5 rounded-sm font-bold shadow hover:bg-red-900 transition-colors inline-flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            View All Programs
         </a>
     </div>
 </div>
 
 {{-- ── PRINCIPAL'S MESSAGE ─────────────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12 bg-gray-50 border-t border-gray-100 relative overflow-hidden">
-    <div class="absolute top-0 right-0 opacity-5 -translate-y-1/4 translate-x-1/4 pointer-events-none">
-        <i class="ri-double-quotes-r text-[300px]"></i>
+    <div class="absolute top-0 right-0 opacity-[0.03] -translate-y-1/4 translate-x-1/4 pointer-events-none">
+        <svg class="w-[300px] h-[300px]" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
     </div>
-    
+
     <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-200">
         <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
             Principal's Message
@@ -264,7 +363,7 @@
                 @if($currentPrincipal?->avatar)
                     <img src="{{ asset('storage/'.$currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover">
                 @else
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($currentPrincipal?->name ?? 'Principal') }}&background=fff&size=200" alt="Principal" class="w-full h-full object-cover">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($currentPrincipal?->name ?? 'Principal') }}&background=f3f4f6&color=8B0000&size=200" alt="Principal" class="w-full h-full object-cover">
                 @endif
             </div>
             <div class="font-bold text-[#8B0000] text-[15px]">{{ $currentPrincipal?->name ?? 'Principal' }}</div>
@@ -291,36 +390,24 @@
 {{-- ── STATISTICS BANNER ───────────────────────────────────────── --}}
 <div class="bg-[#8B0000] text-white py-14 shadow-inner relative overflow-hidden">
     <div class="absolute inset-0 bg-black/10"></div>
-    <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto relative z-10 w-full px-12">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 divide-x divide-white/20 text-center">
-            <div class="px-2">
-                <div class="w-14 h-14 mx-auto border-2 border-red-400/50 rounded-full flex items-center justify-center mb-3 bg-red-900/50 shadow-inner">
-                    <i class="ri-graduation-cap-line text-2xl text-yellow-400"></i>
+    <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto relative z-10">
+        @php $s = $stats ?? []; @endphp
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 text-center">
+            @foreach([
+                ['icon' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>', 'value' => number_format($s['graduates'] ?? 0) . '+', 'label' => 'Graduates'],
+                ['icon' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>', 'value' => number_format($s['students'] ?? 0) . '+', 'label' => 'Current Students'],
+                ['icon' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/></svg>', 'value' => number_format($s['faculty_staff'] ?? 0) . '+', 'label' => 'Faculty & Staff'],
+                ['icon' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>', 'value' => $s['programs'] ?? 0, 'label' => 'Diploma Programs'],
+                ['icon' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-3.77 1.522m0 0a6.003 6.003 0 01-3.77-1.522"/></svg>', 'value' => ($s['years'] ?? 0) . '+', 'label' => 'Years of Excellence'],
+            ] as $stat)
+                <div class="px-2">
+                    <div class="w-14 h-14 mx-auto border-2 border-red-400/30 rounded-full flex items-center justify-center mb-3 bg-red-900/40 text-yellow-400">
+                        {!! $stat['icon'] !!}
+                    </div>
+                    <div class="text-2xl lg:text-3xl font-black mb-1 drop-shadow">{{ $stat['value'] }}</div>
+                    <div class="text-[10px] sm:text-xs font-bold text-red-100 uppercase tracking-widest">{{ $stat['label'] }}</div>
                 </div>
-                <div class="text-2xl lg:text-3xl font-black mb-1 drop-shadow">2000+</div>
-                <div class="text-[10px] sm:text-xs font-bold text-red-100 uppercase tracking-widest">Graduates</div>
-            </div>
-            <div class="px-2">
-                <div class="w-14 h-14 mx-auto border-2 border-red-400/50 rounded-full flex items-center justify-center mb-3 bg-red-900/50 shadow-inner">
-                    <i class="ri-group-line text-2xl text-yellow-400"></i>
-                </div>
-                <div class="text-2xl lg:text-3xl font-black mb-1 drop-shadow">500+</div>
-                <div class="text-[10px] sm:text-xs font-bold text-red-100 uppercase tracking-widest">Current Students</div>
-            </div>
-            <div class="px-2">
-                <div class="w-14 h-14 mx-auto border-2 border-red-400/50 rounded-full flex items-center justify-center mb-3 bg-red-900/50 shadow-inner">
-                    <i class="ri-briefcase-4-line text-2xl text-yellow-400"></i>
-                </div>
-                <div class="text-2xl lg:text-3xl font-black mb-1 drop-shadow">60+</div>
-                <div class="text-[10px] sm:text-xs font-bold text-red-100 uppercase tracking-widest">Faculty & Staff</div>
-            </div>
-            <div class="px-2">
-                <div class="w-14 h-14 mx-auto border-2 border-red-400/50 rounded-full flex items-center justify-center mb-3 bg-red-900/50 shadow-inner">
-                    <i class="ri-book-open-line text-2xl text-yellow-400"></i>
-                </div>
-                <div class="text-2xl lg:text-3xl font-black mb-1 drop-shadow">5</div>
-                <div class="text-[10px] sm:text-xs font-bold text-red-100 uppercase tracking-widest">Diploma Programs</div>
-            </div>
+            @endforeach
         </div>
     </div>
 </div>
@@ -328,86 +415,87 @@
 {{-- ── THREE COLUMN BOTTOM GRID ────────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-10 bg-[#f9f9f9]">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {{-- Publications --}}
-        <div class="bg-white border text-sm shadow-sm">
+
+        {{-- Downloads & Publications (Dynamic) --}}
+        <div class="bg-white border text-sm shadow-sm flex flex-col">
             <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
-                <i class="ri-book-marked-line text-lg"></i> Publications
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Downloads & Publications
             </div>
-            <div class="p-5 space-y-5">
-                <div class="flex gap-3 items-start border-b border-gray-100 pb-4">
-                    <div class="w-10 h-10 bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 rounded">
-                        <i class="ri-file-pdf-fill text-xl"></i>
+            <div class="p-5 space-y-4 flex-1">
+                @forelse(($recentDownloads ?? collect())->take(4) as $dl)
+                    <div class="flex gap-3 items-start {{ !$loop->last ? 'border-b border-gray-100 pb-4' : '' }}">
+                        <div class="w-10 h-10 bg-red-50 border border-red-100 flex items-center justify-center text-[#8B0000] rounded flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-[13px] text-[#8B0000] truncate">{{ $dl->title }}</div>
+                            <div class="text-[11px] text-gray-400 mt-0.5">{{ $dl->created_at->format('M d, Y') }}{{ $dl->category ? ' · '.ucfirst(str_replace('-', ' ', $dl->category)) : '' }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="font-bold text-[13px] text-[#8B0000]">MMP Annual Report 2080</div>
-                        <div class="text-[11px] text-gray-500 mt-0.5">Comprehensive summary report of academic year 2080</div>
+                @empty
+                    <div class="text-center py-6 text-gray-400">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                        <p class="text-xs">Downloads coming soon.</p>
                     </div>
-                </div>
-                <div class="flex gap-3 items-start">
-                    <div class="w-10 h-10 bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 rounded">
-                        <i class="ri-file-pdf-fill text-xl"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-[13px] text-[#8B0000]">MMP News Bulletin - Vol. IV</div>
-                        <div class="text-[11px] text-gray-500 mt-0.5">Quarterly newsletter detailing achievements of the institution.</div>
-                    </div>
-                </div>
+                @endforelse
             </div>
             <div class="p-3 bg-gray-50 border-t">
-                <a href="{{ route('public.downloads') }}" class="text-xs font-bold text-[#8B0000] hover:underline">All Publications »</a>
+                <a href="{{ route('public.downloads') }}" class="text-xs font-bold text-[#8B0000] hover:underline">All Downloads & Publications »</a>
             </div>
         </div>
 
         {{-- Important Links --}}
-        <div class="bg-white border text-sm shadow-sm">
+        <div class="bg-white border text-sm shadow-sm flex flex-col">
             <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
-                <i class="ri-links-line text-lg"></i> Important Links
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                Important Links
             </div>
-            <ul class="divide-y divide-gray-100 p-1">
-                @foreach(['CTEVT' => 'http://ctevt.org.np', 'National Skills Testing Board' => 'http://nstb.org.np', 'Ministry of Education, Science and Technology' => 'https://moest.gov.np', 'Council for Technical Education and Vocational Training' => 'http://ctevt.org.np', 'Department of Education, Nepal' => 'https://doe.gov.np'] as $label => $link)
+            <ul class="divide-y divide-gray-100 p-1 flex-1">
+                @foreach([
+                    'CTEVT' => 'https://ctevt.org.np',
+                    'Manmohan Technical University' => 'https://mtu.edu.np',
+                    'National Skills Testing Board' => 'https://nstb.org.np',
+                    'Ministry of Education, Science & Technology' => 'https://moest.gov.np',
+                    'Department of Education, Nepal' => 'https://doe.gov.np',
+                ] as $label => $link)
                 <li>
-                    <a href="{{ $link }}" target="_blank" class="flex items-center gap-2 px-4 py-2.5 text-[13px] text-gray-700 hover:bg-gray-50 hover:text-[#8B0000] transition-colors group">
-                        <i class="ri-external-link-line text-red-500 group-hover:translate-x-1 transition-transform"></i>
+                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-4 py-2.5 text-[13px] text-gray-700 hover:bg-gray-50 hover:text-[#8B0000] transition-colors group">
+                        <svg class="w-3.5 h-3.5 text-red-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         {{ $label }}
                     </a>
                 </li>
                 @endforeach
             </ul>
-            <div class="p-2.5 bg-[#8B0000] text-white text-xs font-bold text-center cursor-pointer hover:bg-red-900 transition-colors">
-                Explore Links »
-            </div>
         </div>
 
-        {{-- Tender Information --}}
+        {{-- Why Choose MMP? --}}
         <div class="bg-white border text-sm shadow-sm flex flex-col">
             <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
-                <i class="ri-file-paper-2-line text-lg"></i> Tender Information
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                Why Choose MMP?
             </div>
             <div class="p-5 space-y-4 flex-1">
-                <div class="flex gap-3 items-start border-b border-gray-100 pb-4">
-                    <div class="w-[45px] h-12 bg-green-50 flex flex-col items-center justify-center text-green-700 rounded border border-green-200">
-                        <div class="text-[9px] font-bold uppercase leading-none">NOV</div>
-                        <div class="text-[17px] font-black leading-none mt-0.5">15</div>
+                @foreach([
+                    ['title' => 'CTEVT Affiliated', 'desc' => 'Government recognized technical education.'],
+                    ['title' => 'Modern Labs & Workshops', 'desc' => 'Hands-on practical learning environment.'],
+                    ['title' => 'Industry Placements', 'desc' => 'Internship and job placement support.'],
+                    ['title' => 'Scholarship Programs', 'desc' => 'Merit and need-based financial support.'],
+                    ['title' => 'Part of MTU', 'desc' => 'Constituent college of Nepal\'s first technical university.'],
+                ] as $feature)
+                    <div class="flex gap-3 items-start {{ !$loop->last ? 'border-b border-gray-50 pb-3' : '' }}">
+                        <div class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div>
+                            <div class="font-bold text-[13px] text-gray-800">{{ $feature['title'] }}</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">{{ $feature['desc'] }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <a href="#" class="font-bold text-[13px] text-[#8B0000] hover:underline">Lab Eqiupment Quotation</a>
-                        <div class="text-[11px] text-gray-500 mt-1">Status: Open • Ref: 2080-81/01</div>
-                    </div>
-                </div>
-                <div class="flex gap-3 items-start">
-                    <div class="w-[45px] h-12 bg-gray-50 flex flex-col items-center justify-center text-gray-500 rounded border border-gray-200">
-                        <div class="text-[9px] font-bold uppercase leading-none">OCT</div>
-                        <div class="text-[17px] font-black leading-none mt-0.5">20</div>
-                    </div>
-                    <div>
-                        <span class="font-bold text-[13px] text-gray-500">Furniture Procurement</span>
-                        <div class="text-[11px] text-red-500 mt-1">Status: Closed • Ref: 2080-81/02</div>
-                    </div>
-                </div>
+                @endforeach
             </div>
             <div class="p-3 bg-gray-50 border-t">
-                <a href="{{ route('public.notices') }}" class="text-xs font-bold text-[#8B0000] hover:underline">View More »</a>
+                <a href="{{ route('public.facilities') }}" class="text-xs font-bold text-[#8B0000] hover:underline">Explore Facilities »</a>
             </div>
         </div>
 
@@ -420,45 +508,41 @@
         <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
             Find Us
         </h2>
+        <a href="{{ route('public.page', 'contact-us') }}" class="text-xs font-bold text-gray-500 hover:text-[#8B0000] flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-sm hover:border-[#8B0000] transition-colors">
+            Contact Us
+        </a>
     </div>
-    
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 border bg-[#f9f9f9] shadow-sm rounded-sm">
         <div class="lg:col-span-2 h-[350px] relative">
-            <a href="https://maps.google.com" target="_blank" class="absolute top-4 left-4 bg-white shadow py-1 px-3 text-sm font-bold text-gray-700 hover:text-[#8B0000] rounded-sm z-10 flex items-center gap-1 border">
-                <i class="ri-map-pin-2-fill"></i> Open in Map
-            </a>
-            <iframe class="w-full h-full border-r" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Manmohan%20Memorial%20Polytechnic+(Manmohan%20Memorial%20Polytechnic)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+            <iframe class="w-full h-full border-r" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Manmohan%20Memorial%20Polytechnic+(Manmohan%20Memorial%20Polytechnic)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" loading="lazy"></iframe>
         </div>
         <div class="lg:col-span-1 p-6 md:p-8 bg-[#f9f9f9]">
             <h3 class="font-bold text-[#8B0000] text-[15px] mb-5 border-b border-red-200 pb-2">Contact Information</h3>
             <ul class="space-y-4 text-[13px] text-gray-700 font-medium">
                 <li class="flex gap-3">
-                    <i class="ri-map-pin-2-fill text-[#8B0000] text-[15px]"></i>
+                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     <div>Budhiganga-4, Morang, Koshi Province, Nepal</div>
                 </li>
                 <li class="flex gap-3">
-                    <i class="ri-phone-fill text-[#8B0000] text-[15px]"></i>
+                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     <div>+977 21 590696, +977 21 590697</div>
                 </li>
                 <li class="flex gap-3">
-                    <i class="ri-mail-send-fill text-[#8B0000] text-[15px]"></i>
+                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     <div>info@mmp.edu.np</div>
                 </li>
                 <li class="flex gap-3">
-                    <i class="ri-global-line text-[#8B0000] text-[15px]"></i>
+                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
                     <div>www.mmp.edu.np</div>
                 </li>
             </ul>
-            
-            <h3 class="font-bold text-[#8B0000] text-[15px] mt-8 mb-5 border-b border-red-200 pb-2">Current Office</h3>
-            <ul class="space-y-4 text-[13px] text-gray-700 font-medium">
+
+            <h3 class="font-bold text-[#8B0000] text-[15px] mt-8 mb-5 border-b border-red-200 pb-2">Affiliated Under</h3>
+            <ul class="space-y-3 text-[13px] text-gray-700 font-medium">
                 <li class="flex gap-3">
-                    <i class="ri-building-4-fill text-[#8B0000] text-[15px]"></i>
-                    <div>
-                        Manmohan Technical University<br>
-                        Budhiganga-4, Morang<br>
-                        Phone: +977 21 590696
-                    </div>
+                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    <div>Manmohan Technical University (MTU)<br><span class="text-gray-400 text-xs">Budhiganga-4, Morang</span></div>
                 </li>
             </ul>
         </div>
@@ -466,3 +550,24 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>
+    @keyframes ticker {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .animate-ticker {
+        animation: ticker 40s linear infinite;
+    }
+    .animate-ticker:hover {
+        animation-play-state: paused;
+    }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+@endpush
