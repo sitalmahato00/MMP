@@ -17,7 +17,7 @@ Instead of hardcoding form fields or notice rows, the application fetches the li
 - Public result page: `/result`
 - Public notices page: `/notices`
 - Home page notice board: the middle section of the public home page
-- Home page scrolling notice ticker: the top ticker that now mixes MMP notices with live CTEVT notices
+- Admin dashboard notice ticker: the top live CTEVT ticker shown inside the admin dashboard
 
 ## High-Level Flow
 
@@ -179,6 +179,12 @@ On the home page:
 - Published Result
 - each item shows the live title, update date, publisher, and attached file count when available
 
+On the admin dashboard:
+
+- a live CTEVT ticker is shown at the top of the dashboard
+- the ticker combines official CTEVT general notices and published result notices
+- each ticker item displays the source label, title, and update date when available
+
 ## Configuration
 
 The live CTEVT URLs are stored in `config/services.php` and can be overridden through environment variables.
@@ -230,6 +236,7 @@ The parsing logic lives in `PublicDataService` so that:
 ### Backend
 
 - `app/Http/Controllers/Public/HomeController.php`
+- `app/Http/Controllers/Admin/DashboardController.php`
 - `app/Services/PublicDataService.php`
 - `config/services.php`
 - `.env.example`
@@ -245,7 +252,7 @@ The parsing logic lives in `PublicDataService` so that:
 
 - The result page is dynamic, not hardcoded.
 - The notice feeds are live, not copied into the local database.
-- The home-page ticker merges local MMP notices with live CTEVT general and result notices, and each item is labeled by source.
+- The admin dashboard ticker shows live CTEVT notices and is separated from the public homepage.
 - The home page and notices page both use the same service layer so they stay consistent.
 - If the official CTEVT site changes markup, the service is the only place that should need updates.
 - If the external site is unavailable, the result page still falls back to a usable form and the notices page shows an empty state.

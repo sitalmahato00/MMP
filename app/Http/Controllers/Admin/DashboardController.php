@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\{Student, Teacher, Department, AcademicSession, Exam, Notice, AuditLog, Alumni};
+use App\Services\PublicDataService;
 use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
+    public function __construct(private PublicDataService $service) {}
+
     public function index()
     {
         $session = AcademicSession::current();
@@ -45,9 +48,12 @@ class DashboardController extends Controller
         if ($upcomingEvents->isEmpty()) {
             $upcomingEvents = Notice::published()->latest()->take(3)->get();
         }
+
+        $ctevtGeneralNotices = $this->service->getCtevtGeneralNotices(6);
+        $ctevtResultNotices = $this->service->getCtevtResultNotices(6);
         
         $recentLogs = AuditLog::with('user')->latest()->take(8)->get();
 
-        return view('admin.dashboard', compact('stats', 'recentNotices', 'recentLogs', 'session', 'upcomingEvents'));
+        return view('admin.dashboard', compact('stats', 'recentNotices', 'recentLogs', 'session', 'upcomingEvents', 'ctevtGeneralNotices', 'ctevtResultNotices'));
     }
 }

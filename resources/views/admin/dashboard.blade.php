@@ -3,6 +3,57 @@
 @section('title', 'Principal Dashboard')
 
 @section('content')
+@php
+    $adminCtevtGeneralItems = collect(data_get($ctevtGeneralNotices, 'items', []))
+        ->take(4)
+        ->map(function ($notice) {
+            return [
+                'title' => $notice['title'] ?? 'Notice',
+                'href' => route('public.notices', ['type' => 'ctevt-general']),
+                'date' => trim((string) ($notice['updated_date'] ?? '')),
+                'source' => 'CTEVT General',
+                'badge_class' => 'bg-amber-400/15 text-amber-300 border border-amber-300/20',
+            ];
+        });
+
+    $adminCtevtResultItems = collect(data_get($ctevtResultNotices, 'items', []))
+        ->take(4)
+        ->map(function ($notice) {
+            return [
+                'title' => $notice['title'] ?? 'Result Notice',
+                'href' => route('public.notices', ['type' => 'ctevt-result']),
+                'date' => trim((string) ($notice['updated_date'] ?? '')),
+                'source' => 'CTEVT Result',
+                'badge_class' => 'bg-emerald-400/15 text-emerald-300 border border-emerald-300/20',
+            ];
+        });
+
+    $adminCtevtTickerItems = $adminCtevtGeneralItems
+        ->merge($adminCtevtResultItems)
+        ->filter(fn ($item) => ! empty($item['title']))
+        ->values();
+@endphp
+
+<style>
+    @keyframes adminNoticeTicker {
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    .admin-notice-ticker-track {
+        animation: adminNoticeTicker 36s linear infinite;
+    }
+
+    .admin-notice-ticker:hover .admin-notice-ticker-track {
+        animation-play-state: paused;
+    }
+</style>
+
 <div class="mb-8 flex justify-between items-end">
     <div>
         <h1 class="text-2xl font-black text-[#8B0000] font-serif uppercase tracking-wider">Principal Dashboard</h1>
@@ -15,6 +66,40 @@
         </a>
     </div>
 </div>
+
+@if($adminCtevtTickerItems->count() > 0)
+<div class="mb-8 rounded-2xl overflow-hidden border border-red-100 bg-white shadow-md">
+    <div class="bg-gradient-to-r from-[#8B0000] to-[#5a0000] text-white px-5 py-3 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2 font-bold uppercase tracking-[0.16em] text-sm">
+            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+            CTEVT Notice Slider
+        </div>
+        <div class="text-[11px] text-red-100/90">Live feed from the official CTEVT notice pages</div>
+    </div>
+    <div class="admin-notice-ticker bg-[#2c2c2c] text-white overflow-hidden border-t-2 border-yellow-500">
+        <div class="w-full flex items-center">
+            <div class="bg-[#8B0000] flex-shrink-0 flex items-center gap-2 px-4 py-2.5 font-bold text-xs uppercase tracking-[0.15em] z-10 shadow-md relative border-r border-white/10">
+                Live CTEVT
+            </div>
+            <div class="flex-1 overflow-hidden" x-data="{}" x-init="$nextTick(() => { const el = $el.querySelector('.admin-notice-ticker-track'); if (el) { const clone = el.cloneNode(true); el.parentNode.appendChild(clone); } })">
+                <div class="flex whitespace-nowrap py-2.5">
+                    <div class="admin-notice-ticker-track flex items-center gap-8 pl-6">
+                        @foreach($adminCtevtTickerItems as $noticeItem)
+                            <a href="{{ $noticeItem['href'] }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-sm text-gray-200 hover:text-yellow-400 transition-colors flex-shrink-0">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $noticeItem['badge_class'] }}">{{ $noticeItem['source'] }}</span>
+                                <span class="font-medium">{{ $noticeItem['title'] }}</span>
+                                @if(!empty($noticeItem['date']))
+                                    <span class="text-[11px] text-gray-400">({{ $noticeItem['date'] }})</span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 <!-- Primary KPI Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
