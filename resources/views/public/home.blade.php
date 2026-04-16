@@ -235,7 +235,7 @@
             </div>
 
             {{-- Notice Board Tabs --}}
-            <div class="bg-white border shadow-sm flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general' }">
+            <div class="bg-white border shadow-sm flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
                 <div class="flex">
                     <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -244,6 +244,10 @@
                     <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Exam Results
+                    </button>
+                    <button type="button" @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+                        CTEVT Notices
                     </button>
                 </div>
                 <div class="p-0 overflow-y-auto flex-1">
@@ -281,10 +285,82 @@
                         <li class="px-4 py-8 text-center text-gray-500 text-sm">No exam schedules or result notices found.</li>
                         @endforelse
                     </ul>
+                    <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex flex-col h-full">
+                        <div class="flex border-b border-gray-200 bg-gray-50">
+                            <button type="button" @click="activeCtevtTab = 'general'" :class="activeCtevtTab === 'general' ? 'bg-[#8B0000] text-white' : 'bg-transparent text-gray-700 hover:bg-red-50'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
+                                General Notices
+                            </button>
+                            <button type="button" @click="activeCtevtTab = 'result'" :class="activeCtevtTab === 'result' ? 'bg-[#8B0000] text-white' : 'bg-transparent text-gray-700 hover:bg-red-50'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
+                                Published Result
+                            </button>
+                        </div>
+
+                        <ul class="divide-y divide-gray-100 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'general'" x-cloak>
+                            @forelse(($ctevtGeneralNotices ?? []) as $notice)
+                                <li>
+                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'general']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                            <span class="text-[8px] font-bold uppercase leading-none">CTEVT</span>
+                                        </div>
+                                        <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">
+                                            {{ $notice['title'] ?? 'Notice' }}
+                                            <div class="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-normal text-gray-400">
+                                                @if(!empty($notice['updated_date']))
+                                                    <span>{{ $notice['updated_date'] }}</span>
+                                                @endif
+                                                @if(!empty($notice['publisher']))
+                                                    <span>• {{ $notice['publisher'] }}</span>
+                                                @endif
+                                                @if(!empty($notice['files_count']))
+                                                    <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{{ $notice['files_count'] }} file{{ $notice['files_count'] > 1 ? 's' : '' }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+                                    </a>
+                                </li>
+                            @empty
+                                <li class="px-4 py-8 text-center text-gray-500 text-sm">No live CTEVT general notices found.</li>
+                            @endforelse
+                        </ul>
+
+                        <ul class="divide-y divide-gray-100 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'result'" x-cloak>
+                            @forelse(($ctevtResultNotices ?? []) as $notice)
+                                <li>
+                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'exam']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                            <span class="text-[8px] font-bold uppercase leading-none">CTEVT</span>
+                                        </div>
+                                        <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">
+                                            {{ $notice['title'] ?? 'Result Notice' }}
+                                            <div class="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-normal text-gray-400">
+                                                @if(!empty($notice['updated_date']))
+                                                    <span>{{ $notice['updated_date'] }}</span>
+                                                @endif
+                                                @if(!empty($notice['publisher']))
+                                                    <span>• {{ $notice['publisher'] }}</span>
+                                                @endif
+                                                @if(!empty($notice['files_count']))
+                                                    <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{{ $notice['files_count'] }} file{{ $notice['files_count'] > 1 ? 's' : '' }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+                                    </a>
+                                </li>
+                            @empty
+                                <li class="px-4 py-8 text-center text-gray-500 text-sm">No live CTEVT result notices found.</li>
+                            @endforelse
+                        </ul>
+                    </div>
                 </div>
                 <div class="px-4 py-2 border-t bg-white">
                     <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices', ['type' => 'general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
                     <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices', ['type' => 'exam']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Exam Results »</a>
+                    <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex items-center gap-4 flex-wrap">
+                        <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT General »</a>
+                        <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT Results »</a>
+                    </div>
                 </div>
             </div>
         </div>

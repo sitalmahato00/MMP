@@ -61,21 +61,27 @@ class HomeController extends Controller
 
         $staff = $this->service->getStaff();
         $newsEvents = $this->service->getLatestNewsEvents(5);
+        $ctevtGeneralNotices = $this->service->getCtevtGeneralNotices(5);
+        $ctevtResultNotices = $this->service->getCtevtResultNotices(5);
         $recentDownloads = $this->service->getRecentDownloads(4);
         $stats = $this->service->getHomepageStats();
 
-        return view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff', 'newsEvents', 'recentDownloads', 'stats')));
+        return view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff', 'newsEvents', 'ctevtGeneralNotices', 'ctevtResultNotices', 'recentDownloads', 'stats')));
     }
 
     public function notices(Request $request)
     {
-        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'news', 'event'], true)
+        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'news', 'event', 'ctevt-general', 'ctevt-result'], true)
             ? $request->string('type')->toString()
             : 'general';
 
-        $notices = $this->service->getNotices(15, $activeType);
+        $notices = in_array($activeType, ['general', 'exam', 'news', 'event'], true)
+            ? $this->service->getNotices(15, $activeType)
+            : $this->service->getNotices(15, 'general');
+        $ctevtGeneralNotices = $this->service->getCtevtGeneralNotices(10);
+        $ctevtResultNotices = $this->service->getCtevtResultNotices(10);
 
-        return view('public.notices', compact('notices', 'activeType'));
+        return view('public.notices', compact('notices', 'activeType', 'ctevtGeneralNotices', 'ctevtResultNotices'));
     }
 
     public function departments()
@@ -127,6 +133,13 @@ class HomeController extends Controller
     {
         $media = $this->service->getGalleryMedia();
         return view('public.gallery', compact('media'));
+    }
+
+    public function result()
+    {
+        $resultForm = $this->service->getCtevtResultForm();
+
+        return view('public.result', compact('resultForm'));
     }
 
     public function questionBank()

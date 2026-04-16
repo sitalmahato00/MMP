@@ -13,6 +13,7 @@ Route::get('/departments/{slug}', [HomeController::class, 'departmentShow'])->na
 Route::get('/downloads', [HomeController::class, 'downloads'])->name('public.downloads');
 Route::get('/question-bank', [HomeController::class, 'questionBank'])->name('public.question-bank');
 Route::get('/gallery', [HomeController::class, 'gallery'])->name('public.gallery');
+Route::get('/result', [HomeController::class, 'result'])->name('public.result');
 Route::get('/staff', [HomeController::class, 'staff'])->name('public.staff');
 Route::get('/leadership', [HomeController::class, 'leadership'])->name('public.leadership');
 Route::get('/facilities', [HomeController::class, 'facilities'])->name('public.facilities');

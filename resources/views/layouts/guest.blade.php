@@ -160,6 +160,7 @@
 
                     <a href="{{ route('public.news-events') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NEWS & EVENTS</a>
                     <a href="{{ route('public.gallery') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">GALLERY</a>
+                    <a href="{{ route('public.result') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">RESULT</a>
                     
                     @php
                         $resourceLinks = [
@@ -243,6 +244,7 @@
                 
                 <a href="{{ route('public.news-events') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent' }}">NEWS & EVENTS</a>
                 <a href="{{ route('public.gallery') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent' }}">GALLERY</a>
+                <a href="{{ route('public.result') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent' }}">RESULT</a>
 
                 <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
                     <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors">

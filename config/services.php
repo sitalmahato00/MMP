@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'ctevt_result' => [
+        'check_url' => env('CTEVT_CHECK_URL', 'https://itms.ctevt.org.np:5580/check_results'),
+        'url' => env('CTEVT_RESULT_URL', 'https://itms.ctevt.org.np:5580/search_results'),
+    ],
+
+    'ctevt_notice' => [
+        'general_url' => env('CTEVT_GENERAL_NOTICE_URL', 'https://itms.ctevt.org.np:5580/notices'),
+        'result_url' => env('CTEVT_RESULT_NOTICE_URL', 'https://itms.ctevt.org.np:5580/notices/result'),
+        'feed_url' => env('CTEVT_NOTICE_FEED_URL', 'https://itms.ctevt.org.np:5580/notices/get-ajax-notices'),
+    ],
+
 ];
