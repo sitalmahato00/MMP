@@ -11,11 +11,16 @@
     <meta property="og:title" content="@yield('title', 'Manmohan Memorial Polytechnic')">
     <meta property="og:description" content="@yield('meta_description', 'Best Technical College in Koshi Province offering CTEVT diploma programs.')">
     <meta property="og:type" content="website">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=2">
     <meta name="application-name" content="Manmohan Memorial Polytechnic">
     <meta name="apple-mobile-web-app-title" content="Manmohan Memorial Polytechnic">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#8B0000">
     <link rel="icon" href="{{ route('public.brand-logo') }}">
     <link rel="shortcut icon" href="{{ route('public.brand-logo') }}">
+    <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
@@ -84,23 +89,31 @@
     @unless(request()->routeIs('home'))
     {{-- slim spacer for non-home pages --}}
     @else
-    <div class="bg-white py-3 border-b border-gray-200 shadow-sm hidden md:block">
-        <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center">
-            <a href="{{ route('home') }}" class="flex items-center gap-4">
+    <div class="bg-white py-2.5 md:py-3 border-b border-gray-200 shadow-sm">
+        <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center justify-between gap-3">
+            <a href="{{ route('home') }}" class="flex min-w-0 flex-1 items-center gap-3">
                 {{-- MMP Seal/Emblem --}}
-                <div class="w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center" style="background: radial-gradient(circle, #8B0000, #5B0000); border: 2px solid #DAA520;">
+                <div class="w-11 h-11 md:w-14 md:h-14 flex-shrink-0 rounded-full flex items-center justify-center" style="background: radial-gradient(circle, #8B0000, #5B0000); border: 2px solid #DAA520;">
                     @if($brandLogoUrl)
                         <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="w-full h-full object-cover rounded-full">
                     @else
                         <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                     @endif
                 </div>
-                <div>
-                    <div class="text-xl font-black font-serif leading-tight" style="color:#8B0000;">Manmohan Memorial Polytechnic</div>
-                    <div class="text-sm italic font-semibold" style="color:#DAA520;">Best Technical College in Koshi Province</div>
-                    <div class="text-xs text-gray-500 font-medium">A Constituent College of Manmohan Technical University</div>
+                <div class="min-w-0 leading-tight">
+                    <div class="text-base sm:text-xl font-black font-serif leading-tight text-[#8B0000] line-clamp-1">Manmohan Memorial Polytechnic</div>
+                    <div class="text-[11px] sm:text-sm italic font-semibold text-[#DAA520] line-clamp-1">Best Technical College in Koshi Province</div>
+                    <div class="hidden sm:block text-xs text-gray-500 font-medium">A Constituent College of Manmohan Technical University</div>
+                    <div class="sm:hidden text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">mmp.edu.np</div>
                 </div>
             </a>
+
+            <button type="button" id="mobile-install-trigger" class="inline-flex md:hidden shrink-0 items-center gap-1.5 rounded-full border border-[#8B0000]/15 bg-[#8B0000]/5 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-[#8B0000] shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download
+            </button>
         </div>
     </div>
     @endunless
@@ -109,20 +122,6 @@
     <nav style="background-color: #8B0000;" class="sticky top-0 z-50 shadow-md" x-data="{ mobileOpen: false }">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto">
             <div class="flex items-center justify-between">
-
-                <a href="{{ route('home') }}" class="md:hidden flex min-w-0 items-center gap-3 py-2.5 pr-2 text-white">
-                    <div class="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-white/20 bg-white/10 shadow-sm">
-                        @if($brandLogoUrl)
-                            <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="h-full w-full object-contain p-1">
-                        @else
-                            <svg class="h-full w-full p-2 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                        @endif
-                    </div>
-                    <div class="min-w-0">
-                        <div class="truncate text-sm font-black leading-tight">Manmohan Memorial Polytechnic</div>
-                        <div class="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-red-100/80">Koshi Province, Nepal</div>
-                    </div>
-                </a>
 
                 {{-- Desktop Nav Links --}}
                 <div class="hidden xl:flex items-center flex-1">
@@ -142,10 +141,9 @@
                             ['href' => route('public.page', 'scholarship-schemes'), 'label' => 'Scholarship Schemes'],
                             ['href' => route('public.page', 'internships'), 'label' => 'Internships & Placements'],
                         ]],
-                        ['label' => 'PEOPLES', 'items' => [
+                        ['label' => 'PEOPLE', 'items' => [
                             ['href' => route('public.staff'), 'label' => 'Administrative Staff'],
                             ['href' => route('public.leadership'), 'label' => 'Presidents & Principals'],
-                            ['href' => route('public.alumni'), 'label' => 'Alumni Directory'],
                         ]],
                     ] as $menu)
                         <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
@@ -154,7 +152,7 @@
                                 <svg class="w-3 h-3 ml-0.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
-                                class="absolute top-full left-0 mt-0 w-64 bg-[#404040] py-2 z-50 shadow-xl border-t-2 border-white">
+                                class="absolute top-full left-0 mt-0 {{ $menu['label'] === 'PEOPLE' ? 'w-80 max-h-96 overflow-y-auto' : 'w-64' }} bg-[#404040] py-2 z-50 shadow-xl border-t-2 border-white">
                                 @if($menu['label'] === 'COURSES')
                                     @forelse($courseMenu as $course)
                                         @php $courseLabel = optional($course->programs->first())->name ?: $course->name; @endphp
@@ -164,6 +162,23 @@
                                     @empty
                                         <span class="block px-5 py-2.5 text-[13px] text-gray-400">No courses available</span>
                                     @endforelse
+                                @elseif($menu['label'] === 'PEOPLE')
+                                    <div class="px-5 py-2 text-[11px] uppercase tracking-[0.18em] text-gray-400 border-b border-white/5">
+                                        Departments
+                                    </div>
+                                    @forelse($courseMenu as $department)
+                                        <a href="{{ route('public.people', ['department' => $department->slug]) }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">
+                                            {{ $department->name }}
+                                        </a>
+                                    @empty
+                                        <span class="block px-5 py-2.5 text-[13px] text-gray-400 border-b border-white/5">No departments available</span>
+                                    @endforelse
+                                    <div class="my-1 border-t border-white/10"></div>
+                                    @foreach($menu['items'] as $item)
+                                        <a href="{{ $item['href'] }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">
+                                            {{ $item['label'] }}
+                                        </a>
+                                    @endforeach
                                 @else
                                     @foreach($menu['items'] as $item)
                                         <a href="{{ $item['href'] }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">
@@ -177,6 +192,7 @@
 
                     <a href="{{ route('public.news-events') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NEWS & EVENTS</a>
                     <a href="{{ route('public.gallery') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">GALLERY</a>
+                    <a href="{{ route('public.alumni') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.alumni') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">ALUMNI</a>
                     <a href="{{ route('public.result') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">RESULT</a>
                     
                     @php
@@ -212,7 +228,7 @@
                 </div>
 
                 {{-- Mobile Toggle --}}
-                <button @click="mobileOpen = !mobileOpen" class="xl:hidden ml-auto text-white p-3 hover:bg-white/10 transition-colors h-14 flex items-center">
+                <button @click="mobileOpen = !mobileOpen" class="xl:hidden text-white p-3 hover:bg-white/10 transition-colors h-14 flex items-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
             </div>
@@ -250,17 +266,25 @@
 
                 <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
                     <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors">
-                        PEOPLES <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        PEOPLE <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
-                        <a href="{{ route('public.staff') }}" class="block hover:text-white">Administrative Staff</a>
-                        <a href="{{ route('public.leadership') }}" class="block hover:text-white">Presidents & Principals</a>
-                        <a href="{{ route('public.alumni') }}" class="block hover:text-white">Alumni Directory</a>
+                        <div class="pt-1 pb-2 text-[11px] uppercase tracking-[0.18em] text-gray-500">Departments</div>
+                        @forelse($courseMenu as $department)
+                            <a href="{{ route('public.people', ['department' => $department->slug]) }}" class="block hover:text-white">{{ $department->name }}</a>
+                        @empty
+                            <span class="block text-gray-500">No departments available</span>
+                        @endforelse
+                        <div class="pt-2 border-t border-white/10 space-y-3">
+                            <a href="{{ route('public.staff') }}" class="block hover:text-white">Administrative Staff</a>
+                            <a href="{{ route('public.leadership') }}" class="block hover:text-white">Presidents & Principals</a>
+                        </div>
                     </div>
                 </div>
                 
                 <a href="{{ route('public.news-events') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent' }}">NEWS & EVENTS</a>
                 <a href="{{ route('public.gallery') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent' }}">GALLERY</a>
+                <a href="{{ route('public.alumni') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.alumni') ? 'border-white bg-white/10' : 'border-transparent' }}">ALUMNI</a>
                 <a href="{{ route('public.result') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent' }}">RESULT</a>
 
                 <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
@@ -379,34 +403,111 @@
         </div>
     </footer>
 
+    <div id="pwa-install-banner" class="hidden fixed inset-x-4 bottom-4 z-50 mx-auto w-full max-w-lg rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-red-900/20 backdrop-blur-xl">
+        <div class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+            <div class="flex items-start gap-3">
+                <img src="{{ route('public.brand-logo') }}" alt="MMP college logo" class="h-14 w-14 rounded-2xl border border-red-100 bg-white p-1 shadow-sm object-contain">
+                <div>
+                    <div class="text-sm font-bold text-gray-900">Install MMP CMS</div>
+                    <p class="mt-1 text-xs leading-relaxed text-gray-600">Add this site to your device for faster access and offline-ready browsing.</p>
+                    <div class="mt-2 text-[11px] text-gray-500">Website: <span class="font-semibold text-gray-700">{{ url('/') }}</span></div>
+                </div>
+            </div>
+            <div class="flex w-full gap-2 sm:w-auto sm:justify-end">
+                <button type="button" id="pwa-install-dismiss" class="flex-1 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:border-gray-300 hover:bg-gray-50 sm:flex-none">Not now</button>
+                <button type="button" id="pwa-install-trigger" class="flex-1 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6B0000] sm:flex-none">Install</button>
+            </div>
+        </div>
+    </div>
+
     @stack('scripts')
 
     <script>
         (function () {
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', async function () {
-                    try {
-                        const registrations = await navigator.serviceWorker.getRegistrations();
-                        await Promise.all(registrations.map(function (registration) {
-                            return registration.unregister();
-                        }));
-                    } catch (error) {
-                        // Ignore cleanup errors.
-                    }
+            const banner = document.getElementById('pwa-install-banner');
+            const installButton = document.getElementById('pwa-install-trigger');
+            const dismissButton = document.getElementById('pwa-install-dismiss');
+            const mobileInstallButton = document.getElementById('mobile-install-trigger');
 
-                    if ('caches' in window) {
-                        try {
-                            const cacheKeys = await caches.keys();
-                            await Promise.all(cacheKeys.map(function (key) {
-                                return caches.delete(key);
-                            }));
-                        } catch (error) {
-                            // Ignore cache cleanup errors.
-                        }
-                    }
-                });
+            if (!banner || !installButton || !dismissButton) {
+                return;
+            }
+
+            const storageKey = 'mmp:pwa-install-dismissed';
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+            const wasDismissed = localStorage.getItem(storageKey) === '1';
+            let deferredPrompt = null;
+
+            const revealBanner = function () {
+                banner.classList.remove('hidden');
+
+                if (typeof banner.scrollIntoView === 'function') {
+                    banner.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }
+            };
+
+            const triggerInstall = async function () {
+                if (!deferredPrompt) {
+                    revealBanner();
+                    return;
+                }
+
+                deferredPrompt.prompt();
+
+                try {
+                    await deferredPrompt.userChoice;
+                } catch (error) {
+                    // Ignore prompt errors; the browser controls the install UI.
+                }
+
+                deferredPrompt = null;
+                banner.classList.add('hidden');
+                localStorage.setItem(storageKey, '1');
+            };
+
+            if (mobileInstallButton) {
+                mobileInstallButton.addEventListener('click', triggerInstall);
+            }
+
+            window.addEventListener('beforeinstallprompt', function (event) {
+                event.preventDefault();
+                deferredPrompt = event;
+
+                if (!isStandalone && !wasDismissed) {
+                    revealBanner();
+                }
+            });
+
+            window.addEventListener('appinstalled', function () {
+                deferredPrompt = null;
+                banner.classList.add('hidden');
+                localStorage.setItem(storageKey, '1');
+            });
+
+            installButton.addEventListener('click', triggerInstall);
+
+            if (isMobileViewport && !isStandalone && !wasDismissed) {
+                revealBanner();
+            }
+
+            dismissButton.addEventListener('click', function () {
+                banner.classList.add('hidden');
+                localStorage.setItem(storageKey, '1');
             });
         })();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(() => {
+                    console.log('SW registered');
+                }).catch(err => {
+                    console.log('SW registration failed', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>

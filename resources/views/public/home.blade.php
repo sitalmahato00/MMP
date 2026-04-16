@@ -187,7 +187,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {{-- LEFT COLUMN (Quick Links & Officials) --}}
-        <div class="lg:col-span-3 space-y-6">
+        <div class="order-2 lg:order-none lg:col-span-3 space-y-6">
             {{-- Quick Links Card --}}
             <div class="bg-white border text-sm shadow-sm">
                 <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
@@ -245,15 +245,30 @@
         </div>
 
         {{-- CENTER COLUMN (Welcome & Notice Tabs) --}}
-        <div class="lg:col-span-6 space-y-6">
+        <div class="order-1 lg:order-none lg:col-span-6 space-y-6">
             {{-- Welcome Box --}}
             <div class="bg-[#8B0000] text-white p-8 text-center rounded-sm relative overflow-hidden shadow-sm">
                 <div class="absolute inset-0 opacity-10 bg-gradient-to-tr from-black to-transparent"></div>
+                @php
+                    $welcomeMessage = trim((string) optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.');
+                    $welcomeParagraphs = collect(preg_split('/\n\s*\n/u', $welcomeMessage) ?: [])
+                        ->map(fn ($paragraph) => trim((string) $paragraph))
+                        ->filter()
+                        ->values();
+                @endphp
                 <div class="relative z-10">
                     <h2 class="font-serif text-2xl font-bold mb-3">Welcome to MMP</h2>
-                    <p class="text-[13px] leading-relaxed mb-4 text-gray-100 px-4 whitespace-pre-line text-left">
-                        {{ Str::limit(optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.', 300) }}
-                    </p>
+                    <div class="mx-auto max-w-3xl px-4">
+                        <div class="max-h-[180px] md:max-h-[220px] overflow-y-auto pr-2 text-left">
+                            <div class="space-y-3 text-[13px] leading-relaxed text-gray-100">
+                                @forelse($welcomeParagraphs as $paragraph)
+                                    <p>{{ $paragraph }}</p>
+                                @empty
+                                    <p>{{ $welcomeMessage }}</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
                     <a href="{{ route('public.page', 'what-is-mmp') }}" class="inline-block border border-white text-white px-6 py-2 text-xs font-bold hover:bg-white hover:text-[#8B0000] transition-colors uppercase tracking-wide">
                         About MMP
                     </a>
@@ -396,7 +411,7 @@
         </div>
 
         {{-- RIGHT COLUMN (News & Events - Dynamic) --}}
-        <div class="lg:col-span-3 space-y-6 flex flex-col">
+        <div class="order-3 lg:order-none lg:col-span-3 space-y-6 flex flex-col">
             <div class="bg-white border shadow-sm flex-1 flex flex-col">
                 <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>

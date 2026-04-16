@@ -149,6 +149,28 @@ class PublicDataService
         });
     }
 
+    public function getTeachers(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember('public:teachers', self::CACHE_TTL, function () {
+            return Teacher::active()
+                ->with(['user:id,name,avatar', 'department:id,name,code,slug'])
+                ->orderBy('department_id')
+                ->orderBy('designation')
+                ->get(['id', 'user_id', 'department_id', 'employee_id', 'designation', 'qualification', 'specialization', 'join_date', 'employment_type', 'is_active']);
+        });
+    }
+
+    public function getDepartmentHods(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember('public:department_hods', self::CACHE_TTL, function () {
+            return Department::active()
+                ->whereNotNull('hod_id')
+                ->with(['hod:id,name,avatar'])
+                ->orderBy('name')
+                ->get(['id', 'name', 'code', 'slug', 'hod_id']);
+        });
+    }
+
     public function getGalleryMedia(): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember('public:gallery', self::CACHE_TTL, function () {
@@ -430,6 +452,8 @@ class PublicDataService
                 'public:downloads',
                 'public:facilities',
                 'public:staff',
+                'public:teachers',
+                'public:department_hods',
                 'public:leadership',
                 'public:site_settings',
                 'public:gallery',

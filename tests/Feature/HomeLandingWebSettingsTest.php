@@ -17,8 +17,10 @@ class HomeLandingWebSettingsTest extends TestCase
     {
         SiteSetting::ensureDefaults();
 
+        $welcomeMessage = 'Welcome text managed from web settings. ' . str_repeat('This is additional homepage welcome content. ', 10);
+
         SiteSetting::query()->where('key', 'welcome_message')->update([
-            'value' => 'Welcome text managed from web settings.',
+            'value' => $welcomeMessage,
         ]);
         SiteSetting::query()->where('key', 'principals_message')->update([
             'value' => 'Principal note managed from web settings.',
@@ -45,10 +47,13 @@ class HomeLandingWebSettingsTest extends TestCase
         $data = $view->getData();
 
         $this->assertSame('public.home', $view->name());
-        $this->assertSame('Welcome text managed from web settings.', $data['siteSettings']->get('what_is_mmp')->value);
+        $this->assertSame($welcomeMessage, $data['siteSettings']->get('what_is_mmp')->value);
         $this->assertSame('Er. Sudip Adhikary', $data['leadership']['principals']->firstWhere('is_current', true)->name);
         $this->assertSame('Principal note managed from web settings.', $data['leadership']['principals']->firstWhere('is_current', true)->message);
         $this->assertSame('site-settings/principal.jpg', $data['leadership']['principals']->firstWhere('is_current', true)->avatar);
+
+        $rendered = $view->render();
+        $this->assertStringContainsString($welcomeMessage, $rendered);
     }
 
     public function test_legacy_president_message_is_migrated_to_welcome_message_when_needed(): void
