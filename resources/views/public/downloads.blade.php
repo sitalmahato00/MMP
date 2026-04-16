@@ -38,7 +38,7 @@
             <div class="section-header" style="background-color: #8B0000;">⚡ Quick Links</div>
             <div class="bg-white border border-gray-200 border-t-0">
                 <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notice Board</a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Question Bank</a>
+                <a href="{{ route('public.question-bank') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Question Bank</a>
                 <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-800"><span>🔐</span> Student Portal</a>
             </div>
         </div>

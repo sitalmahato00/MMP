@@ -30,7 +30,7 @@
                                     @endif
                                 @else
                                     <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                                        <i class="ri-building-line text-4xl mb-2"></i>
+                                        <svg class="w-12 h-12 mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                                     </div>
                                 @endif
                             </div>
@@ -46,10 +46,12 @@
                                 
                                 @if($facility->location)
                                 <div class="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                                    <i class="ri-map-pin-line text-[#8B0000]"></i> {{ $facility->location }}
+                                    <svg class="w-3 h-3 text-[#8B0000] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    {{ $facility->location }}
                                     @if($facility->capacity)
                                     <span class="mx-2">|</span>
-                                    <i class="ri-group-line text-[#8B0000]"></i> {{ $facility->capacity }} Seats
+                                    <svg class="w-3 h-3 text-[#8B0000] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    {{ $facility->capacity }} Seats
                                     @endif
                                 </div>
                                 @endif
@@ -65,7 +67,8 @@
                                         @foreach($facility->documents as $doc)
                                         <li>
                                             <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="flex items-center gap-2 text-xs text-blue-600 hover:text-blue-800 transition-colors">
-                                                <i class="ri-file-pdf-line text-red-500 text-base"></i> Document {{ $loop->iteration }}
+                                                <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                                Document {{ $loop->iteration }}
                                             </a>
                                         </li>
                                         @endforeach

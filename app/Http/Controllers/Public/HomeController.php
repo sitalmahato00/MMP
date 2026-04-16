@@ -141,15 +141,29 @@ class HomeController extends Controller
         return view('public.staff', compact('staff', 'departments'));
     }
 
+    public function contact()
+    {
+        $siteSettings = $this->service->getSiteSettings()->keyBy('key');
+        return view('public.contact', compact('siteSettings'));
+    }
+
+    public function alumniDirectory()
+    {
+        $alumni = $this->service->getFeaturedAlumni(20);
+        $departments = $this->service->getDepartments();
+        return view('public.alumni', compact('alumni', 'departments'));
+    }
+
+    public function alumniProfile(int $id)
+    {
+        $alumnus = \App\Models\Alumni::with(['user', 'department', 'program'])->findOrFail($id);
+        return view('public.alumni-profile', compact('alumnus'));
+    }
+
     public function about()
     {
         $siteSettings = $this->service->getSiteSettings()->keyBy('key');
         return view('public.about', compact('siteSettings'));
     }
 
-    public function contact()
-    {
-        $siteSettings = $this->service->getSiteSettings()->keyBy('key');
-        return view('public.contact', compact('siteSettings'));
-    }
 }

@@ -17,8 +17,8 @@
     @forelse($banners as $banner)
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex items-center gap-4 pr-4">
         <div class="w-32 h-20 flex-shrink-0 bg-gray-50 overflow-hidden">
-            @if($banner->image_path)
-                <img src="{{ asset('storage/'.$banner->image_path) }}" class="w-full h-full object-cover"/>
+            @if($banner->image)
+                <img src="{{ asset('storage/'.$banner->image) }}" class="w-full h-full object-cover"/>
             @else
                 <div class="w-full h-full flex items-center justify-center text-gray-200">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

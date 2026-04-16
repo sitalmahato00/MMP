@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Alumnus;
+use App\Models\Alumni as Alumnus;
 use Illuminate\Http\Request;
 
 class AlumniController extends Controller

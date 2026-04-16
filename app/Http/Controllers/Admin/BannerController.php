@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,11 +33,13 @@ class BannerController extends Controller
             'button_link' => 'nullable|url|max:255',
         ]);
 
-        $data['image_path'] = $request->file('image')->store('banners', 'public');
-        $data['is_active']  = $request->has('is_active');
-        $data['order']      = $request->order ?? 0;
+        unset($data['image']);
+        $data['image']     = $request->file('image')->store('banners', 'public');
+        $data['is_active'] = $request->has('is_active');
+        $data['order']     = $request->order ?? 0;
 
         Banner::create($data);
+        PublicDataService::invalidate('homepage');
 
         return redirect()->route('admin.banners.index')->with('success', 'Banner added.');
     }
@@ -64,26 +67,30 @@ class BannerController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            if ($banner->image_path && Storage::disk('public')->exists($banner->image_path)) {
-                Storage::disk('public')->delete($banner->image_path);
+            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
+                Storage::disk('public')->delete($banner->image);
             }
-            $data['image_path'] = $request->file('image')->store('banners', 'public');
+            $data['image'] = $request->file('image')->store('banners', 'public');
+        } else {
+            unset($data['image']);
         }
 
         $data['is_active'] = $request->has('is_active');
         $data['order']     = $request->order ?? 0;
 
         $banner->update($data);
+        PublicDataService::invalidate('homepage');
 
         return redirect()->route('admin.banners.index')->with('success', 'Banner updated.');
     }
 
     public function destroy(Banner $banner)
     {
-        if ($banner->image_path && Storage::disk('public')->exists($banner->image_path)) {
-            Storage::disk('public')->delete($banner->image_path);
+        if ($banner->image && Storage::disk('public')->exists($banner->image)) {
+            Storage::disk('public')->delete($banner->image);
         }
         $banner->delete();
+        PublicDataService::invalidate('homepage');
         return redirect()->route('admin.banners.index')->with('success', 'Banner deleted.');
     }
 }

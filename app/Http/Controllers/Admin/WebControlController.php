@@ -29,12 +29,17 @@ class WebControlController extends Controller
         $settings = SiteSetting::query()->get(['key', 'type'])->keyBy('key');
         $allowedKeys = $settings->keys()->all();
         $imageKeys = $settings->filter(fn ($setting) => $setting->type === 'image')->keys()->all();
+        $fileKeys  = $settings->filter(fn ($setting) => $setting->type === 'file')->keys()->all();
+        $uploadKeys = array_merge($imageKeys, $fileKeys);
+
         $imageRules = collect($imageKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'image', 'max:4096']])->all();
-        if ($imageRules !== []) {
-            $request->validate($imageRules);
+        $fileRules  = collect($fileKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov,pdf', 'max:102400']])->all();
+        $allRules   = array_merge($imageRules, $fileRules);
+        if ($allRules !== []) {
+            $request->validate($allRules);
         }
 
-        $settings_data = Arr::except($request->all(), array_merge(['_token', '_method'], $imageKeys));
+        $settings_data = Arr::except($request->all(), array_merge(['_token', '_method'], $uploadKeys));
         
         foreach ($settings_data as $key => $value) {
             if (!in_array($key, $allowedKeys, true)) {
@@ -44,18 +49,18 @@ class WebControlController extends Controller
             SiteSetting::where('key', $key)->update(['value' => $value]);
         }
 
-        foreach ($imageKeys as $imageKey) {
-            if (!$request->hasFile($imageKey)) {
+        foreach ($uploadKeys as $uploadKey) {
+            if (!$request->hasFile($uploadKey)) {
                 continue;
             }
 
-            $file = $request->file($imageKey);
+            $file = $request->file($uploadKey);
             if (!$file || !$file->isValid()) {
                 continue;
             }
 
             $path = $file->store('site-settings', 'public');
-            SiteSetting::where('key', $imageKey)->update(['value' => $path]);
+            SiteSetting::where('key', $uploadKey)->update(['value' => $path]);
         }
 
         PublicDataService::invalidate('*');

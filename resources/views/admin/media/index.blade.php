@@ -38,9 +38,9 @@
             </div>
         @endif
         <div class="p-2">
-            <p class="text-[10px] text-gray-500 truncate" title="{{ $item->file_name }}">{{ $item->file_name }}</p>
+            <p class="text-[10px] text-gray-500 truncate" title="{{ $item->file_name ?? $item->title }}">{{ $item->file_name ?? $item->title }}</p>
             <div class="flex items-center justify-between mt-1.5">
-                <x-badge :color="$item->type === 'gallery' ? 'blue' : 'gray'" class="text-[9px]">{{ $item->type }}</x-badge>
+                <x-badge :color="$item->file_type === 'gallery' ? 'blue' : 'gray'" class="text-[9px]">{{ $item->file_type }}</x-badge>
                 <form method="POST" action="{{ route('admin.media.destroy', $item) }}">
                     @csrf @method('DELETE')
                     <button type="submit" title="Delete"

@@ -54,6 +54,9 @@ Route::resource('media', MediaController::class);
 Route::resource('downloads', DownloadController::class);
 Route::resource('banners', BannerController::class);
 
+// ── Resources (alias for Downloads with resource category) ─
+Route::get('resources', [DownloadController::class, 'resources'])->name('resources.index');
+
 // ── Web Control / Settings ─────────────────────────────────
 Route::get('web-control', [WebControlController::class, 'index'])->name('web-control.index');
 Route::post('web-control', [WebControlController::class, 'update'])->name('web-control.update');

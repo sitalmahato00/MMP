@@ -16,6 +16,9 @@ Route::get('/gallery', [HomeController::class, 'gallery'])->name('public.gallery
 Route::get('/staff', [HomeController::class, 'staff'])->name('public.staff');
 Route::get('/leadership', [HomeController::class, 'leadership'])->name('public.leadership');
 Route::get('/facilities', [HomeController::class, 'facilities'])->name('public.facilities');
+Route::get('/contact', [HomeController::class, 'contact'])->name('public.contact');
+Route::get('/alumni', [HomeController::class, 'alumniDirectory'])->name('public.alumni');
+Route::get('/alumni/{id}', [HomeController::class, 'alumniProfile'])->name('public.alumni.profile')->whereNumber('id');
 Route::get('/page/{slug}', [HomeController::class, 'page'])->name('public.page');
 
 // ─── Auth Routes ──────────────────────────────────────────

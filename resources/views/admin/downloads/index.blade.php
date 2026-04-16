@@ -32,13 +32,11 @@
         </td>
         <td class="px-5 py-3.5">
             @if($download->file_path)
-                <a href="{{ asset('storage/'.$download->file_path) }}" target="_blank"
-                   class="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Download
-                </a>
+                <x-file-preview
+                    :url="asset('storage/'.$download->file_path)"
+                    :filename="$download->file_name ?? basename($download->file_path)"
+                    :type="$download->file_type ?? pathinfo($download->file_path, PATHINFO_EXTENSION)"
+                />
             @else
                 <span class="text-xs text-gray-300">No file</span>
             @endif

@@ -36,6 +36,11 @@ class Notice extends Model
         return $this->belongsTo(Program::class);
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(NoticeAttachment::class);
+    }
+
     public function scopePublished($query)
     {
         return $query->where('is_published', true);

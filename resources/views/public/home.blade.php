@@ -8,10 +8,10 @@
 
 {{-- ── HERO SLIDER (Alpine.js Auto-Slide) ────────────────────── --}}
 @php
-    $bannerSlides = ($banners ?? collect())->where('is_active', true)->sortBy('order')->values();
+    $bannerSlides = ($banners ?? collect())->sortBy('order')->values();
     $hasSlides = $bannerSlides->count() > 0;
 @endphp
-<section class="relative w-full h-[500px] overflow-hidden bg-gray-900"
+<section class="relative w-full h-[420px] overflow-hidden bg-gray-900"
     x-data="{
         current: 0,
         total: {{ $hasSlides ? $bannerSlides->count() : 1 }},
@@ -37,21 +37,47 @@
             <div class="absolute inset-0 transition-opacity duration-700"
                  :class="current === {{ $i }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
                 <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
                 <div class="absolute inset-0 flex flex-col justify-center">
                     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
                         <div class="max-w-3xl pl-4 md:pl-10">
+                            {{-- College identity always visible --}}
+                            <div class="flex items-center gap-2 mb-4">
+                                <span style="color:#facc15;font-size:0.85rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,0.6);">Best Technical College in Nepal</span>
+                                <span style="color:rgba(255,255,255,0.4);font-size:0.85rem;">·</span>
+                                <span style="color:rgba(255,255,255,0.85);font-size:0.85rem;font-weight:500;">Est. 2054 B.S.</span>
+                            </div>
                             @if($banner->subtitle)
-                                <span class="bg-[#e74c3c] text-[10px] font-bold px-3 py-1 mb-3 inline-block uppercase text-white shadow-sm tracking-wide">{{ $banner->subtitle }}</span>
+                                <span style="background:#e74c3c;font-size:0.7rem;font-weight:700;padding:0.35rem 0.9rem;margin-bottom:1rem;display:inline-block;text-transform:uppercase;color:white;letter-spacing:0.12em;">{{ $banner->subtitle }}</span>
                             @endif
-                            <h2 class="text-3xl md:text-5xl lg:text-[50px] font-bold font-serif leading-[1.15] mb-4 text-white drop-shadow-lg">
+                            <h2 style="font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.08;text-transform:uppercase;letter-spacing:-0.01em;color:white;text-shadow:0 4px 20px rgba(0,0,0,0.7);margin-bottom:1.25rem;">
                                 {{ $banner->title }}
                             </h2>
-                            @if($banner->link)
-                                <a href="{{ $banner->link }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-5 py-2.5 text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-2 rounded-sm leading-none mt-2">
-                                    Learn More <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            {{-- Department program list --}}
+                            <div style="font-size:0.95rem;font-weight:600;color:white;text-shadow:0 1px 6px rgba(0,0,0,0.6);display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;margin-bottom:1.75rem;letter-spacing:0.03em;">
+                                @php $deptNames = ($departments ?? collect())->pluck('name'); @endphp
+                                @if($deptNames->count())
+                                    @foreach($deptNames as $dn)
+                                        <span>{{ $dn }}</span>@if(!$loop->last)<span style="color:#facc15;">|</span>@endif
+                                    @endforeach
+                                @else
+                                    <span>Information Technology</span> <span style="color:#facc15;">|</span>
+                                    <span>Civil</span> <span style="color:#facc15;">|</span>
+                                    <span>Electrical</span> <span style="color:#facc15;">|</span>
+                                    <span>Mechanical</span> <span style="color:#facc15;">|</span>
+                                    <span>Electronics Engineering</span>
+                                @endif
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="{{ route('public.departments') }}" style="background:#d35400;color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:inline-flex;align-items:center;gap:0.5rem;transition:background 0.15s;" onmouseover="this.style.background='#e67e22'" onmouseout="this.style.background='#d35400'">
+                                    Apply Now <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                 </a>
-                            @endif
+                                @if($banner->link)
+                                    <a href="{{ $banner->link }}" style="border:2px solid rgba(255,255,255,0.65);color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;display:inline-flex;align-items:center;gap:0.5rem;backdrop-filter:blur(4px);transition:border-color 0.15s;" onmouseover="this.style.borderColor='white'" onmouseout="this.style.borderColor='rgba(255,255,255,0.65)'">
+                                        Learn More <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,18 +112,20 @@
     @endif
 
     {{-- Slider Controls --}}
-    @if($hasSlides && $bannerSlides->count() > 1)
+    @if($hasSlides)
         <button @click="prev(); clearInterval(autoplay); autoplay = setInterval(() => next(), 5000)" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/60 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
         <button @click="next(); clearInterval(autoplay); autoplay = setInterval(() => next(), 5000)" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/60 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
+        @if($bannerSlides->count() > 1)
         <div class="absolute bottom-6 left-0 w-full flex justify-center gap-2 z-20">
             @foreach($bannerSlides as $i => $banner)
                 <button @click="goTo({{ $i }})" class="w-2.5 h-2.5 rounded-full transition-all duration-300" :class="current === {{ $i }} ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/70'"></button>
             @endforeach
         </div>
+        @endif
     @endif
 </section>
 
@@ -173,7 +201,7 @@
                             @if($exec->avatar)
                                 <img src="{{ asset('storage/'.$exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($exec->name) }}&background=f3f4f6&color=8B0000&size=112" class="w-full h-full object-cover" alt="{{ $exec->name }}">
+                                <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#8B0000;">{{ strtoupper(substr($exec->name,0,1)) }}</div>
                             @endif
                         </div>
                         <div>
@@ -297,6 +325,88 @@
     </div>
 </div>
 
+{{-- ── PRINCIPAL'S MESSAGE ─────────────────────────────────────── --}}
+<div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12 bg-gray-50 border-t border-gray-100 relative overflow-hidden">
+    <div class="absolute top-0 right-0 opacity-[0.03] -translate-y-1/4 translate-x-1/4 pointer-events-none">
+        <svg class="w-[300px] h-[300px]" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+    </div>
+
+    <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-200">
+        <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
+            Principal's Message
+        </h2>
+    </div>
+
+    @php
+        $currentPrincipal = $leadership['principals']->firstWhere('is_current', true);
+        $principalMedia = trim((string) optional($siteSettings->get('principal_message_media'))->value);
+        $mediaExt = $principalMedia ? strtolower(pathinfo($principalMedia, PATHINFO_EXTENSION)) : '';
+        $isVideo = in_array($mediaExt, ['mp4', 'webm', 'mov']);
+        $isImage = in_array($mediaExt, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+        $isPdf   = $mediaExt === 'pdf';
+    @endphp
+    <div class="flex flex-col lg:flex-row gap-10 items-start">
+
+        {{-- Photo: large, centered --}}
+        <div class="w-full lg:w-64 flex-shrink-0 flex flex-col items-center">
+            <div class="w-52 h-[260px] overflow-hidden bg-gray-200 border-4 border-white rounded-sm" style="box-shadow: 0 8px 32px rgba(139,0,0,0.18);">
+                @if($currentPrincipal?->avatar)
+                    <img src="{{ asset('storage/'.$currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover object-top">
+                @else
+                    <div class="w-full h-full flex items-center justify-center text-7xl font-black" style="background:#f3f4f6;color:#8B0000;">{{ strtoupper(substr($currentPrincipal?->name ?? 'P',0,1)) }}</div>
+                @endif
+            </div>
+            <div class="mt-4 text-center">
+                <div class="font-bold text-[#8B0000] text-base">{{ $currentPrincipal?->name ?? 'Principal' }}</div>
+                <div class="text-xs text-gray-500 font-medium mt-0.5">{{ $currentPrincipal?->designation ?? 'Principal, MMP' }}</div>
+            </div>
+        </div>
+
+        {{-- Message text --}}
+        <div class="flex-1 min-w-0">
+           
+
+            {{-- Media attachment (video / image / PDF) - shown FIRST --}}
+            @if($principalMedia)
+                <div class="mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                    @if($isVideo)
+                        <video controls class="w-full max-h-72 bg-black" preload="metadata">
+                            <source src="{{ asset('storage/' . $principalMedia) }}" type="{{ $mediaExt === 'webm' ? 'video/webm' : 'video/mp4' }}">
+                        </video>
+                    @elseif($isImage)
+                        <img src="{{ asset('storage/' . $principalMedia) }}" alt="Principal's message media" class="w-full max-h-72 object-contain bg-gray-50">
+                    @elseif($isPdf)
+                        <div class="bg-gray-50 p-4 flex items-center gap-4">
+                            <div class="w-12 h-14 bg-red-100 border border-red-200 rounded flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-800">PDF Document</p>
+                                <p class="text-xs text-gray-500 truncate">{{ basename($principalMedia) }}</p>
+                            </div>
+                            <a href="{{ asset('storage/' . $principalMedia) }}" target="_blank" class="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white rounded transition-colors" style="background:#8B0000;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                Open PDF
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            <div class="text-gray-700 text-[15px] leading-[2] text-justify space-y-4">
+                @if($currentPrincipal?->message)
+                    @foreach(array_filter(explode("\n\n", $currentPrincipal->message)) as $para)
+                        <p>{{ trim($para) }}</p>
+                    @endforeach
+                @else
+                    <p>It is with immense pleasure that I welcome you to Manmohan Memorial Polytechnic. Here at MMP, we are confident that you will experience an enriching academic journey coupled with robust technical skill enhancement.</p>
+                    <p>We provide a vibrant learning environment that ensures our students gain hands-on practical knowledge that satisfies the needs of modern industries, preparing them for national and international career opportunities.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- ── DIPLOMA PROGRAMS (GRID) ───────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12 bg-white border-t border-[#f9f9f9]">
     <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-100">
@@ -341,49 +451,6 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             View All Programs
         </a>
-    </div>
-</div>
-
-{{-- ── PRINCIPAL'S MESSAGE ─────────────────────────────────────── --}}
-<div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12 bg-gray-50 border-t border-gray-100 relative overflow-hidden">
-    <div class="absolute top-0 right-0 opacity-[0.03] -translate-y-1/4 translate-x-1/4 pointer-events-none">
-        <svg class="w-[300px] h-[300px]" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
-    </div>
-
-    <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-200">
-        <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
-            Principal's Message
-        </h2>
-    </div>
-
-    <div class="flex flex-col lg:flex-row gap-8 items-start">
-        @php $currentPrincipal = $leadership['principals']->firstWhere('is_current', true); @endphp
-        <div class="text-center w-full lg:w-48 flex-shrink-0">
-            <div class="w-32 h-[140px] mx-auto bg-gray-200 border-[6px] border-white shadow-md overflow-hidden mb-3">
-                @if($currentPrincipal?->avatar)
-                    <img src="{{ asset('storage/'.$currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover">
-                @else
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($currentPrincipal?->name ?? 'Principal') }}&background=f3f4f6&color=8B0000&size=200" alt="Principal" class="w-full h-full object-cover">
-                @endif
-            </div>
-            <div class="font-bold text-[#8B0000] text-[15px]">{{ $currentPrincipal?->name ?? 'Principal' }}</div>
-            <div class="text-xs text-gray-500 font-medium">{{ $currentPrincipal?->designation ?? 'Principal, MMP' }}</div>
-        </div>
-        <div class="flex-1">
-            <div class="space-y-4 text-gray-700 text-[13px] leading-[1.8] text-justify whitespace-pre-line">
-                @if($currentPrincipal?->message)
-                    {!! nl2br(e(Str::limit($currentPrincipal->message, 600))) !!}
-                @else
-                    <p>It is with immense pleasure that I welcome you to Manmohan Memorial Polytechnic. Here at MMP, we are confident that you will experience an enriching academic journey coupled with robust technical skill enhancement.</p>
-                    <p>We provide a vibrant learning environment that ensures our students gain hands-on practical knowledge that satisfies the needs of modern industries, preparing them for national and international career opportunities.</p>
-                @endif
-            </div>
-            <div class="mt-4 border-l-2 border-red-500 pl-4 py-1">
-                <a href="{{ route('public.leadership') }}" class="text-[#8B0000] font-bold text-xs hover:underline flex items-center gap-1 uppercase tracking-wide">
-                    View All Presidents & Principals »
-                </a>
-            </div>
-        </div>
     </div>
 </div>
 

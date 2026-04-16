@@ -9,7 +9,9 @@
 @props(['name', 'rows' => 4, 'placeholder' => '', 'value' => null])
 
 @php
-    $slotValue = (string) $slot;
+    // Decode once — Blade's {{ }} encodes the slot content, so we decode it back
+    // to get the raw value before {{ old() }} re-encodes it for HTML.
+    $slotValue = html_entity_decode((string) $slot, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     $resolvedValue = trim($slotValue) !== '' ? $slotValue : $value;
 @endphp
 

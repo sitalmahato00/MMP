@@ -40,7 +40,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="antialiased bg-gray-100 text-gray-900" x-data="{ mobileOpen: false }">
+<body class="antialiased bg-gray-100 text-gray-900 overflow-x-hidden" x-data="{ mobileOpen: false }">
     @php
         $brandLogoUrl = !empty($siteLogoPath ?? null)
             ? asset('storage/' . ltrim($siteLogoPath, '/'))
@@ -74,8 +74,11 @@
     </div>
 
     {{-- ── LOGO BAR (White, matching mmp.edu.np) ──────────────── --}}
-    <div class="bg-gradient-to-r from-[#650000] via-[#8B0000] to-[#5B0000] py-3 border-b border-yellow-500/30 shadow-sm">
-        <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center justify-between">
+    @unless(request()->routeIs('home'))
+    {{-- slim spacer for non-home pages --}}
+    @else
+    <div class="bg-white py-3 border-b border-gray-200 shadow-sm">
+        <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center">
             <a href="{{ route('home') }}" class="flex items-center gap-4">
                 {{-- MMP Seal/Emblem --}}
                 <div class="w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center" style="background: radial-gradient(circle, #8B0000, #5B0000); border: 2px solid #DAA520;">
@@ -86,19 +89,14 @@
                     @endif
                 </div>
                 <div>
-                    <div class="text-xl font-black font-serif leading-tight text-white">Manmohan Memorial Polytechnic</div>
-                    <div class="text-sm italic font-semibold text-yellow-300">Best Technical College in Koshi Province</div>
-                    <div class="text-xs text-red-100 font-medium">A Constituent College of Manmohan Technical University</div>
+                    <div class="text-xl font-black font-serif leading-tight" style="color:#8B0000;">Manmohan Memorial Polytechnic</div>
+                    <div class="text-sm italic font-semibold" style="color:#DAA520;">Best Technical College in Koshi Province</div>
+                    <div class="text-xs text-gray-500 font-medium">A Constituent College of Manmohan Technical University</div>
                 </div>
             </a>
-            {{-- Right side small image/badge area --}}
-            <div class="hidden lg:flex items-center gap-4">
-                <div class="w-24 h-14 rounded overflow-hidden border border-yellow-500/40 shadow-sm">
-                    <img src="{{ $brandLogoUrl ?: asset('assets/image.png') }}" alt="MMP" class="w-full h-full object-cover rounded">
-                </div>
-            </div>
         </div>
     </div>
+    @endunless
 
     {{-- ── MAIN NAVIGATION (Deep Red) ──────────────────────────── --}}
     <nav style="background-color: #8B0000;" class="sticky top-0 z-50 shadow-md" x-data="{ mobileOpen: false }">
@@ -115,7 +113,7 @@
                             ['href' => route('public.page', 'what-is-mmp'), 'label' => 'What is MMP'],
                             ['href' => route('public.page', 'objectives'), 'label' => 'Objectives'],
                             ['href' => route('public.leadership'), 'label' => 'Presidents & Principals'],
-                            ['href' => route('public.page', 'contact-us'), 'label' => 'Contact Us'],
+                            ['href' => route('public.contact'), 'label' => 'Contact Us'],
                         ]],
                         ['label' => 'COURSES', 'items' => [
                             ['href' => route('public.department.show', 'information-technology'), 'label' => 'Diploma in Information Technology'],
@@ -133,6 +131,7 @@
                         ['label' => 'PEOPLES', 'items' => [
                             ['href' => route('public.staff'), 'label' => 'Administrative Staff'],
                             ['href' => route('public.leadership'), 'label' => 'Presidents & Principals'],
+                            ['href' => route('public.alumni'), 'label' => 'Alumni Directory'],
                         ]],
                     ] as $menu)
                         <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
@@ -193,7 +192,7 @@
                     <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
                         <a href="{{ route('public.page', 'what-is-mmp') }}" class="block hover:text-white">What is MMP</a>
                         <a href="{{ route('public.page', 'objectives') }}" class="block hover:text-white">Objectives</a>
-                        <a href="{{ route('public.page', 'contact-us') }}" class="block hover:text-white">Contact Us</a>
+                        <a href="{{ route('public.contact') }}" class="block hover:text-white">Contact Us</a>
                     </div>
                 </div>
 
@@ -218,6 +217,7 @@
                     <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
                         <a href="{{ route('public.staff') }}" class="block hover:text-white">Administrative Staff</a>
                         <a href="{{ route('public.leadership') }}" class="block hover:text-white">Presidents & Principals</a>
+                        <a href="{{ route('public.alumni') }}" class="block hover:text-white">Alumni Directory</a>
                     </div>
                 </div>
                 
@@ -241,13 +241,14 @@
     @hasSection('no_breadcrumb')
     @else
         @hasSection('breadcrumb')
-            <div style="background-color: #8B0000;" class="py-8 text-white">
-                <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto">
-                    <h1 class="text-2xl font-bold font-serif mb-2">@yield('title')</h1>
-                    <nav class="flex items-center gap-2 text-red-200 text-sm">
-                        <a href="{{ route('home') }}" class="hover:text-white">Home</a>
-                        <span>»</span>
-                        <span class="text-white">@yield('title')</span>
+            <div style="background: linear-gradient(to right, #6B0000, #8B0000, #6B0000);" class="py-6 text-white relative overflow-hidden">
+                <div class="absolute inset-0 opacity-5" style="background-image: url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\");"></div>
+                <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto relative">
+                    <h1 class="text-xl font-bold font-serif mb-1.5">@yield('title')</h1>
+                    <nav class="flex items-center gap-2 text-red-200 text-xs">
+                        <a href="{{ route('home') }}" class="hover:text-white transition-colors">Home</a>
+                        <span class="text-red-400">›</span>
+                        <span class="text-yellow-300">@yield('title')</span>
                     </nav>
                 </div>
             </div>
@@ -287,7 +288,7 @@
                             ['href' => route('public.departments'), 'label' => 'Courses & Programs'],
                             ['href' => route('public.notices'), 'label' => 'Notice Board'],
                             ['href' => route('public.downloads'), 'label' => 'Downloads & Forms'],
-                            ['href' => route('public.page', 'contact-us'), 'label' => 'Contact Us'],
+                            ['href' => route('public.contact'), 'label' => 'Contact Us'],
                             ['href' => route('login'), 'label' => '🔐 Student Portal'],
                         ] as $link)
                             <li><a href="{{ $link['href'] }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> {{ $link['label'] }}</a></li>

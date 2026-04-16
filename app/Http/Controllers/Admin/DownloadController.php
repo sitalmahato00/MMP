@@ -15,6 +15,14 @@ class DownloadController extends Controller
         return view('admin.downloads.index', compact('downloads'));
     }
 
+    public function resources()
+    {
+        $downloads = Download::where('category', 'resources')
+            ->orWhereIn('category', ['syllabus', 'form', 'report', 'publication', 'other'])
+            ->latest()->paginate(20);
+        return view('admin.downloads.index', compact('downloads'));
+    }
+
     public function create()
     {
         return view('admin.downloads.create');

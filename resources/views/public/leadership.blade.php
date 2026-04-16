@@ -19,7 +19,9 @@
                         @if($president->avatar)
                             <img src="{{ asset('storage/' . $president->avatar) }}" alt="{{ $president->name }}" class="w-full h-full object-cover">
                         @else
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($president->name) }}&background=E5E7EB&color=4B5563&size=400" alt="{{ $president->name }}" class="w-full h-full object-cover">
+                            <div class="w-full h-full flex items-center justify-center text-4xl font-black" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
+                                {{ strtoupper(substr($president->name, 0, 1)) }}
+                            </div>
                         @endif
                     </div>
                     <h3 class="font-bold text-gray-800 text-lg mb-1">{{ $president->name }}</h3>
@@ -52,7 +54,9 @@
                         @if($principal->avatar)
                             <img src="{{ asset('storage/' . $principal->avatar) }}" alt="{{ $principal->name }}" class="w-full h-full object-cover">
                         @else
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($principal->name) }}&background=E5E7EB&color=4B5563&size=400" alt="{{ $principal->name }}" class="w-full h-full object-cover">
+                            <div class="w-full h-full flex items-center justify-center text-3xl font-black" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
+                                {{ strtoupper(substr($principal->name, 0, 1)) }}
+                            </div>
                         @endif
                     </div>
                     <h3 class="font-bold text-gray-800 text-md mb-1">{{ $principal->name }}</h3>

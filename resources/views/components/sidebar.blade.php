@@ -103,7 +103,12 @@
     </div>
 
     {{-- ── Scrollable Navigation ────────────────────────── --}}
-    <nav class="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5 scrollbar-thin scrollbar-thumb-white/10">
+    <nav class="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5 scrollbar-thin scrollbar-thumb-white/10"
+         x-ref="sidenav"
+         x-init="
+             $nextTick(() => { $refs.sidenav.scrollTop = parseInt(localStorage.getItem('sidebar-scroll') || 0); });
+             $refs.sidenav.addEventListener('scroll', () => localStorage.setItem('sidebar-scroll', $refs.sidenav.scrollTop));
+         ">
 
         {{-- ════════════════════════════════════════════════
              ADMIN / PRINCIPAL NAV
@@ -117,6 +122,7 @@
             @include('components.sidebar-items.nav-link', ['href' => route('admin.academic-sessions.index'), 'iconName' => 'calendar',     'label' => 'Academic Sessions', 'isActive' => $active('admin.academic-sessions.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.departments.index'),       'iconName' => 'building',      'label' => 'Departments',       'isActive' => $active('admin.departments.*'),        'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.programs.index'),          'iconName' => 'academic-cap',  'label' => 'Programs',          'isActive' => $active('admin.programs.*'),           'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             {{-- People --}}
             @include('components.sidebar-items.nav-section', ['label' => 'PEOPLE'])
@@ -126,23 +132,32 @@
             @include('components.sidebar-items.nav-link', ['href' => route('admin.parents.index'),  'iconName' => 'heart',      'label' => 'Parents/Guardians',  'isActive' => $active('admin.parents.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.alumni.index'),   'iconName' => 'graduation-cap', 'label' => 'Alumni',         'isActive' => $active('admin.alumni.*'),   'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.staff.index'),    'iconName' => 'briefcase',      'label' => 'Staff Directory','isActive' => $active('admin.staff.*'),    'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             {{-- Examinations --}}
             @include('components.sidebar-items.nav-section', ['label' => 'EXAMINATIONS'])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.exams.index'), 'iconName' => 'doc-text',    'label' => 'Manage Exams',   'isActive' => $active('admin.exams.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
-            {{-- Web CMS --}}
-            @include('components.sidebar-items.nav-section', ['label' => 'WEB & CONTENT'])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.web-control.index'), 'iconName' => 'cog',        'label' => 'Web Settings',  'isActive' => $active('admin.web-control.*'),'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.facilities.index'),  'iconName' => 'building',   'label' => 'Facilities',    'isActive' => $active('admin.facilities.*'),'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.notices.index'),   'iconName' => 'bell',       'label' => 'Notices',       'isActive' => $active('admin.notices.*'),   'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.banners.index'),   'iconName' => 'collection', 'label' => 'Banners',       'isActive' => $active('admin.banners.*'),   'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.media.index'),     'iconName' => 'photo',      'label' => 'Media Gallery', 'isActive' => $active('admin.media.*'),     'accent' => $accent])
+            {{-- Notices & News --}}
+            @include('components.sidebar-items.nav-section', ['label' => 'NOTICES & NEWS'])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.notices.index'),   'iconName' => 'bell',       'label' => 'All Notices',   'isActive' => $active('admin.notices.*'),   'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.downloads.index'), 'iconName' => 'download',   'label' => 'Downloads',     'isActive' => $active('admin.downloads.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.resources.index'), 'iconName' => 'doc-report', 'label' => 'Resources',     'isActive' => $active('admin.resources.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
+
+            {{-- Website Management --}}
+            @include('components.sidebar-items.nav-section', ['label' => 'WEBSITE'])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.banners.index'),     'iconName' => 'collection', 'label' => 'Hero Banners',  'isActive' => $active('admin.banners.*'),      'accent' => $accent])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.media.index'),       'iconName' => 'photo',      'label' => 'Photo Gallery', 'isActive' => $active('admin.media.*'),        'accent' => $accent])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.facilities.index'),  'iconName' => 'building',   'label' => 'Facilities',    'isActive' => $active('admin.facilities.*'),   'accent' => $accent])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.web-control.index'), 'iconName' => 'cog',        'label' => 'Site Settings', 'isActive' => $active('admin.web-control.*'),  'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             {{-- Security --}}
             @include('components.sidebar-items.nav-section', ['label' => 'SECURITY'])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.audit-logs.index'), 'iconName' => 'shield', 'label' => 'Audit Logs', 'isActive' => $active('admin.audit-logs.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
         {{-- ════════════════════════════════════════════════
              HOD NAV
@@ -155,13 +170,16 @@
             @include('components.sidebar-items.nav-link', ['href' => route('hod.programs.index'),  'iconName' => 'academic-cap', 'label' => 'Programs',   'isActive' => $active('hod.programs.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('hod.subjects.index'),  'iconName' => 'doc-text',     'label' => 'Subjects',   'isActive' => $active('hod.subjects.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('hod.timetable.index'), 'iconName' => 'calendar',     'label' => 'Timetable',  'isActive' => $active('hod.timetable.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             @include('components.sidebar-items.nav-section', ['label' => 'DEPARTMENT'])
             @include('components.sidebar-items.nav-link', ['href' => route('hod.teachers.index'), 'iconName' => 'briefcase',  'label' => 'Teachers',  'isActive' => $active('hod.teachers.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('hod.students.index'), 'iconName' => 'user-group', 'label' => 'Students',  'isActive' => $active('hod.students.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             @include('components.sidebar-items.nav-section', ['label' => 'ANALYTICS'])
             @include('components.sidebar-items.nav-link', ['href' => route('hod.reports.index'), 'iconName' => 'chart-bar', 'label' => 'Reports', 'isActive' => $active('hod.reports.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
         {{-- ════════════════════════════════════════════════
              TEACHER NAV
@@ -174,13 +192,16 @@
             @include('components.sidebar-items.nav-link', ['href' => route('teacher.attendance.index'),  'iconName' => 'clipboard-check', 'label' => 'Attendance',   'isActive' => $active('teacher.attendance.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('teacher.assignments.index'), 'iconName' => 'doc-text',        'label' => 'Assignments',  'isActive' => $active('teacher.assignments.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('teacher.timetable.index'),   'iconName' => 'calendar',        'label' => 'My Timetable', 'isActive' => $active('teacher.timetable.*'),   'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             @include('components.sidebar-items.nav-section', ['label' => 'EVALUATION'])
             @include('components.sidebar-items.nav-link', ['href' => route('teacher.marks.index'),  'iconName' => 'chart-bar', 'label' => 'Mark Entry',  'isActive' => $active('teacher.marks.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('teacher.exams.index'),  'iconName' => 'doc-text',  'label' => 'Exams',       'isActive' => $active('teacher.exams.*'),  'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             @include('components.sidebar-items.nav-section', ['label' => 'GENERAL'])
             @include('components.sidebar-items.nav-link', ['href' => route('teacher.notices.index'), 'iconName' => 'bell', 'label' => 'Notices', 'isActive' => $active('teacher.notices.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
         {{-- ════════════════════════════════════════════════
              STUDENT NAV
@@ -194,10 +215,12 @@
             @include('components.sidebar-items.nav-link', ['href' => route('student.attendance.index'),  'iconName' => 'clipboard-check', 'label' => 'My Attendance',   'isActive' => $active('student.attendance.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('student.assignments.index'), 'iconName' => 'doc-text',        'label' => 'Assignments',      'isActive' => $active('student.assignments.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('student.results.index'),     'iconName' => 'chart-bar',       'label' => 'My Results',       'isActive' => $active('student.results.*'),     'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             @include('components.sidebar-items.nav-section', ['label' => 'RESOURCES'])
             @include('components.sidebar-items.nav-link', ['href' => route('student.notices.index'),   'iconName' => 'bell',     'label' => 'Notices',    'isActive' => $active('student.notices.*'),   'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('student.downloads.index'), 'iconName' => 'download', 'label' => 'Downloads',  'isActive' => $active('student.downloads.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
         {{-- ════════════════════════════════════════════════
              PARENT NAV
@@ -209,9 +232,11 @@
             @include('components.sidebar-items.nav-section', ['label' => "MY CHILD'S PROGRESS"])
             @include('components.sidebar-items.nav-link', ['href' => route('parent.attendance.index'), 'iconName' => 'clipboard-check', 'label' => 'Attendance Track',  'isActive' => $active('parent.attendance.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('parent.results.index'),    'iconName' => 'chart-bar',       'label' => 'Exam Results',       'isActive' => $active('parent.results.*'),    'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
             @include('components.sidebar-items.nav-section', ['label' => 'COMMUNICATION'])
             @include('components.sidebar-items.nav-link', ['href' => route('parent.notices.index'), 'iconName' => 'bell', 'label' => 'Notices', 'isActive' => $active('parent.notices.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
         {{-- ════════════════════════════════════════════════
              ALUMNI NAV
@@ -224,6 +249,7 @@
             @include('components.sidebar-items.nav-link', ['href' => route('alumni.profile.edit'),  'iconName' => 'users',      'label' => 'My Profile',  'isActive' => $active('alumni.profile.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('alumni.notices.index'), 'iconName' => 'bell',       'label' => 'Events',      'isActive' => $active('alumni.notices.*'),  'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('alumni.gallery.index'), 'iconName' => 'photo',      'label' => 'Gallery',     'isActive' => $active('alumni.gallery.*'),  'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
 
         @endif
 

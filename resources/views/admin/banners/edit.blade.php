@@ -16,7 +16,7 @@
                 <x-input name="subtitle" :value="$banner->subtitle"/>
             </x-form-field>
             <x-form-field label="Replace Image" name="image" span="full">
-                <x-file-input name="image" accept="image/*" :current="$banner->image_path"/>
+                <x-file-input name="image" accept="image/*" :current="$banner->image"/>
             </x-form-field>
             <x-form-field label="Order" name="order">
                 <x-input name="order" type="number" :value="$banner->order"/>
