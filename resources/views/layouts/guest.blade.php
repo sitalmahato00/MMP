@@ -12,7 +12,15 @@
     <meta property="og:description" content="@yield('meta_description', 'Best Technical College in Koshi Province offering CTEVT diploma programs.')">
     <meta property="og:type" content="website">
     <link rel="manifest" href="/manifest.json">
+    <meta name="application-name" content="Manmohan Memorial Polytechnic">
+    <meta name="apple-mobile-web-app-title" content="Manmohan Memorial Polytechnic">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#8B0000">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
@@ -362,6 +370,90 @@
         </div>
     </footer>
 
+    <div id="pwa-install-banner" class="hidden fixed inset-x-4 bottom-4 z-50 mx-auto w-full max-w-lg rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-red-900/20 backdrop-blur-xl">
+        <div class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+            <div class="flex items-start gap-3">
+                <img src="/apple-touch-icon.png" alt="MMP app icon" class="h-14 w-14 rounded-2xl border border-red-100 bg-red-50 p-1 shadow-sm">
+                <div>
+                    <div class="text-sm font-bold text-gray-900">Install MMP CMS</div>
+                    <p class="mt-1 text-xs leading-relaxed text-gray-600">Add this site to your device for faster access and offline-ready browsing.</p>
+                </div>
+            </div>
+            <div class="flex w-full gap-2 sm:w-auto sm:justify-end">
+                <button type="button" id="pwa-install-dismiss" class="flex-1 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:border-gray-300 hover:bg-gray-50 sm:flex-none">Not now</button>
+                <button type="button" id="pwa-install-trigger" class="flex-1 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6B0000] sm:flex-none">Install</button>
+            </div>
+        </div>
+    </div>
+
     @stack('scripts')
+
+    <script>
+        (function () {
+            const banner = document.getElementById('pwa-install-banner');
+            const installButton = document.getElementById('pwa-install-trigger');
+            const dismissButton = document.getElementById('pwa-install-dismiss');
+
+            if (!banner || !installButton || !dismissButton) {
+                return;
+            }
+
+            const storageKey = 'mmp:pwa-install-dismissed';
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+            if (isStandalone || localStorage.getItem(storageKey) === '1') {
+                return;
+            }
+
+            let deferredPrompt = null;
+
+            window.addEventListener('beforeinstallprompt', function (event) {
+                event.preventDefault();
+                deferredPrompt = event;
+                banner.classList.remove('hidden');
+            });
+
+            window.addEventListener('appinstalled', function () {
+                deferredPrompt = null;
+                banner.classList.add('hidden');
+                localStorage.setItem(storageKey, '1');
+            });
+
+            installButton.addEventListener('click', async function () {
+                if (!deferredPrompt) {
+                    return;
+                }
+
+                deferredPrompt.prompt();
+
+                try {
+                    await deferredPrompt.userChoice;
+                } catch (error) {
+                    // Ignore prompt errors; the browser controls the install UI.
+                }
+
+                deferredPrompt = null;
+                banner.classList.add('hidden');
+                localStorage.setItem(storageKey, '1');
+            });
+
+            dismissButton.addEventListener('click', function () {
+                banner.classList.add('hidden');
+                localStorage.setItem(storageKey, '1');
+            });
+        })();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(() => {
+                    console.log('SW registered');
+                }).catch(err => {
+                    console.log('SW registration failed', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

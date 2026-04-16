@@ -10,6 +10,31 @@
 @php
     $bannerSlides = ($banners ?? collect())->sortBy('order')->values();
     $hasSlides = $bannerSlides->count() > 0;
+    $publicTickerItems = collect(($notices ?? collect())->take(6))
+        ->merge(($examNotices ?? collect())->take(6))
+        ->sortByDesc(function ($notice) {
+            return optional($notice->published_at ?? $notice->created_at)->timestamp ?? 0;
+        })
+        ->take(8)
+        ->map(function ($notice) {
+            $noticeDate = $notice->published_at ?? $notice->created_at;
+            $type = $notice->type ?? 'general';
+            $typeLabel = $type === 'exam' ? 'Exam' : ucfirst($type);
+            $badgeClass = match ($type) {
+                'exam' => 'bg-red-400/15 text-red-300 border border-red-300/20',
+                'news' => 'bg-violet-400/15 text-violet-300 border border-violet-300/20',
+                'event' => 'bg-cyan-400/15 text-cyan-300 border border-cyan-300/20',
+                default => 'bg-white/10 text-gray-200',
+            };
+
+            return [
+                'title' => $notice->title,
+                'href' => route('public.notices', ['type' => $type]),
+                'date' => optional($noticeDate)->format('M d'),
+                'source' => $typeLabel,
+                'badge_class' => $badgeClass,
+            ];
+        });
 @endphp
 <section class="relative w-full h-[420px] overflow-hidden bg-gray-900"
     x-data="{
@@ -128,6 +153,34 @@
         @endif
     @endif
 </section>
+
+{{-- ── SCROLLING NOTICE TICKER ──────────────────────────────────── --}}
+@if($publicTickerItems->count() > 0)
+<div class="bg-[#2c2c2c] text-white overflow-hidden border-b-2 border-yellow-500">
+    <div class="w-full flex items-center">
+        <div class="bg-[#8B0000] flex-shrink-0 flex items-center gap-2 px-4 py-2.5 font-bold text-sm z-10 shadow-md relative">
+            <svg class="w-4 h-4 text-yellow-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+            Latest Notices
+            <div class="absolute right-0 top-0 h-full w-4 bg-gradient-to-r from-[#8B0000] to-transparent translate-x-full"></div>
+        </div>
+        <div class="flex-1 overflow-hidden" x-data="{}" x-init="$nextTick(() => { const el = $el.querySelector('.ticker-content'); if (el) { const clone = el.cloneNode(true); el.parentNode.appendChild(clone); } })">
+            <div class="flex animate-ticker whitespace-nowrap py-2.5">
+                <div class="ticker-content flex items-center gap-8 pl-6">
+                    @foreach($publicTickerItems as $noticeItem)
+                        <a href="{{ $noticeItem['href'] }}" class="flex items-center gap-2 text-sm text-gray-200 hover:text-yellow-400 transition-colors flex-shrink-0">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $noticeItem['badge_class'] }}">{{ $noticeItem['source'] }}</span>
+                            <span class="font-medium">{{ $noticeItem['title'] }}</span>
+                            @if(!empty($noticeItem['date']))
+                                <span class="text-[11px] text-gray-500">({{ $noticeItem['date'] }})</span>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 {{-- ── MAIN CONTENT TOP (3 COLUMNS) ────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-10 bg-[#f9f9f9]">

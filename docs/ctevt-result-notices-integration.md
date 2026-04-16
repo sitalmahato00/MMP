@@ -17,7 +17,8 @@ Instead of hardcoding form fields or notice rows, the application fetches the li
 - Public result page: `/result`
 - Public notices page: `/notices`
 - Home page notice board: the middle section of the public home page
-- Admin dashboard notice ticker: the top live CTEVT ticker shown inside the admin dashboard
+- Public home notice slider: the top latest-notices ticker shown on the public home page
+- Admin dashboard notice tabs: the notice board card that now contains recent notices plus CTEVT tabs
 
 ## High-Level Flow
 
@@ -178,12 +179,13 @@ On the home page:
 - General Notices
 - Published Result
 - each item shows the live title, update date, publisher, and attached file count when available
+- the top slider shows only the latest public notices
 
 On the admin dashboard:
 
-- a live CTEVT ticker is shown at the top of the dashboard
-- the ticker combines official CTEVT general notices and published result notices
-- each ticker item displays the source label, title, and update date when available
+- the notice board card uses tabs for recent notices and live CTEVT notices
+- the CTEVT tab contains separate General Notices and Published Results subtabs
+- each CTEVT item shows the source label, title, update date, and link to the live notice
 
 ## Configuration
 
@@ -252,7 +254,8 @@ The parsing logic lives in `PublicDataService` so that:
 
 - The result page is dynamic, not hardcoded.
 - The notice feeds are live, not copied into the local database.
-- The admin dashboard ticker shows live CTEVT notices and is separated from the public homepage.
+- The public home slider shows only the latest public notices.
+- The admin dashboard keeps CTEVT notices inside the notice board card using tabs.
 - The home page and notices page both use the same service layer so they stay consistent.
 - If the official CTEVT site changes markup, the service is the only place that should need updates.
 - If the external site is unavailable, the result page still falls back to a usable form and the notices page shows an empty state.

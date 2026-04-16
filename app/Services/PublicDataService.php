@@ -602,6 +602,7 @@ class PublicDataService
                     'label' => $submitLabel,
                 ],
                 'source' => 'live',
+                'source_state' => 'live',
             ];
         } finally {
             libxml_clear_errors();
@@ -688,6 +689,7 @@ class PublicDataService
                     'label' => $submitLabel,
                 ],
                 'source' => 'live',
+                'source_state' => 'live',
             ];
         }
 
@@ -816,7 +818,7 @@ class PublicDataService
             'autocomplete' => 'off',
             'fields' => [
                 [
-                    'label' => 'Examination Year:',
+                    'label' => 'Examination Year',
                     'name' => 'src_year',
                     'id' => 'src_year',
                     'type' => 'select',
@@ -832,7 +834,7 @@ class PublicDataService
                     ],
                 ],
                 [
-                    'label' => 'Level :',
+                    'label' => 'Level',
                     'name' => 'src_level',
                     'id' => 'src_level',
                     'type' => 'select',
@@ -844,21 +846,21 @@ class PublicDataService
                     ],
                 ],
                 [
-                    'label' => 'Symbol Number :',
+                    'label' => 'Symbol Number',
                     'name' => 'exam_symbol_number',
                     'id' => 'exam_symbol_number',
                     'type' => 'input',
                     'input_type' => 'text',
-                    'placeholder' => 'e.g. 1000234',
+                    'placeholder' => 'Enter your symbol number',
                     'required' => true,
                 ],
                 [
-                    'label' => 'Date of Birth (B.S.) :',
+                    'label' => 'Date of Birth (B.S.)',
                     'name' => 'dob',
                     'id' => 'dob',
                     'type' => 'input',
                     'input_type' => 'text',
-                    'placeholder' => 'Date Format: YYYY-MM-DD',
+                    'placeholder' => 'YYYY-MM-DD (B.S.)',
                     'required' => true,
                 ],
             ],
@@ -867,6 +869,7 @@ class PublicDataService
                 'label' => 'Search',
             ],
             'source' => 'fallback',
+            'source_state' => 'fallback',
         ];
     }
 

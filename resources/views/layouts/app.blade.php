@@ -3,10 +3,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- PWA Requirements -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1d4ed8">
-    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="application-name" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">
+    <meta name="apple-mobile-web-app-title" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#8B0000">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
     <title>@yield('title', 'MMP CMS') | {{ config('app.name') }}</title>
     
@@ -81,7 +87,6 @@
     })();
     </script>
     
-    <!-- PWA Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
