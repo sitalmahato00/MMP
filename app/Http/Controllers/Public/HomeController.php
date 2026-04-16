@@ -69,7 +69,7 @@ class HomeController extends Controller
 
     public function notices(Request $request)
     {
-        $activeType = in_array($request->string('type')->toString(), ['general', 'exam'], true)
+        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'news', 'event'], true)
             ? $request->string('type')->toString()
             : 'general';
 
@@ -90,9 +90,10 @@ class HomeController extends Controller
         return view('public.department-show', compact('department'));
     }
 
-    public function downloads()
+    public function downloads(Request $request)
     {
-        $downloads = $this->service->getDownloads();
+        $category = trim($request->string('category')->toString());
+        $downloads = $this->service->getDownloads($category !== '' ? $category : null);
         return view('public.downloads', compact('downloads'));
     }
 
@@ -118,7 +119,7 @@ class HomeController extends Controller
 
     public function newsEvents(Request $request)
     {
-        $notices = $this->service->getNotices(12, 'news');
+        $notices = $this->service->getNewsEvents(12);
         return view('public.news-events', compact('notices'));
     }
 

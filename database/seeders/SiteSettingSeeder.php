@@ -9,8 +9,6 @@ class SiteSettingSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (SiteSetting::defaultDefinitions() as $setting) {
-            SiteSetting::firstOrCreate(['key' => $setting['key']], $setting);
-        }
+        SiteSetting::ensureDefaults();
     }
 }

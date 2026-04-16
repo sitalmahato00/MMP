@@ -28,6 +28,8 @@ return new class extends Migration
             $table->string('subtitle')->nullable();
             $table->string('image');
             $table->string('link')->nullable();
+            $table->string('button_text', 50)->nullable();
+            $table->string('button_link')->nullable();
             $table->integer('order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
@@ -38,8 +40,14 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('file_path');
+            $table->text('description')->nullable();
+            $table->string('file_name')->nullable();
+            $table->string('file_type', 20)->nullable();
+            $table->unsignedBigInteger('file_size')->nullable();
             $table->string('category')->nullable(); // Syllabus, Forms, Notes, etc.
             $table->foreignId('department_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->boolean('is_public')->default(true);
+            $table->foreignId('uploaded_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

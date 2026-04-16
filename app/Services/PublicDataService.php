@@ -45,7 +45,7 @@ class PublicDataService
     public function getNotices(int $perPage = 15, ?string $type = 'general')
     {
         return Notice::published()
-            ->when(in_array($type, ['general', 'exam', 'news'], true), function ($query) use ($type) {
+            ->when(in_array($type, ['general', 'exam', 'news', 'event'], true), function ($query) use ($type) {
                 $query->where('type', $type);
             })
             ->latest()
@@ -58,6 +58,18 @@ class PublicDataService
             return Department::active()
                 ->withCount(['programs', 'students', 'teachers'])
                 ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity']);
+        });
+    }
+
+    public function getNavigationCourses(): \Illuminate\Support\Collection
+    {
+        return Cache::remember('public:navigation_courses', self::CACHE_TTL, function () {
+            return Department::active()
+                ->with(['programs' => function ($query) {
+                    $query->active()->orderBy('name');
+                }])
+                ->orderBy('name')
+                ->get(['id', 'name', 'code', 'slug']);
         });
     }
 
@@ -83,13 +95,23 @@ class PublicDataService
         });
     }
 
-    public function getDownloads(): \Illuminate\Database\Eloquent\Collection
+    public function getDownloads(?string $category = null): Collection
     {
-        return Cache::remember('public:downloads', self::CACHE_TTL, function () {
+        $downloads = Cache::remember('public:downloads', self::CACHE_TTL, function () {
             return Download::with('department:id,name,code')
                 ->latest()
                 ->get(['id', 'title', 'file_path', 'category', 'department_id', 'created_at']);
         });
+
+        $normalizedCategory = $this->normalizeCategory($category);
+
+        if ($normalizedCategory === '') {
+            return $downloads;
+        }
+
+        return $downloads->filter(function ($download) use ($normalizedCategory) {
+            return $this->normalizeCategory((string) $download->category) === $normalizedCategory;
+        })->values();
     }
 
     public function getPage(string $slug): Page
@@ -129,28 +151,35 @@ class PublicDataService
     public function getGalleryMedia(): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember('public:gallery', self::CACHE_TTL, function () {
-            return Media::where('file_type', 'image')
+            return Media::where(function ($query) {
+                $query->where('file_type', 'gallery')
+                    ->orWhere('file_type', 'image')
+                    ->orWhere('mime_type', 'like', 'image/%');
+            })
                 ->with('department:id,name,code')
                 ->latest()
                 ->get(['id', 'title', 'file_path', 'file_type', 'mime_type', 'size', 'department_id', 'created_at']);
         });
     }
 
-    public function getQuestionBankDownloads(): \Illuminate\Database\Eloquent\Collection
+    public function getQuestionBankDownloads(): Collection
     {
-        return Cache::remember('public:question_bank', self::CACHE_TTL, function () {
-            return Download::where('category', 'question-bank')
-                ->with('department:id,name,code')
-                ->latest()
-                ->get(['id', 'title', 'file_path', 'category', 'department_id', 'created_at']);
-        });
+        return $this->getDownloads('question-bank');
+    }
+
+    public function getNewsEvents(int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return Notice::published()
+            ->whereIn('type', ['news', 'event'])
+            ->latest()
+            ->paginate($perPage, ['id', 'title', 'slug', 'type', 'content', 'attachment', 'published_at', 'created_at']);
     }
 
     public function getLatestNewsEvents(int $limit = 5): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember("public:news_events:{$limit}", self::CACHE_TTL, function () use ($limit) {
             return Notice::published()
-                ->where('type', 'news')
+                ->whereIn('type', ['news', 'event'])
                 ->latest()
                 ->take($limit)
                 ->get(['id', 'title', 'slug', 'type', 'content', 'attachment', 'published_at', 'created_at']);
@@ -215,7 +244,9 @@ class PublicDataService
                 'public:site_settings',
                 'public:gallery',
                 'public:question_bank',
+                'public:news_events:5',
                 'public:homepage_stats',
+                'public:navigation_courses',
             ];
 
             foreach (array_keys(SiteSetting::managedPageDefinitions()) as $slug) {
@@ -270,5 +301,14 @@ class PublicDataService
         }
 
         return '<p>Reach out to our team using the official contact details below.</p>'.implode('', $details);
+    }
+
+    private function normalizeCategory(?string $category): string
+    {
+        return Str::of((string) $category)
+            ->lower()
+            ->replace(['-', '_'], ' ')
+            ->squish()
+            ->toString();
     }
 }

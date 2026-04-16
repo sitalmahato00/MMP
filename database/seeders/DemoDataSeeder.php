@@ -106,6 +106,75 @@ class DemoDataSeeder extends Seeder
             );
             $this->restoreIfTrashed($program);
 
+            $courseCatalog = [
+                [
+                    'department_code' => 'AR',
+                    'department_name' => 'Architecture Engineering',
+                    'program_code' => 'DAE',
+                    'program_name' => 'Diploma in Architecture Engineering',
+                    'description' => 'Architectural design, drafting, building planning and construction management.',
+                ],
+                [
+                    'department_code' => 'CE',
+                    'department_name' => 'Civil Engineering',
+                    'program_code' => 'DCE',
+                    'program_name' => 'Diploma in Civil Engineering',
+                    'description' => 'Design, construction and maintenance of infrastructure including roads, bridges and buildings.',
+                ],
+                [
+                    'department_code' => 'EL',
+                    'department_name' => 'Electrical Engineering',
+                    'program_code' => 'DEL',
+                    'program_name' => 'Diploma in Electrical Engineering',
+                    'description' => 'Electrical systems, power generation, wiring, switchgear and electrical installations.',
+                ],
+                [
+                    'department_code' => 'EE',
+                    'department_name' => 'Electronics Engineering',
+                    'program_code' => 'DEE',
+                    'program_name' => 'Diploma in Electronics Engineering',
+                    'description' => 'Electronics circuits, communication systems, embedded systems and signal processing.',
+                ],
+                [
+                    'department_code' => 'ME',
+                    'department_name' => 'Mechanical Engineering',
+                    'program_code' => 'DME',
+                    'program_name' => 'Diploma in Mechanical Engineering',
+                    'description' => 'Machine design, manufacturing, thermodynamics and mechanical systems.',
+                ],
+            ];
+
+            foreach ($courseCatalog as $course) {
+                $courseDepartment = Department::withTrashed()->updateOrCreate(
+                    ['code' => $course['department_code']],
+                    [
+                        'name' => $course['department_name'],
+                        'slug' => Str::slug($course['department_name']),
+                        'description' => $course['description'],
+                        'photo' => null,
+                        'syllabus' => null,
+                        'seat_capacity' => 40,
+                        'hod_id' => null,
+                        'is_active' => true,
+                    ]
+                );
+                $this->restoreIfTrashed($courseDepartment);
+
+                $courseProgram = Program::withTrashed()->updateOrCreate(
+                    ['code' => $course['program_code']],
+                    [
+                        'department_id' => $courseDepartment->id,
+                        'name' => $course['program_name'],
+                        'slug' => Str::slug($course['program_name']),
+                        'total_semesters' => 6,
+                        'duration_years' => 3,
+                        'description' => $course['description'],
+                        'is_active' => true,
+                    ]
+                );
+                $this->restoreIfTrashed($courseProgram);
+            }
+
             $subjects = [];
             $subjectDefinitions = [
                 [
@@ -282,7 +351,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedAssets(): array
+    public function seedAssets(): array
     {
         $paths = [
             'site_logo' => 'seeded/site/logo.png',
@@ -302,8 +371,14 @@ class DemoDataSeeder extends Seeder
             'banner_two' => 'seeded/banners/banner-2.png',
             'download_prospectus' => 'seeded/downloads/prospectus.png',
             'download_form' => 'seeded/downloads/admission-form.png',
+            'download_syllabus' => 'seeded/downloads/syllabus.png',
+            'download_notes' => 'seeded/downloads/notes.png',
+            'download_question_bank' => 'seeded/downloads/question-bank.png',
+            'download_reports' => 'seeded/downloads/reports.png',
             'notice_general' => 'seeded/notices/general.png',
             'notice_exam' => 'seeded/notices/exam.png',
+            'notice_news' => 'seeded/notices/news.png',
+            'notice_event' => 'seeded/notices/event.png',
             'notice_attachment' => 'seeded/notices/attachment.png',
             'media_one' => 'seeded/media/gallery-1.png',
             'media_two' => 'seeded/media/gallery-2.png',
@@ -319,7 +394,7 @@ class DemoDataSeeder extends Seeder
         return $assets;
     }
 
-    private function copyPlaceholderImage(string $path): string
+    public function copyPlaceholderImage(string $path): string
     {
         $source = public_path('assets/image.png');
         if (! is_file($source)) {
@@ -328,13 +403,16 @@ class DemoDataSeeder extends Seeder
 
         $disk = Storage::disk('public');
         if (! $disk->exists($path)) {
-            $disk->put($path, file_get_contents($source));
+            $content = file_get_contents($source);
+            if ($content === false) {
+                throw new RuntimeException('Failed to read placeholder asset: ' . $source);
+            }
+            $disk->put($path, $content);
         }
 
         return $path;
     }
-
-    private function seedUser(string $name, string $email, string $role): User
+    public function seedUser(string $name, string $email, string $role): User
     {
         $user = User::withTrashed()->updateOrCreate(
             ['email' => $email],
@@ -352,14 +430,14 @@ class DemoDataSeeder extends Seeder
         return $user;
     }
 
-    private function restoreIfTrashed($model): void
+    public function restoreIfTrashed($model): void
     {
         if (method_exists($model, 'trashed') && $model->trashed()) {
             $model->restore();
         }
     }
 
-    private function seedSiteSettingFiles(array $assets): void
+    public function seedSiteSettingFiles(array $assets): void
     {
         $mapping = [
             'site_logo' => $assets['site_logo'],
@@ -377,7 +455,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedExecutives(array $assets): void
+    public function seedExecutives(array $assets): void
     {
         $items = [
             [
@@ -412,7 +490,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedFacilities(Department $department, Program $program, array $assets): void
+    public function seedFacilities(Department $department, Program $program, array $assets): void
     {
         $items = [
             [
@@ -450,7 +528,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedStaff(array $assets): void
+    public function seedStaff(array $assets): void
     {
         $items = [
             [
@@ -480,7 +558,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedPages(array $assets): void
+    public function seedPages(array $assets): void
     {
         $items = [
             [
@@ -535,7 +613,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedBanners(array $assets): void
+    public function seedBanners(array $assets): void
     {
         $items = [
             [
@@ -565,7 +643,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedDownloads(User $principal, Department $department, array $assets): void
+    public function seedDownloads(User $principal, Department $department, array $assets): void
     {
         $items = [
             [
@@ -592,6 +670,54 @@ class DemoDataSeeder extends Seeder
                 'is_public' => true,
                 'uploaded_by' => $principal->id,
             ],
+            [
+                'title' => 'Diploma in IT Syllabus',
+                'file_path' => $assets['download_syllabus'],
+                'file_name' => 'Diploma in IT Syllabus.png',
+                'file_type' => 'png',
+                'file_size' => Storage::disk('public')->size($assets['download_syllabus']),
+                'description' => 'Program syllabus for the Diploma in Information Technology.',
+                'category' => 'Syllabus',
+                'department_id' => $department->id,
+                'is_public' => true,
+                'uploaded_by' => $principal->id,
+            ],
+            [
+                'title' => 'Web Technology I Notes',
+                'file_path' => $assets['download_notes'],
+                'file_name' => 'Web Technology I Notes.png',
+                'file_type' => 'png',
+                'file_size' => Storage::disk('public')->size($assets['download_notes']),
+                'description' => 'Class notes and handouts for Web Technology I.',
+                'category' => 'Notes',
+                'department_id' => $department->id,
+                'is_public' => true,
+                'uploaded_by' => $principal->id,
+            ],
+            [
+                'title' => 'Computer Graphics Question Bank',
+                'file_path' => $assets['download_question_bank'],
+                'file_name' => 'Computer Graphics Question Bank.png',
+                'file_type' => 'png',
+                'file_size' => Storage::disk('public')->size($assets['download_question_bank']),
+                'description' => 'Model question bank for Computer Graphics.',
+                'category' => 'Question Bank',
+                'department_id' => $department->id,
+                'is_public' => true,
+                'uploaded_by' => $principal->id,
+            ],
+            [
+                'title' => 'MMP Annual Report 2081',
+                'file_path' => $assets['download_reports'],
+                'file_name' => 'MMP Annual Report 2081.png',
+                'file_type' => 'png',
+                'file_size' => Storage::disk('public')->size($assets['download_reports']),
+                'description' => 'Annual report and publication archive.',
+                'category' => 'Reports',
+                'department_id' => null,
+                'is_public' => true,
+                'uploaded_by' => $principal->id,
+            ],
         ];
 
         foreach ($items as $item) {
@@ -599,7 +725,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedNotices(User $principal, Department $department, Program $program, array $assets): array
+    public function seedNotices(User $principal, Department $department, Program $program, array $assets): array
     {
         $items = [
             [
@@ -628,6 +754,32 @@ class DemoDataSeeder extends Seeder
                 'is_published' => true,
                 'published_at' => now()->subDay(),
             ],
+            [
+                'title' => 'Campus News: New Computer Lab Equipment Installed',
+                'slug' => 'campus-news-new-computer-lab-equipment-installed',
+                'content' => 'The IT department has upgraded the computer lab with new workstations, networking equipment, and modern presentation tools.',
+                'attachment' => $assets['notice_news'],
+                'type' => 'news',
+                'department_id' => $department->id,
+                'program_id' => $program->id,
+                'semester' => null,
+                'created_by' => $principal->id,
+                'is_published' => true,
+                'published_at' => now()->subHours(18),
+            ],
+            [
+                'title' => 'Annual Sports Meet 2081',
+                'slug' => 'annual-sports-meet-2081',
+                'content' => 'Students and staff are invited to participate in the annual sports meet and cultural activities scheduled for this month.',
+                'attachment' => $assets['notice_event'],
+                'type' => 'event',
+                'department_id' => null,
+                'program_id' => null,
+                'semester' => null,
+                'created_by' => $principal->id,
+                'is_published' => true,
+                'published_at' => now()->subHours(6),
+            ],
         ];
 
         $notices = [];
@@ -640,7 +792,7 @@ class DemoDataSeeder extends Seeder
         return $notices;
     }
 
-    private function seedNoticeAttachments(array $notices, array $assets): void
+    public function seedNoticeAttachments(array $notices, array $assets): void
     {
         $attachments = [
             [
@@ -653,6 +805,18 @@ class DemoDataSeeder extends Seeder
                 'notice' => $notices[1],
                 'file_path' => $assets['notice_exam'],
                 'file_name' => 'Mid Term Examination Schedule.png',
+                'file_type' => 'png',
+            ],
+            [
+                'notice' => $notices[2],
+                'file_path' => $assets['notice_news'],
+                'file_name' => 'Campus News Update.png',
+                'file_type' => 'png',
+            ],
+            [
+                'notice' => $notices[3],
+                'file_path' => $assets['notice_event'],
+                'file_name' => 'Annual Sports Meet 2081.png',
                 'file_type' => 'png',
             ],
         ];
@@ -672,7 +836,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedMedia(User $principal, Department $department, array $assets): void
+    public function seedMedia(User $principal, Department $department, array $assets): void
     {
         $items = [
             [
@@ -709,7 +873,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedCommunications(User $principal, User $hod, User $teacher, User $student, User $parent, User $alumni): void
+    public function seedCommunications(User $principal, User $hod, User $teacher, User $student, User $parent, User $alumni): void
     {
         $items = [
             [
@@ -761,7 +925,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedTimetableAndAttendance(AcademicSession $session, Program $program, Teacher $teacher, Subject $subjectOne, Subject $subjectTwo, Student $studentOne, Student $studentTwo): void
+    public function seedTimetableAndAttendance(AcademicSession $session, Program $program, Teacher $teacher, Subject $subjectOne, Subject $subjectTwo, Student $studentOne, Student $studentTwo): void
     {
         $timetable = Timetable::query()->updateOrCreate(
             [
@@ -839,7 +1003,7 @@ class DemoDataSeeder extends Seeder
         );
     }
 
-    private function seedExam(AcademicSession $session, Department $department, Program $program): Exam
+    public function seedExam(AcademicSession $session, Department $department, Program $program): Exam
     {
         $exam = Exam::withTrashed()->updateOrCreate(
             ['name' => 'First Internal Assessment - 2081'],
@@ -861,7 +1025,7 @@ class DemoDataSeeder extends Seeder
         return $exam;
     }
 
-    private function seedMarks(Exam $exam, Teacher $teacher, Student $studentOne, Student $studentTwo, Subject $subjectOne, Subject $subjectTwo, Subject $subjectThree): void
+    public function seedMarks(Exam $exam, Teacher $teacher, Student $studentOne, Student $studentTwo, Subject $subjectOne, Subject $subjectTwo, Subject $subjectThree): void
     {
         $items = [
             [
@@ -920,7 +1084,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedAssignments(Teacher $teacher, Program $program, Subject $subject, Student $studentOne, Student $studentTwo, array $assets): void
+    public function seedAssignments(Teacher $teacher, Program $program, Subject $subject, Student $studentOne, Student $studentTwo, array $assets): void
     {
         $assignment = Assignment::query()->updateOrCreate(
             ['title' => 'Build a responsive homepage'],
@@ -972,7 +1136,7 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedAuditLog(User $principal, Department $department, Program $program, Exam $exam): void
+    public function seedAuditLog(User $principal, Department $department, Program $program, Exam $exam): void
     {
         AuditLog::query()->updateOrCreate(
             ['action' => 'seed_demo_data', 'model_type' => self::class, 'model_id' => null],

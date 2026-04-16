@@ -25,10 +25,14 @@ class WebControlController extends Controller
         $settings   = SiteSetting::all()->groupBy('group');
         $facilities = Facility::with(['department', 'program'])->latest()->get();
         $executives = Executive::orderBy('order')->get();
-        $banners    = Banner::orderBy('order')->latest()->get();
+        $banners    = Banner::orderBy('order')->get();
         $media      = Media::latest()->get();
         $downloads  = Download::latest()->get();
-        $notices    = Notice::with('author')->latest()->take(60)->get();
+        $notices    = Notice::with('author')
+            ->whereIn('type', ['news', 'event'])
+            ->latest()
+            ->take(60)
+            ->get();
 
         return view('admin.web-control.index', compact(
             'settings', 'facilities', 'executives',

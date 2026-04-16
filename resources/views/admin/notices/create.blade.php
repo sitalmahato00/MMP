@@ -1,8 +1,26 @@
 @extends('layouts.app')
-@section('title', 'Post Notice')
+@php
+    $noticeTypes = [
+        'general' => 'Notice Board',
+        'exam' => 'Exam Schedules & Results',
+        'news' => 'News',
+        'event' => 'Event',
+        'department' => 'Specific Department',
+        'class' => 'Specific Class',
+        'teachers' => 'Teachers Only',
+    ];
+    $defaultType = old('type', request('type', 'general'));
+    $pageTitle = $defaultType === 'news' ? 'Post News' : ($defaultType === 'event' ? 'Post Event' : 'Post Notice');
+    $pageSubtitle = $defaultType === 'news'
+        ? 'Publish a news update to the system.'
+        : ($defaultType === 'event'
+            ? 'Publish an event update to the system.'
+            : 'Publish a new notice to the system.');
+@endphp
+@section('title', $pageTitle)
 
 @section('content')
-<x-page-header title="Post Notice" subtitle="Publish a new notice to the system."
+<x-page-header :title="$pageTitle" :subtitle="$pageSubtitle"
                back="{{ route('admin.notices.index') }}"/>
 
 <form method="POST" action="{{ route('admin.notices.store') }}" enctype="multipart/form-data" class="max-w-3xl space-y-6">
@@ -37,8 +55,8 @@
         <x-form-row>
             <x-form-field label="Notice Type / Audience" name="type" :required="true">
                 <x-select name="type" :required="true">
-                    @foreach(['general'=>'Notice Board','exam'=>'Exam Schedules & Results','news'=>'News','event'=>'Event','department'=>'Specific Department','class'=>'Specific Class','teachers'=>'Teachers Only'] as $val => $label)
-                        <option value="{{ $val }}" {{ old('type') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                    @foreach($noticeTypes as $val => $label)
+                        <option value="{{ $val }}" {{ $defaultType === $val ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </x-select>
             </x-form-field>

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->text('content');
             $table->string('attachment')->nullable();
 
-            $table->enum('type', ['general', 'department', 'class', 'teachers', 'exam'])->default('general');
+            $table->enum('type', ['general', 'department', 'class', 'teachers', 'exam', 'news', 'event'])->default('general');
             $table->foreignId('department_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('program_id')->nullable()->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('semester')->nullable();
@@ -31,10 +31,21 @@ return new class extends Migration
             $table->index(['is_published', 'type'], 'idx_notices_published_type');
             $table->index(['department_id', 'is_published'], 'idx_notices_dept_published');
         });
+
+        Schema::create('notice_attachments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('notice_id')->constrained()->cascadeOnDelete();
+            $table->string('file_path');
+            $table->string('file_name');
+            $table->string('file_type', 20)->nullable();
+            $table->unsignedBigInteger('file_size')->nullable();
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('notice_attachments');
         Schema::dropIfExists('notices');
     }
 };

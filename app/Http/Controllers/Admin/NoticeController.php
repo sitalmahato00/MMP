@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Notice;
 use App\Models\NoticeAttachment;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -58,6 +59,8 @@ class NoticeController extends Controller
             }
         }
 
+        PublicDataService::invalidate('*');
+
         return redirect()->route('admin.notices.index')
             ->with('success', 'Notice published.');
     }
@@ -106,6 +109,8 @@ class NoticeController extends Controller
             }
         }
 
+        PublicDataService::invalidate('*');
+
         return redirect()->route('admin.notices.index')
             ->with('success', 'Notice updated.');
     }
@@ -123,6 +128,7 @@ class NoticeController extends Controller
             Storage::disk('public')->delete($notice->attachment);
         }
         $notice->delete();
+        PublicDataService::invalidate('*');
         return redirect()->route('admin.notices.index')
             ->with('success', 'Notice deleted.');
     }

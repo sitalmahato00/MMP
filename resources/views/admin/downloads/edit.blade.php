@@ -12,8 +12,8 @@
             <x-form-field label="Title" name="title" :required="true" span="full">
                 <x-input name="title" :value="$download->title" :required="true"/>
             </x-form-field>
-            <x-form-field label="Category" name="category">
-                <x-input name="category" :value="$download->category"/>
+            <x-form-field label="Category" name="category" hint="Suggested categories: Forms, Syllabus, Notes, Question Bank, Reports, Publications.">
+                <x-input name="category" :value="$download->category" list="download-category-options" placeholder="e.g. Notes"/>
             </x-form-field>
             <x-form-field label="Visibility" name="is_public">
                 <label class="flex items-center gap-3 cursor-pointer mt-2">
@@ -29,6 +29,16 @@
             </x-form-field>
         </x-form-row>
     </x-form-section>
+    <datalist id="download-category-options">
+        <option value="Forms"></option>
+        <option value="Syllabus"></option>
+        <option value="Notes"></option>
+        <option value="Question Bank"></option>
+        <option value="Reports"></option>
+        <option value="Publications"></option>
+        <option value="Admissions"></option>
+        <option value="General"></option>
+    </datalist>
     <div class="flex items-center gap-3">
         <x-btn type="submit">Save Changes</x-btn>
         <x-btn href="{{ route('admin.downloads.index') }}" variant="secondary">Cancel</x-btn>

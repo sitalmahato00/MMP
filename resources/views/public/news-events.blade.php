@@ -33,6 +33,10 @@
                                     </p>
                                 @endif
                                 <div class="flex items-center gap-3 flex-wrap">
+                                    @php $noticeType = $notice->type === 'event' ? 'Event' : 'News'; @endphp
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border {{ $notice->type === 'event' ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-purple-50 text-purple-700 border-purple-100' }}">
+                                        {{ $noticeType }}
+                                    </span>
                                     <span class="text-xs text-gray-400">{{ optional($noticeDate)->format('F d, Y') }}</span>
                                     @if($notice->attachment)
                                         <a href="{{ asset('storage/'.$notice->attachment) }}" class="text-xs text-red-700 hover:underline flex items-center gap-1 font-semibold">

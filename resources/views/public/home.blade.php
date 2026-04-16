@@ -305,7 +305,13 @@
                                 <span class="text-sm font-black leading-tight">{{ optional($eventDate)->format('d') }}</span>
                             </div>
                             <div class="flex-1 w-full overflow-hidden">
-                                <div class="text-[10px] font-bold text-gray-400 mb-0.5">{{ optional($eventDate)->format('F d, Y') }}</div>
+                                @php $eventTypeLabel = $event->type === 'event' ? 'Event' : 'News'; @endphp
+                                <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                                    <div class="text-[10px] font-bold text-gray-400">{{ optional($eventDate)->format('F d, Y') }}</div>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full border {{ $event->type === 'event' ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-purple-50 text-purple-700 border-purple-100' }}">
+                                        {{ $eventTypeLabel }}
+                                    </span>
+                                </div>
                                 <a href="{{ route('public.news-events') }}" class="font-medium text-gray-800 text-[12px] leading-tight hover:text-[#8B0000] block transition-colors line-clamp-2">{{ $event->title }}</a>
                             </div>
                         </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Executive;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -41,6 +42,7 @@ class ExecutiveController extends Controller
         }
 
         Executive::create($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.executives.index')->with('success', 'Executive profile saved.');
     }
@@ -73,6 +75,7 @@ class ExecutiveController extends Controller
         }
 
         $executive->update($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.executives.index')->with('success', 'Executive profile updated.');
     }
@@ -83,6 +86,7 @@ class ExecutiveController extends Controller
             Storage::disk('public')->delete($executive->avatar);
         }
         $executive->delete();
+        PublicDataService::invalidate('*');
         
         return back()->with('success', 'Executive record removed.');
     }

@@ -4,13 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class StaffSeeder extends Seeder
+class PageSeeder extends Seeder
 {
     public function run(): void
     {
         $demo = new DemoDataSeeder();
         $assets = $demo->seedAssets();
 
-        $demo->seedStaff($assets);
+        $demo->seedPages($assets);
     }
 }

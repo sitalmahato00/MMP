@@ -39,7 +39,7 @@ class BannerController extends Controller
         $data['order']     = $request->order ?? 0;
 
         Banner::create($data);
-        PublicDataService::invalidate('homepage');
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.banners.index')->with('success', 'Banner added.');
     }
@@ -79,7 +79,7 @@ class BannerController extends Controller
         $data['order']     = $request->order ?? 0;
 
         $banner->update($data);
-        PublicDataService::invalidate('homepage');
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.banners.index')->with('success', 'Banner updated.');
     }
@@ -90,7 +90,7 @@ class BannerController extends Controller
             Storage::disk('public')->delete($banner->image);
         }
         $banner->delete();
-        PublicDataService::invalidate('homepage');
+        PublicDataService::invalidate('*');
         return redirect()->route('admin.banners.index')->with('success', 'Banner deleted.');
     }
 }

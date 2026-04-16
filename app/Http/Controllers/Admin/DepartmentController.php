@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\User;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -38,6 +39,7 @@ class DepartmentController extends Controller
         }
 
         Department::create($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.departments.index')
             ->with('success', "Department '{$data['name']}' created.");
@@ -74,6 +76,7 @@ class DepartmentController extends Controller
         }
 
         $department->update($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.departments.index')
             ->with('success', "Department '{$department->name}' updated.");
@@ -85,6 +88,7 @@ class DepartmentController extends Controller
             Storage::disk('public')->delete($department->cover_image_path);
         }
         $department->delete();
+        PublicDataService::invalidate('*');
         return redirect()->route('admin.departments.index')
             ->with('success', 'Department deleted.');
     }

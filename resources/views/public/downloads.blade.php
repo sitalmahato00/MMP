@@ -3,11 +3,32 @@
 @section('breadcrumb', true)
 
 @section('content')
+@php
+    $activeResourceCategory = trim((string) request('category'));
+    $resourceFilters = [
+        ['label' => 'All', 'category' => null],
+        ['label' => 'Forms', 'category' => 'forms'],
+        ['label' => 'Syllabus', 'category' => 'syllabus'],
+        ['label' => 'Notes', 'category' => 'notes'],
+        ['label' => 'Question Bank', 'category' => 'question-bank'],
+        ['label' => 'Reports & Publications', 'category' => 'reports'],
+    ];
+@endphp
+
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2">
             <div class="section-header" style="background-color: #8B0000;">📥 Downloads & Resources</div>
             <div class="bg-white border border-gray-200 border-t-0">
+                <div class="p-4 border-b border-gray-100 flex flex-wrap gap-2">
+                    @foreach($resourceFilters as $filter)
+                        @php $isActive = $activeResourceCategory === (string) ($filter['category'] ?? ''); @endphp
+                        <a href="{{ $filter['category'] ? route('public.downloads', ['category' => $filter['category']]) : route('public.downloads') }}"
+                           class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors {{ $isActive ? 'bg-[#8B0000] text-white border-[#8B0000]' : 'bg-gray-50 text-gray-600 border-gray-200 hover:text-[#8B0000] hover:border-[#8B0000]/30' }}">
+                            {{ $filter['label'] }}
+                        </a>
+                    @endforeach
+                </div>
                 @forelse($downloads as $download)
                     <div class="flex items-center gap-4 px-5 py-4 border-b border-gray-100 last:border-0 hover:bg-red-50 transition-colors group">
                         <div class="flex-shrink-0 w-10 h-10 bg-red-100 text-red-700 rounded flex items-center justify-center">
@@ -27,7 +48,9 @@
                 @empty
                     <div class="py-16 text-center">
                         <p class="text-5xl mb-4">📂</p>
-                        <p class="text-gray-500 font-medium">No downloads available yet.</p>
+                        <p class="text-gray-500 font-medium">
+                            {{ $activeResourceCategory !== '' ? 'No resources found for this category yet.' : 'No downloads available yet.' }}
+                        </p>
                         <p class="text-sm text-gray-400 mt-2">Please check back later or contact the college office.</p>
                     </div>
                 @endforelse
@@ -38,7 +61,10 @@
             <div class="section-header" style="background-color: #8B0000;">⚡ Quick Links</div>
             <div class="bg-white border border-gray-200 border-t-0">
                 <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notice Board</a>
+                    <a href="{{ route('public.downloads', ['category' => 'syllabus']) }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Syllabus</a>
+                    <a href="{{ route('public.downloads', ['category' => 'notes']) }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notes</a>
                 <a href="{{ route('public.question-bank') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Question Bank</a>
+                    <a href="{{ route('public.downloads') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> All Resources</a>
                 <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-800"><span>🔐</span> Student Portal</a>
             </div>
         </div>

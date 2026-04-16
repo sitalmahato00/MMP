@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Facility;
 use App\Models\Department;
 use App\Models\Program;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -64,6 +65,7 @@ class FacilityController extends Controller
         }
 
         Facility::create($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.facilities.index')->with('success', 'Facility created successfully.');
     }
@@ -111,6 +113,7 @@ class FacilityController extends Controller
         }
 
         $facility->update($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.facilities.index')->with('success', 'Facility updated successfully.');
     }
@@ -126,6 +129,7 @@ class FacilityController extends Controller
         }
 
         $facility->delete();
+        PublicDataService::invalidate('*');
         return back()->with('success', 'Facility removed.');
     }
 }

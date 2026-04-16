@@ -47,6 +47,10 @@
             : null;
     @endphp
 
+    @php
+        $courseMenu = collect($publicCourses ?? []);
+    @endphp
+
     {{-- ── TOP INFO BAR (Red, matching mmp.edu.np) ─────────────── --}}
     <div style="background-color: #8B0000;" class="text-white text-xs py-1.5 hidden md:block">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex justify-between items-center">
@@ -115,14 +119,7 @@
                             ['href' => route('public.leadership'), 'label' => 'Presidents & Principals'],
                             ['href' => route('public.contact'), 'label' => 'Contact Us'],
                         ]],
-                        ['label' => 'COURSES', 'items' => [
-                            ['href' => route('public.department.show', 'information-technology'), 'label' => 'Diploma in Information Technology'],
-                            ['href' => route('public.department.show', 'architecture-engineering'), 'label' => 'Diploma in Architecture Engineering'],
-                            ['href' => route('public.department.show', 'electrical-engineering'), 'label' => 'Diploma in Electrical Engineering'],
-                            ['href' => route('public.department.show', 'electronics-engineering'), 'label' => 'Diploma in Electronics Engineering'],
-                            ['href' => route('public.department.show', 'mechanical-engineering'), 'label' => 'Diploma in Mechanical Engineering'],
-                            ['href' => route('public.department.show', 'civil-engineering'), 'label' => 'Diploma in Civil Engineering'],
-                        ]],
+                        ['label' => 'COURSES', 'items' => []],
                         ['label' => 'FEATURES', 'items' => [
                             ['href' => route('public.facilities'), 'label' => 'Campus Facilities & Resources'],
                             ['href' => route('public.page', 'scholarship-schemes'), 'label' => 'Scholarship Schemes'],
@@ -141,11 +138,22 @@
                             </button>
                             <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
                                 class="absolute top-full left-0 mt-0 w-64 bg-[#404040] py-2 z-50 shadow-xl border-t-2 border-white">
-                                @foreach($menu['items'] as $item)
-                                    <a href="{{ $item['href'] }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">
-                                        {{ $item['label'] }}
-                                    </a>
-                                @endforeach
+                                @if($menu['label'] === 'COURSES')
+                                    @forelse($courseMenu as $course)
+                                        @php $courseLabel = optional($course->programs->first())->name ?: $course->name; @endphp
+                                        <a href="{{ route('public.department.show', $course->slug) }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">
+                                            {{ $courseLabel }}
+                                        </a>
+                                    @empty
+                                        <span class="block px-5 py-2.5 text-[13px] text-gray-400">No courses available</span>
+                                    @endforelse
+                                @else
+                                    @foreach($menu['items'] as $item)
+                                        <a href="{{ $item['href'] }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">
+                                            {{ $item['label'] }}
+                                        </a>
+                                    @endforeach
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -153,6 +161,17 @@
                     <a href="{{ route('public.news-events') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NEWS & EVENTS</a>
                     <a href="{{ route('public.gallery') }}" class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">GALLERY</a>
                     
+                    @php
+                        $resourceLinks = [
+                            ['label' => 'All Resources', 'href' => route('public.downloads')],
+                            ['label' => 'Forms & Downloads', 'href' => route('public.downloads', ['category' => 'forms'])],
+                            ['label' => 'Syllabus', 'href' => route('public.downloads', ['category' => 'syllabus'])],
+                            ['label' => 'Notes', 'href' => route('public.downloads', ['category' => 'notes'])],
+                            ['label' => 'Question Bank', 'href' => route('public.question-bank')],
+                            ['label' => 'Reports & Publications', 'href' => route('public.downloads', ['category' => 'reports'])],
+                        ];
+                    @endphp
+
                     {{-- RESOURCES Dropdown --}}
                     <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                         <button class="text-white text-sm font-bold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 border-transparent hover:border-white flex items-center gap-1">
@@ -160,9 +179,10 @@
                             <svg class="w-3 h-3 ml-0.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
-                            class="absolute top-full left-0 mt-0 w-56 bg-[#404040] py-2 z-50 shadow-xl border-t-2 border-white">
-                            <a href="{{ route('public.downloads') }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5">Forms & Downloads</a>
-                            <a href="{{ route('public.question-bank') }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium">Question Bank</a>
+                            class="absolute top-full left-0 mt-0 w-72 max-h-96 overflow-y-auto bg-[#404040] py-2 z-50 shadow-xl border-t-2 border-white">
+                            @foreach($resourceLinks as $resource)
+                                <a href="{{ $resource['href'] }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">{{ $resource['label'] }}</a>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -201,12 +221,12 @@
                         COURSES <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
-                        <a href="{{ route('public.department.show', 'information-technology') }}" class="block hover:text-white">Information Technology</a>
-                        <a href="{{ route('public.department.show', 'civil-engineering') }}" class="block hover:text-white">Civil Engineering</a>
-                        <a href="{{ route('public.department.show', 'electrical-engineering') }}" class="block hover:text-white">Electrical Engineering</a>
-                        <a href="{{ route('public.department.show', 'mechanical-engineering') }}" class="block hover:text-white">Mechanical Engineering</a>
-                        <a href="{{ route('public.department.show', 'electronics-engineering') }}" class="block hover:text-white">Electronics Engineering</a>
-                        <a href="{{ route('public.department.show', 'architecture-engineering') }}" class="block hover:text-white">Architecture Engineering</a>
+                        @forelse($courseMenu as $course)
+                            @php $courseLabel = optional($course->programs->first())->name ?: $course->name; @endphp
+                            <a href="{{ route('public.department.show', $course->slug) }}" class="block hover:text-white">{{ $courseLabel }}</a>
+                        @empty
+                            <span class="block text-gray-500">No courses available</span>
+                        @endforelse
                     </div>
                 </div>
 
@@ -229,8 +249,9 @@
                         RESOURCES <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
-                        <a href="{{ route('public.downloads') }}" class="block hover:text-white">Forms & Downloads</a>
-                        <a href="{{ route('public.question-bank') }}" class="block hover:text-white">Question Bank</a>
+                        @foreach($resourceLinks as $resource)
+                            <a href="{{ $resource['href'] }}" class="block hover:text-white">{{ $resource['label'] }}</a>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -300,17 +321,15 @@
                 <div>
                     <h3 class="font-bold font-serif text-lg mb-4 text-yellow-400">Our Programs</h3>
                     <ul class="space-y-2 text-sm text-red-200">
-                        @foreach([
-                            ['href' => route('public.department.show', 'information-technology'), 'label' => 'Diploma in IT'],
-                            ['href' => route('public.department.show', 'civil-engineering'), 'label' => 'Diploma in Civil'],
-                            ['href' => route('public.department.show', 'electrical-engineering'), 'label' => 'Diploma in Electrical'],
-                            ['href' => route('public.department.show', 'electronics-engineering'), 'label' => 'Diploma in Electronics'],
-                            ['href' => route('public.department.show', 'mechanical-engineering'), 'label' => 'Diploma in Mechanical'],
-                            ['href' => route('public.department.show', 'architecture-engineering'), 'label' => 'Diploma in Architecture'],
-                            ['href' => '#', 'label' => 'Short Term Trainings'],
-                        ] as $link)
-                            <li><a href="{{ $link['href'] }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> {{ $link['label'] }}</a></li>
-                        @endforeach
+                        @forelse($courseMenu as $course)
+                            @php $courseLabel = optional($course->programs->first())->name ?: $course->name; @endphp
+                            <li><a href="{{ route('public.department.show', $course->slug) }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> {{ $courseLabel }}</a></li>
+                        @empty
+                            <li><a href="{{ route('public.departments') }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> Courses & Programs</a></li>
+                        @endforelse
+                        @if($courseMenu->isNotEmpty())
+                            <li><a href="{{ route('public.departments') }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> View All Programs</a></li>
+                        @endif
                     </ul>
                 </div>
 

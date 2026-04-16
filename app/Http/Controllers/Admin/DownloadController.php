@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Download;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,6 +53,8 @@ class DownloadController extends Controller
             'uploaded_by' => auth()->id(),
         ]);
 
+        PublicDataService::invalidate('*');
+
         return redirect()->route('admin.downloads.index')->with('success', 'Download added.');
     }
 
@@ -89,6 +92,8 @@ class DownloadController extends Controller
         $data['is_public'] = $request->has('is_public');
         $download->update($data);
 
+        PublicDataService::invalidate('*');
+
         return redirect()->route('admin.downloads.index')->with('success', 'Download updated.');
     }
 
@@ -98,6 +103,7 @@ class DownloadController extends Controller
             Storage::disk('public')->delete($download->file_path);
         }
         $download->delete();
+        PublicDataService::invalidate('*');
         return redirect()->route('admin.downloads.index')->with('success', 'Download deleted.');
     }
 }

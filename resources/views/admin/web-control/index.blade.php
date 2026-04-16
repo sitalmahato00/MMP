@@ -16,7 +16,7 @@
       3  Hero Banners          | content management (own delete forms)
       4  Photo Gallery         | content management (own delete forms)
       5  Resources & Downloads | content management (own delete forms)
-      6  Notices & News        | content management (own delete forms)
+    6  News & Events         | content management (own delete forms)
       7  Facilities            | content management (own delete forms)
       8  Leadership            | content management (own delete forms)
       9  Contact & Maps        | settings form
@@ -25,7 +25,7 @@
 @php
     $wcTabs = ['Branding', "Principal's Corner", 'About & Pages',
                'Hero Banners', 'Photo Gallery', 'Resources & Downloads',
-               'Notices & News', 'Facilities', 'Leadership', 'Contact & Maps'];
+               'News & Events', 'Facilities', 'Leadership', 'Contact & Maps'];
 @endphp
 
 <div x-data="{ activeTab: 0 }">
@@ -66,13 +66,12 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         View
                                     </a>
-                                    <form method="POST" action="{{ route('admin.web-control.clear-file', 'site_logo') }}" onsubmit="return confirm('Remove the current site logo?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            Remove
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        onclick="deleteWebControlFile('{{ route('admin.web-control.clear-file', 'site_logo') }}', 'Remove the current site logo?')"
+                                        class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        Remove
+                                    </button>
                                 </div>
                             </div>
                         @endif
@@ -106,13 +105,12 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         View
                                     </a>
-                                    <form method="POST" action="{{ route('admin.web-control.clear-file', 'principal_photo') }}" onsubmit="return confirm('Remove the current principal photo?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            Remove
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        onclick="deleteWebControlFile('{{ route('admin.web-control.clear-file', 'principal_photo') }}', 'Remove the current principal photo?')"
+                                        class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        Remove
+                                    </button>
                                 </div>
                             </div>
                         @endif
@@ -150,13 +148,12 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             View
                                         </a>
-                                        <form method="POST" action="{{ route('admin.web-control.clear-file', 'principal_message_media') }}" onsubmit="return confirm('Remove this media file?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                Remove
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="deleteWebControlFile('{{ route('admin.web-control.clear-file', 'principal_message_media') }}', 'Remove this media file?')"
+                                            class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            Remove
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -440,14 +437,20 @@
         @endif
     </div>
 
-    {{-- ── Tab 6: Notices & News ────────────────────────────── --}}
+    {{-- ── Tab 6: News & Events ─────────────────────────────── --}}
     <div x-show="activeTab===6" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-cloak>
-        <div class="mb-4 flex justify-between items-center">
-            <p class="text-sm text-gray-500">Institutional notices, exam schedules, news and events (latest 60).</p>
-            <a href="{{ route('admin.notices.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#8B0000] hover:bg-[#5c0000] text-white text-sm font-medium rounded-lg transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                Post Notice
-            </a>
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+            <p class="text-sm text-gray-500">News and event posts shown on the public homepage and news feed.</p>
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('admin.notices.create', ['type' => 'news']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#8B0000] hover:bg-[#5c0000] text-white text-sm font-medium rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Add News
+                </a>
+                <a href="{{ route('admin.notices.create', ['type' => 'event']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Add Event
+                </a>
+            </div>
         </div>
         @php
             $ntColors = ['general'=>'bg-blue-50 text-blue-700','exam'=>'bg-red-50 text-red-700','department'=>'bg-indigo-50 text-indigo-700',
@@ -457,8 +460,8 @@
         @if($notices->isEmpty())
         <div class="py-16 text-center text-gray-400">
             <svg class="w-12 h-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-            <p class="font-medium">No notices posted yet</p>
-            <a href="{{ route('admin.notices.create') }}" class="mt-2 inline-block text-[#8B0000] hover:underline text-sm">Post first notice</a>
+            <p class="font-medium">No news or events posted yet</p>
+            <a href="{{ route('admin.notices.create', ['type' => 'news']) }}" class="mt-2 inline-block text-[#8B0000] hover:underline text-sm">Add the first news post</a>
         </div>
         @else
         <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
@@ -623,4 +626,33 @@
     </div>
 
 </div>{{-- /x-data --}}
+@push('scripts')
+<script>
+    function deleteWebControlFile(url, message) {
+        if (!confirm(message)) {
+            return;
+        }
+
+        fetch(url, {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Delete request failed');
+                }
+
+                window.location.reload();
+            })
+            .catch(() => {
+                alert('Unable to remove the file right now.');
+            });
+    }
+</script>
+@endpush
 @endsection

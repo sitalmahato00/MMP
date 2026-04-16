@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\Department;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 
 class ProgramController extends Controller
@@ -37,6 +38,7 @@ class ProgramController extends Controller
         ]);
 
         Program::create($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.programs.index')
             ->with('success', "Program '{$data['name']}' created.");
@@ -58,6 +60,7 @@ class ProgramController extends Controller
         ]);
 
         $program->update($data);
+        PublicDataService::invalidate('*');
 
         return redirect()->route('admin.programs.index')
             ->with('success', 'Program updated.');
@@ -66,6 +69,7 @@ class ProgramController extends Controller
     public function destroy(Program $program)
     {
         $program->delete();
+        PublicDataService::invalidate('*');
         return redirect()->route('admin.programs.index')
             ->with('success', 'Program deleted.');
     }

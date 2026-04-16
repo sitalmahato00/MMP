@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Media;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -47,6 +48,8 @@ class MediaController extends Controller
             $count++;
         }
 
+        PublicDataService::invalidate('*');
+
         return redirect()->route('admin.media.index')
             ->with('success', $count . ' file(s) uploaded.');
     }
@@ -65,6 +68,7 @@ class MediaController extends Controller
     {
         $request->validate(['type' => 'required|in:gallery,document']);
         $medium->update(['file_type' => $request->type]);
+        PublicDataService::invalidate('*');
         return redirect()->route('admin.media.index')->with('success', 'Media updated.');
     }
 
@@ -74,6 +78,7 @@ class MediaController extends Controller
             Storage::disk('public')->delete($medium->file_path);
         }
         $medium->delete();
+        PublicDataService::invalidate('*');
         return redirect()->route('admin.media.index')->with('success', 'Media deleted.');
     }
 }
