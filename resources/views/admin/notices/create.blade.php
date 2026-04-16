@@ -25,7 +25,7 @@
         <x-form-row>
             <x-form-field label="Notice Type / Audience" name="type" :required="true">
                 <x-select name="type" :required="true">
-                    @foreach(['general'=>'General Everyone','department'=>'Specific Department','class'=>'Specific Class','teachers'=>'Teachers Only','exam'=>'Examination'] as $val => $label)
+                    @foreach(['general'=>'Notice Board','exam'=>'Exam Schedules & Results','department'=>'Specific Department','class'=>'Specific Class','teachers'=>'Teachers Only'] as $val => $label)
                         <option value="{{ $val }}" {{ old('type') === $val ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </x-select>

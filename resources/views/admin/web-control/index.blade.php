@@ -9,16 +9,35 @@
 </x-page-header>
 
 <x-tab-group :tabs="['About MMP', 'Facilities & Resources', 'Leadership History', 'Student Affairs', 'Contact & Info']">
-    <form method="POST" action="{{ route('admin.web-control.update') }}" id="web-control-form">
+    <form method="POST" action="{{ route('admin.web-control.update') }}" id="web-control-form" enctype="multipart/form-data">
         @csrf
 
         {{-- About MMP --}}
         <x-tab-panel :index="0">
+            @php
+                $aboutSettings = collect($settings->get('about', []))->keyBy('key');
+                $aboutOrder = ['site_logo', 'what_is_mmp', 'objectives', 'welcome_message', 'principals_message', 'principal_photo', 'president_name', 'principal_name'];
+                $aboutItems = collect($aboutOrder)
+                    ->map(fn ($key) => $aboutSettings->get($key))
+                    ->filter();
+
+                $extraAboutItems = $aboutSettings
+                    ->except($aboutOrder)
+                    ->filter(fn ($setting) => $setting->key !== 'presidents_message')
+                    ->values();
+            @endphp
             <div class="space-y-6">
-                @foreach($settings->get('about', []) as $setting)
+                @foreach($aboutItems->merge($extraAboutItems) as $setting)
                     <x-card>
                         <x-form-field :label="$setting->label" :name="$setting->key" span="full">
-                            @if($setting->type === 'richtext' || $setting->type === 'textarea')
+                            @if($setting->type === 'image')
+                                @if($setting->value)
+                                    <div class="mb-3">
+                                        <img src="{{ asset('storage/' . $setting->value) }}" alt="{{ $setting->label }}" class="w-24 h-28 rounded-lg border border-gray-200 object-cover">
+                                    </div>
+                                @endif
+                                <x-file-input :name="$setting->key" accept="image/*" :current="$setting->value" :label="$setting->key === 'site_logo' ? 'Upload site logo (JPG/PNG/WebP)' : 'Upload principal photo (JPG/PNG/WebP)'" />
+                            @elseif($setting->type === 'richtext' || $setting->type === 'textarea')
                                 <x-textarea :name="$setting->key" rows="6">{{ $setting->value }}</x-textarea>
                             @else
                                 <x-input :name="$setting->key" :value="$setting->value" />

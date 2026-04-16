@@ -13,10 +13,12 @@ class SiteSetting extends Model
     public static function defaultDefinitions(): array
     {
         return [
+            ['key' => 'site_logo', 'group' => 'about', 'label' => 'Site Logo (Public + Admin)', 'type' => 'image', 'value' => ''],
             ['key' => 'what_is_mmp', 'group' => 'about', 'label' => 'What is MMP', 'type' => 'richtext', 'value' => 'Manmohan Memorial Polytechnic...'],
             ['key' => 'objectives', 'group' => 'about', 'label' => 'Objectives', 'type' => 'richtext', 'value' => 'Our objectives are...'],
-            ['key' => 'presidents_message', 'group' => 'about', 'label' => 'President message', 'type' => 'richtext', 'value' => 'Welcome to MMP...'],
+            ['key' => 'welcome_message', 'group' => 'about', 'label' => 'Welcome Message', 'type' => 'richtext', 'value' => 'Welcome to MMP...'],
             ['key' => 'principals_message', 'group' => 'about', 'label' => 'Principal message', 'type' => 'richtext', 'value' => 'It brings me great joy...'],
+            ['key' => 'principal_photo', 'group' => 'about', 'label' => 'Principal Photo', 'type' => 'image', 'value' => ''],
             ['key' => 'president_name', 'group' => 'about', 'label' => 'President Name', 'type' => 'text', 'value' => 'Hon. President Name'],
             ['key' => 'principal_name', 'group' => 'about', 'label' => 'Principal Name', 'type' => 'text', 'value' => 'Mr. Principal Name'],
             ['key' => 'classrooms_labs', 'group' => 'facilities', 'label' => 'Classrooms & Labs', 'type' => 'richtext', 'value' => 'We offer state of the art...'],
@@ -62,6 +64,21 @@ class SiteSetting extends Model
     {
         foreach (static::defaultDefinitions() as $setting) {
             static::query()->firstOrCreate(['key' => $setting['key']], $setting);
+        }
+
+        // Backward compatibility: reuse existing President Message as Welcome Message
+        // if welcome_message is still empty/default.
+        $legacyValue = static::query()->where('key', 'presidents_message')->value('value');
+
+        if ($legacyValue !== null && trim((string) $legacyValue) !== '') {
+            static::query()
+                ->where('key', 'welcome_message')
+                ->where(function ($query) {
+                    $query->whereNull('value')
+                        ->orWhere('value', '')
+                        ->orWhere('value', 'Welcome to MMP...');
+                })
+                ->update(['value' => $legacyValue]);
         }
     }
 }

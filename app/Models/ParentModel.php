@@ -26,6 +26,14 @@ class ParentModel extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Compatibility alias used by admin parents listing.
+     */
+    public function students()
+    {
+        return $this->children();
+    }
+
     public function getFullNameAttribute(): string
     {
         return $this->user->name ?? '';

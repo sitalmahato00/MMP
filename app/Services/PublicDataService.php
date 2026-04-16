@@ -32,17 +32,24 @@ class PublicDataService
                 'notices' => Notice::published()->general()
                     ->latest()
                     ->take(6)
-                    ->get(['id', 'title', 'slug', 'type', 'published_at']),
+                    ->get(['id', 'title', 'slug', 'type', 'published_at', 'created_at']),
+                'examNotices' => Notice::published()
+                    ->where('type', 'exam')
+                    ->latest()
+                    ->take(6)
+                    ->get(['id', 'title', 'slug', 'type', 'published_at', 'created_at']),
             ];
         });
     }
 
-    public function getNotices(int $perPage = 15)
+    public function getNotices(int $perPage = 15, ?string $type = 'general')
     {
         return Notice::published()
-            ->where('type', 'general')
+            ->when(in_array($type, ['general', 'exam'], true), function ($query) use ($type) {
+                $query->where('type', $type);
+            })
             ->latest()
-            ->paginate($perPage, ['id', 'title', 'slug', 'type', 'attachment', 'published_at']);
+            ->paginate($perPage, ['id', 'title', 'slug', 'type', 'attachment', 'published_at', 'created_at']);
     }
 
     public function getDepartments(): \Illuminate\Support\Collection
@@ -160,6 +167,8 @@ class PublicDataService
             foreach ($cacheKeys as $cacheKey) {
                 Cache::forget($cacheKey);
             }
+
+            Cache::forget('brand:site_logo');
         } else {
             Cache::forget("public:{$key}");
         }

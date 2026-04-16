@@ -113,7 +113,7 @@
                 <div class="absolute inset-0 opacity-10 bg-gradient-to-tr from-black to-transparent"></div>
                 <div class="relative z-10">
                     <h2 class="font-serif text-2xl font-bold mb-3">Welcome to MMP</h2>
-                    <p class="text-[13px] leading-relaxed mb-4 text-gray-100 px-4">
+                    <p class="text-[13px] leading-relaxed mb-4 text-gray-100 px-4 whitespace-pre-line text-left">
                         {{ optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.' }}
                     </p>
                     <a href="{{ route('public.page', 'what-is-mmp') }}" class="inline-block border border-white text-white px-6 py-2 text-xs font-bold hover:bg-white hover:text-[#8B0000] transition-colors uppercase tracking-wide">
@@ -123,23 +123,24 @@
             </div>
 
             {{-- Notice Board Tabs --}}
-            <div class="bg-white border shadow-sm flex flex-col h-[400px]">
+            <div class="bg-white border shadow-sm flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general' }">
                 <div class="flex">
-                    <button class="flex-1 bg-[#8B0000] text-white py-3.5 font-bold text-sm flex items-center justify-center gap-2 border-t-[3px] border-yellow-500 relative">
+                    <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
                         <i class="ri-pushpin-line text-lg"></i>
                         Notice Board
                     </button>
-                    <button class="flex-1 bg-[#f5f5f5] text-gray-700 hover:bg-[#e9e9e9] py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] border-transparent">
+                    <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
                         <i class="ri-file-text-line text-lg"></i>
                         Exam Schedules & Results
                     </button>
                 </div>
                 <div class="p-0 overflow-y-auto flex-1">
-                    <ul class="divide-y divide-gray-100">
-                        @forelse($notices->take(6) as $notice)
+                    <ul class="divide-y divide-gray-100" x-show="activeNoticeTab === 'general'" x-cloak>
+                        @forelse(($notices ?? collect())->take(6) as $notice)
                         <li>
-                            <a href="{{ route('public.notices') }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
-                                <div class="text-[11px] text-gray-500 font-medium whitespace-nowrap pt-0.5 w-[75px]">{{ $notice->published_at ? $notice->published_at->format('Y-m-d') : $notice->created_at->format('Y-m-d') }}</div>
+                            <a href="{{ route('public.notices', ['type' => 'general']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                                @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
+                                <div class="text-[11px] text-gray-500 font-medium whitespace-nowrap pt-0.5 w-[75px]">{{ optional($noticeDate)->format('Y-m-d') }}</div>
                                 <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug">{{ $notice->title }}</div>
                                 <div class="text-gray-300 group-hover:text-[#8B0000]"><i class="ri-arrow-right-s-line text-lg"></i></div>
                             </a>
@@ -148,9 +149,24 @@
                         <li class="px-4 py-8 text-center text-gray-500 text-sm">No recent notices found.</li>
                         @endforelse
                     </ul>
+                    <ul class="divide-y divide-gray-100" x-show="activeNoticeTab === 'exam'" x-cloak>
+                        @forelse(($examNotices ?? collect())->take(6) as $notice)
+                        <li>
+                            <a href="{{ route('public.notices', ['type' => 'exam']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                                @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
+                                <div class="text-[11px] text-gray-500 font-medium whitespace-nowrap pt-0.5 w-[75px]">{{ optional($noticeDate)->format('Y-m-d') }}</div>
+                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug">{{ $notice->title }}</div>
+                                <div class="text-gray-300 group-hover:text-[#8B0000]"><i class="ri-arrow-right-s-line text-lg"></i></div>
+                            </a>
+                        </li>
+                        @empty
+                        <li class="px-4 py-8 text-center text-gray-500 text-sm">No exam schedules or result notices found.</li>
+                        @endforelse
+                    </ul>
                 </div>
                 <div class="px-4 py-2 border-t bg-white">
-                    <a href="{{ route('public.notices') }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View More »</a>
+                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices', ['type' => 'general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View More »</a>
+                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices', ['type' => 'exam']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View More »</a>
                 </div>
             </div>
         </div>
@@ -255,7 +271,7 @@
             <div class="text-xs text-gray-500 font-medium">{{ $currentPrincipal?->designation ?? 'Principal, MMP' }}</div>
         </div>
         <div class="flex-1">
-            <div class="space-y-4 text-gray-700 text-[13px] leading-[1.8] text-justify">
+            <div class="space-y-4 text-gray-700 text-[13px] leading-[1.8] text-justify whitespace-pre-line">
                 @if($currentPrincipal?->message)
                     {!! nl2br(e(Str::limit($currentPrincipal->message, 600))) !!}
                 @else

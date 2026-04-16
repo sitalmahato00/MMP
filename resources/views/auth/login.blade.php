@@ -11,8 +11,17 @@
         <div class="p-8">
             <div class="text-center mb-8">
                 <a href="{{ route('home') }}" class="inline-block hover:opacity-90 transition-opacity">
+                    @php
+                        $brandLogoUrl = !empty($siteLogoPath ?? null)
+                            ? asset('storage/' . ltrim($siteLogoPath, '/'))
+                            : null;
+                    @endphp
                     <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center shadow-md mb-4 border-[3px] border-[#DAA520]" style="background: radial-gradient(circle, #8B0000, #5B0000);">
-                        <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        @if($brandLogoUrl)
+                            <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="w-full h-full object-cover rounded-full">
+                        @else
+                            <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        @endif
                     </div>
                 </a>
                 <h1 class="text-2xl font-black text-[#8B0000] font-serif tracking-tight">MMP Portal</h1>

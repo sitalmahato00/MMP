@@ -12,6 +12,11 @@
     $contactPhone = optional($siteSettings->get('contact_phone'))->value;
     $contactAddress = optional($siteSettings->get('contact_address'))->value;
     $googleMapsIframe = optional($siteSettings->get('google_maps_iframe'))->value;
+    $rawContent = (string) ($page->content ?? '');
+    $isHtmlContent = preg_match('/<\s*[a-z][^>]*>/i', $rawContent) === 1;
+    $formattedContent = $isHtmlContent
+        ? $rawContent
+        : nl2br(e(str_replace("\t", '    ', $rawContent)));
 @endphp
 
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-8">
@@ -21,7 +26,7 @@
                 <div>
                     <div class="section-header">{{ $page->title }}</div>
                     <div class="bg-white border border-gray-200 border-t-0 p-8 prose prose-sm max-w-none prose-headings:text-red-900 prose-a:text-red-700">
-                        {!! $page->content !!}
+                        {!! $formattedContent !!}
                     </div>
                 </div>
             @endif

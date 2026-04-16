@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +23,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer(['layouts.guest', 'components.sidebar', 'auth.login'], function ($view): void {
+            $siteLogoPath = null;
+
+            if (Schema::hasTable('site_settings')) {
+                $siteLogoPath = Cache::remember('brand:site_logo', 600, function () {
+                    return SiteSetting::query()->where('key', 'site_logo')->value('value');
+                });
+            }
+
+            $view->with('siteLogoPath', $siteLogoPath);
+        });
     }
 }

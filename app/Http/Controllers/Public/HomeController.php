@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Services\PublicDataService;
-use Illuminate\Pagination\LengthAwarePaginator;
-
+use Illuminate\Http\Request;
 /**
  * HomeController — renders public Blade views.
  * NEVER queries the database directly.
@@ -20,14 +19,59 @@ class HomeController extends Controller
         $data = $this->service->getHomepageData();
         $leadership = $this->service->getLeadership();
         $siteSettings = $this->service->getSiteSettings()->keyBy('key');
+
+        // Home welcome box should use its own managed setting.
+        $welcomeMessage = trim((string) optional($siteSettings->get('welcome_message'))->value);
+        if ($welcomeMessage !== '') {
+            $siteSettings->put('what_is_mmp', $siteSettings->get('welcome_message'));
+        }
+
+        // Principal section should prioritize Web Control's principal message.
+        $principalName = trim((string) optional($siteSettings->get('principal_name'))->value);
+        $principalMessage = trim((string) optional($siteSettings->get('principals_message'))->value);
+        $principalPhoto = trim((string) optional($siteSettings->get('principal_photo'))->value);
+
+        if (isset($leadership['principals'])) {
+            $principals = collect($leadership['principals']);
+            $currentPrincipal = $principals->firstWhere('is_current', true);
+
+            if (!$currentPrincipal) {
+                $currentPrincipal = (object) [
+                    'name' => 'Principal',
+                    'designation' => 'Principal, MMP',
+                    'avatar' => null,
+                    'message' => null,
+                    'is_current' => true,
+                ];
+                $principals = collect([$currentPrincipal])->merge($principals);
+            }
+
+            if ($principalName !== '') {
+                $currentPrincipal->name = ltrim($principalName, "- \t");
+            }
+            if ($principalMessage !== '') {
+                $currentPrincipal->message = $principalMessage;
+            }
+            if ($principalPhoto !== '') {
+                $currentPrincipal->avatar = $principalPhoto;
+            }
+
+            $leadership['principals'] = $principals;
+        }
+
         $staff = $this->service->getStaff();
         return view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff')));
     }
 
-    public function notices()
+    public function notices(Request $request)
     {
-        $notices = $this->service->getNotices(15);
-        return view('public.notices', compact('notices'));
+        $activeType = in_array($request->string('type')->toString(), ['general', 'exam'], true)
+            ? $request->string('type')->toString()
+            : 'general';
+
+        $notices = $this->service->getNotices(15, $activeType);
+
+        return view('public.notices', compact('notices', 'activeType'));
     }
 
     public function departments()

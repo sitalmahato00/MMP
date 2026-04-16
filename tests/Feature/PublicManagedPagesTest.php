@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\Public\HomeController;
 use App\Models\Page;
 use App\Models\SiteSetting;
+use App\Services\PublicDataService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,11 +28,33 @@ class PublicManagedPagesTest extends TestCase
             'is_published' => true,
         ]);
 
-        $response = $this->get('/page/what-is-mmp');
+        $page = app(PublicDataService::class)->getPage('what-is-mmp');
 
-        $response->assertOk();
-        $response->assertSee('Managed MMP copy from web settings.');
-        $response->assertDontSee('Legacy page table content.');
+        $this->assertSame('What is MMP', $page->title);
+        $this->assertSame('Managed MMP copy from web settings.', $page->content);
+        $this->assertFalse($page->exists);
+    }
+
+    public function test_managed_objectives_page_uses_site_settings_content(): void
+    {
+        SiteSetting::ensureDefaults();
+
+        SiteSetting::query()->where('key', 'objectives')->update([
+            'value' => 'Objective copy managed from web settings.',
+        ]);
+
+        Page::create([
+            'title' => 'Legacy Objectives',
+            'slug' => 'objectives',
+            'content' => 'Legacy objectives content.',
+            'is_published' => true,
+        ]);
+
+        $page = app(PublicDataService::class)->getPage('objectives');
+
+        $this->assertSame('Objectives', $page->title);
+        $this->assertSame('Objective copy managed from web settings.', $page->content);
+        $this->assertFalse($page->exists);
     }
 
     public function test_contact_us_page_uses_web_settings_content_and_details(): void
@@ -53,14 +77,17 @@ class PublicManagedPagesTest extends TestCase
             'value' => '<iframe src="https://maps.example.test/embed"></iframe>',
         ]);
 
-        $response = $this->get('/page/contact-us');
+        $page = app(PublicDataService::class)->getPage('contact-us');
+        $view = app(HomeController::class)->page('contact-us');
+        $data = $view->getData();
 
-        $response->assertOk();
-        $response->assertSee('Reach us for admissions and support.');
-        $response->assertSee('hello@example.test');
-        $response->assertSee('+977-123456');
-        $response->assertSee('Biratnagar, Nepal');
-        $response->assertSee('https://maps.example.test/embed', false);
+        $this->assertSame('Contact Us', $page->title);
+        $this->assertStringContainsString('Reach us for admissions and support.', $page->content);
+        $this->assertSame('public.content-page', $view->name());
+        $this->assertSame('hello@example.test', $data['siteSettings']->get('contact_email')->value);
+        $this->assertSame('+977-123456', $data['siteSettings']->get('contact_phone')->value);
+        $this->assertSame('Biratnagar, Nepal', $data['siteSettings']->get('contact_address')->value);
+        $this->assertSame('<iframe src="https://maps.example.test/embed"></iframe>', $data['siteSettings']->get('google_maps_iframe')->value);
     }
 
     public function test_regular_cms_pages_still_use_pages_table(): void
@@ -72,9 +99,10 @@ class PublicManagedPagesTest extends TestCase
             'is_published' => true,
         ]);
 
-        $response = $this->get('/page/gallery');
+        $page = app(PublicDataService::class)->getPage('gallery');
 
-        $response->assertOk();
-        $response->assertSee('Gallery content from pages table.');
+        $this->assertSame('Gallery', $page->title);
+        $this->assertSame('Gallery content from pages table.', $page->content);
+        $this->assertTrue($page->exists);
     }
 }

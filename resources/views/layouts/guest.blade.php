@@ -41,6 +41,11 @@
     @stack('styles')
 </head>
 <body class="antialiased bg-gray-100 text-gray-900" x-data="{ mobileOpen: false }">
+    @php
+        $brandLogoUrl = !empty($siteLogoPath ?? null)
+            ? asset('storage/' . ltrim($siteLogoPath, '/'))
+            : null;
+    @endphp
 
     {{-- ── TOP INFO BAR (Red, matching mmp.edu.np) ─────────────── --}}
     <div style="background-color: #8B0000;" class="text-white text-xs py-1.5 hidden md:block">
@@ -74,7 +79,11 @@
             <a href="{{ route('home') }}" class="flex items-center gap-4">
                 {{-- MMP Seal/Emblem --}}
                 <div class="w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center" style="background: radial-gradient(circle, #8B0000, #5B0000); border: 2px solid #DAA520;">
-                    <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    @if($brandLogoUrl)
+                        <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="w-full h-full object-cover rounded-full">
+                    @else
+                        <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    @endif
                 </div>
                 <div>
                     <div class="text-xl font-black font-serif leading-tight text-white">Manmohan Memorial Polytechnic</div>
@@ -85,7 +94,7 @@
             {{-- Right side small image/badge area --}}
             <div class="hidden lg:flex items-center gap-4">
                 <div class="w-24 h-14 rounded overflow-hidden border border-yellow-500/40 shadow-sm">
-                    <img src="{{ asset('assets/image.png') }}" alt="MMP" class="w-full h-full object-cover rounded">
+                    <img src="{{ $brandLogoUrl ?: asset('assets/image.png') }}" alt="MMP" class="w-full h-full object-cover rounded">
                 </div>
             </div>
         </div>

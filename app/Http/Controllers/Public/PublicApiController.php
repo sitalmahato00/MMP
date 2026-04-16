@@ -25,7 +25,12 @@ class PublicApiController extends Controller
     public function notices(Request $request): JsonResponse
     {
         $perPage = min((int) $request->input('per_page', 15), 50);
-        return response()->json($this->service->getNotices($perPage));
+        $type = $request->input('type');
+        if (!in_array($type, ['general', 'exam'], true)) {
+            $type = null;
+        }
+
+        return response()->json($this->service->getNotices($perPage, $type));
     }
 
     /** GET /api/v1/public/departments */

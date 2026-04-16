@@ -40,6 +40,10 @@
     // ── Helper: is current route active? ─────────────────
     $active = fn(string|array $patterns): bool =>
         request()->routeIs((array) $patterns);
+
+    $brandLogoUrl = !empty($siteLogoPath ?? null)
+        ? asset('storage/' . ltrim($siteLogoPath, '/'))
+        : null;
 @endphp
 
 {{-- ─── SVG Icon Map (used throughout this file) ──────────── --}}
@@ -83,9 +87,13 @@
     <div class="flex items-center gap-3 h-16 px-5 border-b border-white/10 flex-shrink-0">
         <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
              style="background: linear-gradient(135deg, {{ $accent }}, {{ $accent }}99);">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {!! $icon('building') !!}
-            </svg>
+            @if($brandLogoUrl)
+                <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="w-full h-full object-cover rounded-xl">
+            @else
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {!! $icon('building') !!}
+                </svg>
+            @endif
         </div>
         <div class="min-w-0">
             <p class="text-sm font-bold tracking-tight text-white leading-none truncate">MMP College</p>
