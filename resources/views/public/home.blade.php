@@ -235,6 +235,10 @@
             </div>
 
             {{-- Notice Board Tabs --}}
+            @php
+                $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
+                $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
+            @endphp
             <div class="bg-white border shadow-sm flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
                 <div class="flex">
                     <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
@@ -296,7 +300,7 @@
                         </div>
 
                         <ul class="divide-y divide-gray-100 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'general'" x-cloak>
-                            @forelse(($ctevtGeneralNotices ?? []) as $notice)
+                            @forelse($ctevtGeneralItems as $notice)
                                 <li>
                                     <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'general']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                         <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
@@ -325,7 +329,7 @@
                         </ul>
 
                         <ul class="divide-y divide-gray-100 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'result'" x-cloak>
-                            @forelse(($ctevtResultNotices ?? []) as $notice)
+                            @forelse($ctevtResultItems as $notice)
                                 <li>
                                     <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'exam']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                         <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">

@@ -7,13 +7,15 @@
     $activeType = $activeType ?? 'general';
     $isCtevtType = in_array($activeType, ['ctevt-general', 'ctevt-result'], true);
     $activeCtevtTab = $activeType === 'ctevt-result' ? 'result' : 'general';
+    $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
+    $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
 @endphp
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2">
             <div class="section-header flex items-center justify-between" style="background-color: #8B0000;">
                 <span>📋 All Notices & Announcements</span>
-                <span class="text-red-200 text-xs">{{ $isCtevtType ? (collect($ctevtGeneralNotices ?? [])->count() + collect($ctevtResultNotices ?? [])->count()) : $notices->total() }} notices</span>
+                <span class="text-red-200 text-xs">{{ $isCtevtType ? ($ctevtGeneralItems->count() + $ctevtResultItems->count()) : $notices->total() }} notices</span>
             </div>
             <div class="bg-white border border-gray-200 border-t-0" x-data="{ activeCtevtTab: '{{ $activeCtevtTab }}' }">
                 <div class="flex border-b border-gray-200">
@@ -41,7 +43,7 @@
                     </div>
 
                     <div x-show="activeCtevtTab === 'general'" x-cloak>
-                        @forelse(($ctevtGeneralNotices ?? []) as $notice)
+                        @forelse($ctevtGeneralItems as $notice)
                             <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'ctevt-general']) }}" target="_blank" rel="noopener noreferrer" class="group flex items-start gap-4 px-5 py-4 border-b border-gray-100 last:border-0 hover:bg-red-50 transition-colors">
                                 <div class="flex-shrink-0 w-12 h-12 text-white flex items-center justify-center rounded" style="background-color: #8B0000;">
                                     <span class="text-[9px] font-bold uppercase leading-tight text-center">CTEVT</span>
@@ -72,7 +74,7 @@
                     </div>
 
                     <div x-show="activeCtevtTab === 'result'" x-cloak>
-                        @forelse(($ctevtResultNotices ?? []) as $notice)
+                        @forelse($ctevtResultItems as $notice)
                             <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'ctevt-result']) }}" target="_blank" rel="noopener noreferrer" class="group flex items-start gap-4 px-5 py-4 border-b border-gray-100 last:border-0 hover:bg-red-50 transition-colors">
                                 <div class="flex-shrink-0 w-12 h-12 text-white flex items-center justify-center rounded" style="background-color: #8B0000;">
                                     <span class="text-[9px] font-bold uppercase leading-tight text-center">CTEVT</span>
