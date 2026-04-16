@@ -1,10 +1,32 @@
 <?php
 
+use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Public\HomeController;
 
 // ─── Public Routes (SEO-optimized) ────────────────────────
+Route::get('/brand-logo', function () {
+    $fallbackPath = public_path('favicon.ico');
+
+    if (! Schema::hasTable('site_settings')) {
+        return response()->file($fallbackPath);
+    }
+
+    $siteLogoPath = Cache::remember('brand:site_logo', 600, function () {
+        return SiteSetting::query()->where('key', 'site_logo')->value('value');
+    });
+
+    if (! is_string($siteLogoPath) || trim($siteLogoPath) === '' || ! Storage::disk('public')->exists($siteLogoPath)) {
+        return response()->file($fallbackPath);
+    }
+
+    return Storage::disk('public')->response($siteLogoPath);
+})->name('public.brand-logo');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/notices', [HomeController::class, 'notices'])->name('public.notices');
 Route::get('/news-events', [HomeController::class, 'newsEvents'])->name('public.news-events');

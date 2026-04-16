@@ -1,10 +1,9 @@
-const CACHE_NAME = 'mmp-pwa-v1';
+const CACHE_NAME = 'mmp-pwa-v2';
 const PRECACHE_URLS = [
     '/',
-    '/manifest.json',
-    '/apple-touch-icon.png',
-    '/icon-192.png',
-    '/icon-512.png',
+    '/manifest.json?v=2',
+    '/brand-logo',
+    '/favicon.ico',
 ];
 
 self.addEventListener('install', event => {

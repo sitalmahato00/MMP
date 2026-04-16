@@ -11,16 +11,11 @@
     <meta property="og:title" content="@yield('title', 'Manmohan Memorial Polytechnic')">
     <meta property="og:description" content="@yield('meta_description', 'Best Technical College in Koshi Province offering CTEVT diploma programs.')">
     <meta property="og:type" content="website">
-    <link rel="manifest" href="/manifest.json">
     <meta name="application-name" content="Manmohan Memorial Polytechnic">
     <meta name="apple-mobile-web-app-title" content="Manmohan Memorial Polytechnic">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#8B0000">
-    <link rel="icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" href="{{ route('public.brand-logo') }}">
+    <link rel="shortcut icon" href="{{ route('public.brand-logo') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
@@ -89,7 +84,7 @@
     @unless(request()->routeIs('home'))
     {{-- slim spacer for non-home pages --}}
     @else
-    <div class="bg-white py-3 border-b border-gray-200 shadow-sm">
+    <div class="bg-white py-3 border-b border-gray-200 shadow-sm hidden md:block">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center">
             <a href="{{ route('home') }}" class="flex items-center gap-4">
                 {{-- MMP Seal/Emblem --}}
@@ -114,6 +109,20 @@
     <nav style="background-color: #8B0000;" class="sticky top-0 z-50 shadow-md" x-data="{ mobileOpen: false }">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto">
             <div class="flex items-center justify-between">
+
+                <a href="{{ route('home') }}" class="md:hidden flex min-w-0 items-center gap-3 py-2.5 pr-2 text-white">
+                    <div class="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-white/20 bg-white/10 shadow-sm">
+                        @if($brandLogoUrl)
+                            <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="h-full w-full object-contain p-1">
+                        @else
+                            <svg class="h-full w-full p-2 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        @endif
+                    </div>
+                    <div class="min-w-0">
+                        <div class="truncate text-sm font-black leading-tight">Manmohan Memorial Polytechnic</div>
+                        <div class="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-red-100/80">Koshi Province, Nepal</div>
+                    </div>
+                </a>
 
                 {{-- Desktop Nav Links --}}
                 <div class="hidden xl:flex items-center flex-1">
@@ -203,7 +212,7 @@
                 </div>
 
                 {{-- Mobile Toggle --}}
-                <button @click="mobileOpen = !mobileOpen" class="xl:hidden text-white p-3 hover:bg-white/10 transition-colors h-14 flex items-center">
+                <button @click="mobileOpen = !mobileOpen" class="xl:hidden ml-auto text-white p-3 hover:bg-white/10 transition-colors h-14 flex items-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
             </div>
@@ -370,90 +379,34 @@
         </div>
     </footer>
 
-    <div id="pwa-install-banner" class="hidden fixed inset-x-4 bottom-4 z-50 mx-auto w-full max-w-lg rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-red-900/20 backdrop-blur-xl">
-        <div class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-            <div class="flex items-start gap-3">
-                <img src="/apple-touch-icon.png" alt="MMP app icon" class="h-14 w-14 rounded-2xl border border-red-100 bg-red-50 p-1 shadow-sm">
-                <div>
-                    <div class="text-sm font-bold text-gray-900">Install MMP CMS</div>
-                    <p class="mt-1 text-xs leading-relaxed text-gray-600">Add this site to your device for faster access and offline-ready browsing.</p>
-                </div>
-            </div>
-            <div class="flex w-full gap-2 sm:w-auto sm:justify-end">
-                <button type="button" id="pwa-install-dismiss" class="flex-1 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:border-gray-300 hover:bg-gray-50 sm:flex-none">Not now</button>
-                <button type="button" id="pwa-install-trigger" class="flex-1 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6B0000] sm:flex-none">Install</button>
-            </div>
-        </div>
-    </div>
-
     @stack('scripts')
 
     <script>
         (function () {
-            const banner = document.getElementById('pwa-install-banner');
-            const installButton = document.getElementById('pwa-install-trigger');
-            const dismissButton = document.getElementById('pwa-install-dismiss');
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', async function () {
+                    try {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(registrations.map(function (registration) {
+                            return registration.unregister();
+                        }));
+                    } catch (error) {
+                        // Ignore cleanup errors.
+                    }
 
-            if (!banner || !installButton || !dismissButton) {
-                return;
-            }
-
-            const storageKey = 'mmp:pwa-install-dismissed';
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-            if (isStandalone || localStorage.getItem(storageKey) === '1') {
-                return;
-            }
-
-            let deferredPrompt = null;
-
-            window.addEventListener('beforeinstallprompt', function (event) {
-                event.preventDefault();
-                deferredPrompt = event;
-                banner.classList.remove('hidden');
-            });
-
-            window.addEventListener('appinstalled', function () {
-                deferredPrompt = null;
-                banner.classList.add('hidden');
-                localStorage.setItem(storageKey, '1');
-            });
-
-            installButton.addEventListener('click', async function () {
-                if (!deferredPrompt) {
-                    return;
-                }
-
-                deferredPrompt.prompt();
-
-                try {
-                    await deferredPrompt.userChoice;
-                } catch (error) {
-                    // Ignore prompt errors; the browser controls the install UI.
-                }
-
-                deferredPrompt = null;
-                banner.classList.add('hidden');
-                localStorage.setItem(storageKey, '1');
-            });
-
-            dismissButton.addEventListener('click', function () {
-                banner.classList.add('hidden');
-                localStorage.setItem(storageKey, '1');
-            });
-        })();
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(() => {
-                    console.log('SW registered');
-                }).catch(err => {
-                    console.log('SW registration failed', err);
+                    if ('caches' in window) {
+                        try {
+                            const cacheKeys = await caches.keys();
+                            await Promise.all(cacheKeys.map(function (key) {
+                                return caches.delete(key);
+                            }));
+                        } catch (error) {
+                            // Ignore cache cleanup errors.
+                        }
+                    }
                 });
             });
-        }
+        })();
     </script>
 </body>
 </html>

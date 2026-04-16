@@ -14,21 +14,18 @@
   "categories": ["education"],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/brand-logo",
       "sizes": "192x192",
-      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/brand-logo",
       "sizes": "512x512",
-      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/brand-logo",
       "sizes": "180x180",
-      "type": "image/png",
       "purpose": "any"
     }
   ],
@@ -37,31 +34,31 @@
       "name": "Home",
       "short_name": "Home",
       "url": "/",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     },
     {
       "name": "Notices",
       "short_name": "Notices",
       "url": "/notices",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     },
     {
       "name": "Result",
       "short_name": "Result",
       "url": "/result",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     },
     {
       "name": "Downloads",
       "short_name": "Downloads",
       "url": "/downloads",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     },
     {
       "name": "Login",
       "short_name": "Login",
       "url": "/login",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     }
   ]
 }

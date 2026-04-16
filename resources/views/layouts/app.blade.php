@@ -3,16 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="manifest" href="/manifest.json">
     <meta name="application-name" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">
     <meta name="apple-mobile-web-app-title" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#8B0000">
-    <link rel="icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" href="{{ route('public.brand-logo') }}">
+    <link rel="shortcut icon" href="{{ route('public.brand-logo') }}">
     
     <title>@yield('title', 'MMP CMS') | {{ config('app.name') }}</title>
     
@@ -89,12 +84,22 @@
     
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('SW registered');
-                }).catch(err => {
-                    console.log('SW registration failed', err);
-                });
+            window.addEventListener('load', async () => {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(registrations.map(registration => registration.unregister()));
+                } catch (error) {
+                    // Ignore cleanup errors.
+                }
+
+                if ('caches' in window) {
+                    try {
+                        const cacheKeys = await caches.keys();
+                        await Promise.all(cacheKeys.map(key => caches.delete(key)));
+                    } catch (error) {
+                        // Ignore cache cleanup errors.
+                    }
+                }
             });
         }
     </script>
