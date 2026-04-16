@@ -130,7 +130,52 @@
 </section>
 
 {{-- ── SCROLLING NOTICE TICKER ──────────────────────────────────── --}}
-@if(($notices ?? collect())->count() > 0)
+@php
+    $tickerLocalNotices = collect($notices ?? collect())
+        ->take(6)
+        ->map(function ($notice) {
+            $noticeDate = $notice->published_at ?? $notice->created_at;
+
+            return [
+                'title' => $notice->title,
+                'href' => route('public.notices', ['type' => $notice->type ?? 'general']),
+                'date' => optional($noticeDate)->format('M d'),
+                'source' => 'MMP',
+                'badge_class' => 'bg-white/10 text-gray-200',
+            ];
+        });
+
+    $tickerCtevtGeneralNotices = collect(data_get($ctevtGeneralNotices, 'items', []))
+        ->take(4)
+        ->map(function ($notice) {
+            return [
+                'title' => $notice['title'] ?? 'Notice',
+                'href' => route('public.notices', ['type' => 'ctevt-general']),
+                'date' => trim((string) ($notice['updated_date'] ?? '')),
+                'source' => 'CTEVT General',
+                'badge_class' => 'bg-amber-400/15 text-amber-300 border border-amber-300/20',
+            ];
+        });
+
+    $tickerCtevtResultNotices = collect(data_get($ctevtResultNotices, 'items', []))
+        ->take(4)
+        ->map(function ($notice) {
+            return [
+                'title' => $notice['title'] ?? 'Result Notice',
+                'href' => route('public.notices', ['type' => 'ctevt-result']),
+                'date' => trim((string) ($notice['updated_date'] ?? '')),
+                'source' => 'CTEVT Result',
+                'badge_class' => 'bg-emerald-400/15 text-emerald-300 border border-emerald-300/20',
+            ];
+        });
+
+    $noticeTickerItems = $tickerLocalNotices
+        ->merge($tickerCtevtGeneralNotices)
+        ->merge($tickerCtevtResultNotices)
+        ->filter(fn ($item) => ! empty($item['title']))
+        ->values();
+@endphp
+@if($noticeTickerItems->count() > 0)
 <div class="bg-[#2c2c2c] text-white overflow-hidden border-b-2 border-yellow-500">
     <div class="w-full flex items-center">
         <div class="bg-[#8B0000] flex-shrink-0 flex items-center gap-2 px-4 py-2.5 font-bold text-sm z-10 shadow-md relative">
@@ -141,12 +186,13 @@
         <div class="flex-1 overflow-hidden" x-data="{}" x-init="$nextTick(() => { const el = $el.querySelector('.ticker-content'); if (el) { const clone = el.cloneNode(true); el.parentNode.appendChild(clone); } })">
             <div class="flex animate-ticker whitespace-nowrap py-2.5">
                 <div class="ticker-content flex items-center gap-8 pl-6">
-                    @foreach(($notices ?? collect())->take(8) as $notice)
-                        <a href="{{ route('public.notices', ['type' => 'general']) }}" class="flex items-center gap-2 text-sm text-gray-200 hover:text-yellow-400 transition-colors flex-shrink-0">
-                            <span class="text-yellow-500">●</span>
-                            <span class="font-medium">{{ $notice->title }}</span>
-                            @php $nd = $notice->published_at ?? $notice->created_at; @endphp
-                            <span class="text-[11px] text-gray-500">({{ optional($nd)->format('M d') }})</span>
+                    @foreach($noticeTickerItems as $noticeItem)
+                        <a href="{{ $noticeItem['href'] }}" class="flex items-center gap-2 text-sm text-gray-200 hover:text-yellow-400 transition-colors flex-shrink-0">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $noticeItem['badge_class'] }}">{{ $noticeItem['source'] }}</span>
+                            <span class="font-medium">{{ $noticeItem['title'] }}</span>
+                            @if(!empty($noticeItem['date']))
+                                <span class="text-[11px] text-gray-500">({{ $noticeItem['date'] }})</span>
+                            @endif
                         </a>
                     @endforeach
                 </div>
