@@ -142,16 +142,11 @@
             {{-- Notices & News --}}
             @include('components.sidebar-items.nav-section', ['label' => 'NOTICES & NEWS'])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.notices.index'),   'iconName' => 'bell',       'label' => 'All Notices',   'isActive' => $active('admin.notices.*'),   'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.downloads.index'), 'iconName' => 'download',   'label' => 'Downloads',     'isActive' => $active('admin.downloads.*'), 'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.resources.index'), 'iconName' => 'doc-report', 'label' => 'Resources',     'isActive' => $active('admin.resources.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-section-end')
 
             {{-- Website Management --}}
             @include('components.sidebar-items.nav-section', ['label' => 'WEBSITE'])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.banners.index'),     'iconName' => 'collection', 'label' => 'Hero Banners',  'isActive' => $active('admin.banners.*'),      'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.media.index'),       'iconName' => 'photo',      'label' => 'Photo Gallery', 'isActive' => $active('admin.media.*'),        'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.facilities.index'),  'iconName' => 'building',   'label' => 'Facilities',    'isActive' => $active('admin.facilities.*'),   'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.web-control.index'), 'iconName' => 'cog',        'label' => 'Site Settings', 'isActive' => $active('admin.web-control.*'),  'accent' => $accent])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.web-control.index'), 'iconName' => 'cog', 'label' => 'Website Settings', 'isActive' => $active(['admin.web-control.*','admin.banners.*','admin.media.*','admin.resources.*','admin.downloads.*','admin.facilities.*','admin.executives.*']), 'accent' => $accent])
             @include('components.sidebar-items.nav-section-end')
 
             {{-- Security --}}

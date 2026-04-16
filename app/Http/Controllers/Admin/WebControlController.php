@@ -3,12 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banner;
+use App\Models\Download;
+use App\Models\Executive;
 use App\Models\Facility;
+use App\Models\Media;
+use App\Models\Notice;
 use App\Models\SiteSetting;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class WebControlController extends Controller
 {
@@ -16,10 +22,18 @@ class WebControlController extends Controller
     {
         SiteSetting::ensureDefaults();
 
-        $settings = SiteSetting::all()->groupBy('group');
+        $settings   = SiteSetting::all()->groupBy('group');
         $facilities = Facility::with(['department', 'program'])->latest()->get();
-        $executives = \App\Models\Executive::orderBy('order')->get();
-        return view('admin.web-control.index', compact('settings', 'facilities', 'executives'));
+        $executives = Executive::orderBy('order')->get();
+        $banners    = Banner::orderBy('order')->latest()->get();
+        $media      = Media::latest()->get();
+        $downloads  = Download::latest()->get();
+        $notices    = Notice::with('author')->latest()->take(60)->get();
+
+        return view('admin.web-control.index', compact(
+            'settings', 'facilities', 'executives',
+            'banners', 'media', 'downloads', 'notices'
+        ));
     }
 
     public function update(Request $request)
@@ -67,5 +81,24 @@ class WebControlController extends Controller
         Cache::forget('brand:site_logo');
 
         return back()->with('success', 'Web content updated successfully.');
+    }
+
+    public function clearFile(string $key)
+    {
+        $allowed = ['site_logo', 'principal_photo', 'principal_message_media'];
+        if (!in_array($key, $allowed, true)) {
+            abort(403);
+        }
+
+        $setting = SiteSetting::where('key', $key)->first();
+        if ($setting?->value && Storage::disk('public')->exists($setting->value)) {
+            Storage::disk('public')->delete($setting->value);
+        }
+        SiteSetting::where('key', $key)->update(['value' => null]);
+
+        PublicDataService::invalidate('*');
+        Cache::forget('brand:site_logo');
+
+        return back()->with('success', 'File removed successfully.');
     }
 }

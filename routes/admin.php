@@ -60,6 +60,7 @@ Route::get('resources', [DownloadController::class, 'resources'])->name('resourc
 // ── Web Control / Settings ─────────────────────────────────
 Route::get('web-control', [WebControlController::class, 'index'])->name('web-control.index');
 Route::post('web-control', [WebControlController::class, 'update'])->name('web-control.update');
+Route::delete('web-control/file/{key}', [WebControlController::class, 'clearFile'])->name('web-control.clear-file');
 
 // ── Security & Audit ───────────────────────────────────────
 Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
