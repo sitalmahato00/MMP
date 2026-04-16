@@ -37,6 +37,10 @@ Route::get('/question-bank', [HomeController::class, 'questionBank'])->name('pub
 Route::get('/gallery', [HomeController::class, 'gallery'])->name('public.gallery');
 Route::get('/result', [HomeController::class, 'result'])->name('public.result');
 Route::get('/people', [HomeController::class, 'people'])->name('public.people');
+Route::get('/people/{type}/{id}', [HomeController::class, 'peopleProfile'])
+    ->where('type', 'hod|teacher|staff')
+    ->whereNumber('id')
+    ->name('public.people.profile');
 Route::get('/staff', [HomeController::class, 'staff'])->name('public.staff');
 Route::get('/leadership', [HomeController::class, 'leadership'])->name('public.leadership');
 Route::get('/facilities', [HomeController::class, 'facilities'])->name('public.facilities');

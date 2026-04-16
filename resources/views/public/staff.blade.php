@@ -52,6 +52,9 @@
                                 @if($member->department)
                                     <span class="text-[10px] text-red-700 bg-red-50 px-2 py-0.5 rounded inline-block mt-2 border border-red-100">{{ $member->department }}</span>
                                 @endif
+                                <a href="{{ route('public.people.profile', ['type' => 'staff', 'id' => $member->id]) }}" class="mt-4 inline-flex items-center justify-center rounded-full bg-[#8B0000] px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#6B0000]">
+                                    View Profile
+                                </a>
                             </div>
                         @endforeach
                     </div>

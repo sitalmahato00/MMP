@@ -97,6 +97,11 @@
                                                                     <span class="text-[10px] text-red-700 bg-red-50 px-2 py-0.5 rounded inline-block mt-2 border border-red-100">{{ $member->department }}</span>
                                                                 @endif
                                                             @endif
+                                                            @if(!empty($member->profile_url))
+                                                                <a href="{{ $member->profile_url }}" class="mt-4 inline-flex items-center justify-center rounded-full bg-[#8B0000] px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#6B0000]">
+                                                                    View Profile
+                                                                </a>
+                                                            @endif
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -156,6 +161,11 @@
                                                 <p class="text-xs text-gray-500 mt-1">{{ $member->designation }}</p>
                                                 @if($member->department)
                                                     <span class="text-[10px] text-red-700 bg-red-50 px-2 py-0.5 rounded inline-block mt-2 border border-red-100">{{ $member->department }}</span>
+                                                @endif
+                                                @if(!empty($member->profile_url))
+                                                    <a href="{{ $member->profile_url }}" class="mt-4 inline-flex items-center justify-center rounded-full bg-[#8B0000] px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#6B0000]">
+                                                        View Profile
+                                                    </a>
                                                 @endif
                                             </div>
                                         @endforeach

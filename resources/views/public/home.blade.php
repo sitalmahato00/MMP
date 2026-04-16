@@ -31,6 +31,7 @@
                 'title' => $notice->title,
                 'href' => route('public.notices', ['type' => $type]),
                 'date' => optional($noticeDate)->format('M d'),
+                'timestamp' => optional($noticeDate)->valueOf() ?? 0,
                 'source' => $typeLabel,
                 'badge_class' => $badgeClass,
             ];
@@ -156,18 +157,18 @@
 
 {{-- ── SCROLLING NOTICE TICKER ──────────────────────────────────── --}}
 @if($publicTickerItems->count() > 0)
-<div class="bg-[#2c2c2c] text-white overflow-hidden border-b-2 border-yellow-500">
+<div class="bg-[#2c2c2c] text-white overflow-hidden border-b-2 border-yellow-500" data-notice-banner>
     <div class="w-full flex items-center">
         <div class="bg-[#8B0000] flex-shrink-0 flex items-center gap-2 px-4 py-2.5 font-bold text-sm z-10 shadow-md relative">
             <svg class="w-4 h-4 text-yellow-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
-            Latest Notices
+            Unread Notices
             <div class="absolute right-0 top-0 h-full w-4 bg-gradient-to-r from-[#8B0000] to-transparent translate-x-full"></div>
         </div>
-        <div class="flex-1 overflow-hidden" x-data="{}" x-init="$nextTick(() => { const el = $el.querySelector('.ticker-content'); if (el) { const clone = el.cloneNode(true); el.parentNode.appendChild(clone); } })">
+        <div class="flex-1 overflow-hidden" data-notice-ticker>
             <div class="flex animate-ticker whitespace-nowrap py-2.5">
-                <div class="ticker-content flex items-center gap-8 pl-6">
+                <div class="ticker-content flex items-center gap-8 pl-6" data-notice-strip>
                     @foreach($publicTickerItems as $noticeItem)
-                        <a href="{{ $noticeItem['href'] }}" class="flex items-center gap-2 text-sm text-gray-200 hover:text-yellow-400 transition-colors flex-shrink-0">
+                        <a href="{{ $noticeItem['href'] }}" data-notice-item data-notice-timestamp="{{ $noticeItem['timestamp'] }}" class="flex items-center gap-2 text-sm text-gray-200 hover:text-yellow-400 transition-colors flex-shrink-0">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $noticeItem['badge_class'] }}">{{ $noticeItem['source'] }}</span>
                             <span class="font-medium">{{ $noticeItem['title'] }}</span>
                             @if(!empty($noticeItem['date']))
@@ -764,4 +765,57 @@
         overflow: hidden;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    (function () {
+        const banner = document.querySelector('[data-notice-banner]');
+        const ticker = document.querySelector('[data-notice-ticker]');
+        const storageKey = 'mmp:notice-ticker-last-seen';
+
+        if (!banner || !ticker || !window.localStorage) {
+            return;
+        }
+
+        const strip = ticker.querySelector('[data-notice-strip]');
+
+        if (!strip) {
+            return;
+        }
+
+        let lastSeen = Number(localStorage.getItem(storageKey) || '0');
+        if (!Number.isFinite(lastSeen) || lastSeen < 0) {
+            lastSeen = 0;
+        }
+
+        const items = Array.from(strip.querySelectorAll('[data-notice-item]'));
+        let visibleCount = 0;
+
+        items.forEach((item) => {
+            const publishedAt = Number(item.dataset.noticeTimestamp || '0');
+
+            if (!publishedAt || publishedAt <= lastSeen) {
+                item.remove();
+                return;
+            }
+
+            visibleCount += 1;
+        });
+
+        if (visibleCount === 0) {
+            banner.classList.add('hidden');
+            return;
+        }
+
+        const clone = strip.cloneNode(true);
+        strip.parentNode.appendChild(clone);
+
+        try {
+            localStorage.setItem(storageKey, String(Date.now()));
+        } catch (error) {
+            // Ignore storage errors; unread filtering is best-effort.
+        }
+    })();
+</script>
 @endpush

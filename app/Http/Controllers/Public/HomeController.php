@@ -213,6 +213,9 @@ class HomeController extends Controller
             $name = trim((string) ($hod->name ?? $department->name));
 
             return (object) [
+                'id' => $department->id,
+                'profile_type' => 'hod',
+                'profile_url' => route('public.people.profile', ['type' => 'hod', 'id' => $department->id]),
                 'name' => $name !== '' ? $name : $department->name,
                 'designation' => 'Head of Department',
                 'department' => $department->name,
@@ -225,6 +228,9 @@ class HomeController extends Controller
             $name = trim((string) ($teacher->user?->name ?: $teacher->full_name ?: 'Teacher'));
 
             return (object) [
+                'id' => $teacher->id,
+                'profile_type' => 'teacher',
+                'profile_url' => route('public.people.profile', ['type' => 'teacher', 'id' => $teacher->id]),
                 'name' => $name,
                 'designation' => $teacher->designation ?: 'Teacher',
                 'department' => $teacher->department?->name,
@@ -238,6 +244,9 @@ class HomeController extends Controller
             $resolvedDepartmentName = $department?->name ?: ($member->department ?: null);
 
             return (object) [
+                'id' => $member->id,
+                'profile_type' => 'staff',
+                'profile_url' => route('public.people.profile', ['type' => 'staff', 'id' => $member->id]),
                 'name' => $name !== '' ? $name : $fallbackDesignation,
                 'designation' => $member->designation ?: $fallbackDesignation,
                 'department' => $resolvedDepartmentName,
@@ -327,6 +336,20 @@ class HomeController extends Controller
         $staff = $this->service->getStaff();
         $departments = $this->service->getDepartments();
         return view('public.staff', compact('staff', 'departments'));
+    }
+
+    public function peopleProfile(string $type, int $id)
+    {
+        $normalizedType = strtolower($type);
+
+        if (! in_array($normalizedType, ['hod', 'teacher', 'staff'], true)) {
+            abort(404);
+        }
+
+        $profile = $this->service->getPeopleProfile($normalizedType, $id);
+        $departments = $this->service->getDepartments();
+
+        return view('public.people-profile', compact('profile', 'departments'));
     }
 
     public function contact()

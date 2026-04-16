@@ -171,6 +171,18 @@ class PublicDataService
         });
     }
 
+    public function getPeopleProfile(string $type, int $id): array
+    {
+        $normalizedType = strtolower(trim($type));
+
+        return match ($normalizedType) {
+            'hod' => $this->buildHodPeopleProfile($id),
+            'teacher' => $this->buildTeacherPeopleProfile($id),
+            'staff' => $this->buildStaffPeopleProfile($id),
+            default => abort(404),
+        };
+    }
+
     public function getGalleryMedia(): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember('public:gallery', self::CACHE_TTL, function () {
@@ -480,6 +492,268 @@ class PublicDataService
         } else {
             Cache::forget("public:{$key}");
         }
+    }
+
+    private function buildHodPeopleProfile(int $departmentId): array
+    {
+        $department = Department::query()
+            ->active()
+            ->with([
+                'hod:id,name,email,phone,address,avatar,gender,dob,is_active',
+                'programs:id,department_id,name,code,total_semesters',
+            ])
+            ->withCount(['programs', 'teachers'])
+            ->findOrFail($departmentId, ['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity', 'hod_id']);
+
+        $hod = $department->hod;
+
+        if (! $hod) {
+            abort(404);
+        }
+
+        $teacher = Teacher::query()
+            ->with([
+                'department:id,name,code,slug,description,seat_capacity',
+            ])
+            ->where('user_id', $hod->id)
+            ->first();
+
+        $teacherSubjects = $teacher
+            ? $teacher->currentSubjects()->map(fn ($subject) => [
+                'name' => $subject->name,
+                'code' => $subject->code,
+            ])->values()->all()
+            : [];
+
+        return [
+            'type' => 'hod',
+            'type_label' => 'Head of Department',
+            'name' => $hod->name ?? $department->name,
+            'designation' => 'Head of Department',
+            'avatar_url' => $hod->avatar_url ?? $this->buildFallbackAvatar($hod->name ?? $department->name),
+            'summary' => $department->description ?: 'Head of Department for ' . $department->name . '.',
+            'department' => [
+                'name' => $department->name,
+                'slug' => $department->slug,
+                'code' => $department->code,
+                'description' => $department->description,
+                'seat_capacity' => $department->seat_capacity,
+                'programs_count' => $department->programs_count,
+                'teachers_count' => $department->teachers_count,
+                'programs' => $department->programs->map(fn ($program) => [
+                    'name' => $program->name,
+                    'code' => $program->code,
+                    'total_semesters' => $program->total_semesters,
+                ])->values()->all(),
+            ],
+            'highlights' => $this->buildDetailRows([
+                ['label' => 'Department', 'value' => $department->name],
+                ['label' => 'Code', 'value' => $department->code],
+                ['label' => 'Programs', 'value' => $department->programs_count],
+                ['label' => 'Teachers', 'value' => $department->teachers_count],
+            ]),
+            'sections' => [
+                $this->buildProfileSection('Contact Details', [
+                    ['label' => 'Email', 'value' => $hod->email],
+                    ['label' => 'Phone', 'value' => $hod->phone],
+                    ['label' => 'Address', 'value' => $hod->address],
+                ]),
+                $this->buildProfileSection('Personal Details', [
+                    ['label' => 'Gender', 'value' => $hod->gender],
+                    ['label' => 'Date of Birth', 'value' => $this->formatDisplayDate($hod->dob)],
+                    ['label' => 'Account Status', 'value' => $hod->is_active ? 'Active' : 'Inactive'],
+                ]),
+                $this->buildProfileSection('Department Details', [
+                    ['label' => 'Department Name', 'value' => $department->name],
+                    ['label' => 'Department Code', 'value' => $department->code],
+                    ['label' => 'Seat Capacity', 'value' => $department->seat_capacity],
+                    ['label' => 'Description', 'value' => $department->description],
+                ]),
+            ],
+            'subjects' => $teacherSubjects,
+            'action_links' => [
+                ['label' => 'View Department', 'href' => route('public.department.show', $department->slug)],
+                ['label' => 'Department People', 'href' => route('public.people', ['department' => $department->slug])],
+                ['label' => 'Back to People Directory', 'href' => route('public.people')],
+            ],
+        ];
+    }
+
+    private function buildTeacherPeopleProfile(int $teacherId): array
+    {
+        $teacher = Teacher::query()
+            ->with([
+                'user:id,name,email,phone,address,avatar,gender,dob,is_active',
+                'department:id,name,code,slug,description,seat_capacity',
+            ])
+            ->findOrFail($teacherId, ['id', 'user_id', 'department_id', 'employee_id', 'designation', 'qualification', 'specialization', 'join_date', 'employment_type', 'is_active']);
+
+        $user = $teacher->user;
+        $department = $teacher->department;
+        $subjects = $teacher->currentSubjects()->map(fn ($subject) => [
+            'name' => $subject->name,
+            'code' => $subject->code,
+        ])->values()->all();
+
+        return [
+            'type' => 'teacher',
+            'type_label' => 'Teacher',
+            'name' => $user?->name ?? $teacher->full_name ?: 'Teacher',
+            'designation' => $teacher->designation ?: 'Teacher',
+            'avatar_url' => $user?->avatar_url ?? $this->buildFallbackAvatar($user?->name ?? $teacher->full_name ?: 'Teacher'),
+            'summary' => $teacher->specialization ?: ($department?->description ?: 'Teacher profile and academic details.'),
+            'department' => $department ? [
+                'name' => $department->name,
+                'slug' => $department->slug,
+                'code' => $department->code,
+                'description' => $department->description,
+                'seat_capacity' => $department->seat_capacity,
+            ] : null,
+            'highlights' => $this->buildDetailRows([
+                ['label' => 'Department', 'value' => $department?->name],
+                ['label' => 'Employee ID', 'value' => $teacher->employee_id],
+                ['label' => 'Qualification', 'value' => $teacher->qualification],
+                ['label' => 'Specialization', 'value' => $teacher->specialization],
+            ]),
+            'sections' => [
+                $this->buildProfileSection('Contact Details', [
+                    ['label' => 'Email', 'value' => $user?->email],
+                    ['label' => 'Phone', 'value' => $user?->phone],
+                    ['label' => 'Address', 'value' => $user?->address],
+                ]),
+                $this->buildProfileSection('Personal Details', [
+                    ['label' => 'Gender', 'value' => $user?->gender],
+                    ['label' => 'Date of Birth', 'value' => $this->formatDisplayDate($user?->dob)],
+                    ['label' => 'Account Status', 'value' => $user?->is_active ? 'Active' : 'Inactive'],
+                ]),
+                $this->buildProfileSection('Professional Details', [
+                    ['label' => 'Designation', 'value' => $teacher->designation],
+                    ['label' => 'Employee ID', 'value' => $teacher->employee_id],
+                    ['label' => 'Qualification', 'value' => $teacher->qualification],
+                    ['label' => 'Specialization', 'value' => $teacher->specialization],
+                    ['label' => 'Employment Type', 'value' => $teacher->employment_type],
+                    ['label' => 'Join Date', 'value' => $this->formatDisplayDate($teacher->join_date)],
+                ]),
+            ],
+            'subjects' => $subjects,
+            'action_links' => array_values(array_filter([
+                $department ? ['label' => 'View Department', 'href' => route('public.department.show', $department->slug)] : null,
+                $department ? ['label' => 'Department People', 'href' => route('public.people', ['department' => $department->slug])] : null,
+                ['label' => 'Back to People Directory', 'href' => route('public.people')],
+            ])),
+        ];
+    }
+
+    private function buildStaffPeopleProfile(int $staffId): array
+    {
+        $staff = Staff::query()
+            ->with(['user:id,name,email,phone,address,avatar,gender,dob,is_active'])
+            ->findOrFail($staffId, ['id', 'user_id', 'name', 'designation', 'department', 'email', 'phone', 'photo', 'order', 'is_active']);
+
+        $user = $staff->user;
+        $department = $this->resolveDepartmentByLabel($staff->department);
+        $roleLabel = str_contains(strtolower((string) $staff->designation), 'lab') ? 'Lab Technician' : 'Staff';
+
+        return [
+            'type' => 'staff',
+            'type_label' => $roleLabel,
+            'name' => $staff->name ?: ($user?->name ?? 'Staff'),
+            'designation' => $staff->designation ?: $roleLabel,
+            'avatar_url' => $staff->photo_url ?? $this->buildFallbackAvatar($staff->name ?: ($user?->name ?? 'Staff')), 
+            'summary' => $staff->designation ?: $roleLabel,
+            'department' => [
+                'name' => $department?->name ?? ($staff->department ?: 'General'),
+                'slug' => $department?->slug,
+                'code' => $department?->code,
+                'description' => $department?->description,
+            ],
+            'highlights' => $this->buildDetailRows([
+                ['label' => 'Department', 'value' => $department?->name ?? $staff->department],
+                ['label' => 'Role', 'value' => $roleLabel],
+                ['label' => 'Email', 'value' => $staff->email ?: $user?->email],
+                ['label' => 'Phone', 'value' => $staff->phone ?: $user?->phone],
+            ]),
+            'sections' => [
+                $this->buildProfileSection('Contact Details', [
+                    ['label' => 'Email', 'value' => $staff->email ?: $user?->email],
+                    ['label' => 'Phone', 'value' => $staff->phone ?: $user?->phone],
+                    ['label' => 'Address', 'value' => $user?->address],
+                ]),
+                $this->buildProfileSection('Personal Details', [
+                    ['label' => 'Gender', 'value' => $user?->gender],
+                    ['label' => 'Date of Birth', 'value' => $this->formatDisplayDate($user?->dob)],
+                    ['label' => 'Account Status', 'value' => $user?->is_active ? 'Active' : 'Inactive'],
+                ]),
+                $this->buildProfileSection('Professional Details', [
+                    ['label' => 'Designation', 'value' => $staff->designation],
+                    ['label' => 'Department', 'value' => $department?->name ?? $staff->department],
+                    ['label' => 'Role Type', 'value' => $roleLabel],
+                    ['label' => 'Display Order', 'value' => $staff->order],
+                ]),
+            ],
+            'subjects' => [],
+            'action_links' => array_values(array_filter([
+                $department ? ['label' => 'View Department', 'href' => route('public.department.show', $department->slug)] : null,
+                $department ? ['label' => 'Department People', 'href' => route('public.people', ['department' => $department->slug])] : null,
+                ['label' => 'Administrative Staff', 'href' => route('public.staff')],
+                ['label' => 'Back to People Directory', 'href' => route('public.people')],
+            ])),
+        ];
+    }
+
+    private function buildProfileSection(string $title, array $rows): array
+    {
+        return [
+            'title' => $title,
+            'rows' => $this->buildDetailRows($rows),
+        ];
+    }
+
+    private function buildDetailRows(array $rows): array
+    {
+        return array_values(array_filter($rows, static fn (array $row) => filled($row['value'] ?? null)));
+    }
+
+    private function buildFallbackAvatar(string $name, string $background = '8B0000'): string
+    {
+        return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=' . $background . '&color=fff';
+    }
+
+    private function formatDisplayDate(mixed $value): ?string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('d M Y');
+        }
+
+        $formatted = trim((string) $value);
+
+        return $formatted !== '' ? $formatted : null;
+    }
+
+    private function resolveDepartmentByLabel(?string $departmentLabel): ?Department
+    {
+        $normalizedLabel = mb_strtolower(trim((string) $departmentLabel));
+
+        if ($normalizedLabel === '') {
+            return null;
+        }
+
+        return Department::active()
+            ->get(['id', 'name', 'code', 'slug', 'description'])
+            ->first(function (Department $department) use ($normalizedLabel) {
+                $name = mb_strtolower(trim((string) $department->name));
+                $code = mb_strtolower(trim((string) $department->code));
+
+                return ($name !== '' && (
+                    $normalizedLabel === $name
+                    || str_contains($normalizedLabel, $name)
+                    || str_contains($name, $normalizedLabel)
+                )) || ($code !== '' && (
+                    $normalizedLabel === $code
+                    || str_contains($normalizedLabel, $code)
+                    || str_contains($code, $normalizedLabel)
+                ));
+            });
     }
 
     private function buildManagedPage(string $slug): ?Page
