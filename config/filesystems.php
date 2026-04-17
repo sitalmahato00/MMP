@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => env('PUBLIC_FILESYSTEM_DRIVER', 'local'),
             'root' => storage_path('app/public'),
-            'url' => env('PUBLIC_FILESYSTEM_URL', rtrim(env('APP_URL', 'http://localhost'), '/').'/storage'),
+            'url' => env('PUBLIC_FILESYSTEM_URL', '/storage'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

@@ -41,9 +41,7 @@
     $active = fn(string|array $patterns): bool =>
         request()->routeIs((array) $patterns);
 
-    $brandLogoUrl = !empty($siteLogoPath ?? null)
-        ? asset('storage/' . ltrim($siteLogoPath, '/'))
-        : null;
+    $brandLogoUrl = route('public.brand-logo');
 @endphp
 
 {{-- ─── SVG Icon Map (used throughout this file) ──────────── --}}

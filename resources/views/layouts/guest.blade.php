@@ -49,11 +49,7 @@
     @stack('styles')
 </head>
 <body class="antialiased bg-gray-100 text-gray-900 overflow-x-hidden" x-data="{ mobileOpen: false }">
-    @php
-        $brandLogoUrl = !empty($siteLogoPath ?? null)
-            ? asset('storage/' . ltrim($siteLogoPath, '/'))
-            : null;
-    @endphp
+    @php $brandLogoUrl = route('public.brand-logo'); @endphp
 
     @php
         $courseMenu = collect($publicCourses ?? []);
