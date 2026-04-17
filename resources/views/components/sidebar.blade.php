@@ -144,6 +144,11 @@
             @include('components.sidebar-items.nav-link', ['href' => route('admin.notices.index'),   'iconName' => 'bell',       'label' => 'All Notices',   'isActive' => $active('admin.notices.*'),   'accent' => $accent])
             @include('components.sidebar-items.nav-section-end')
 
+            {{-- Applications --}}
+            @include('components.sidebar-items.nav-section', ['label' => 'ADMISSIONS'])
+            @include('components.sidebar-items.nav-link', ['href' => route('admin.applications.index'), 'iconName' => 'doc-text', 'label' => 'Applications', 'isActive' => $active('admin.applications.*'), 'accent' => $accent])
+            @include('components.sidebar-items.nav-section-end')
+
             {{-- Website Management --}}
             @include('components.sidebar-items.nav-section', ['label' => 'WEBSITE'])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.web-control.index'), 'iconName' => 'cog', 'label' => 'Website Settings', 'isActive' => $active(['admin.web-control.*','admin.banners.*','admin.media.*','admin.resources.*','admin.downloads.*','admin.facilities.*','admin.executives.*']), 'accent' => $accent])

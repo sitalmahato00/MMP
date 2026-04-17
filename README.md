@@ -137,7 +137,11 @@ php artisan queue:restart
 **Env Vars**: `APP_ENV=production`, `DB_*`, `FILESYSTEM_DISK=s3` (optional).
 
 ## 📸 Screenshots
-*(Add to /public/screenshots/)*
+Landing page
+![alt text](image.png)
+
+Admin dashboard
+![alt text](image-1.png)
 
 ![Home](public/screenshots/home.png)
 ![Admin Dashboard](public/screenshots/admin.png)

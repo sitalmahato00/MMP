@@ -377,4 +377,36 @@ class HomeController extends Controller
         return view('public.about', compact('siteSettings'));
     }
 
+    public function apply()
+    {
+        $departments = \App\Models\Department::orderBy('name')->get();
+        return view('public.apply', compact('departments'));
+    }
+
+    public function applyStore(Request $request)
+    {
+        $data = $request->validate([
+            'full_name'       => 'required|string|max:255',
+            'email'           => 'required|email|max:255',
+            'phone'           => 'required|string|max:20',
+            'dob'             => 'nullable|string|max:10',
+            'gender'          => 'nullable|in:male,female,other',
+            'address'         => 'nullable|string|max:500',
+            'guardian_name'   => 'nullable|string|max:255',
+            'guardian_phone'  => 'nullable|string|max:20',
+            'previous_school' => 'nullable|string|max:255',
+            'gpa'             => 'nullable|string|max:10',
+            'department_id'   => 'required|exists:departments,id',
+            'message'         => 'nullable|string|max:2000',
+        ]);
+
+        if (!empty($data['dob'])) {
+            $data['dob'] = \App\Helpers\NepaliDateHelper::toAD($data['dob']);
+        }
+
+        \App\Models\Application::create($data);
+
+        return redirect()->route('public.apply')
+            ->with('success', 'Thank you for applying! We will review your application and contact you soon.');
+    }
 }

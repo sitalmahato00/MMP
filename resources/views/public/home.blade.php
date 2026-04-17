@@ -95,14 +95,12 @@
                                 @endif
                             </div>
                             <div class="flex flex-wrap gap-3">
-                                <a href="{{ route('public.departments') }}" style="background:#d35400;color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:inline-flex;align-items:center;gap:0.5rem;transition:background 0.15s;" onmouseover="this.style.background='#e67e22'" onmouseout="this.style.background='#d35400'">
+                                <a href="{{ route('public.apply') }}" style="background:#d35400;color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:inline-flex;align-items:center;gap:0.5rem;transition:background 0.15s;" onmouseover="this.style.background='#e67e22'" onmouseout="this.style.background='#d35400'">
                                     Apply Now <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                 </a>
-                                @if($banner->link)
-                                    <a href="{{ $banner->link }}" style="border:2px solid rgba(255,255,255,0.65);color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;display:inline-flex;align-items:center;gap:0.5rem;backdrop-filter:blur(4px);transition:border-color 0.15s;" onmouseover="this.style.borderColor='white'" onmouseout="this.style.borderColor='rgba(255,255,255,0.65)'">
-                                        Learn More <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                    </a>
-                                @endif
+                                <a href="{{ route('public.page', 'what-is-mmp') }}" style="border:2px solid rgba(255,255,255,0.65);color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;display:inline-flex;align-items:center;gap:0.5rem;backdrop-filter:blur(4px);transition:border-color 0.15s;" onmouseover="this.style.borderColor='white'" onmouseout="this.style.borderColor='rgba(255,255,255,0.65)'">
+                                    Learn More <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -129,9 +127,14 @@
                         <span>Mechanical</span> <span class="text-red-400">|</span>
                         <span>Electronics Engineering</span>
                     </div>
-                    <a href="{{ route('public.departments') }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-5 py-2.5 text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-2 rounded-sm leading-none">
-                        Apply Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </a>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('public.apply') }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-5 py-2.5 text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-2 rounded-sm leading-none">
+                            Apply Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                        <a href="{{ route('public.page', 'what-is-mmp') }}" class="border-2 border-white/65 hover:border-white text-white px-5 py-2.5 text-sm font-bold inline-flex items-center gap-2 rounded-sm leading-none backdrop-blur-sm transition-colors">
+                            Learn More <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

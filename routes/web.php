@@ -49,6 +49,10 @@ Route::get('/alumni', [HomeController::class, 'alumniDirectory'])->name('public.
 Route::get('/alumni/{id}', [HomeController::class, 'alumniProfile'])->name('public.alumni.profile')->whereNumber('id');
 Route::get('/page/{slug}', [HomeController::class, 'page'])->name('public.page');
 
+// ─── Apply Now (Public Application Form) ───────────────────
+Route::get('/apply', [HomeController::class, 'apply'])->name('public.apply');
+Route::post('/apply', [HomeController::class, 'applyStore'])->name('public.apply.store');
+
 // ─── Auth Routes ──────────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
