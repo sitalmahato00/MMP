@@ -40,6 +40,7 @@
     </x-form-section>
 
     <x-form-section title="Enrollment Details">
+        <p class="text-xs text-gray-500 -mt-2">The department is derived from the selected program, and the student stays attached to the original academic session.</p>
         <x-form-row>
             <x-form-field label="Admission Number" name="admission_number" :required="true">
                 <x-input name="admission_number" :value="$student->admission_number" :required="true"/>

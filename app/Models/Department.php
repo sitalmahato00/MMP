@@ -63,4 +63,14 @@ class Department extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo ? asset('storage/' . $this->photo) : null;
+    }
+
+    public function getSyllabusUrlAttribute(): ?string
+    {
+        return $this->syllabus ? asset('storage/' . $this->syllabus) : null;
+    }
 }

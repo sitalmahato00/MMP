@@ -10,14 +10,8 @@ class AlumniController extends Controller
 {
     public function index(Request $request)
     {
-        $alumni = Alumnus::with('user', 'program')
-            ->when($request->search, function($q) use ($request) {
-                $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$request->search}%"));
-            })
-            ->latest()
-            ->paginate(20);
-
-        return view('admin.alumni.index', compact('alumni'));
+        return redirect()->route('admin.students.index')
+            ->with('success', 'Alumni are promoted automatically from student records when an academic session ends.');
     }
 
     public function create() { abort(404, 'To be implemented'); }

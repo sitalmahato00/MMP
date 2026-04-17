@@ -38,12 +38,31 @@
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Admission No.</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Program</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Semester</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Guardian</th>
+            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Parent/Guardian</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
         </tr>
     </x-slot>
 
     @forelse($students as $student)
+    @php
+        $guardian = $student->parents->first();
+        $statusLabel = match ($student->status) {
+            'graduated' => 'Alumni',
+            'inactive' => 'Inactive',
+            'suspended' => 'Suspended',
+            'dropped' => 'Dropped',
+            default => 'Active',
+        };
+
+        $statusColor = match ($student->status) {
+            'graduated' => 'green',
+            'inactive' => 'gray',
+            'suspended' => 'yellow',
+            'dropped' => 'red',
+            default => 'blue',
+        };
+    @endphp
     <tr class="hover:bg-gray-50/70 transition-colors">
         <td class="px-5 py-3.5">
             <div class="flex items-center gap-3">
@@ -51,6 +70,7 @@
                 <div class="min-w-0">
                     <p class="font-semibold text-gray-900 truncate">{{ $student->user?->name }}</p>
                     <p class="text-xs text-gray-400 truncate">{{ $student->user?->email }}</p>
+                    <p class="text-xs text-gray-400 truncate">{{ $student->academicSession?->name ?? 'No session assigned' }}</p>
                 </div>
             </div>
         </td>
@@ -62,7 +82,10 @@
             <x-badge color="purple">Sem {{ $student->current_semester }}</x-badge>
         </td>
         <td class="px-5 py-3.5 text-gray-500 text-sm">
-            {{ $student->guardian?->user?->name ?? '—' }}
+            <x-badge :color="$statusColor">{{ $statusLabel }}</x-badge>
+        </td>
+        <td class="px-5 py-3.5 text-gray-500 text-sm">
+            {{ $guardian?->user?->name ?? '—' }}
         </td>
         <td class="px-5 py-3.5">
             <x-table-actions
@@ -74,7 +97,7 @@
         </td>
     </tr>
     @empty
-    <tr><td colspan="6">
+    <tr><td colspan="7">
         <x-empty-state title="No students found"
                        message="Enroll your first student or adjust your filters."
                        action="{{ route('admin.students.create') }}"

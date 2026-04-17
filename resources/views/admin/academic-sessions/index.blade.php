@@ -2,7 +2,7 @@
 @section('title', 'Academic Sessions')
 
 @section('content')
-<x-page-header title="Academic Sessions" subtitle="Manage and activate academic year sessions.">
+<x-page-header title="Academic Sessions" subtitle="Manage and activate academic year sessions. Closing a session automatically graduates final-semester students into alumni.">
     <x-slot name="actions">
         <x-btn href="{{ route('admin.academic-sessions.create') }}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,28 +25,37 @@
     </x-slot>
 
     @forelse($sessions as $session)
+    @php
+        $statusLabel = match ($session->status) {
+            'active' => 'Active',
+            'ended' => 'Ended',
+            default => 'Upcoming',
+        };
+
+        $statusColor = match ($session->status) {
+            'active' => 'green',
+            'ended' => 'gray',
+            default => 'yellow',
+        };
+    @endphp
     <tr class="hover:bg-gray-50/70 transition-colors">
         <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $session->name }}</td>
         <td class="px-5 py-3.5 text-gray-500 text-sm">{{ bsDate($session->start_date, 'd F Y') }}</td>
         <td class="px-5 py-3.5 text-gray-500 text-sm">{{ bsDate($session->end_date, 'd F Y') }}</td>
         <td class="px-5 py-3.5">
-            @if($session->is_current)
-                <x-badge color="green" :dot="true">Active</x-badge>
-            @else
-                <x-badge color="gray">Inactive</x-badge>
-            @endif
+            <x-badge :color="$statusColor" :dot="$session->status === 'active'">{{ $statusLabel }}</x-badge>
         </td>
         <td class="px-5 py-3.5">
             <div class="flex items-center justify-end gap-2">
-                @if(!$session->is_current)
+                @if(!$session->is_active && !$session->is_locked)
                 <form method="POST" action="{{ route('admin.academic-sessions.set-current', $session) }}">
                     @csrf @method('PATCH')
                     <x-btn type="submit" variant="secondary" size="sm">Set Active</x-btn>
                 </form>
                 @endif
                 <x-table-actions
-                    :edit="route('admin.academic-sessions.edit', $session)"
-                    :destroy="!$session->is_current ? route('admin.academic-sessions.destroy', $session) : null"
+                    :edit="!$session->is_locked ? route('admin.academic-sessions.edit', $session) : null"
+                    :destroy="(!$session->is_active && !$session->is_locked) ? route('admin.academic-sessions.destroy', $session) : null"
                     name="{{ $session->name }}"
                 />
             </div>

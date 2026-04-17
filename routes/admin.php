@@ -53,6 +53,7 @@ Route::resource('facilities', FacilityController::class);
 Route::resource('executives', ExecutiveController::class);
 Route::resource('media', MediaController::class);
 Route::resource('downloads', DownloadController::class);
+Route::get('downloads/{download}/file', [DownloadController::class, 'file'])->name('downloads.file');
 Route::resource('banners', BannerController::class);
 
 // ── Resources (alias for Downloads with resource category) ─

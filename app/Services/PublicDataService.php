@@ -24,7 +24,7 @@ class PublicDataService
                 'banners' => Banner::active()->get(['id', 'title', 'subtitle', 'image', 'link', 'order']),
                 'departments' => Department::active()
                     ->withCount('programs')
-                    ->get(['id', 'name', 'code', 'slug', 'description', 'photo']),
+                    ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus']),
                 'featured_alumni' => Alumni::featured()->verified()
                     ->with('user:id,name,avatar')
                     ->with('department:id,name,code')
@@ -58,7 +58,7 @@ class PublicDataService
         return Cache::remember('public:departments', self::CACHE_TTL, function () {
             return Department::active()
                 ->withCount(['programs', 'students', 'teachers'])
-                ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity']);
+                ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity']);
         });
     }
 
@@ -70,7 +70,7 @@ class PublicDataService
                     $query->active()->orderBy('name');
                 }])
                 ->orderBy('name')
-                ->get(['id', 'name', 'code', 'slug']);
+                ->get(['id', 'name', 'code', 'slug', 'photo', 'syllabus']);
         });
     }
 
@@ -78,9 +78,9 @@ class PublicDataService
     {
         return Cache::remember("public:department:{$slug}", self::CACHE_TTL, function () use ($slug) {
             return Department::where('slug', $slug)
-                ->with(['programs:id,department_id,name,code,total_semesters'])
+                ->with(['programs:id,department_id,name,code,total_semesters,duration_years'])
                 ->with(['hod:id,name'])
-                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity', 'hod_id']);
+                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity', 'hod_id']);
         });
     }
 
@@ -100,6 +100,7 @@ class PublicDataService
     {
         $downloads = Cache::remember('public:downloads', self::CACHE_TTL, function () {
             return Download::with('department:id,name,code')
+                ->where('is_public', true)
                 ->latest()
                 ->get(['id', 'title', 'file_path', 'category', 'department_id', 'created_at']);
         });
@@ -486,6 +487,10 @@ class PublicDataService
 
             foreach ($cacheKeys as $cacheKey) {
                 Cache::forget($cacheKey);
+            }
+
+            foreach (Department::query()->pluck('slug') as $slug) {
+                Cache::forget("public:department:{$slug}");
             }
 
             Cache::forget('brand:site_logo');

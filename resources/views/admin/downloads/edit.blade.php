@@ -20,6 +20,7 @@
                     <input type="checkbox" name="is_public" value="1" {{ $download->is_public ? 'checked' : '' }} class="w-4 h-4 accent-[#8B0000] rounded">
                     <span class="text-sm text-gray-600">Publicly available</span>
                 </label>
+                <p class="text-xs text-gray-400 mt-2">Private files are moved to protected storage and served only through authenticated admin access.</p>
             </x-form-field>
             <x-form-field label="Replace File" name="file" span="full">
                 <x-file-input name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip" :current="$download->file_path"/>

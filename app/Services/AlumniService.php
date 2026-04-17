@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\{Student, Department, AcademicSession};
-use Illuminate\Support\Facades\{DB, Cache};
+use App\Models\{AcademicSession, Student};
+use Illuminate\Support\Facades\DB;
 
 /**
  * AlumniService — Handles the automated Student → Alumni conversion
@@ -24,6 +24,7 @@ class AlumniService
         // Get all final-semester active students in this session
         $finalStudents = Student::active()
             ->inSession($session->id)
+            ->whereDoesntHave('alumnus')
             ->with(['user', 'department', 'program'])
             ->get()
             ->filter(fn ($student) => $student->isFinalSemester());
@@ -31,19 +32,30 @@ class AlumniService
         DB::beginTransaction();
         try {
             foreach ($finalStudents as $student) {
+                if (!$student->user) {
+                    $failed++;
+                    $errors[] = "Student {$student->id} is missing a linked user record.";
+                    continue;
+                }
+
                 // Assign alumni role to user
                 $student->user->syncRoles(['alumni']);
 
                 // Create alumni record
-                \App\Models\Alumni::create([
-                    'user_id' => $student->user_id,
+                $alumnus = \App\Models\Alumni::withTrashed()->updateOrCreate([
                     'student_id' => $student->id,
+                ], [
+                    'user_id' => $student->user_id,
                     'department_id' => $student->department_id,
                     'program_id' => $student->program_id,
                     'graduation_year' => $session->end_date->format('Y'),
                     'is_featured' => false,
                     'is_verified' => true,
                 ]);
+
+                if (method_exists($alumnus, 'trashed') && $alumnus->trashed()) {
+                    $alumnus->restore();
+                }
 
                 // Archive student record
                 $student->update([

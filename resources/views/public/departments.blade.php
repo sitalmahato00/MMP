@@ -13,8 +13,20 @@
         @forelse($departments as $dept)
             <a href="{{ route('public.department.show', $dept->slug) }}" class="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-red-200 transition-all">
                 <div class="h-2" style="background-color: #8B0000;"></div>
+                <div class="aspect-[16/9] bg-gray-100 overflow-hidden">
+                    @if($dept->photo_url)
+                        <img src="{{ $dept->photo_url }}" alt="{{ $dept->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-5xl">{{ $deptIcons[$dept->code] ?? '📚' }}</div>
+                    @endif
+                </div>
                 <div class="p-6">
-                    <div class="text-4xl mb-4">{{ $deptIcons[$dept->code] ?? '📚' }}</div>
+                    <div class="flex items-start justify-between gap-3 mb-4">
+                        <div class="text-4xl">{{ $deptIcons[$dept->code] ?? '📚' }}</div>
+                        @if($dept->syllabus_url)
+                            <span class="text-[10px] uppercase tracking-wider font-bold text-red-700 bg-red-50 px-2 py-1 rounded border border-red-100">Syllabus Ready</span>
+                        @endif
+                    </div>
                     <h3 class="font-bold text-lg text-gray-900 font-serif mb-2 leading-tight group-hover:text-red-800 transition-colors">{{ $dept->name }}</h3>
                     <p class="text-sm text-gray-500 mb-4 leading-relaxed line-clamp-2">{{ $dept->description ?? 'CTEVT approved diploma engineering program.' }}</p>
                     <div class="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">

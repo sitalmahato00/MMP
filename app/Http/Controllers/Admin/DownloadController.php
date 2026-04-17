@@ -40,16 +40,18 @@ class DownloadController extends Controller
         ]);
 
         $file = $request->file('file');
+        $isPublic = $request->boolean('is_public');
+        $disk = $isPublic ? 'public' : 'local';
         
         Download::create([
             'title'       => $data['title'],
             'description' => $data['description'] ?? null,
             'category'    => $data['category'] ?? null,
             'file_name'   => $file->getClientOriginalName(),
-            'file_path'   => $file->store('downloads', 'public'),
+            'file_path'   => $file->store('downloads', $disk),
             'file_type'   => $file->getClientOriginalExtension(),
             'file_size'   => $file->getSize(),
-            'is_public'   => $request->has('is_public'),
+            'is_public'   => $isPublic,
             'uploaded_by' => auth()->id(),
         ]);
 
@@ -78,18 +80,28 @@ class DownloadController extends Controller
             'is_public'   => 'boolean',
         ]);
 
+        $isPublic = $request->boolean('is_public');
+        $targetDisk = $isPublic ? 'public' : 'local';
+
         if ($request->hasFile('file')) {
-            if ($download->file_path && Storage::disk('public')->exists($download->file_path)) {
-                Storage::disk('public')->delete($download->file_path);
+            if ($download->file_path && Storage::disk($download->storageDisk())->exists($download->file_path)) {
+                Storage::disk($download->storageDisk())->delete($download->file_path);
             }
             $file = $request->file('file');
             $data['file_name'] = $file->getClientOriginalName();
-            $data['file_path'] = $file->store('downloads', 'public');
+            $data['file_path'] = $file->store('downloads', $targetDisk);
             $data['file_type'] = $file->getClientOriginalExtension();
             $data['file_size'] = $file->getSize();
+        } elseif ($download->is_public !== $isPublic && $download->file_path) {
+            $sourceDisk = $download->storageDisk();
+            if (Storage::disk($sourceDisk)->exists($download->file_path)) {
+                $contents = Storage::disk($sourceDisk)->get($download->file_path);
+                Storage::disk($targetDisk)->put($download->file_path, $contents);
+                Storage::disk($sourceDisk)->delete($download->file_path);
+            }
         }
 
-        $data['is_public'] = $request->has('is_public');
+        $data['is_public'] = $isPublic;
         $download->update($data);
 
         PublicDataService::invalidate('*');
@@ -97,10 +109,25 @@ class DownloadController extends Controller
         return redirect()->route('admin.downloads.index')->with('success', 'Download updated.');
     }
 
+    public function file(Download $download)
+    {
+        abort_unless($download->file_path, 404);
+
+        $disk = $download->storageDisk();
+        abort_unless(Storage::disk($disk)->exists($download->file_path), 404);
+
+        $path = Storage::disk($disk)->path($download->file_path);
+        $filename = $download->file_name ?: basename($path);
+
+        return response()->file($path, [
+            'Content-Disposition' => sprintf('inline; filename="%s"', $filename),
+        ]);
+    }
+
     public function destroy(Download $download)
     {
-        if ($download->file_path && Storage::disk('public')->exists($download->file_path)) {
-            Storage::disk('public')->delete($download->file_path);
+        if ($download->file_path && Storage::disk($download->storageDisk())->exists($download->file_path)) {
+            Storage::disk($download->storageDisk())->delete($download->file_path);
         }
         $download->delete();
         PublicDataService::invalidate('*');

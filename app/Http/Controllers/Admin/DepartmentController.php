@@ -30,12 +30,18 @@ class DepartmentController extends Controller
             'code'        => 'required|string|max:20|unique:departments',
             'hod_id'      => 'nullable|exists:users,id',
             'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|max:2048',
+            'photo'       => 'nullable|image|max:2048',
+            'syllabus'    => 'nullable|file|mimes:pdf|max:10240',
         ]);
 
-        if ($request->hasFile('cover_image')) {
-            $data['cover_image_path'] = $request->file('cover_image')
+        if ($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')
                 ->store('departments', 'public');
+        }
+
+        if ($request->hasFile('syllabus')) {
+            $data['syllabus'] = $request->file('syllabus')
+                ->store('departments/syllabi', 'public');
         }
 
         Department::create($data);
@@ -64,15 +70,24 @@ class DepartmentController extends Controller
             'code'        => ['required','string','max:20',  "unique:departments,code,{$department->id}"],
             'hod_id'      => 'nullable|exists:users,id',
             'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|max:2048',
+            'photo'       => 'nullable|image|max:2048',
+            'syllabus'    => 'nullable|file|mimes:pdf|max:10240',
         ]);
 
-        if ($request->hasFile('cover_image')) {
-            if ($department->cover_image_path) {
-                Storage::disk('public')->delete($department->cover_image_path);
+        if ($request->hasFile('photo')) {
+            if ($department->photo) {
+                Storage::disk('public')->delete($department->photo);
             }
-            $data['cover_image_path'] = $request->file('cover_image')
+            $data['photo'] = $request->file('photo')
                 ->store('departments', 'public');
+        }
+
+        if ($request->hasFile('syllabus')) {
+            if ($department->syllabus) {
+                Storage::disk('public')->delete($department->syllabus);
+            }
+            $data['syllabus'] = $request->file('syllabus')
+                ->store('departments/syllabi', 'public');
         }
 
         $department->update($data);
@@ -84,8 +99,11 @@ class DepartmentController extends Controller
 
     public function destroy(Department $department)
     {
-        if ($department->cover_image_path) {
-            Storage::disk('public')->delete($department->cover_image_path);
+        if ($department->photo) {
+            Storage::disk('public')->delete($department->photo);
+        }
+        if ($department->syllabus) {
+            Storage::disk('public')->delete($department->syllabus);
         }
         $department->delete();
         PublicDataService::invalidate('*');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Helpers\NepaliDateHelper;
+use App\Models\AcademicSession;
 use App\Models\Student;
 use App\Models\Program;
 use App\Models\User;
@@ -16,7 +17,7 @@ class StudentController extends Controller
 {
     public function index(Request $request)
     {
-        $students = Student::with(['user', 'program', 'guardian.user'])
+        $students = Student::with(['user', 'program', 'academicSession', 'parents.user', 'alumnus'])
             ->when($request->search, function ($q) use ($request) {
                 $q->where('admission_number', 'like', "%{$request->search}%")
                   ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$request->search}%"));
@@ -52,6 +53,12 @@ class StudentController extends Controller
             'current_semester' => 'required|integer|min:1|max:10',
         ]);
 
+        $program = Program::with('department')->findOrFail($data['program_id']);
+        $academicSession = AcademicSession::current();
+
+        abort_if(!$program->department_id, 422, 'Selected program must belong to a department before enrolling a student.');
+        abort_if(!$academicSession, 422, 'Set an active academic session before enrolling students.');
+
         if ($request->hasFile('avatar')) {
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
@@ -70,10 +77,14 @@ class StudentController extends Controller
         $user->assignRole('student');
 
         $student = Student::create([
-            'user_id'          => $user->id,
-            'admission_number' => $data['admission_number'],
-            'program_id'       => $data['program_id'],
-            'current_semester' => $data['current_semester'],
+            'user_id'             => $user->id,
+            'department_id'       => $program->department_id,
+            'admission_number'    => $data['admission_number'],
+            'program_id'          => $data['program_id'],
+            'academic_session_id' => $academicSession->id,
+            'current_semester'    => $data['current_semester'],
+            'status'              => 'active',
+            'is_archived'         => false,
         ]);
 
         return redirect()->route('admin.students.index')->with('success', 'Student enrolled successfully.');
@@ -81,7 +92,7 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
-        $student->load(['user', 'program', 'guardian.user']);
+        $student->load(['user', 'department', 'program.department', 'academicSession', 'parents.user', 'alumnus.user', 'alumnus.program.department']);
         return view('admin.students.show', compact('student'));
     }
 
@@ -106,6 +117,10 @@ class StudentController extends Controller
             'current_semester' => 'required|integer|min:1|max:10',
         ]);
 
+        $program = Program::with('department')->findOrFail($data['program_id']);
+
+        abort_if(!$program->department_id, 422, 'Selected program must belong to a department before saving this student.');
+
         if ($request->hasFile('avatar')) {
             if ($student->user->avatar && Storage::disk('public')->exists($student->user->avatar)) {
                 Storage::disk('public')->delete($student->user->avatar);
@@ -125,6 +140,7 @@ class StudentController extends Controller
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));
 
         $student->update([
+            'department_id'    => $program->department_id,
             'admission_number' => $data['admission_number'],
             'program_id'       => $data['program_id'],
             'current_semester' => $data['current_semester'],

@@ -219,6 +219,11 @@
                             @endforeach
                         </div>
                     </div>
+
+                    <a href="{{ route('public.apply') }}" class="ml-2 inline-flex items-center gap-1.5 rounded-sm bg-[#d35400] px-4 py-3.5 text-sm font-bold uppercase text-white shadow-md transition-colors hover:bg-[#e67e22]">
+                        Apply Now
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
                 </div>
 
                 {{-- Phone Numbers exactly on the right side --}}
@@ -238,6 +243,10 @@
         <div x-show="mobileOpen" x-cloak class="xl:hidden bg-[#333333] border-t border-white/10 text-white max-h-[80vh] overflow-y-auto">
             <div class="px-0 py-0 divide-y divide-white/10 text-sm font-bold uppercase tracking-wider">
                 <a href="{{ route('home') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors {{ request()->routeIs('home') ? 'bg-white/10 border-l-4 border-white' : 'border-l-4 border-transparent' }}">Home</a>
+
+                <a href="{{ route('public.apply') }}" class="block px-5 py-4 bg-[#d35400] text-white hover:bg-[#e67e22] transition-colors border-l-4 border-[#f1b27a]">
+                    Apply Now
+                </a>
                 
                 <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
                     <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors">

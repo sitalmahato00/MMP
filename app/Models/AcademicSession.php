@@ -82,4 +82,14 @@ class AcademicSession extends Model
     {
         return $this->status === 'ended';
     }
+
+    public function getIsCurrentAttribute(): bool
+    {
+        return (bool) $this->is_active;
+    }
+
+    public function setIsCurrentAttribute($value): void
+    {
+        $this->attributes['is_active'] = (bool) $value;
+    }
 }

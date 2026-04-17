@@ -130,7 +130,6 @@
             @include('components.sidebar-items.nav-link', ['href' => route('admin.students.index'), 'iconName' => 'user-group', 'label' => 'Students',           'isActive' => $active('admin.students.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.teachers.index'), 'iconName' => 'briefcase',  'label' => 'Teachers',           'isActive' => $active('admin.teachers.*'), 'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.parents.index'),  'iconName' => 'heart',      'label' => 'Parents/Guardians',  'isActive' => $active('admin.parents.*'),  'accent' => $accent])
-            @include('components.sidebar-items.nav-link', ['href' => route('admin.alumni.index'),   'iconName' => 'graduation-cap', 'label' => 'Alumni',         'isActive' => $active('admin.alumni.*'),   'accent' => $accent])
             @include('components.sidebar-items.nav-link', ['href' => route('admin.staff.index'),    'iconName' => 'briefcase',      'label' => 'Staff Directory','isActive' => $active('admin.staff.*'),    'accent' => $accent])
             @include('components.sidebar-items.nav-section-end')
 

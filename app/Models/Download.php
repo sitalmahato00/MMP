@@ -10,4 +10,9 @@ class Download extends Model
     protected $casts = ['is_public' => 'boolean'];
     public function department() { return $this->belongsTo(Department::class); }
     public function uploader() { return $this->belongsTo(User::class, 'uploaded_by'); }
+
+    public function storageDisk(): string
+    {
+        return $this->is_public ? 'public' : 'local';
+    }
 }

@@ -2,7 +2,7 @@
 @section('title', 'New Academic Session')
 
 @section('content')
-<x-page-header title="New Academic Session" subtitle="Define a new academic year period."
+<x-page-header title="New Academic Session" subtitle="Define a new academic year period. Activating it will close the current session and move final-semester students to alumni automatically."
                back="{{ route('admin.academic-sessions.index') }}"/>
 
 <form method="POST" action="{{ route('admin.academic-sessions.store') }}" class="max-w-2xl space-y-6">
@@ -18,9 +18,9 @@
             <x-form-field label="End Date (BS)" name="end_date" :required="true">
                 <x-bs-date-picker name="end_date" :required="true"/>
             </x-form-field>
-            <x-form-field label="Set as Current Session" name="is_current">
+            <x-form-field label="Set as Active Session" name="is_active">
                 <label class="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" name="is_current" value="1" {{ old('is_current') ? 'checked' : '' }}
+                    <input type="checkbox" name="is_active" value="1" {{ old('is_active') ? 'checked' : '' }}
                            class="w-4 h-4 accent-[#8B0000] rounded">
                     <span class="text-sm text-gray-600">Make this the active session immediately</span>
                 </label>

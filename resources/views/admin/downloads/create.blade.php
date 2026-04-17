@@ -2,7 +2,7 @@
 @section('title', 'Add Download')
 
 @section('content')
-<x-page-header title="Add Download" subtitle="Upload a resource for public download."
+<x-page-header title="Add Download" subtitle="Upload a public or private resource."
                back="{{ route('admin.downloads.index') }}"/>
 
 <form method="POST" action="{{ route('admin.downloads.store') }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
@@ -20,6 +20,7 @@
                     <input type="checkbox" name="is_public" value="1" checked class="w-4 h-4 accent-[#8B0000] rounded">
                     <span class="text-sm text-gray-600">Publicly available</span>
                 </label>
+                <p class="text-xs text-gray-400 mt-2">Unchecked files are stored privately and can only be accessed by authenticated admin users.</p>
             </x-form-field>
             <x-form-field label="File" name="file" :required="true" span="full">
                 <x-file-input name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip" label="Upload document (PDF, Word, Excel, ZIP)"/>

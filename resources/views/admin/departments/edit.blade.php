@@ -32,10 +32,15 @@
         </x-form-row>
     </x-form-section>
 
-    <x-form-section title="Cover Image">
-        <x-form-field label="Upload New Image" name="cover_image">
-            <x-file-input name="cover_image" accept="image/*" :current="$department->cover_image_path"/>
-        </x-form-field>
+    <x-form-section title="Media">
+        <x-form-row>
+            <x-form-field label="Department Photo" name="photo">
+                <x-file-input name="photo" accept="image/*" :current="$department->photo" label="Replace department photo"/>
+            </x-form-field>
+            <x-form-field label="Syllabus PDF" name="syllabus">
+                <x-file-input name="syllabus" accept="application/pdf" :current="$department->syllabus" label="Replace syllabus document"/>
+            </x-form-field>
+        </x-form-row>
     </x-form-section>
 
     <div class="flex items-center gap-3">

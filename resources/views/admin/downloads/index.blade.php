@@ -2,7 +2,7 @@
 @section('title', 'Downloads')
 
 @section('content')
-<x-page-header title="Downloads" subtitle="Manage public downloadable forms and resources.">
+<x-page-header title="Downloads" subtitle="Manage public and private downloadable forms and resources.">
     <x-slot name="actions">
         <x-btn href="{{ route('admin.downloads.create') }}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,6 +18,7 @@
         <tr>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Category</th>
+            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Visibility</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">File</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Added</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
@@ -31,9 +32,12 @@
             <x-badge color="gray">{{ $download->category ?? 'general' }}</x-badge>
         </td>
         <td class="px-5 py-3.5">
+            <x-badge :color="$download->is_public ? 'green' : 'amber'">{{ $download->is_public ? 'Public' : 'Private' }}</x-badge>
+        </td>
+        <td class="px-5 py-3.5">
             @if($download->file_path)
                 <x-file-preview
-                    :url="asset('storage/'.$download->file_path)"
+                    :url="route('admin.downloads.file', $download)"
                     :filename="$download->file_name ?? basename($download->file_path)"
                     :type="$download->file_type ?? pathinfo($download->file_path, PATHINFO_EXTENSION)"
                 />
@@ -44,6 +48,7 @@
         <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ bsDate($download->created_at, 'd F Y') }}</td>
         <td class="px-5 py-3.5">
             <x-table-actions
+                :show="route('admin.downloads.show', $download)"
                 :edit="route('admin.downloads.edit', $download)"
                 :destroy="route('admin.downloads.destroy', $download)"
                 name="{{ $download->title }}"
@@ -51,9 +56,9 @@
         </td>
     </tr>
     @empty
-    <tr><td colspan="5">
+    <tr><td colspan="6">
         <x-empty-state title="No downloads added"
-                       message="Upload forms, syllabi, or question banks for public access."
+                   message="Upload forms, syllabi, or question banks for the site."
                        action="{{ route('admin.downloads.create') }}"
                        actionLabel="Add Download"/>
     </td></tr>

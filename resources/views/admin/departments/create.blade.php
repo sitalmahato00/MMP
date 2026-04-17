@@ -33,9 +33,14 @@
     </x-form-section>
 
     <x-form-section title="Media">
-        <x-form-field label="Cover Image" name="cover_image">
-            <x-file-input name="cover_image" accept="image/*" label="Upload department cover image (JPG, PNG)"/>
-        </x-form-field>
+        <x-form-row>
+            <x-form-field label="Department Photo" name="photo">
+                <x-file-input name="photo" accept="image/*" label="Upload department photo (JPG, PNG)"/>
+            </x-form-field>
+            <x-form-field label="Syllabus PDF" name="syllabus">
+                <x-file-input name="syllabus" accept="application/pdf" label="Upload syllabus document (PDF)"/>
+            </x-form-field>
+        </x-form-row>
     </x-form-section>
 
     <div class="flex items-center gap-3">
