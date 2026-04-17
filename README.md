@@ -3,75 +3,218 @@
 [![Laravel](https://img.shields.io/badge/Laravel-12-brightgreen.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue.svg)](https://tailwindcss.com)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)]
 
-MMP College Management System is a role-based Laravel application for the college website, administration, academics, and public content delivery. The current codebase is prepared for production deployment with MySQL, Redis, CDN-aware public files, private file streaming, route throttling, and short-lived dashboard caching.
+MMP College Management System is a Laravel 12 application for the college website, administration, academic operations, and public content delivery. It combines a public portal, CMS-driven content management, and role-based dashboards for principal/admin, HOD, teacher, student, parent, and alumni users. The current codebase is prepared for production with MySQL, Redis, object storage/CDN-friendly media delivery, route throttling, and short-lived dashboard caching.
 
-## Overview
+## Platform Snapshot
 
-The system is split into a public portal and several authenticated portals:
-
-- Public portal for homepage content, departments, facilities, leadership, gallery, downloads, question bank, apply form, and result checking.
-- Admin CMS for banners, media, pages, departments, executives, facilities, downloads, and site settings.
+- Public website for homepage content, notices, departments, facilities, leadership, gallery, downloads, question bank, result checking, contact, alumni, and admissions.
+- Admin CMS for banners, media, pages, departments, executives, facilities, downloads, notices, settings, applications, and audit logs.
 - Academic portals for students, teachers, HODs, parents, and alumni.
-- Automated student-to-alumni promotion when academic sessions are closed.
-- Object-storage friendly media handling with CDN-backed public URLs and protected private downloads.
+- Nepali BS date support and a custom BS datepicker flow in the UI.
+- Storage accessors and a branded logo route for public and admin media.
+- Automatic student-to-alumni promotion when academic sessions are closed.
 
-## Feature Highlights
+## Roles and Portals
 
-- Public content is assembled through `PublicDataService` and cached for short periods to reduce repeated database work.
-- Dashboards for students, teachers, HODs, parents, and alumni cache notices, assignments, timetable slots, and department lookups.
-- Named rate limiters protect login, application, result checking, and public API traffic.
-- Media, banner, staff, executive, department, and facility URLs are generated through model accessors instead of hardcoded `asset('storage/...')` links.
-- Public downloads use the `public` disk and CDN URL, while private downloads are streamed through the admin controller.
-- Department forms use the real schema fields: `photo` and `syllabus`.
+| Role | Main responsibilities | Key areas |
+| --- | --- | --- |
+| Principal / Admin | Full site and academic administration | Dashboard, users, academic sessions, departments, programs, students, teachers, parents, alumni, staff, exams, notices, media, downloads, banners, facilities, executives, web control, applications, audit logs |
+| HOD | Department-level academic management | Department dashboard, department students and teachers, attendance, exams, marks, timetable, notices, media, alumni preparation, reports |
+| Teacher | Classroom and assessment workflow | Attendance entry, marks entry, assignments, timetable, class lists, exams, notices, profile |
+| Student | Academic self-service | Dashboard, profile, attendance, marks and results, timetable, assignments, downloads, notices, exams, performance |
+| Parent | Child monitoring | Child profile, attendance, marks and results, timetable, notices, communication, performance analytics |
+| Alumni | Former student profile and updates | Alumni profile, notices, events, directory |
+| Guest / Public | Browse and apply | Public pages, admissions form, result checker, public downloads, public API consumers |
 
-## Technology Stack
+## Public Pages
 
-| Area | Stack |
+| Route | Page | Purpose |
+| --- | --- | --- |
+| `/` | Home | Hero banners, quick links, welcome content, principal corner, news, notices, CTEVT feeds, statistics, recent downloads, departments, facilities, gallery preview, apply CTA |
+| `/notices` | Notices | General, exam, news, event, CTEVT general, and CTEVT result notices |
+| `/news-events` | News and Events | Public news and event listings |
+| `/departments` | Departments | Program cards with photos, syllabus indicator, and summary info |
+| `/departments/{slug}` | Department detail | Department photo, description, HOD, programs, and syllabus download |
+| `/downloads` | Downloads | Public resources and downloadable files |
+| `/question-bank` | Question bank | Question bank resources for students and visitors |
+| `/gallery` | Gallery | Photo gallery with lightbox browsing |
+| `/result` | Result checker | Public result checking form with throttling |
+| `/people` | People directory | HOD, teachers, staff, and lab techs filtered by department |
+| `/people/{type}/{id}` | People profile | Individual HOD, teacher, or staff profile page |
+| `/staff` | Staff directory | Administrative and support staff listing |
+| `/leadership` | Leadership | Presidents and principals listing |
+| `/facilities` | Facilities | Facilities cards with photos, documents, and videos |
+| `/contact` | Contact | Contact details, address, phone, email, and map embed |
+| `/alumni` | Alumni directory | Featured alumni directory |
+| `/alumni/{id}` | Alumni profile | Individual alumni profile |
+| `/page/{slug}` | Managed page | CMS-managed page content such as about, objectives, contact, scholarships, and internships |
+| `/apply` | Apply now | Public admissions form |
+| `/brand-logo` | Brand logo | Current site logo with favicon fallback |
+
+### Public Page Features
+
+- Homepage content is built from `PublicDataService` and cached to reduce repeated queries.
+- The home page highlights the admissions CTA, public notices, news, departments, facilities, alumni-related content, and current branding.
+- Notices include both internal MMP content and CTEVT feeds.
+- Department pages surface the department photo and syllabus if available.
+- The gallery page uses CDN-backed image URLs and a lightbox viewer.
+- The facilities page renders photos, attached documents, and other resource links.
+- The people directory groups HODs, teachers, staff, and lab techs by department.
+- The apply form is rate limited and intended for admissions intake.
+- The result checker is throttled separately from the rest of the site.
+
+## Admin and CMS Modules
+
+| Module | Purpose |
 | --- | --- |
-| Backend | Laravel 12, PHP 8.2+ |
-| Authentication | Laravel Sanctum, spatie/laravel-permission |
-| Frontend | Blade, Alpine.js, Tailwind CSS 4, Vite |
-| Storage | Local storage for development, S3-compatible object storage for production |
-| Cache / Session / Queue | Redis in production |
-| Database | MySQL in production |
-| Testing | PHPUnit |
-| Tooling | Laravel Pint, Laravel Pail, Composer scripts, Vite build pipeline |
+| Dashboard | Site activity and operational overview |
+| Users | User and role management |
+| Academic Sessions | Academic year/session lifecycle and current session control |
+| Departments | Department records, HOD assignment, photos, syllabi |
+| Programs | Program definitions linked to departments |
+| Students | Student records and academic profile management |
+| Teachers | Teacher records and department assignment |
+| Parents | Parent/guardian records and child relationships |
+| Alumni | Alumni records derived from student history |
+| Staff | Administrative and support staff records |
+| Exams | Exam setup and publication |
+| Notices | Public and internal notices |
+| Facilities | Facility listings and associated media |
+| Executives | President/principal and other leadership records |
+| Media | Gallery and media uploads |
+| Downloads | Public resources and protected files |
+| Banners | Homepage hero banners |
+| Web Control | Site settings, branding, and shared page content |
+| Applications | Admissions submissions from the public apply form |
+| Audit Logs | Activity tracking and security review |
 
-## Repository Layout
+### Web Control Content
 
-```text
-app/
-config/
-database/
-docs/
-public/
-resources/
-routes/
-storage/
-tests/
-```
+The site settings module manages shared public content such as:
 
-Key files for deployment and runtime behavior:
+- Site logo
+- Welcome message
+- What is MMP section
+- Objectives
+- Principal name
+- Principal photo
+- Principal message and attachment
+- Contact details
+- Google Maps embed
+- Scholarships and internships content
+- Managed pages like About, Objectives, Contact Us, Scholarship Schemes, and Internships
 
-- [.env.example](.env.example)
+## Database Model
+
+The database is organized around academic structure, people, public content, and auditability.
+
+### Core Data Groups
+
+| Group | Main tables / models | Notes |
+| --- | --- | --- |
+| Identity and access | `users`, Spatie permission tables | Authentication and role-based access control |
+| Academic structure | `academic_sessions`, `departments`, `programs`, `subjects`, `timetables`, `timetable_slots` | Defines the academic hierarchy and scheduling |
+| People | `students`, `teachers`, `parents`, `alumni`, `staff`, `executives` | Role-specific people records and profiles |
+| Teaching and assessment | `attendance_sessions`, `attendance`, `assignments`, `assignment_submissions`, `exams`, `marks` | Attendance, homework, exams, and result data |
+| Public content | `banners`, `notices`, `pages`, `media`, `downloads`, `facilities`, `site_settings`, `communications` | Homepage, CMS, downloadable resources, and public-facing content |
+| Governance and logs | `applications`, `audit_logs` | Admissions intake and action tracking |
+
+### Relationship Summary
+
+- A department has many programs, students, teachers, notices, media items, facilities, and alumni.
+- A program belongs to a department and drives student enrollment, timetables, subjects, and assignments.
+- A student belongs to a program, department, and parent profile, and can later become an alumnus.
+- A teacher belongs to a department and participates in timetables, attendance, marks, and class workflows.
+- Academic sessions determine the active academic year and support the student-to-alumni promotion flow.
+- Site settings power global branding and shared public sections.
+
+### Site Settings Defaults
+
+The application seeds a default site settings set through `SiteSetting::defaultDefinitions()`. Important keys include:
+
+- `site_logo`
+- `what_is_mmp`
+- `objectives`
+- `welcome_message`
+- `principals_message`
+- `principal_photo`
+- `principal_message_media`
+- `president_name`
+- `principal_name`
+- `classrooms_labs`
+- `workshops`
+- `transportation`
+- `scholarship_schemes`
+- `internships_placements`
+- `contact_us_content`
+- `contact_email`
+- `contact_phone`
+- `contact_address`
+- `google_maps_iframe`
+
+## Public API
+
+The public API is exposed under `/api/v1/public` and throttled with the `public-api` limiter.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/v1/public/homepage` | Homepage data |
+| `GET /api/v1/public/notices` | Public notices |
+| `GET /api/v1/public/departments` | Department listing |
+| `GET /api/v1/public/departments/{slug}` | Department details |
+| `GET /api/v1/public/alumni` | Featured alumni |
+| `GET /api/v1/public/downloads` | Public downloads |
+| `GET /api/v1/public/pages/{slug}` | Managed CMS pages |
+| `GET /api/v1/public/facilities` | Facilities data |
+| `GET /api/v1/public/staff` | Staff listing |
+| `GET /api/v1/public/leadership` | Leadership listing |
+| `GET /api/v1/public/site-settings` | Shared branding and content settings |
+
+## Storage, CDN, and Branding
+
+The project splits public and private file delivery.
+
+- Public files live on the `public` disk and should resolve through a public URL or CDN URL.
+- Private files live on the `private` disk and are streamed through controller responses.
+- Brand images and icons come from the `site_logo` setting and are exposed through the `/brand-logo` route.
+- Model accessors are used for public URLs such as `image_url`, `avatar_url`, `file_url`, `url`, `photo_url`, `syllabus_url`, `image_urls`, `document_urls`, and `video_urls`.
+
+Relevant files:
+
 - [config/filesystems.php](config/filesystems.php)
-- [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php)
-- [routes/web.php](routes/web.php)
-- [routes/api.php](routes/api.php)
 - [app/Http/Controllers/Admin/DownloadController.php](app/Http/Controllers/Admin/DownloadController.php)
 - [app/Models/Download.php](app/Models/Download.php)
-- [docs/ctevt-result-notices-integration.md](docs/ctevt-result-notices-integration.md)
+- [app/Models/Media.php](app/Models/Media.php)
+- [app/Models/Department.php](app/Models/Department.php)
+- [app/Models/Facility.php](app/Models/Facility.php)
 
-## Local Development
+## Routing and Security
 
-For a fresh local bootstrap, the Composer setup script installs PHP and Node dependencies, copies the environment file, generates an application key, runs migrations, and builds the frontend bundle:
+The application uses named rate limiters and route-level protection for public traffic.
+
+- `login`: 5 attempts per minute per email and IP.
+- `apply`: 10 attempts per hour per email and IP.
+- `result-check`: 30 requests per minute per IP.
+- `public-api`: 120 requests per minute per IP.
+
+Other operational protections include:
+
+- Public content caching through `PublicDataService`
+- Dashboard caching for student, teacher, HOD, parent, and alumni portals
+- Separate public and private download handling
+- Automatic cache invalidation when content or files change
+
+## Development Setup
+
+For a full local bootstrap:
 
 ```bash
 composer run setup
 ```
 
-If you want the steps manually:
+Manual setup if you want to run each step yourself:
 
 ```bash
 composer install
@@ -83,35 +226,34 @@ npm run dev
 php artisan serve
 ```
 
-Notes for local development:
+Notes:
 
-- `composer run setup` is the fastest way to bootstrap the project from scratch.
-- `npm run dev` starts the Vite development server.
-- If you use local public storage during development, run `php artisan storage:link` so public files are reachable.
-- Seeders are available in `database/seeders` for demo or test data.
+- Run `php artisan storage:link` if you are using the local public disk.
+- Use the seeders in `database/seeders` for demo or test content.
+- `npm run dev` starts the Vite development build.
 
 ## Environment Configuration
 
-The repository ships with production-oriented defaults in [.env.example](.env.example). Update the following values before deploying:
+The repository ships with production-oriented defaults in [.env.example](.env.example). Replace the placeholders with your real values before deployment.
 
 | Category | Important variables | Purpose |
 | --- | --- | --- |
-| Application | `APP_ENV`, `APP_DEBUG`, `APP_URL` | Production should use `production`, `false`, and the real public domain |
-| Database | `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | MySQL credentials and database name |
+| Application | `APP_ENV`, `APP_DEBUG`, `APP_URL` | Production app settings |
+| Database | `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | MySQL connection details |
 | Cache / Session / Queue | `CACHE_STORE`, `SESSION_DRIVER`, `SESSION_CONNECTION`, `SESSION_STORE`, `QUEUE_CONNECTION`, `REDIS_*` | Redis-backed runtime services |
 | Storage | `FILESYSTEM_DISK`, `PUBLIC_FILESYSTEM_DRIVER`, `PUBLIC_FILESYSTEM_URL`, `PRIVATE_FILESYSTEM_DRIVER`, `AWS_*` | Object storage and CDN integration |
-| Mail | `MAIL_*` | Outbound mail delivery |
-| External feeds | `CTEVT_*` | Public notice and result integrations |
+| Mail | `MAIL_*` | Outgoing email delivery |
+| External feeds | `CTEVT_*` | CTEVT notices and result integration |
 
-Important storage behavior:
+Recommended production storage behavior:
 
-- Public images and documents should resolve through CDN-aware URLs from the `public` disk.
-- Private files should stay on the `private` disk and be served through controller responses.
-- Do not add new `asset('storage/...')` references in views or models.
+- Use `public` disk or an S3-compatible bucket for public assets.
+- Use `private` disk for restricted files.
+- Set `PUBLIC_FILESYSTEM_URL` to the CDN or public bucket URL you want browsers to use.
 
 ## Production Deployment
 
-Use the following checklist when deploying to a production host:
+Recommended deployment steps:
 
 ```bash
 composer install --optimize-autoloader --no-dev
@@ -124,56 +266,22 @@ php artisan view:cache
 php artisan queue:restart
 ```
 
-Deployment checklist:
+Production checklist:
 
 1. Provision MySQL, Redis, and an S3-compatible object storage bucket.
 2. Point `APP_URL` to the public site domain.
-3. Set `PUBLIC_FILESYSTEM_URL` to the CDN origin or public bucket URL you want browsers to use.
-4. Fill in the `AWS_*` credentials for the public and private storage disks.
-5. Ensure the queue worker runs continuously under Supervisor, systemd, Forge, or your platform equivalent.
-6. Add a cron entry for the Laravel scheduler if you use scheduled tasks.
-7. Run a backup, then test a restore on staging before going live.
-8. Confirm error monitoring or centralized logging is active before the first production release.
+3. Set `PUBLIC_FILESYSTEM_URL` to the CDN origin or public bucket URL.
+4. Fill in the `AWS_*` credentials for public and private storage.
+5. Run queue workers continuously under Supervisor, systemd, Forge, or your hosting platform.
+6. Add a scheduler cron entry if you use scheduled tasks.
+7. Take a backup and test a restore before going live.
+8. Enable error monitoring or centralized logging before the first production release.
 
-Recommended runtime services:
+Recommended runtime commands:
 
-- `php artisan queue:work` as a long-lived worker process.
-- `php artisan schedule:run` once per minute from cron, if scheduled tasks are enabled.
-- `php artisan optimize:clear` before a fresh deploy when you need to invalidate caches manually.
-
-## Storage and CDN
-
-The storage layer is intentionally split so public and private content behave differently:
-
-- `public` disk: banners, staff images, department photos, facility images, public media, and public downloads.
-- `private` disk: restricted download files that should not be directly exposed from storage.
-- CDN URLs are generated by model accessors such as `image_url`, `avatar_url`, `file_url`, `url`, `photo_url`, `syllabus_url`, `image_urls`, `document_urls`, and `video_urls`.
-
-Relevant runtime files:
-
-- [config/filesystems.php](config/filesystems.php)
-- [app/Models/Download.php](app/Models/Download.php)
-- [app/Models/Media.php](app/Models/Media.php)
-- [app/Models/Department.php](app/Models/Department.php)
-- [app/Models/Facility.php](app/Models/Facility.php)
-
-## Rate Limiting, Cache, and Sessions
-
-The current production hardening adds named rate limiters and Redis-backed defaults:
-
-- `login`: 5 attempts per minute per email and IP.
-- `apply`: 10 attempts per hour per email and IP.
-- `result-check`: 30 requests per minute per IP.
-- `public-api`: 120 requests per minute per IP.
-
-Short-lived caching is used for dashboard content and public homepage data so repeated requests do less work. This keeps the public site responsive without turning the application into a cache-only system.
-
-## Data Flow Notes
-
-- Student records remain the source of truth for alumni promotion.
-- Academic session changes can automatically transition students to alumni when they complete the final stage.
-- Department media uses `photo` and `syllabus` fields, not a legacy cover image schema.
-- Public downloads and media should always use the storage accessors defined on the models.
+- `php artisan queue:work`
+- `php artisan schedule:run` once per minute from cron
+- `php artisan optimize:clear` when you need to invalidate cached config, routes, or views
 
 ## Testing and Verification
 
@@ -184,24 +292,28 @@ npm run build
 
 Suggested smoke tests after deployment:
 
-- Load the homepage and verify banners, leadership cards, and department content.
-- Open a public download and confirm public files use the CDN URL.
-- Open a private download and confirm the controller streams the file correctly.
-- Submit the apply form and confirm rate limiting behaves as expected.
-- Check login and result pages for correct throttling and redirect behavior.
-- Confirm dashboard pages load cached notices and assignments without errors.
+- Load the homepage and verify banners, notices, leadership, and quick links.
+- Open a department page and confirm the photo and syllabus links render.
+- Open public downloads and gallery items and confirm URLs resolve correctly.
+- Submit the apply form and confirm rate limiting works.
+- Check the result page and public API responses.
+- Visit the admin web control page and confirm logo, banner, and media previews load.
 
 ## Troubleshooting
 
-- Broken public images usually mean `PUBLIC_FILESYSTEM_URL` or the `public` disk configuration is wrong.
-- Missing private downloads usually mean the file is not present on the `private` disk or the stored path is stale.
-- Queue jobs not processing usually means the Redis worker is not running.
-- Stale content after a deploy usually means config, route, or view caches need to be cleared and rebuilt.
-- If you are still seeing local storage URLs, search for `asset('storage/...')` and replace them with model accessors.
+- Broken public images usually mean the storage URL or CDN URL is wrong.
+- Missing private download files usually mean the stored path or private disk is wrong.
+- Queue jobs not running usually means the Redis worker is not active.
+- Stale content after a deploy usually means config, route, or view caches need to be rebuilt.
+- If you still see old storage URLs, search for `asset('storage/...')` and replace them with model accessors or the brand-logo route.
 
 ## Contributing
 
-1. Keep controllers thin and put repeated logic in services or model accessors.
+1. Keep controllers thin and move reusable logic into services or model accessors.
 2. Run `vendor/bin/pint` before opening a pull request.
-3. Add tests for new public pages, uploads, or deployment-sensitive logic.
-4. Update this README whenever deployment defaults or environment variables change.
+3. Add tests for public pages, uploads, and deployment-sensitive behavior.
+4. Update this README whenever the route map, role matrix, or deployment defaults change.
+
+## License
+
+MIT

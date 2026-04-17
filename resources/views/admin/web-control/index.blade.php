@@ -28,7 +28,7 @@
                'News & Events', 'Facilities', 'Leadership', 'Contact & Maps'];
 @endphp
 
-<div x-data="{ activeTab: 0 }">
+<div x-data="{ activeTab: {{ (int) request('tab', 0) }} }">
 
     {{-- ── Tab Header Bar ──────────────────────────────────── --}}
     <div class="flex gap-1 border-b border-gray-100 mb-6 overflow-x-auto">

@@ -19,10 +19,16 @@ class StudentController extends Controller
     {
         $students = Student::with(['user', 'program', 'academicSession', 'parents.user', 'alumnus'])
             ->when($request->search, function ($q) use ($request) {
-                $q->where('admission_number', 'like', "%{$request->search}%")
-                  ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$request->search}%"));
+                $term = trim((string) $request->search);
+
+                $q->where(function ($query) use ($term) {
+                    $query->where('admission_number', 'like', "%{$term}%")
+                        ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$term}%"));
+                });
             })
+            ->when($request->department_id, fn($q) => $q->where('department_id', $request->department_id))
             ->when($request->program_id, fn($q) => $q->where('program_id', $request->program_id))
+            ->when($request->academic_session_id, fn($q) => $q->where('academic_session_id', $request->academic_session_id))
             ->when($request->semester, fn($q) => $q->where('current_semester', $request->semester))
             ->latest()
             ->paginate(20);

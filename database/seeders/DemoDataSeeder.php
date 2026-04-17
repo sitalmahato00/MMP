@@ -106,13 +106,43 @@ class DemoDataSeeder extends Seeder
             );
             $this->restoreIfTrashed($program);
 
-            $courseCatalog = [
+            $departmentProfiles = [
                 [
                     'department_code' => 'AR',
                     'department_name' => 'Architecture Engineering',
                     'program_code' => 'DAE',
                     'program_name' => 'Diploma in Architecture Engineering',
                     'description' => 'Architectural design, drafting, building planning and construction management.',
+                    'hod_name' => 'Ar. Sushma Maharjan',
+                    'hod_email' => 'hod.ar@mmp.edu.np',
+                    'teacher_name' => 'Ar. Prabin Karki',
+                    'teacher_email' => 'teacher.ar@mmp.edu.np',
+                    'teacher_employee_id' => 'T-AR-001',
+                    'teacher_designation' => 'Lecturer',
+                    'teacher_qualification' => 'Bachelor of Architecture',
+                    'teacher_specialization' => 'Studio Design and CAD',
+                    'student_name' => 'Aarav Shrestha',
+                    'student_email' => 'student.ar@mmp.edu.np',
+                    'student_roll_number' => 'DAE-081-01',
+                    'student_registration_number' => 'MMP-DAE-081-001',
+                    'student_current_semester' => 4,
+                    'student_section' => 'A',
+                    'student_batch' => '2081',
+                    'guardian_name' => 'Mina Shrestha',
+                    'guardian_phone' => '9841000201',
+                    'blood_group' => 'O+',
+                    'parent_name' => 'Mina Shrestha',
+                    'parent_email' => 'parent.ar@mmp.edu.np',
+                    'parent_occupation' => 'Architect',
+                    'alumni_name' => 'Sushil Neupane',
+                    'alumni_email' => 'alumni.ar@mmp.edu.np',
+                    'graduation_year' => '2080',
+                    'current_job' => 'Junior Drafter',
+                    'company_name' => 'Architect Studio Nepal',
+                    'achievements' => 'Won the campus design competition.',
+                    'notice_title' => 'Architecture Department Studio Review',
+                    'notice_slug' => 'architecture-department-studio-review',
+                    'notice_content' => 'Semester review for architecture students includes portfolio display and model critique.',
                 ],
                 [
                     'department_code' => 'CE',
@@ -120,6 +150,36 @@ class DemoDataSeeder extends Seeder
                     'program_code' => 'DCE',
                     'program_name' => 'Diploma in Civil Engineering',
                     'description' => 'Design, construction and maintenance of infrastructure including roads, bridges and buildings.',
+                    'hod_name' => 'Er. Rajesh Joshi',
+                    'hod_email' => 'hod.ce@mmp.edu.np',
+                    'teacher_name' => 'Er. Nabin Khatri',
+                    'teacher_email' => 'teacher.ce@mmp.edu.np',
+                    'teacher_employee_id' => 'T-CE-001',
+                    'teacher_designation' => 'Lecturer',
+                    'teacher_qualification' => 'BE Civil Engineering',
+                    'teacher_specialization' => 'Surveying and Structures',
+                    'student_name' => 'Pragya KC',
+                    'student_email' => 'student.ce@mmp.edu.np',
+                    'student_roll_number' => 'DCE-081-01',
+                    'student_registration_number' => 'MMP-DCE-081-001',
+                    'student_current_semester' => 4,
+                    'student_section' => 'A',
+                    'student_batch' => '2081',
+                    'guardian_name' => 'Geeta KC',
+                    'guardian_phone' => '9841000202',
+                    'blood_group' => 'A+',
+                    'parent_name' => 'Geeta KC',
+                    'parent_email' => 'parent.ce@mmp.edu.np',
+                    'parent_occupation' => 'Contractor',
+                    'alumni_name' => 'Milan Shrestha',
+                    'alumni_email' => 'alumni.ce@mmp.edu.np',
+                    'graduation_year' => '2080',
+                    'current_job' => 'Site Supervisor',
+                    'company_name' => 'Himalayan Infra Pvt. Ltd.',
+                    'achievements' => 'Led the campus drainage layout project.',
+                    'notice_title' => 'Civil Department Field Survey',
+                    'notice_slug' => 'civil-department-field-survey',
+                    'notice_content' => 'Civil students will visit the field site for surveying practice and bridge inspection.',
                 ],
                 [
                     'department_code' => 'EL',
@@ -127,6 +187,36 @@ class DemoDataSeeder extends Seeder
                     'program_code' => 'DEL',
                     'program_name' => 'Diploma in Electrical Engineering',
                     'description' => 'Electrical systems, power generation, wiring, switchgear and electrical installations.',
+                    'hod_name' => 'Er. Sarita Gurung',
+                    'hod_email' => 'hod.el@mmp.edu.np',
+                    'teacher_name' => 'Er. Suman Bista',
+                    'teacher_email' => 'teacher.el@mmp.edu.np',
+                    'teacher_employee_id' => 'T-EL-001',
+                    'teacher_designation' => 'Instructor',
+                    'teacher_qualification' => 'BE Electrical Engineering',
+                    'teacher_specialization' => 'Power Systems',
+                    'student_name' => 'Nisha Karki',
+                    'student_email' => 'student.el@mmp.edu.np',
+                    'student_roll_number' => 'DEL-081-01',
+                    'student_registration_number' => 'MMP-DEL-081-001',
+                    'student_current_semester' => 3,
+                    'student_section' => 'A',
+                    'student_batch' => '2081',
+                    'guardian_name' => 'Bimala Karki',
+                    'guardian_phone' => '9841000203',
+                    'blood_group' => 'B+',
+                    'parent_name' => 'Bimala Karki',
+                    'parent_email' => 'parent.el@mmp.edu.np',
+                    'parent_occupation' => 'Technician',
+                    'alumni_name' => 'Suresh Tamang',
+                    'alumni_email' => 'alumni.el@mmp.edu.np',
+                    'graduation_year' => '2080',
+                    'current_job' => 'Electrical Assistant',
+                    'company_name' => 'Energy Works Nepal',
+                    'achievements' => 'Recognized for safety leadership in lab practice.',
+                    'notice_title' => 'Electrical Lab Maintenance Notice',
+                    'notice_slug' => 'electrical-lab-maintenance-notice',
+                    'notice_content' => 'Power lab maintenance will be completed before practical classes resume.',
                 ],
                 [
                     'department_code' => 'EE',
@@ -134,6 +224,36 @@ class DemoDataSeeder extends Seeder
                     'program_code' => 'DEE',
                     'program_name' => 'Diploma in Electronics Engineering',
                     'description' => 'Electronics circuits, communication systems, embedded systems and signal processing.',
+                    'hod_name' => 'Er. Pooja Adhikari',
+                    'hod_email' => 'hod.ee@mmp.edu.np',
+                    'teacher_name' => 'Er. Bikash Dhungana',
+                    'teacher_email' => 'teacher.ee@mmp.edu.np',
+                    'teacher_employee_id' => 'T-EE-001',
+                    'teacher_designation' => 'Lecturer',
+                    'teacher_qualification' => 'BE Electronics and Communication',
+                    'teacher_specialization' => 'Embedded Systems',
+                    'student_name' => 'Anisha Rai',
+                    'student_email' => 'student.ee@mmp.edu.np',
+                    'student_roll_number' => 'DEE-081-01',
+                    'student_registration_number' => 'MMP-DEE-081-001',
+                    'student_current_semester' => 3,
+                    'student_section' => 'A',
+                    'student_batch' => '2081',
+                    'guardian_name' => 'Laxmi Rai',
+                    'guardian_phone' => '9841000204',
+                    'blood_group' => 'AB+',
+                    'parent_name' => 'Laxmi Rai',
+                    'parent_email' => 'parent.ee@mmp.edu.np',
+                    'parent_occupation' => 'Business',
+                    'alumni_name' => 'Nabin Thapa',
+                    'alumni_email' => 'alumni.ee@mmp.edu.np',
+                    'graduation_year' => '2080',
+                    'current_job' => 'Electronics Technician',
+                    'company_name' => 'Smart Device Lab',
+                    'achievements' => 'Built a smart attendance prototype for the college expo.',
+                    'notice_title' => 'Electronics Project Showcase',
+                    'notice_slug' => 'electronics-project-showcase',
+                    'notice_content' => 'Electronics students will present microcontroller projects in the lab hall.',
                 ],
                 [
                     'department_code' => 'ME',
@@ -141,38 +261,41 @@ class DemoDataSeeder extends Seeder
                     'program_code' => 'DME',
                     'program_name' => 'Diploma in Mechanical Engineering',
                     'description' => 'Machine design, manufacturing, thermodynamics and mechanical systems.',
+                    'hod_name' => 'Er. Krishna Bhandari',
+                    'hod_email' => 'hod.me@mmp.edu.np',
+                    'teacher_name' => 'Er. Rabindra Kafle',
+                    'teacher_email' => 'teacher.me@mmp.edu.np',
+                    'teacher_employee_id' => 'T-ME-001',
+                    'teacher_designation' => 'Lecturer',
+                    'teacher_qualification' => 'BE Mechanical Engineering',
+                    'teacher_specialization' => 'Workshop Technology',
+                    'student_name' => 'Saurav Paudel',
+                    'student_email' => 'student.me@mmp.edu.np',
+                    'student_roll_number' => 'DME-081-01',
+                    'student_registration_number' => 'MMP-DME-081-001',
+                    'student_current_semester' => 4,
+                    'student_section' => 'A',
+                    'student_batch' => '2081',
+                    'guardian_name' => 'Manju Paudel',
+                    'guardian_phone' => '9841000205',
+                    'blood_group' => 'A-',
+                    'parent_name' => 'Manju Paudel',
+                    'parent_email' => 'parent.me@mmp.edu.np',
+                    'parent_occupation' => 'Workshop Supervisor',
+                    'alumni_name' => 'Pratik Shrestha',
+                    'alumni_email' => 'alumni.me@mmp.edu.np',
+                    'graduation_year' => '2080',
+                    'current_job' => 'Mechanical Assistant',
+                    'company_name' => 'MMP Workshop Partners',
+                    'achievements' => 'Completed the national skill competition project.',
+                    'notice_title' => 'Mechanical Workshop Drive',
+                    'notice_slug' => 'mechanical-workshop-drive',
+                    'notice_content' => 'Workshop practice will focus on tooling, fitting, and safety demonstrations this week.',
                 ],
             ];
 
-            foreach ($courseCatalog as $course) {
-                $courseDepartment = Department::withTrashed()->updateOrCreate(
-                    ['code' => $course['department_code']],
-                    [
-                        'name' => $course['department_name'],
-                        'slug' => Str::slug($course['department_name']),
-                        'description' => $course['description'],
-                        'photo' => null,
-                        'syllabus' => null,
-                        'seat_capacity' => 40,
-                        'hod_id' => null,
-                        'is_active' => true,
-                    ]
-                );
-                $this->restoreIfTrashed($courseDepartment);
-
-                $courseProgram = Program::withTrashed()->updateOrCreate(
-                    ['code' => $course['program_code']],
-                    [
-                        'department_id' => $courseDepartment->id,
-                        'name' => $course['program_name'],
-                        'slug' => Str::slug($course['program_name']),
-                        'total_semesters' => 6,
-                        'duration_years' => 3,
-                        'description' => $course['description'],
-                        'is_active' => true,
-                    ]
-                );
-                $this->restoreIfTrashed($courseProgram);
+            foreach ($departmentProfiles as $profile) {
+                $this->seedDepartmentProfile($profile, $session, $assets);
             }
 
             $subjects = [];
@@ -290,6 +413,49 @@ class DemoDataSeeder extends Seeder
             );
             $this->restoreIfTrashed($studentTwo);
 
+            $studentThreeUser = $this->seedUser('Mina Gurung', 'student03@mmp.edu.np', 'student');
+            $studentFourUser = $this->seedUser('Prakash Rai', 'student04@mmp.edu.np', 'student');
+
+            $studentThree = Student::withTrashed()->updateOrCreate(
+                ['academic_session_id' => $session->id, 'roll_number' => 'DIT-081-03'],
+                [
+                    'user_id' => $studentThreeUser->id,
+                    'department_id' => $department->id,
+                    'program_id' => $program->id,
+                    'registration_number' => 'MMP-DIT-081-003',
+                    'current_semester' => 5,
+                    'section' => 'A',
+                    'batch' => '2081',
+                    'admission_date' => now()->subMonths(1)->toDateString(),
+                    'guardian_name' => 'Dhan Maya Gurung',
+                    'guardian_phone' => '9841000003',
+                    'blood_group' => 'O+',
+                    'status' => 'active',
+                    'is_archived' => false,
+                ]
+            );
+            $this->restoreIfTrashed($studentThree);
+
+            $studentFour = Student::withTrashed()->updateOrCreate(
+                ['academic_session_id' => $session->id, 'roll_number' => 'DIT-081-04'],
+                [
+                    'user_id' => $studentFourUser->id,
+                    'department_id' => $department->id,
+                    'program_id' => $program->id,
+                    'registration_number' => 'MMP-DIT-081-004',
+                    'current_semester' => 5,
+                    'section' => 'A',
+                    'batch' => '2081',
+                    'admission_date' => now()->subMonths(1)->toDateString(),
+                    'guardian_name' => 'Raju Rai',
+                    'guardian_phone' => '9841000004',
+                    'blood_group' => 'AB+',
+                    'status' => 'active',
+                    'is_archived' => false,
+                ]
+            );
+            $this->restoreIfTrashed($studentFour);
+
             $parent = ParentModel::query()->updateOrCreate(
                 ['user_id' => $parentUser->id],
                 [
@@ -297,6 +463,17 @@ class DemoDataSeeder extends Seeder
                 ]
             );
             $parent->children()->syncWithoutDetaching([$studentOne->id, $studentTwo->id]);
+
+            $parentTwoUser = $this->seedUser('Rupa Shrestha', 'parent02@mmp.edu.np', 'parent');
+            $parentTwo = ParentModel::query()->updateOrCreate(
+                ['user_id' => $parentTwoUser->id],
+                [
+                    'occupation' => 'Teacher',
+                ]
+            );
+            $parentTwo->children()->syncWithoutDetaching([$studentThree->id, $studentFour->id]);
+
+            $coreStudents = [$studentOne, $studentTwo, $studentThree, $studentFour];
 
             $alumni = Alumni::withTrashed()->updateOrCreate(
                 ['user_id' => $alumniUser->id],
@@ -335,9 +512,9 @@ class DemoDataSeeder extends Seeder
             $this->seedMedia($principal, $department, $assets);
             $this->seedCommunications($principal, $hod, $teacherUser, $studentOneUser, $parentUser, $alumniUser);
 
-            $this->seedTimetableAndAttendance($session, $program, $teacher, $subjects['CG501'], $subjects['WT502'], $studentOne, $studentTwo);
+            $this->seedTimetableAndAttendance($session, $program, $teacher, $subjects['CG501'], $subjects['WT502'], $subjects['DBMS503'], $coreStudents);
             $exam = $this->seedExam($session, $department, $program);
-            $this->seedMarks($exam, $teacher, $studentOne, $studentTwo, $subjects['CG501'], $subjects['WT502'], $subjects['DBMS503']);
+            $this->seedMarks($exam, $teacher, $coreStudents, $subjects['CG501'], $subjects['WT502'], $subjects['DBMS503']);
             $this->seedAssignments($teacher, $program, $subjects['WT502'], $studentOne, $studentTwo, $assets);
             $this->seedAuditLog($principal, $department, $program, $exam);
         });
@@ -925,7 +1102,133 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    public function seedTimetableAndAttendance(AcademicSession $session, Program $program, Teacher $teacher, Subject $subjectOne, Subject $subjectTwo, Student $studentOne, Student $studentTwo): void
+    public function seedDepartmentProfile(array $profile, AcademicSession $session, array $assets): void
+    {
+        $hodUser = $this->seedUser($profile['hod_name'], $profile['hod_email'], 'hod');
+
+        $department = Department::withTrashed()->updateOrCreate(
+            ['code' => $profile['department_code']],
+            [
+                'name' => $profile['department_name'],
+                'slug' => Str::slug($profile['department_name']),
+                'description' => $profile['description'],
+                'photo' => null,
+                'syllabus' => null,
+                'seat_capacity' => 40,
+                'hod_id' => $hodUser->id,
+                'is_active' => true,
+            ]
+        );
+        $this->restoreIfTrashed($department);
+
+        $program = Program::withTrashed()->updateOrCreate(
+            ['code' => $profile['program_code']],
+            [
+                'department_id' => $department->id,
+                'name' => $profile['program_name'],
+                'slug' => Str::slug($profile['program_name']),
+                'total_semesters' => 6,
+                'duration_years' => 3,
+                'description' => $profile['description'],
+                'is_active' => true,
+            ]
+        );
+        $this->restoreIfTrashed($program);
+
+        $teacherUser = $this->seedUser($profile['teacher_name'], $profile['teacher_email'], 'teacher');
+        $teacher = Teacher::withTrashed()->updateOrCreate(
+            ['employee_id' => $profile['teacher_employee_id']],
+            [
+                'user_id' => $teacherUser->id,
+                'department_id' => $department->id,
+                'designation' => $profile['teacher_designation'],
+                'qualification' => $profile['teacher_qualification'],
+                'specialization' => $profile['teacher_specialization'],
+                'join_date' => now()->subYears(2)->toDateString(),
+                'employment_type' => 'permanent',
+                'is_active' => true,
+            ]
+        );
+        $this->restoreIfTrashed($teacher);
+
+        $studentUser = $this->seedUser($profile['student_name'], $profile['student_email'], 'student');
+        $student = Student::withTrashed()->updateOrCreate(
+            ['academic_session_id' => $session->id, 'roll_number' => $profile['student_roll_number']],
+            [
+                'user_id' => $studentUser->id,
+                'department_id' => $department->id,
+                'program_id' => $program->id,
+                'registration_number' => $profile['student_registration_number'],
+                'current_semester' => $profile['student_current_semester'],
+                'section' => $profile['student_section'],
+                'batch' => $profile['student_batch'],
+                'admission_date' => now()->subMonths(1)->toDateString(),
+                'guardian_name' => $profile['guardian_name'],
+                'guardian_phone' => $profile['guardian_phone'],
+                'blood_group' => $profile['blood_group'],
+                'status' => 'active',
+                'is_archived' => false,
+            ]
+        );
+        $this->restoreIfTrashed($student);
+
+        $parentUser = $this->seedUser($profile['parent_name'], $profile['parent_email'], 'parent');
+        $parent = ParentModel::query()->updateOrCreate(
+            ['user_id' => $parentUser->id],
+            [
+                'occupation' => $profile['parent_occupation'],
+            ]
+        );
+        $parent->children()->syncWithoutDetaching([$student->id]);
+
+        $alumniUser = $this->seedUser($profile['alumni_name'], $profile['alumni_email'], 'alumni');
+        $alumni = Alumni::withTrashed()->updateOrCreate(
+            ['user_id' => $alumniUser->id],
+            [
+                'student_id' => $student->id,
+                'department_id' => $department->id,
+                'program_id' => $program->id,
+                'graduation_year' => $profile['graduation_year'],
+                'current_job' => $profile['current_job'],
+                'company_name' => $profile['company_name'],
+                'achievements' => $profile['achievements'],
+                'is_featured' => true,
+                'is_verified' => true,
+            ]
+        );
+        $this->restoreIfTrashed($alumni);
+
+        $notice = Notice::withTrashed()->updateOrCreate(
+            ['slug' => $profile['notice_slug']],
+            [
+                'title' => $profile['notice_title'],
+                'content' => $profile['notice_content'],
+                'attachment' => $assets['notice_attachment'],
+                'type' => 'department',
+                'department_id' => $department->id,
+                'program_id' => $program->id,
+                'semester' => $profile['student_current_semester'],
+                'created_by' => $hodUser->id,
+                'is_published' => true,
+                'published_at' => now()->subHours(12),
+            ]
+        );
+        $this->restoreIfTrashed($notice);
+
+        NoticeAttachment::query()->updateOrCreate(
+            [
+                'notice_id' => $notice->id,
+                'file_path' => $assets['notice_attachment'],
+            ],
+            [
+                'file_name' => $profile['notice_title'] . '.png',
+                'file_type' => 'png',
+                'file_size' => Storage::disk('public')->size($assets['notice_attachment']),
+            ]
+        );
+    }
+
+    public function seedTimetableAndAttendance(AcademicSession $session, Program $program, Teacher $teacher, Subject $subjectOne, Subject $subjectTwo, Subject $subjectThree, array $students): void
     {
         $timetable = Timetable::query()->updateOrCreate(
             [
@@ -962,6 +1265,16 @@ class DemoDataSeeder extends Seeder
                 'type' => 'theory',
                 'group' => 'A',
             ],
+            [
+                'day_of_week' => 'friday',
+                'start_time' => '12:00:00',
+                'end_time' => '12:50:00',
+                'subject_id' => $subjectThree->id,
+                'teacher_id' => $teacher->id,
+                'room_number' => 'Room-205',
+                'type' => 'theory',
+                'group' => 'A',
+            ],
         ];
 
         foreach ($slots as $slot) {
@@ -977,30 +1290,58 @@ class DemoDataSeeder extends Seeder
             );
         }
 
-        $sessionRecord = AttendanceSession::query()->updateOrCreate(
+        $attendancePlans = [
             [
-                'academic_session_id' => $session->id,
-                'teacher_id' => $teacher->id,
-                'subject_id' => $subjectOne->id,
-                'program_id' => $program->id,
-                'semester' => 5,
-                'section' => 'A',
+                'subject' => $subjectOne,
                 'date' => now()->subDay()->toDateString(),
+                'period' => 'First Period',
+                'statuses' => ['present', 'late', 'present', 'excused'],
             ],
             [
-                'period' => 'First Period',
-            ]
-        );
+                'subject' => $subjectTwo,
+                'date' => now()->subDays(2)->toDateString(),
+                'period' => 'Second Period',
+                'statuses' => ['present', 'present', 'absent', 'present'],
+            ],
+            [
+                'subject' => $subjectThree,
+                'date' => now()->subDays(3)->toDateString(),
+                'period' => 'Third Period',
+                'statuses' => ['present', 'present', 'late', 'present'],
+            ],
+        ];
 
-        Attendance::query()->updateOrCreate(
-            ['attendance_session_id' => $sessionRecord->id, 'student_id' => $studentOne->id],
-            ['status' => 'present', 'remarks' => 'On time']
-        );
+        foreach ($attendancePlans as $plan) {
+            $sessionRecord = AttendanceSession::query()->updateOrCreate(
+                [
+                    'academic_session_id' => $session->id,
+                    'teacher_id' => $teacher->id,
+                    'subject_id' => $plan['subject']->id,
+                    'program_id' => $program->id,
+                    'semester' => 5,
+                    'section' => 'A',
+                    'date' => $plan['date'],
+                ],
+                [
+                    'period' => $plan['period'],
+                ]
+            );
 
-        Attendance::query()->updateOrCreate(
-            ['attendance_session_id' => $sessionRecord->id, 'student_id' => $studentTwo->id],
-            ['status' => 'late', 'remarks' => 'Arrived after the bell']
-        );
+            foreach ($students as $index => $student) {
+                $status = $plan['statuses'][$index] ?? 'present';
+                $remarks = match ($status) {
+                    'late' => 'Arrived after the bell',
+                    'absent' => 'Marked absent',
+                    'excused' => 'Excused with prior notice',
+                    default => 'On time',
+                };
+
+                Attendance::query()->updateOrCreate(
+                    ['attendance_session_id' => $sessionRecord->id, 'student_id' => $student->id],
+                    ['status' => $status, 'remarks' => $remarks]
+                );
+            }
+        }
     }
 
     public function seedExam(AcademicSession $session, Department $department, Program $program): Exam
@@ -1025,62 +1366,49 @@ class DemoDataSeeder extends Seeder
         return $exam;
     }
 
-    public function seedMarks(Exam $exam, Teacher $teacher, Student $studentOne, Student $studentTwo, Subject $subjectOne, Subject $subjectTwo, Subject $subjectThree): void
+    public function seedMarks(Exam $exam, Teacher $teacher, array $students, Subject $subjectOne, Subject $subjectTwo, Subject $subjectThree): void
     {
-        $items = [
-            [
-                'exam_id' => $exam->id,
-                'student_id' => $studentOne->id,
-                'subject_id' => $subjectOne->id,
-                'teacher_id' => $teacher->id,
-                'internal_theory_marks' => 18,
-                'external_theory_marks' => 61,
-                'internal_practical_marks' => 26,
-                'external_practical_marks' => 18,
-                'is_absent' => false,
-                'is_withheld' => false,
-                'status' => 'published',
-                'remarks' => 'Strong practical performance.',
-            ],
-            [
-                'exam_id' => $exam->id,
-                'student_id' => $studentOne->id,
-                'subject_id' => $subjectTwo->id,
-                'teacher_id' => $teacher->id,
-                'internal_theory_marks' => 17,
-                'external_theory_marks' => 63,
-                'internal_practical_marks' => null,
-                'external_practical_marks' => null,
-                'is_absent' => false,
-                'is_withheld' => false,
-                'status' => 'published',
-                'remarks' => 'Good understanding of concepts.',
-            ],
-            [
-                'exam_id' => $exam->id,
-                'student_id' => $studentTwo->id,
-                'subject_id' => $subjectThree->id,
-                'teacher_id' => $teacher->id,
-                'internal_theory_marks' => 16,
-                'external_theory_marks' => 58,
-                'internal_practical_marks' => null,
-                'external_practical_marks' => null,
-                'is_absent' => false,
-                'is_withheld' => false,
-                'status' => 'published',
-                'remarks' => 'Consistent progress.',
-            ],
+        $subjects = [$subjectOne, $subjectTwo, $subjectThree];
+        $remarksBySubject = [
+            'Strong practical performance.',
+            'Good understanding of concepts.',
+            'Consistent progress.',
         ];
 
-        foreach ($items as $item) {
-            Mark::query()->updateOrCreate(
-                [
-                    'exam_id' => $item['exam_id'],
-                    'student_id' => $item['student_id'],
-                    'subject_id' => $item['subject_id'],
-                ],
-                $item
-            );
+        foreach ($students as $studentIndex => $student) {
+            foreach ($subjects as $subjectIndex => $subject) {
+                $isAbsent = $studentIndex === 3 && $subjectIndex === 1;
+                $isWithheld = $studentIndex === 2 && $subjectIndex === 2;
+
+                $hasMarks = ! $isAbsent && ! $isWithheld;
+                $internalTheoryMarks = $hasMarks ? 16 + $studentIndex + $subjectIndex : null;
+                $externalTheoryMarks = $hasMarks ? 58 + ($studentIndex * 2) - ($subjectIndex * 3) : null;
+                $internalPracticalMarks = $hasMarks && $subject->hasPractical() ? 24 + $studentIndex : null;
+                $externalPracticalMarks = $hasMarks && $subject->hasPractical() ? 16 + $subjectIndex : null;
+
+                Mark::query()->updateOrCreate(
+                    [
+                        'exam_id' => $exam->id,
+                        'student_id' => $student->id,
+                        'subject_id' => $subject->id,
+                    ],
+                    [
+                        'teacher_id' => $teacher->id,
+                        'internal_theory_marks' => $internalTheoryMarks,
+                        'external_theory_marks' => $externalTheoryMarks,
+                        'internal_practical_marks' => $internalPracticalMarks,
+                        'external_practical_marks' => $externalPracticalMarks,
+                        'is_absent' => $isAbsent,
+                        'is_withheld' => $isWithheld,
+                        'status' => 'published',
+                        'remarks' => $isAbsent
+                            ? 'Absent during evaluation.'
+                            : ($isWithheld
+                                ? 'Withheld pending review.'
+                                : $remarksBySubject[$subjectIndex]),
+                    ]
+                );
+            }
         }
     }
 

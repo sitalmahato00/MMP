@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ProgramController;
@@ -17,13 +18,16 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\CommunicationController;
 use App\Http\Controllers\Admin\WebControlController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\ExecutiveController;
 use App\Http\Controllers\Admin\ApplicationController;
+use App\Http\Controllers\Admin\RolePermissionController;
 
 // ── Dashboard ──────────────────────────────────────────────
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
 // ── User Management ────────────────────────────────────────
 Route::resource('users', UserController::class);
@@ -55,6 +59,8 @@ Route::resource('media', MediaController::class);
 Route::resource('downloads', DownloadController::class);
 Route::get('downloads/{download}/file', [DownloadController::class, 'file'])->name('downloads.file');
 Route::resource('banners', BannerController::class);
+Route::get('messages', [CommunicationController::class, 'index'])->name('messages.index');
+Route::get('roles-permissions', [RolePermissionController::class, 'index'])->name('roles-permissions.index');
 
 // ── Resources (alias for Downloads with resource category) ─
 Route::get('resources', [DownloadController::class, 'resources'])->name('resources.index');

@@ -1,5 +1,5 @@
 {{-- Sidebar Nav Link Partial --}}
-{{-- Variables: $href, $iconName, $label, $isActive, $accent --}}
+{{-- Variables: $href, $iconName, $label, $isActive, $accent, $badge (optional) --}}
 
 @php
     $icons = [
@@ -19,23 +19,51 @@
         'photo'           => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
         'download'        => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>',
         'shield'          => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
-        'collection'      => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>',
-        'doc-report'      => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
         'cog'             => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>',
+        'doc-report'      => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
+        'collection'      => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>',
+        'external'        => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>',
+        'funnel'          => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/>',
+        'messages'        => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8m-8 4h5M21 12c0 4.418-4.03 8-9 8a9.76 9.76 0 01-4-.82L3 20l1.09-3.27A7.52 7.52 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>',
     ];
-    $svgPath = $icons[$iconName] ?? '<circle cx="12" cy="12" r="3"/>';
-    $baseClass = 'flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150';
+
+    $svgPath = $icons[$iconName] ?? $icons['doc-text'];
+    $badgeValue = isset($badge) && $badge !== null && (int) $badge > 0 ? (int) $badge : null;
+    $displayBadge = $badgeValue !== null ? ($badgeValue > 99 ? '99+' : (string) $badgeValue) : null;
+    $baseClass = 'group relative flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.18)] focus:outline-none focus:ring-2 focus:ring-white/10';
 @endphp
 
 <a href="{{ $href }}"
-   class="{{ $baseClass }} {{ $isActive ? 'text-white shadow-sm' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}"
-   @if($isActive) style="background-color: {{ $accent }}22; border-left: 2px solid {{ $accent }};" @endif>
-    <svg class="w-4 h-4 flex-shrink-0 {{ $isActive ? 'text-white' : 'text-gray-500' }}"
-         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        {!! $svgPath !!}
-    </svg>
-    <span class="truncate flex-1">{{ $label }}</span>
-    @if($isActive)
-        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background: {{ $accent }};"></span>
+   title="{{ $label }}"
+   class="{{ $baseClass }} {{ $isActive ? 'text-white shadow-[0_16px_32px_rgba(15,23,42,0.28)]' : 'text-slate-300 hover:text-white' }}"
+   :class="sidebarCollapsed ? 'lg:justify-center lg:gap-0' : 'lg:justify-start'"
+   @if($isActive) style="background: linear-gradient(135deg, {{ $accent }}33, {{ $accent }}1a); border-left: 3px solid {{ $accent }};" @endif>
+    <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 {{ $isActive ? 'bg-white/10 text-white' : 'bg-white/5 text-slate-300 group-hover:bg-white/10 group-hover:text-white' }}">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {!! $svgPath !!}
+        </svg>
+
+        @if($badgeValue !== null)
+            <span x-show="sidebarCollapsed" x-cloak class="absolute -right-0.5 -top-0.5 inline-flex h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-slate-950"></span>
+        @endif
+    </span>
+
+    <span x-show="!sidebarCollapsed" x-cloak class="min-w-0 flex-1 truncate transition-opacity duration-200">{{ $label }}</span>
+
+    @if($badgeValue !== null)
+        <span x-show="!sidebarCollapsed" x-cloak class="ml-auto inline-flex min-w-6 items-center justify-center rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-semibold text-rose-100 ring-1 ring-rose-400/20">
+            {{ $displayBadge }}
+        </span>
     @endif
+
+    @if($isActive)
+        <span class="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full" style="background: {{ $accent }};"></span>
+    @endif
+
+    <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-2xl ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 lg:block">
+        {{ $label }}
+        @if($displayBadge)
+            <span class="ml-2 inline-flex rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold">{{ $displayBadge }}</span>
+        @endif
+    </span>
 </a>

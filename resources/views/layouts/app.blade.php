@@ -28,7 +28,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="h-full overflow-hidden text-gray-800 antialiased" x-data="{ sidebarOpen: false }">
+<body class="h-full overflow-hidden text-gray-800 antialiased" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('mmp.sidebar.collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('mmp.sidebar.collapsed', value ? '1' : '0'))">
 
     <!-- Mobile Sidebar Backdrop -->
     <div x-show="sidebarOpen" class="fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm lg:hidden" x-cloak @click="sidebarOpen = false"></div>
