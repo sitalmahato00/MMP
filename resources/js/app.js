@@ -22,6 +22,7 @@ Chart.defaults.elements.line.tension = 0.38;
 Alpine.data('bsDatePicker', (uid, initialValue) => ({
     open: false,
     dropUp: false,
+    popupLeft: 0,
     bsValue: initialValue || '',
     adValue: '',
     viewYear: 2083,
@@ -103,21 +104,33 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
 
     openCalendar() {
         this.open = true;
-        this._calcDropDirection();
+        this._calcPopupPlacement();
     },
 
     toggleCalendar() {
         this.open = !this.open;
-        if (this.open) this._calcDropDirection();
+        if (this.open) this._calcPopupPlacement();
     },
 
-    _calcDropDirection() {
+    _calcPopupPlacement() {
         this.$nextTick(() => {
             const wrap = this.$el;
             if (!wrap) return;
+
+            const viewportPadding = 8;
+            const panel = this.$refs.panel;
             const rect = wrap.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            this.dropUp = spaceBelow < 340;
+            const popupWidth = panel ? panel.getBoundingClientRect().width : 320;
+            const popupHeight = panel ? panel.getBoundingClientRect().height : 340;
+
+            const spaceBelow = window.innerHeight - rect.bottom - viewportPadding;
+            const spaceAbove = rect.top - viewportPadding;
+            this.dropUp = spaceBelow < popupHeight && spaceAbove > spaceBelow;
+
+            const desiredLeft = rect.left;
+            const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding);
+            const clampedLeft = Math.min(Math.max(desiredLeft, viewportPadding), maxLeft);
+            this.popupLeft = clampedLeft - rect.left;
         });
     },
 
@@ -716,8 +729,8 @@ const initializePrincipalDashboard = () => {
 
         const context = enrollmentCanvas.getContext('2d');
         const gradient = context.createLinearGradient(0, 0, 0, 320);
-        gradient.addColorStop(0, 'rgba(139, 0, 0, 0.32)');
-        gradient.addColorStop(1, 'rgba(139, 0, 0, 0.02)');
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.34)');
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.03)');
 
         return new Chart(enrollmentCanvas, {
             type: 'line',
@@ -726,14 +739,14 @@ const initializePrincipalDashboard = () => {
                 datasets: [{
                     label: 'Admissions',
                     data: chartState.values || [],
-                    borderColor: '#8B0000',
+                    borderColor: '#2563EB',
                     backgroundColor: gradient,
                     fill: true,
                     tension: 0.38,
                     borderWidth: 3,
                     pointRadius: 3,
                     pointHoverRadius: 6,
-                    pointBackgroundColor: '#8B0000',
+                    pointBackgroundColor: '#2563EB',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                 }],
@@ -747,10 +760,16 @@ const initializePrincipalDashboard = () => {
             return null;
         }
 
-        const context = departmentCanvas.getContext('2d');
-        const gradient = context.createLinearGradient(0, 0, 0, 320);
-        gradient.addColorStop(0, 'rgba(139, 0, 0, 0.95)');
-        gradient.addColorStop(1, 'rgba(248, 113, 113, 0.60)');
+        const palette = [
+            'rgba(59, 130, 246, 0.88)',
+            'rgba(16, 185, 129, 0.88)',
+            'rgba(245, 158, 11, 0.88)',
+            'rgba(99, 102, 241, 0.88)',
+            'rgba(236, 72, 153, 0.88)',
+            'rgba(239, 68, 68, 0.88)',
+        ];
+        const values = chartState.values || [];
+        const colors = values.map((_, index) => palette[index % palette.length]);
 
         return new Chart(departmentCanvas, {
             type: 'bar',
@@ -758,11 +777,11 @@ const initializePrincipalDashboard = () => {
                 labels: chartState.labels || [],
                 datasets: [{
                     label: 'Performance score',
-                    data: chartState.values || [],
+                    data: values,
                     borderRadius: 14,
                     borderSkipped: false,
-                    backgroundColor: gradient,
-                    hoverBackgroundColor: '#8B0000',
+                    backgroundColor: colors,
+                    hoverBackgroundColor: colors,
                     maxBarThickness: 30,
                 }],
             },
@@ -783,12 +802,14 @@ const initializePrincipalDashboard = () => {
             } else {
                 const dataset = chartData.enrollment || {};
                 const gradient = charts.enrollment.ctx.createLinearGradient(0, 0, 0, 320);
-                gradient.addColorStop(0, 'rgba(139, 0, 0, 0.32)');
-                gradient.addColorStop(1, 'rgba(139, 0, 0, 0.02)');
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.34)');
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0.03)');
 
                 charts.enrollment.data.labels = dataset.labels || [];
                 charts.enrollment.data.datasets[0].data = dataset.values || [];
                 charts.enrollment.data.datasets[0].backgroundColor = gradient;
+                charts.enrollment.data.datasets[0].borderColor = '#2563EB';
+                charts.enrollment.data.datasets[0].pointBackgroundColor = '#2563EB';
                 charts.enrollment.update();
             }
         }
@@ -798,13 +819,21 @@ const initializePrincipalDashboard = () => {
                 charts.department = buildBarChart(chartData.departmentPerformance || {});
             } else {
                 const dataset = chartData.departmentPerformance || {};
-                const gradient = charts.department.ctx.createLinearGradient(0, 0, 0, 320);
-                gradient.addColorStop(0, 'rgba(139, 0, 0, 0.95)');
-                gradient.addColorStop(1, 'rgba(248, 113, 113, 0.60)');
+                const palette = [
+                    'rgba(59, 130, 246, 0.88)',
+                    'rgba(16, 185, 129, 0.88)',
+                    'rgba(245, 158, 11, 0.88)',
+                    'rgba(99, 102, 241, 0.88)',
+                    'rgba(236, 72, 153, 0.88)',
+                    'rgba(239, 68, 68, 0.88)',
+                ];
+                const values = dataset.values || [];
+                const colors = values.map((_, index) => palette[index % palette.length]);
 
                 charts.department.data.labels = dataset.labels || [];
-                charts.department.data.datasets[0].data = dataset.values || [];
-                charts.department.data.datasets[0].backgroundColor = gradient;
+                charts.department.data.datasets[0].data = values;
+                charts.department.data.datasets[0].backgroundColor = colors;
+                charts.department.data.datasets[0].hoverBackgroundColor = colors;
                 charts.department.update();
             }
         }
@@ -1014,7 +1043,7 @@ const initializeAnalyticsPage = () => {
     let activeRequest = null;
     let detailRequest = null;
 
-    const metricButtonBase = 'group w-full rounded-[1.35rem] border px-4 py-4 text-left transition-all duration-200';
+    const metricButtonBase = 'group rounded-2xl border px-4 py-2.5 text-sm font-bold transition-all duration-200';
 
     const setLoading = (isLoading) => {
         if (loadingBadge) {
@@ -1188,30 +1217,16 @@ const initializeAnalyticsPage = () => {
         }
 
         const insights = Array.isArray(state.insights) ? state.insights : [];
+        const items = insights.slice(0, 3);
 
-        if (!insights.length) {
-            insightPanel.innerHTML = dashboardEmptyState({
-                title: 'No insights yet',
-                message: 'Choose a metric to generate analysis from live data.',
-            });
+        if (!items.length) {
+            insightPanel.innerHTML = '';
             return;
         }
 
-        insightPanel.innerHTML = insights.map((insight) => {
-            const tone = insight.tone || 'info';
-            const toneClass = {
-                info: 'border-sky-200 bg-sky-50/70 text-sky-800',
-                success: 'border-emerald-200 bg-emerald-50/70 text-emerald-800',
-                warning: 'border-amber-200 bg-amber-50/70 text-amber-800',
-            }[tone] || 'border-slate-200 bg-slate-50 text-slate-700';
-
-            return `
-                <div class="rounded-2xl border px-4 py-4 ${toneClass}">
-                    <p class="text-sm font-black tracking-tight text-slate-950">${escapeHtml(insight.title)}</p>
-                    <p class="mt-1 text-sm leading-6 text-slate-600">${escapeHtml(insight.message)}</p>
-                </div>
-            `;
-        }).join('');
+        insightPanel.innerHTML = items.map((insight) => `
+            <li class="text-sm leading-6 text-slate-700">• ${escapeHtml(insight.message || '')}</li>
+        `).join('');
     };
 
     const createChartOptions = (chartState) => {

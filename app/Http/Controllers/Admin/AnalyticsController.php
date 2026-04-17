@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\AcademicSession;
+use App\Models\Alumni;
+use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\Exam;
@@ -106,7 +109,13 @@ class AnalyticsController extends Controller
 
     private function resolveMetric(string $metric): string
     {
-        return in_array($metric, ['attendance', 'results', 'admissions'], true) ? $metric : 'attendance';
+        if ($metric === 'results') {
+            return 'academic';
+        }
+
+        return in_array($metric, ['attendance', 'academic', 'admissions', 'students', 'departments'], true)
+            ? $metric
+            : 'attendance';
     }
 
     private function metricDefinitions(): array
@@ -114,18 +123,28 @@ class AnalyticsController extends Controller
         return [
             'attendance' => [
                 'label' => 'Attendance',
-                'description' => 'Track present rate across the selected session.',
+                'description' => 'Daily and monthly attendance trends, distributions, and risk alerts.',
                 'tone' => 'red',
             ],
-            'results' => [
-                'label' => 'Results',
-                'description' => 'Compare marks across completed exams.',
+            'academic' => [
+                'label' => 'Academic Performance',
+                'description' => 'Marks, pass rate, grade mix, and assessment completion patterns.',
                 'tone' => 'slate',
             ],
             'admissions' => [
                 'label' => 'Admissions',
                 'description' => 'Explore application flow and status mix.',
                 'tone' => 'amber',
+            ],
+            'students' => [
+                'label' => 'Students',
+                'description' => 'Enrollment growth, active vs alumni, and structure distribution.',
+                'tone' => 'red',
+            ],
+            'departments' => [
+                'label' => 'Departments',
+                'description' => 'Compare attendance, results, and enrollment at department level.',
+                'tone' => 'slate',
             ],
         ];
     }
@@ -189,8 +208,10 @@ class AnalyticsController extends Controller
         ];
 
         $metricState = match ($metric) {
-            'results' => $this->buildResultsMetricState($filters),
+            'academic' => $this->buildAcademicMetricState($filters),
             'admissions' => $this->buildAdmissionsMetricState($filters),
+            'students' => $this->buildStudentsMetricState($filters),
+            'departments' => $this->buildDepartmentsMetricState($filters),
             default => $this->buildAttendanceMetricState($filters),
         };
 
@@ -244,7 +265,14 @@ class AnalyticsController extends Controller
                 'datasets' => [[
                     'label' => 'Attendance %',
                     'data' => $comparisonValues->pluck('attendance_rate')->all(),
-                    'backgroundColor' => 'rgba(139, 0, 0, 0.86)',
+                    'backgroundColor' => [
+                        'rgba(59, 130, 246, 0.86)',
+                        'rgba(16, 185, 129, 0.86)',
+                        'rgba(245, 158, 11, 0.86)',
+                        'rgba(239, 68, 68, 0.86)',
+                        'rgba(14, 165, 233, 0.86)',
+                        'rgba(99, 102, 241, 0.86)',
+                    ],
                     'borderSkipped' => false,
                     'borderRadius' => 12,
                     'maxBarThickness' => 24,
@@ -281,11 +309,12 @@ class AnalyticsController extends Controller
         ];
     }
 
-    private function buildResultsMetricState(array $filters): array
+    private function buildAcademicMetricState(array $filters): array
     {
         $selectedSession = $filters['selectedSession'];
         $selectedDepartment = $filters['selectedDepartment'];
         $selectedProgram = $filters['selectedProgram'];
+        $window = $this->resolveWindow($selectedSession);
         $marks = $this->loadMarks($selectedSession, $selectedDepartment, $selectedProgram);
         $summary = $this->summarizeMarks($marks);
 
@@ -314,21 +343,35 @@ class AnalyticsController extends Controller
         $topDepartment = $comparisonRows->first(fn (array $row) => !empty($row['has_data']));
         $topExam = $examRows->isNotEmpty() ? $examRows->sortByDesc('score')->first() : null;
 
+        $gradeDistribution = $this->buildGradeDistribution($marks);
+        $studentPerformance = $this->buildStudentPerformanceRows($marks);
+        $topStudent = $studentPerformance->first();
+        $weakStudent = $studentPerformance->sortBy('average_marks')->first();
+
+        $assignmentSummary = $this->buildAssignmentSummary($window, $selectedDepartment, $selectedProgram, $selectedSession);
+        $assessmentStatusMix = collect([
+            ['label' => 'Submitted', 'count' => (int) ($assignmentSummary['status_counts']['submitted'] ?? 0)],
+            ['label' => 'Graded', 'count' => (int) ($assignmentSummary['status_counts']['graded'] ?? 0)],
+            ['label' => 'Late', 'count' => (int) ($assignmentSummary['status_counts']['late'] ?? 0)],
+            ['label' => 'Missing', 'count' => max(0, (int) $assignmentSummary['expected_submissions'] - (int) $assignmentSummary['submission_count'])],
+        ]);
+        $topGradeBand = $gradeDistribution->sortByDesc('count')->first();
+
         return [
             'mainChart' => [
-                'title' => 'Results by exam',
-                'subtitle' => 'Average marks across published exams',
+            'title' => 'Exam performance trend',
+            'subtitle' => 'Average marks across published exams in the current scope',
                 'type' => 'line',
                 'unit' => '%',
                 'labels' => $examRows->pluck('label')->all(),
                 'datasets' => [[
                     'label' => 'Average marks %',
                     'data' => $examRows->pluck('score')->all(),
-                    'borderColor' => '#334155',
-                    'backgroundColor' => 'rgba(51, 65, 85, 0.14)',
+                    'borderColor' => '#2563EB',
+                    'backgroundColor' => 'rgba(37, 99, 235, 0.16)',
                     'fill' => true,
                     'tension' => 0.38,
-                    'pointBackgroundColor' => '#334155',
+                    'pointBackgroundColor' => '#2563EB',
                     'pointBorderColor' => '#ffffff',
                     'pointBorderWidth' => 2,
                     'borderWidth' => 3,
@@ -337,22 +380,27 @@ class AnalyticsController extends Controller
                 'emptyMessage' => 'No published marks are available for this selection.',
             ],
             'comparisonChart' => [
-                'title' => 'Department result comparison',
-                'subtitle' => 'Highest average marks in the current view',
+                'title' => 'Assessment status mix',
+                'subtitle' => 'Submitted, graded, late, and missing assessments in this scope',
                 'type' => 'bar',
-                'indexAxis' => 'y',
-                'unit' => '%',
-                'labels' => $comparisonValues->pluck('label')->all(),
+                'indexAxis' => 'x',
+                'unit' => 'assessments',
+                'labels' => $assessmentStatusMix->pluck('label')->all(),
                 'datasets' => [[
-                    'label' => 'Average marks %',
-                    'data' => $comparisonValues->pluck('average_marks')->all(),
-                    'backgroundColor' => 'rgba(51, 65, 85, 0.84)',
+                    'label' => 'Count',
+                    'data' => $assessmentStatusMix->pluck('count')->all(),
+                    'backgroundColor' => [
+                        'rgba(59, 130, 246, 0.84)',
+                        'rgba(16, 185, 129, 0.84)',
+                        'rgba(245, 158, 11, 0.84)',
+                        'rgba(239, 68, 68, 0.84)',
+                    ],
                     'borderSkipped' => false,
                     'borderRadius' => 12,
                     'maxBarThickness' => 24,
                 ]],
-                'yMax' => 100,
-                'emptyMessage' => 'No department comparison is available yet.',
+                'yMax' => null,
+                'emptyMessage' => 'No assessment status data is available yet.',
             ],
             'insights' => [
                 [
@@ -378,6 +426,269 @@ class AnalyticsController extends Controller
                     'message' => $topExam
                         ? sprintf('%s is the strongest exam at %s%%.', $topExam['label'], number_format($topExam['score'], 1))
                         : 'No exam trend has been built yet.',
+                ],
+                [
+                    'tone' => 'success',
+                    'title' => 'Assessment completion',
+                    'message' => sprintf(
+                        '%s%% completion (%s submissions from %s expected).',
+                        number_format($assignmentSummary['completion_rate'], 1),
+                        number_format($assignmentSummary['submission_count']),
+                        number_format($assignmentSummary['expected_submissions'])
+                    ),
+                ],
+                [
+                    'tone' => 'info',
+                    'title' => 'Assessment grading progress',
+                    'message' => sprintf(
+                        '%s%% of submitted assessments are graded (%s of %s).',
+                        number_format($assignmentSummary['grading_rate'], 1),
+                        number_format($assignmentSummary['graded_count']),
+                        number_format($assignmentSummary['submission_count'])
+                    ),
+                ],
+                [
+                    'tone' => 'info',
+                    'title' => 'Top vs weak student',
+                    'message' => $topStudent && $weakStudent
+                        ? sprintf('%s leads at %s%%, while %s is at %s%%.', $topStudent['name'], number_format($topStudent['average_marks'], 1), $weakStudent['name'], number_format($weakStudent['average_marks'], 1))
+                        : 'Not enough student-level marks to rank top and weak learners.',
+                ],
+                [
+                    'tone' => 'warning',
+                    'title' => 'Grade concentration',
+                    'message' => $topGradeBand
+                        ? sprintf('Most records are in %s with %s entries.', $topGradeBand['label'], number_format($topGradeBand['count']))
+                        : 'No grade-band concentration is available yet.',
+                ],
+            ],
+        ];
+    }
+
+    private function buildStudentsMetricState(array $filters): array
+    {
+        $selectedSession = $filters['selectedSession'];
+        $selectedDepartment = $filters['selectedDepartment'];
+        $selectedProgram = $filters['selectedProgram'];
+        $window = $this->resolveWindow($selectedSession);
+
+        $studentsQuery = Student::active()
+            ->when($selectedSession, fn ($query) => $query->where('academic_session_id', $selectedSession->id))
+            ->when($selectedDepartment, fn ($query) => $query->where('department_id', $selectedDepartment->id))
+            ->when($selectedProgram, fn ($query) => $query->where('program_id', $selectedProgram->id));
+
+        $activeStudents = (clone $studentsQuery)->count();
+
+        $alumniCount = Alumni::query()
+            ->when($selectedDepartment, fn ($query) => $query->where('department_id', $selectedDepartment->id))
+            ->when($selectedProgram, fn ($query) => $query->where('program_id', $selectedProgram->id))
+            ->count();
+
+        $enrollmentTrend = $this->buildEnrollmentTrendFromStudents((clone $studentsQuery)->get(['admission_date']), $window);
+        $trendChange = $this->buildSeriesTrend($enrollmentTrend['values']);
+
+        $programDistribution = (clone $studentsQuery)
+            ->with('program')
+            ->get()
+            ->groupBy('program_id')
+            ->map(function (Collection $programStudents) {
+                $program = $programStudents->first()?->program;
+
+                return [
+                    'label' => $program?->code ?: ($program?->name ?? 'Unknown'),
+                    'name' => $program?->name ?? 'Unknown Program',
+                    'count' => $programStudents->count(),
+                ];
+            })
+            ->sortByDesc('count')
+            ->take(8)
+            ->values();
+
+        $topProgram = $programDistribution->first();
+        $activeRatio = ($activeStudents + $alumniCount) > 0
+            ? round(($activeStudents / ($activeStudents + $alumniCount)) * 100, 1)
+            : 0.0;
+
+        return [
+            'mainChart' => [
+                'title' => 'Enrollment growth',
+                'subtitle' => $window['label'] . ' · new active enrollments over time',
+                'type' => 'line',
+                'unit' => 'students',
+                'labels' => $enrollmentTrend['labels'],
+                'datasets' => [[
+                    'label' => 'Enrollments',
+                    'data' => $enrollmentTrend['values'],
+                    'borderColor' => '#8B0000',
+                    'backgroundColor' => 'rgba(139, 0, 0, 0.16)',
+                    'fill' => true,
+                    'tension' => 0.38,
+                    'pointBackgroundColor' => '#8B0000',
+                    'pointBorderColor' => '#ffffff',
+                    'pointBorderWidth' => 2,
+                    'borderWidth' => 3,
+                ]],
+                'yMax' => null,
+                'emptyMessage' => 'No enrollment activity is available for this scope.',
+            ],
+            'comparisonChart' => [
+                'title' => 'Program distribution',
+                'subtitle' => 'Active students grouped by program',
+                'type' => 'bar',
+                'indexAxis' => 'y',
+                'unit' => 'students',
+                'labels' => $programDistribution->pluck('label')->all(),
+                'datasets' => [[
+                    'label' => 'Students',
+                    'data' => $programDistribution->pluck('count')->all(),
+                    'backgroundColor' => [
+                        'rgba(14, 165, 233, 0.84)',
+                        'rgba(59, 130, 246, 0.84)',
+                        'rgba(99, 102, 241, 0.84)',
+                        'rgba(236, 72, 153, 0.84)',
+                        'rgba(245, 158, 11, 0.84)',
+                        'rgba(16, 185, 129, 0.84)',
+                        'rgba(239, 68, 68, 0.84)',
+                        'rgba(100, 116, 139, 0.84)',
+                    ],
+                    'borderSkipped' => false,
+                    'borderRadius' => 12,
+                    'maxBarThickness' => 24,
+                ]],
+                'yMax' => null,
+                'emptyMessage' => 'No program distribution is available yet.',
+            ],
+            'insights' => [
+                [
+                    'tone' => 'info',
+                    'title' => 'Active learners',
+                    'message' => sprintf('There are %s active students in the selected scope.', number_format($activeStudents)),
+                ],
+                [
+                    'tone' => 'success',
+                    'title' => 'Active vs alumni',
+                    'message' => sprintf('Active ratio is %s%% (%s active vs %s alumni).', number_format($activeRatio, 1), number_format($activeStudents), number_format($alumniCount)),
+                ],
+                [
+                    'tone' => 'warning',
+                    'title' => 'Largest program',
+                    'message' => $topProgram
+                        ? sprintf('%s currently has %s active students.', $topProgram['name'], number_format($topProgram['count']))
+                        : 'No program currently has enough data for ranking.',
+                ],
+                [
+                    'tone' => 'info',
+                    'title' => 'Trend movement',
+                    'message' => sprintf('Enrollment movement is %s over the selected buckets.', $trendChange['text']),
+                ],
+            ],
+        ];
+    }
+
+    private function buildDepartmentsMetricState(array $filters): array
+    {
+        $selectedSession = $filters['selectedSession'];
+        $selectedDepartment = $filters['selectedDepartment'];
+        $selectedProgram = $filters['selectedProgram'];
+
+        $attendanceRecords = $this->loadAttendanceRecords($selectedSession, $selectedDepartment, $selectedProgram);
+        $marks = $this->loadMarks($selectedSession, $selectedDepartment, $selectedProgram);
+        $departmentRows = $this->buildDepartmentRows($attendanceRecords, $marks)
+            ->filter(function (array $row) use ($selectedDepartment, $selectedProgram) {
+                if ($selectedDepartment) {
+                    return (int) $row['department_id'] === (int) $selectedDepartment->id;
+                }
+
+                if ($selectedProgram) {
+                    return (int) $row['department_id'] === (int) $selectedProgram->department_id;
+                }
+
+                return true;
+            })
+            ->values();
+
+        $topRows = $departmentRows->take(8);
+        $bestDepartment = $departmentRows->first(fn (array $row) => !empty($row['has_data']));
+        $weakDepartment = $departmentRows->filter(fn (array $row) => !empty($row['has_data']))->sortBy('score')->first();
+
+        return [
+            'mainChart' => [
+                'title' => 'Department performance score',
+                'subtitle' => 'Composite score from attendance and pass rate',
+                'type' => 'bar',
+                'indexAxis' => 'y',
+                'unit' => '%',
+                'labels' => $topRows->pluck('label')->all(),
+                'datasets' => [[
+                    'label' => 'Performance score',
+                    'data' => $topRows->pluck('score')->all(),
+                    'backgroundColor' => [
+                        'rgba(79, 70, 229, 0.84)',
+                        'rgba(37, 99, 235, 0.84)',
+                        'rgba(8, 145, 178, 0.84)',
+                        'rgba(22, 163, 74, 0.84)',
+                        'rgba(234, 88, 12, 0.84)',
+                        'rgba(220, 38, 38, 0.84)',
+                        'rgba(14, 165, 233, 0.84)',
+                        'rgba(71, 85, 105, 0.84)',
+                    ],
+                    'borderSkipped' => false,
+                    'borderRadius' => 12,
+                    'maxBarThickness' => 24,
+                ]],
+                'yMax' => 100,
+                'emptyMessage' => 'No department performance data is available.',
+            ],
+            'comparisonChart' => [
+                'title' => 'Attendance vs results',
+                'subtitle' => 'Side-by-side department comparison',
+                'type' => 'bar',
+                'indexAxis' => 'x',
+                'unit' => '%',
+                'labels' => $topRows->pluck('label')->all(),
+                'datasets' => [
+                    [
+                        'label' => 'Attendance %',
+                        'data' => $topRows->pluck('attendance_rate')->all(),
+                        'backgroundColor' => 'rgba(139, 0, 0, 0.82)',
+                        'borderRadius' => 10,
+                        'maxBarThickness' => 22,
+                    ],
+                    [
+                        'label' => 'Pass rate %',
+                        'data' => $topRows->pluck('pass_rate')->all(),
+                        'backgroundColor' => 'rgba(16, 185, 129, 0.82)',
+                        'borderRadius' => 10,
+                        'maxBarThickness' => 22,
+                    ],
+                ],
+                'yMax' => 100,
+                'emptyMessage' => 'No department comparison is available yet.',
+            ],
+            'insights' => [
+                [
+                    'tone' => 'success',
+                    'title' => 'Best performing department',
+                    'message' => $bestDepartment
+                        ? sprintf('%s leads with a score of %s%%.', $bestDepartment['name'], number_format($bestDepartment['score'], 1))
+                        : 'No department currently has enough data to rank.',
+                ],
+                [
+                    'tone' => 'warning',
+                    'title' => 'Department needing support',
+                    'message' => $weakDepartment
+                        ? sprintf('%s is currently lowest at %s%% and should be reviewed.', $weakDepartment['name'], number_format($weakDepartment['score'], 1))
+                        : 'No weak-department signal is available yet.',
+                ],
+                [
+                    'tone' => 'info',
+                    'title' => 'Coverage',
+                    'message' => sprintf('%s departments are visible in this filtered comparison.', number_format($departmentRows->count())),
+                ],
+                [
+                    'tone' => 'info',
+                    'title' => 'Ranking model',
+                    'message' => 'Score blends attendance and pass rate to keep the comparison simple and actionable.',
                 ],
             ],
         ];
@@ -588,6 +899,154 @@ class AnalyticsController extends Controller
         return [
             'labels' => array_values(array_map(static fn (array $bucket) => $bucket['label'], $buckets)),
             'values' => array_values(array_map(static fn (array $bucket) => $bucket['total'], $buckets)),
+        ];
+    }
+
+    private function buildEnrollmentTrendFromStudents(Collection $students, array $window): array
+    {
+        $buckets = $this->makeBuckets($window['start'], $window['end'], $window['bucketType']);
+
+        foreach ($students as $student) {
+            if (!$student->admission_date) {
+                continue;
+            }
+
+            $date = Carbon::parse($student->admission_date);
+            $bucketKey = $window['bucketType'] === 'month' ? $date->format('Y-m') : $date->format('Y-m-d');
+
+            if (!isset($buckets[$bucketKey])) {
+                continue;
+            }
+
+            $buckets[$bucketKey]['total']++;
+        }
+
+        return [
+            'labels' => array_values(array_map(static fn (array $bucket) => $bucket['label'], $buckets)),
+            'values' => array_values(array_map(static fn (array $bucket) => $bucket['total'], $buckets)),
+        ];
+    }
+
+    private function buildGradeDistribution(Collection $marks): Collection
+    {
+        $distribution = [
+            ['label' => 'A (80+)', 'count' => 0],
+            ['label' => 'B (60-79)', 'count' => 0],
+            ['label' => 'C (45-59)', 'count' => 0],
+            ['label' => 'D (<45)', 'count' => 0],
+            ['label' => 'Pending', 'count' => 0],
+        ];
+
+        foreach ($marks as $mark) {
+            if ($mark->is_absent || $mark->is_withheld) {
+                $distribution[4]['count']++;
+                continue;
+            }
+
+            $percentage = $this->calculateMarkPercentage($mark);
+
+            if ($percentage === null) {
+                $distribution[4]['count']++;
+            } elseif ($percentage >= 80) {
+                $distribution[0]['count']++;
+            } elseif ($percentage >= 60) {
+                $distribution[1]['count']++;
+            } elseif ($percentage >= 45) {
+                $distribution[2]['count']++;
+            } else {
+                $distribution[3]['count']++;
+            }
+        }
+
+        return collect($distribution);
+    }
+
+    private function buildStudentPerformanceRows(Collection $marks): Collection
+    {
+        return $marks
+            ->groupBy('student_id')
+            ->map(function (Collection $studentMarks) {
+                $student = $studentMarks->first()?->student;
+                $scores = $studentMarks
+                    ->map(fn (Mark $mark) => $this->calculateMarkPercentage($mark))
+                    ->filter(fn ($value) => $value !== null)
+                    ->values();
+
+                $passRate = $studentMarks->count() > 0
+                    ? round(($studentMarks->filter(fn (Mark $mark) => $mark->is_passed)->count() / $studentMarks->count()) * 100, 1)
+                    : 0.0;
+
+                return [
+                    'student_id' => $student?->id,
+                    'name' => $student?->full_name ?? 'Student',
+                    'average_marks' => $scores->isNotEmpty() ? round($scores->avg(), 1) : 0.0,
+                    'pass_rate' => $passRate,
+                    'records' => $studentMarks->count(),
+                ];
+            })
+            ->filter(fn (array $row) => $row['records'] > 0)
+            ->sortByDesc('average_marks')
+            ->values();
+    }
+
+    private function buildAssignmentSummary(array $window, ?Department $department, ?Program $program, ?AcademicSession $session): array
+    {
+        $assignmentQuery = Assignment::query()
+            ->when($program, fn ($query) => $query->where('program_id', $program->id))
+            ->when($department, fn ($query) => $query->whereHas('program', fn ($programQuery) => $programQuery->where('department_id', $department->id)))
+            ->whereBetween('created_at', [$window['start'], $window['end']]);
+
+        $assignments = $assignmentQuery->get(['id', 'program_id']);
+        $assignmentIds = $assignments->pluck('id')->all();
+
+        if (empty($assignmentIds)) {
+            return [
+                'assignment_count' => 0,
+                'submission_count' => 0,
+                'graded_count' => 0,
+                'expected_submissions' => 0,
+                'completion_rate' => 0.0,
+                'grading_rate' => 0.0,
+                'status_counts' => [
+                    'submitted' => 0,
+                    'graded' => 0,
+                    'late' => 0,
+                ],
+            ];
+        }
+
+        $submissionQuery = AssignmentSubmission::query()->whereIn('assignment_id', $assignmentIds);
+        $submissionCount = (clone $submissionQuery)->count();
+        $gradedCount = (clone $submissionQuery)->where('status', 'graded')->count();
+        $submittedCount = (clone $submissionQuery)->where('status', 'submitted')->count();
+        $lateCount = (clone $submissionQuery)->where('status', 'late')->count();
+
+        $studentCount = Student::active()
+            ->when($session, fn ($query) => $query->where('academic_session_id', $session->id))
+            ->when($department, fn ($query) => $query->where('department_id', $department->id))
+            ->when($program, fn ($query) => $query->where('program_id', $program->id))
+            ->count();
+
+        $expectedSubmissions = $assignments->count() * max($studentCount, 1);
+        $completionRate = $expectedSubmissions > 0
+            ? round(($submissionCount / $expectedSubmissions) * 100, 1)
+            : 0.0;
+        $gradingRate = $submissionCount > 0
+            ? round(($gradedCount / $submissionCount) * 100, 1)
+            : 0.0;
+
+        return [
+            'assignment_count' => $assignments->count(),
+            'submission_count' => $submissionCount,
+            'graded_count' => $gradedCount,
+            'expected_submissions' => $expectedSubmissions,
+            'completion_rate' => $completionRate,
+            'grading_rate' => $gradingRate,
+            'status_counts' => [
+                'submitted' => $submittedCount,
+                'graded' => $gradedCount,
+                'late' => $lateCount,
+            ],
         ];
     }
 

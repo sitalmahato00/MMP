@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             MediaSeeder::class,
             CommunicationSeeder::class,
             OperationsSeeder::class,
+            ApplicationSeeder::class,
         ]);
 
         PublicDataService::invalidate('*');

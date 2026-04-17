@@ -113,7 +113,7 @@
                     {{ $greeting }}, {{ auth()->user()->name ?? 'Principal' }}
                 </h1>
                 <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                    Live academic and admissions visibility for <span data-dashboard-hero-session>{{ $sessionName }}</span>. Track enrollment momentum, department performance, alerts, and operational activity in one place.
+                    Quick executive snapshot for <span data-dashboard-hero-session>{{ $sessionName }}</span>. See what is happening now, spot risks, and jump to high-impact actions fast.
                 </p>
 
                 <div class="mt-5 flex flex-wrap gap-3">
@@ -129,7 +129,13 @@
                         </svg>
                         Create Notice
                     </a>
-                    <a href="{{ route('admin.audit-logs.index') }}" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800">
+                    <a href="{{ route('admin.applications.index') }}" class="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-[#8B0000] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h6M9 3h6a2 2 0 012 2v14l-5-3-5 3V5a2 2 0 012-2z"/>
+                        </svg>
+                        Manage Admissions
+                    </a>
+                    <a href="{{ route('admin.reports.index') }}" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h13M9 11V3m0 0l4 4m-4-4-4 4M5 21h14"/>
                         </svg>
@@ -158,51 +164,32 @@
             <div class="w-full max-w-2xl rounded-[1.75rem] border border-slate-200 bg-slate-50/90 p-4 shadow-sm backdrop-blur">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Filters</p>
-                        <p class="mt-1 text-sm font-semibold text-slate-900">Switch the dashboard window without leaving the page.</p>
+                        <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Executive Snapshot</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">Focused on current status. Use Analytics for root-cause exploration.</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span data-dashboard-loading class="hidden inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#8B0000] ring-1 ring-red-100">
                             Updating
                         </span>
-                        <span data-dashboard-period-display class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200">
-                            {{ ucfirst($period) }} view
+                        <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200">
+                            Session: {{ $sessionName }}
                         </span>
+                        <a href="{{ route('admin.analytics') }}" class="inline-flex items-center rounded-full bg-slate-950 px-3 py-1 text-xs font-bold text-white transition hover:bg-slate-800">Open Analytics</a>
                     </div>
                 </div>
-
                 <div class="mt-4 grid gap-3 sm:grid-cols-3">
-                    @foreach($periodOptions as $option)
-                        <button
-                            type="button"
-                            data-dashboard-period="{{ $option['value'] }}"
-                            aria-pressed="{{ $period === $option['value'] ? 'true' : 'false' }}"
-                            class="group flex items-center justify-between rounded-2xl border px-4 py-3 text-left transition-all duration-200 {{ $period === $option['value'] ? 'border-[#8B0000] bg-white shadow-sm' : 'border-slate-200 bg-white/70 hover:border-red-200 hover:bg-white' }}">
-                            <div>
-                                <p class="text-sm font-semibold text-slate-900">{{ $option['label'] }}</p>
-                                <p class="text-xs text-slate-500">{{ $option['hint'] }}</p>
-                            </div>
-                            <svg class="h-4 w-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </button>
-                    @endforeach
-                </div>
-
-                <div data-dashboard-session-panel class="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end {{ $period === 'session' ? '' : 'hidden' }}">
-                    <div>
-                        <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Session focus</label>
-                        <select data-dashboard-session-select class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
-                            @foreach($sessionOptions as $sessionOption)
-                                <option value="{{ $sessionOption->id }}" @selected($selectedSession?->id === $sessionOption->id)>
-                                    {{ $sessionOption->name }}@if($sessionOption->name_bs) / {{ $sessionOption->name_bs }}@endif
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="button" data-dashboard-session-apply class="inline-flex items-center justify-center rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800">
-                        Apply
-                    </button>
+                    <a href="{{ route('admin.analytics', ['metric' => 'attendance']) }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-red-200 hover:bg-red-50/40">
+                        <p class="text-sm font-semibold text-slate-900">Attendance analysis</p>
+                        <p class="text-xs text-slate-500">Investigate causes behind attendance shifts.</p>
+                    </a>
+                    <a href="{{ route('admin.analytics', ['metric' => 'academic']) }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-red-200 hover:bg-red-50/40">
+                        <p class="text-sm font-semibold text-slate-900">Academic analysis</p>
+                        <p class="text-xs text-slate-500">Explore marks, pass rate, and assignment delivery.</p>
+                    </a>
+                    <a href="{{ route('admin.analytics', ['metric' => 'departments']) }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-red-200 hover:bg-red-50/40">
+                        <p class="text-sm font-semibold text-slate-900">Department analysis</p>
+                        <p class="text-xs text-slate-500">Compare departments and identify support priorities.</p>
+                    </a>
                 </div>
             </div>
         </div>
@@ -252,12 +239,12 @@
         <x-card id="enrollment-trend" class="overflow-hidden border border-slate-200 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
             <x-slot name="header">
                 <div>
-                    <h2 class="text-lg font-black text-slate-950">Enrollment Trend</h2>
-                    <p class="text-sm text-slate-500">Interactive admissions line chart for <span data-dashboard-period-label>{{ $periodLabel }}</span>.</p>
+                    <h2 class="text-lg font-black text-slate-950">Enrollment Pulse</h2>
+                    <p class="text-sm text-slate-500">Mini trend showing admissions momentum at a glance.</p>
                 </div>
-                <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-[#8B0000]">Admissions</span>
+                <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-[#8B0000]">Mini Visual</span>
             </x-slot>
-            <div class="h-[320px]">
+            <div class="h-[190px]">
                 <canvas id="principal-enrollment-chart" data-principal-chart="enrollment"></canvas>
             </div>
         </x-card>
@@ -265,14 +252,14 @@
         <x-card id="department-performance" class="overflow-hidden border border-slate-200 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
             <x-slot name="header">
                 <div>
-                    <h2 class="text-lg font-black text-slate-950">Department Performance</h2>
-                    <p class="text-sm text-slate-500">Blended attendance and result score by department.</p>
+                    <h2 class="text-lg font-black text-slate-950">Department Pulse</h2>
+                    <p class="text-sm text-slate-500">Compact performance snapshot across departments.</p>
                 </div>
                 @if($highlight)
                     <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">Top: {{ $highlight['label'] }}</span>
                 @endif
             </x-slot>
-            <div class="h-[320px]">
+            <div class="h-[190px]">
                 <canvas id="principal-department-chart" data-principal-chart="department"></canvas>
             </div>
         </x-card>

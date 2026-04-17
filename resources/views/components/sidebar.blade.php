@@ -54,17 +54,16 @@
 
     $adminGroups = [
         [
-            'label' => 'Dashboard',
+            'label' => 'Dashboards',
             'items' => [
                 ['label' => 'Overview', 'iconName' => 'home', 'href' => route('admin.dashboard'), 'isActive' => $active('admin.dashboard')],
             ],
         ],
         [
-            'label' => 'Insights',
+            'label' => 'Configurations',
             'items' => [
-                ['label' => 'Analytics', 'iconName' => 'chart-bar', 'href' => route('admin.analytics'), 'isActive' => $active('admin.analytics')],
-                ['label' => 'Reports', 'iconName' => 'doc-report', 'href' => route('admin.audit-logs.index'), 'isActive' => $active('admin.audit-logs.*')],
-                ['label' => 'Performance', 'iconName' => 'chart-bar', 'href' => route('admin.exams.index'), 'isActive' => $active('admin.exams.*')],
+                ['label' => 'Applications', 'iconName' => 'doc-text', 'href' => route('admin.applications.index'), 'isActive' => $active('admin.applications.*') && request('status') !== 'pending', 'badge' => $pendingApplications],
+                ['label' => 'Funnel', 'iconName' => 'funnel', 'href' => route('admin.applications.index', ['status' => 'pending']), 'isActive' => $active('admin.applications.*') && request('status') === 'pending'],
             ],
         ],
         [
@@ -86,10 +85,10 @@
             ],
         ],
         [
-            'label' => 'Admissions',
+            'label' => 'Communication',
             'items' => [
-                ['label' => 'Applications', 'iconName' => 'doc-text', 'href' => route('admin.applications.index'), 'isActive' => $active('admin.applications.*') && request('status') !== 'pending', 'badge' => $pendingApplications],
-                ['label' => 'Funnel', 'iconName' => 'funnel', 'href' => route('admin.applications.index', ['status' => 'pending']), 'isActive' => $active('admin.applications.*') && request('status') === 'pending'],
+                ['label' => 'Notifications', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
+                ['label' => 'Messages', 'iconName' => 'messages', 'href' => route('admin.messages.index'), 'isActive' => $active('admin.messages.*'), 'badge' => $unreadMessages],
             ],
         ],
         [
@@ -103,10 +102,10 @@
             ],
         ],
         [
-            'label' => 'Communication',
+            'label' => 'Insights',
             'items' => [
-                ['label' => 'Notifications', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
-                ['label' => 'Messages', 'iconName' => 'messages', 'href' => route('admin.messages.index'), 'isActive' => $active('admin.messages.*'), 'badge' => $unreadMessages],
+                ['label' => 'Analytics', 'iconName' => 'chart-bar', 'href' => route('admin.analytics'), 'isActive' => $active('admin.analytics')],
+                ['label' => 'Reports', 'iconName' => 'doc-report', 'href' => route('admin.reports.index'), 'isActive' => $active('admin.reports.*')],
             ],
         ],
         [

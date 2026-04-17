@@ -17,7 +17,7 @@
 
 <div
     x-data="bsDatePicker('{{ $uid }}', '{{ $resolvedValue }}')"
-    x-init="init()"
+    x-init="init(); window.addEventListener('resize', () => { if (open) _calcPopupPlacement(); }); window.addEventListener('scroll', () => { if (open) _calcPopupPlacement(); }, true)"
     class="relative"
     @click.outside="open = false"
     @keydown.escape.window="open = false"
@@ -51,27 +51,29 @@
     <div
         x-show="open"
         x-cloak
+        x-ref="panel"
         x-transition:enter="transition ease-out duration-150"
         x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
         x-transition:leave="transition ease-in duration-100"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute z-[9999] mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl shadow-black/10 p-3 w-[300px]"
+        class="absolute left-0 z-[9999] mt-1 w-[320px] max-w-[calc(100vw-0.75rem)] bg-white border border-gray-200 rounded-xl shadow-2xl shadow-black/10 p-3"
         :class="dropUp ? 'bottom-full mb-1' : 'top-full'"
+        :style="`left: ${popupLeft}px;`"
     >
         {{-- Header: month/year nav --}}
-        <div class="flex items-center justify-between mb-2">
+        <div class="mb-2 flex items-center justify-between gap-1">
             <button type="button" @click="prevMonth()" @mousedown.prevent class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
-            <div class="flex items-center gap-1">
-                <select x-model.number="viewMonth" @change="buildCalendar()" class="text-sm font-bold text-gray-800 bg-transparent border-none focus:ring-0 cursor-pointer px-1 py-0.5 rounded hover:bg-gray-50">
+            <div class="flex flex-1 flex-wrap items-center justify-center gap-1 min-w-0">
+                <select x-model.number="viewMonth" @change="buildCalendar()" class="min-w-[7.5rem] max-w-full flex-1 text-sm font-bold text-gray-800 bg-transparent border-none focus:ring-0 cursor-pointer px-1 py-0.5 rounded hover:bg-gray-50">
                     <template x-for="(m, i) in monthNames" :key="i">
                         <option :value="i" x-text="m" :selected="i === viewMonth"></option>
                     </template>
                 </select>
-                <select x-model.number="viewYear" @change="buildCalendar()" class="text-sm font-bold text-gray-800 bg-transparent border-none focus:ring-0 cursor-pointer px-1 py-0.5 rounded hover:bg-gray-50">
+                <select x-model.number="viewYear" @change="buildCalendar()" class="w-[5.5rem] shrink-0 text-sm font-bold text-gray-800 bg-transparent border-none focus:ring-0 cursor-pointer px-1 py-0.5 rounded hover:bg-gray-50">
                     <template x-for="y in yearRange" :key="y">
                         <option :value="y" x-text="y" :selected="y === viewYear"></option>
                     </template>

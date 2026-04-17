@@ -9,6 +9,7 @@ use App\Models\Program;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class OperationsSeeder extends Seeder
@@ -27,14 +28,25 @@ class OperationsSeeder extends Seeder
         $subjectThree = Subject::where('code', 'DBMS503')->firstOrFail();
         $studentOne = Student::where('roll_number', 'DIT-081-01')->firstOrFail();
         $studentTwo = Student::where('roll_number', 'DIT-081-02')->firstOrFail();
+        $students = Student::query()
+            ->where('program_id', $program->id)
+            ->where('roll_number', 'like', 'DIT-081-%')
+            ->orderBy('roll_number')
+            ->take(4)
+            ->get()
+            ->all();
 
-        $demo->seedTimetableAndAttendance($session, $program, $teacher, $subjectOne, $subjectTwo, $studentOne, $studentTwo);
+        if (count($students) < 2) {
+            $students = [$studentOne, $studentTwo];
+        }
+
+        $demo->seedTimetableAndAttendance($session, $program, $teacher, $subjectOne, $subjectTwo, $subjectThree, $students);
 
         $exam = $demo->seedExam($session, $department, $program);
-        $demo->seedMarks($exam, $teacher, $studentOne, $studentTwo, $subjectOne, $subjectTwo, $subjectThree);
+        $demo->seedMarks($exam, $teacher, $students, $subjectOne, $subjectTwo, $subjectThree);
         $demo->seedAssignments($teacher, $program, $subjectTwo, $studentOne, $studentTwo, $assets);
         $demo->seedAuditLog(
-            \App\Models\User::where('email', 'principal@mmp.edu.np')->firstOrFail(),
+            User::where('email', 'principal@mmp.edu.np')->firstOrFail(),
             $department,
             $program,
             $exam
