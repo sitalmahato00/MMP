@@ -53,7 +53,7 @@
             <span class="text-sm text-gray-600">{{ $notice->author?->name ?? 'System' }}</span>
         </td>
         <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">
-            {{ $notice->published_at?->format('d M Y') ?? $notice->created_at->format('d M Y') }}
+            {{ $notice->published_at ? bsDate($notice->published_at, 'd F Y') : bsDate($notice->created_at, 'd F Y') }}
         </td>
         <td class="px-5 py-3.5">
             @php $totalFiles = ($notice->attachments_count ?? 0) + ($notice->attachment ? 1 : 0); @endphp

@@ -30,7 +30,7 @@
             return [
                 'title' => $notice->title,
                 'href' => route('public.notices', ['type' => $type]),
-                'date' => optional($noticeDate)->format('M d'),
+                'date' => bsDate($noticeDate, 'M d'),
                 'timestamp' => optional($noticeDate)->valueOf() ?? 0,
                 'source' => $typeLabel,
                 'badge_class' => $badgeClass,
@@ -303,8 +303,8 @@
                             <a href="{{ route('public.notices', ['type' => 'general']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
                                 <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
-                                    <span class="text-[8px] font-bold uppercase leading-none">{{ optional($noticeDate)->format('M') }}</span>
-                                    <span class="text-sm font-black leading-tight">{{ optional($noticeDate)->format('d') }}</span>
+                                    <span class="text-[8px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'M') }}</span>
+                                    <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                 </div>
                                 <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
                                 <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
@@ -320,8 +320,8 @@
                             <a href="{{ route('public.notices', ['type' => 'exam']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
                                 <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
-                                    <span class="text-[8px] font-bold uppercase leading-none">{{ optional($noticeDate)->format('M') }}</span>
-                                    <span class="text-sm font-black leading-tight">{{ optional($noticeDate)->format('d') }}</span>
+                                    <span class="text-[8px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'M') }}</span>
+                                    <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                 </div>
                                 <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
                                 <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
@@ -423,13 +423,13 @@
                         @php $eventDate = $event->published_at ?? $event->created_at; @endphp
                         <div class="flex gap-3 group">
                             <div class="w-12 h-12 flex-shrink-0 text-white flex flex-col items-center justify-center rounded text-center shadow-sm" style="background-color: #8B0000;">
-                                <span class="text-[8px] font-bold uppercase leading-none">{{ optional($eventDate)->format('M') }}</span>
-                                <span class="text-sm font-black leading-tight">{{ optional($eventDate)->format('d') }}</span>
+                                <span class="text-[8px] font-bold uppercase leading-none">{{ bsDate($eventDate, 'M') }}</span>
+                                <span class="text-sm font-black leading-tight">{{ bsDate($eventDate, 'd') }}</span>
                             </div>
                             <div class="flex-1 w-full overflow-hidden">
                                 @php $eventTypeLabel = $event->type === 'event' ? 'Event' : 'News'; @endphp
                                 <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-                                    <div class="text-[10px] font-bold text-gray-400">{{ optional($eventDate)->format('F d, Y') }}</div>
+                                    <div class="text-[10px] font-bold text-gray-400">{{ bsDate($eventDate, 'F d, Y') }}</div>
                                     <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full border {{ $event->type === 'event' ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-purple-50 text-purple-700 border-purple-100' }}">
                                         {{ $eventTypeLabel }}
                                     </span>
@@ -625,7 +625,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="font-bold text-[13px] text-[#8B0000] truncate">{{ $dl->title }}</div>
-                            <div class="text-[11px] text-gray-400 mt-0.5">{{ $dl->created_at->format('M d, Y') }}{{ $dl->category ? ' · '.ucfirst(str_replace('-', ' ', $dl->category)) : '' }}</div>
+                            <div class="text-[11px] text-gray-400 mt-0.5">{{ bsDate($dl->created_at, 'M d, Y') }}{{ $dl->category ? ' · '.ucfirst(str_replace('-', ' ', $dl->category)) : '' }}</div>
                         </div>
                     </div>
                 @empty

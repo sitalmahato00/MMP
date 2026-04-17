@@ -41,7 +41,7 @@
                 <span class="text-xs text-gray-300">No file</span>
             @endif
         </td>
-        <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ $download->created_at->format('d M Y') }}</td>
+        <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ bsDate($download->created_at, 'd F Y') }}</td>
         <td class="px-5 py-3.5">
             <x-table-actions
                 :edit="route('admin.downloads.edit', $download)"

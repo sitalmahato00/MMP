@@ -40,11 +40,11 @@
         <p class="text-sm text-gray-500 mb-4 px-1">Please enter all tenure dates using the BS Calendar (YYYY-MM-DD).</p>
         <x-form-row>
             <x-form-field label="Start Date (BS)" name="start_date_bs" :required="true">
-                <x-input name="start_date_bs" type="text" class="nepali-datepicker" placeholder="e.g. 2062-03-21" :required="true"/>
+                <x-bs-date-picker name="start_date_bs" :required="true"/>
             </x-form-field>
             
             <x-form-field label="End Date (BS) - Leave empty if present" name="end_date_bs">
-                <x-input name="end_date_bs" type="text" class="nepali-datepicker" placeholder="e.g. 2070-12-15"/>
+                <x-bs-date-picker name="end_date_bs"/>
             </x-form-field>
 
             <label class="flex items-center gap-3 mt-4 cursor-pointer p-4 bg-gray-50 rounded-xl border border-gray-100 col-span-full">

@@ -26,6 +26,7 @@
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="h-full overflow-hidden text-gray-800 antialiased" x-data="{ sidebarOpen: false }">
 
@@ -98,5 +99,6 @@
             });
         }
     </script>
+    @stack('scripts')
 </body>
 </html>

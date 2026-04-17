@@ -19,9 +19,9 @@
                         <div class="flex gap-5 p-5">
                             {{-- Date Box --}}
                             <div class="flex-shrink-0 w-16 h-16 text-white flex flex-col items-center justify-center rounded shadow-sm" style="background-color: #8B0000;">
-                                <span class="text-[10px] font-bold uppercase">{{ optional($noticeDate)->format('M') }}</span>
-                                <span class="text-xl font-black leading-tight">{{ optional($noticeDate)->format('d') }}</span>
-                                <span class="text-[9px]">{{ optional($noticeDate)->format('Y') }}</span>
+                                <span class="text-[10px] font-bold uppercase">{{ bsDate($noticeDate, 'M') }}</span>
+                                <span class="text-xl font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
+                                <span class="text-[9px]">{{ bsDate($noticeDate, 'Y') }}</span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-gray-900 group-hover:text-[#8B0000] transition-colors text-[15px] leading-snug mb-2">
@@ -37,7 +37,7 @@
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border {{ $notice->type === 'event' ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-purple-50 text-purple-700 border-purple-100' }}">
                                         {{ $noticeType }}
                                     </span>
-                                    <span class="text-xs text-gray-400">{{ optional($noticeDate)->format('F d, Y') }}</span>
+                                    <span class="text-xs text-gray-400">{{ bsDate($noticeDate, 'F d, Y') }}</span>
                                     @if($notice->attachment)
                                         <a href="{{ asset('storage/'.$notice->attachment) }}" class="text-xs text-red-700 hover:underline flex items-center gap-1 font-semibold">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>

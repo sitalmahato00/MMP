@@ -27,8 +27,8 @@
                     <option value="other" {{ $student->user->gender == 'other' ? 'selected' : '' }}>Other</option>
                 </x-select>
             </x-form-field>
-            <x-form-field label="Date of Birth" name="dob">
-                <x-input name="dob" type="date" :value="$student->user->dob ? \Carbon\Carbon::parse($student->user->dob)->format('Y-m-d') : ''"/>
+            <x-form-field label="Date of Birth (BS)" name="dob">
+                <x-bs-date-picker name="dob" :value="$student->user->dob ? bsDate($student->user->dob) : ''"/>
             </x-form-field>
             <x-form-field label="Address" name="address" span="full">
                 <x-textarea name="address" rows="2">{{ $student->user->address }}</x-textarea>
@@ -43,9 +43,6 @@
         <x-form-row>
             <x-form-field label="Admission Number" name="admission_number" :required="true">
                 <x-input name="admission_number" :value="$student->admission_number" :required="true"/>
-            </x-form-field>
-            <x-form-field label="Date of Birth (BS)" name="dob_bs">
-                <x-input name="dob_bs" :value="$student->dob_bs"/>
             </x-form-field>
             <x-form-field label="Program" name="program_id" :required="true">
                 <x-select name="program_id" :required="true">

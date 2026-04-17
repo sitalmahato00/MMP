@@ -413,7 +413,7 @@
                         <td class="px-5 py-3 text-xs text-gray-400">
                             @if($dl->file_size)@php $kb=round($dl->file_size/1024,0); @endphp{{ $kb>=1024 ? round($kb/1024,1).' MB' : $kb.' KB' }}@else —@endif
                         </td>
-                        <td class="px-5 py-3 text-xs text-gray-400 whitespace-nowrap">{{ $dl->created_at->format('d M Y') }}</td>
+                        <td class="px-5 py-3 text-xs text-gray-400 whitespace-nowrap">{{ bsDate($dl->created_at, 'd F Y') }}</td>
                         <td class="px-5 py-3">
                             <div class="flex items-center justify-end gap-3">
                                 @if($dl->file_path)
@@ -490,7 +490,7 @@
                         </td>
                         <td class="px-5 py-3 text-sm text-gray-500">{{ $notice->author?->name ?? 'System' }}</td>
                         <td class="px-5 py-3 text-xs text-gray-400 whitespace-nowrap">
-                            {{ ($notice->published_at ?? $notice->created_at)?->format('d M Y') }}
+                            {{ bsDate(($notice->published_at ?? $notice->created_at), 'd F Y') }}
                         </td>
                         <td class="px-5 py-3">
                             @if($notice->attachment)

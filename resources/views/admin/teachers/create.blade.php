@@ -30,8 +30,8 @@
                     <option value="other">Other</option>
                 </x-select>
             </x-form-field>
-            <x-form-field label="Date of Birth" name="dob">
-                <x-input name="dob" type="date"/>
+            <x-form-field label="Date of Birth (BS)" name="dob">
+                <x-bs-date-picker name="dob"/>
             </x-form-field>
             <x-form-field label="Address" name="address" span="full">
                 <x-textarea name="address" rows="2" placeholder="Full address"></x-textarea>
@@ -57,8 +57,8 @@
             <x-form-field label="Specialization" name="specialization">
                 <x-input name="specialization"/>
             </x-form-field>
-            <x-form-field label="Hire Date" name="hire_date">
-                <x-input name="hire_date" type="date"/>
+            <x-form-field label="Join Date (BS)" name="join_date">
+                <x-bs-date-picker name="join_date"/>
             </x-form-field>
         </x-form-row>
     </x-form-section>

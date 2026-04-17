@@ -31,7 +31,7 @@
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Teacher</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Department</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Qualification</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Hire Date</th>
+            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Join Date</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
         </tr>
     </x-slot>
@@ -52,7 +52,7 @@
         </td>
         <td class="px-5 py-3.5 text-gray-500 text-sm">{{ $teacher->qualification ?? '—' }}</td>
         <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">
-            {{ $teacher->hire_date ? \Carbon\Carbon::parse($teacher->hire_date)->format('d M Y') : '—' }}
+            {{ $teacher->join_date ? bsDate($teacher->join_date, 'd F Y') : '—' }}
         </td>
         <td class="px-5 py-3.5">
             <x-table-actions

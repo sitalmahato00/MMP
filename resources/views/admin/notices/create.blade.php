@@ -60,8 +60,8 @@
                     @endforeach
                 </x-select>
             </x-form-field>
-            <x-form-field label="Publish Date" name="published_at">
-                <x-input name="published_at" type="datetime-local" :value="now()->format('Y-m-d\TH:i')"/>
+            <x-form-field label="Publish Date (BS)" name="published_at">
+                <x-bs-date-picker name="published_at" :value="bsDate(now())"/>
             </x-form-field>
         </x-form-row>
     </x-form-section>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\NepaliDateHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -37,7 +38,7 @@ class UserController extends Controller
             'email'    => 'required|email|unique:users',
             'phone'    => 'nullable|string|max:20',
             'gender'   => 'nullable|in:male,female,other',
-            'dob'      => 'nullable|date',
+            'dob'      => 'nullable|string|max:10',
             'address'  => 'nullable|string',
             'avatar'   => 'nullable|image|max:2048',
             'role'     => 'required|in:principal,hod,teacher,student,parent,alumni',
@@ -54,7 +55,7 @@ class UserController extends Controller
             'email'     => $data['email'],
             'phone'     => $data['phone'] ?? null,
             'gender'    => $data['gender'] ?? null,
-            'dob'       => $data['dob'] ?? null,
+            'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
             'address'   => $data['address'] ?? null,
             'avatar'    => $data['avatar'] ?? null,
             'is_active' => $data['is_active'] ?? true,
@@ -85,7 +86,7 @@ class UserController extends Controller
             'email'     => ['required','email', Rule::unique('users')->ignore($user->id)],
             'phone'     => 'nullable|string|max:20',
             'gender'    => 'nullable|in:male,female,other',
-            'dob'       => 'nullable|date',
+            'dob'       => 'nullable|string|max:10',
             'address'   => 'nullable|string',
             'avatar'    => 'nullable|image|max:2048',
             'role'      => 'required|in:principal,hod,teacher,student,parent,alumni',
@@ -107,7 +108,7 @@ class UserController extends Controller
             'email'     => $data['email'],
             'phone'     => $data['phone'] ?? null,
             'gender'    => $data['gender'] ?? null,
-            'dob'       => $data['dob'] ?? null,
+            'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
             'address'   => $data['address'] ?? null,
             'is_active' => $data['is_active'] ?? $user->is_active,
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));

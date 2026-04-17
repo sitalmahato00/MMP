@@ -21,11 +21,11 @@
                     @endforeach
                 </x-select>
             </x-form-field>
-            <x-form-field label="Start Date" name="start_date">
-                <x-input name="start_date" type="date" :value="$exam->start_date ? \Carbon\Carbon::parse($exam->start_date)->format('Y-m-d') : ''"/>
+            <x-form-field label="Start Date (BS)" name="start_date">
+                <x-bs-date-picker name="start_date" :value="$exam->start_date ? bsDate($exam->start_date) : ''"/>
             </x-form-field>
-            <x-form-field label="End Date" name="end_date">
-                <x-input name="end_date" type="date" :value="$exam->end_date ? \Carbon\Carbon::parse($exam->end_date)->format('Y-m-d') : ''"/>
+            <x-form-field label="End Date (BS)" name="end_date">
+                <x-bs-date-picker name="end_date" :value="$exam->end_date ? bsDate($exam->end_date) : ''"/>
             </x-form-field>
             <x-form-field label="Open Mark Entry" name="marks_open" span="full">
                 <label class="flex items-center gap-3 cursor-pointer">

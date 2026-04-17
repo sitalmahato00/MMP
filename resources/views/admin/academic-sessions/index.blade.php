@@ -27,8 +27,8 @@
     @forelse($sessions as $session)
     <tr class="hover:bg-gray-50/70 transition-colors">
         <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $session->name }}</td>
-        <td class="px-5 py-3.5 text-gray-500 text-sm">{{ $session->start_date->format('d M Y') }}</td>
-        <td class="px-5 py-3.5 text-gray-500 text-sm">{{ $session->end_date->format('d M Y') }}</td>
+        <td class="px-5 py-3.5 text-gray-500 text-sm">{{ bsDate($session->start_date, 'd F Y') }}</td>
+        <td class="px-5 py-3.5 text-gray-500 text-sm">{{ bsDate($session->end_date, 'd F Y') }}</td>
         <td class="px-5 py-3.5">
             @if($session->is_current)
                 <x-badge color="green" :dot="true">Active</x-badge>

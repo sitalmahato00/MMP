@@ -35,7 +35,7 @@
             <x-badge color="blue">{{ $exam->academicSession?->name ?? '—' }}</x-badge>
         </td>
         <td class="px-5 py-3.5 text-gray-500 text-sm">
-            {{ $exam->start_date ? \Carbon\Carbon::parse($exam->start_date)->format('d M Y') : '—' }}
+            {{ $exam->start_date ? bsDate($exam->start_date, 'd F Y') : '—' }}
         </td>
         <td class="px-5 py-3.5">
             <x-badge :color="$statusColors[$status]" :dot="true">{{ ucfirst($status) }}</x-badge>

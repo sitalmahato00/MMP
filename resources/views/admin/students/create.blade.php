@@ -30,8 +30,8 @@
                     <option value="other">Other</option>
                 </x-select>
             </x-form-field>
-            <x-form-field label="Date of Birth" name="dob">
-                <x-input name="dob" type="date"/>
+            <x-form-field label="Date of Birth (BS)" name="dob">
+                <x-bs-date-picker name="dob"/>
             </x-form-field>
             <x-form-field label="Address" name="address" span="full">
                 <x-textarea name="address" rows="2" placeholder="Full address"></x-textarea>
@@ -46,9 +46,6 @@
         <x-form-row>
             <x-form-field label="Admission Number" name="admission_number" :required="true">
                 <x-input name="admission_number" :required="true"/>
-            </x-form-field>
-            <x-form-field label="Date of Birth (BS)" name="dob_bs">
-                <x-input name="dob_bs" placeholder="YYYY-MM-DD (BS)"/>
             </x-form-field>
             <x-form-field label="Program" name="program_id" :required="true">
                 <x-select name="program_id" :required="true">

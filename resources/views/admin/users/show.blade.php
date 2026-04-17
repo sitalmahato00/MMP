@@ -40,14 +40,14 @@
                 <x-info-row label="Email">{{ $user->email }}</x-info-row>
                 <x-info-row label="Phone">{{ $user->phone ?? '—' }}</x-info-row>
                 <x-info-row label="Gender">{{ ucfirst($user->gender) ?? '—' }}</x-info-row>
-                <x-info-row label="Date of Birth">{{ $user->dob ? \Carbon\Carbon::parse($user->dob)->format('d M Y') : '—' }}</x-info-row>
+                <x-info-row label="Date of Birth">{{ $user->dob ? bsDate($user->dob, 'd F Y') : '—' }}</x-info-row>
                 <x-info-row label="Address">{{ $user->address ?? '—' }}</x-info-row>
                 <x-info-row label="Status">
                     <x-badge :color="$user->is_active ? 'green' : 'red'" :dot="true">
                         {{ $user->is_active ? 'Active' : 'Inactive' }}
                     </x-badge>
                 </x-info-row>
-                <x-info-row label="Member Since">{{ $user->created_at->format('d M Y') }}</x-info-row>
+                <x-info-row label="Member Since">{{ bsDate($user->created_at, 'd F Y') }}</x-info-row>
             </dl>
         </x-card>
     </div>

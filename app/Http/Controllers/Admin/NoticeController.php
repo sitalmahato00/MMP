@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\NepaliDateHelper;
 use App\Models\Notice;
 use App\Models\NoticeAttachment;
 use App\Services\PublicDataService;
@@ -35,10 +36,14 @@ class NoticeController extends Controller
             'title'          => 'required|string|max:255',
             'content'        => 'required|string',
             'type'           => 'required|in:general,department,class,teachers,exam,news,event',
-            'published_at'   => 'nullable|date',
+            'published_at'   => 'nullable|string|max:20',
             'attachments'    => 'nullable|array|max:10',
             'attachments.*'  => 'file|max:20480',
         ]);
+
+        if (!empty($data['published_at'])) {
+            $data['published_at'] = NepaliDateHelper::toAD($data['published_at']);
+        }
 
         $data['created_by']   = auth()->id();
         $data['slug']         = Str::slug($data['title']) . '-' . uniqid();
@@ -77,10 +82,14 @@ class NoticeController extends Controller
             'title'          => 'required|string|max:255',
             'content'        => 'required|string',
             'type'           => 'required|in:general,department,class,teachers,exam,news,event',
-            'published_at'   => 'nullable|date',
+            'published_at'   => 'nullable|string|max:20',
             'attachments'    => 'nullable|array|max:10',
             'attachments.*'  => 'file|max:20480',
         ]);
+
+        if (!empty($data['published_at'])) {
+            $data['published_at'] = NepaliDateHelper::toAD($data['published_at']);
+        }
         unset($data['attachments']);
 
         $notice->update($data);

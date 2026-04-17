@@ -139,8 +139,8 @@
             @forelse($upcomingEvents as $event)
                 <div class="flex items-start gap-4">
                     <div class="flex flex-col items-center justify-center w-12 h-14 bg-yellow-50 rounded border border-yellow-100 flex-shrink-0 text-yellow-800">
-                        <span class="text-[10px] font-bold uppercase">{{ $event->created_at->format('M') }}</span>
-                        <span class="text-lg font-black leading-none">{{ $event->created_at->format('d') }}</span>
+                        <span class="text-[10px] font-bold uppercase">{{ bsDate($event->created_at, 'M') }}</span>
+                        <span class="text-lg font-black leading-none">{{ bsDate($event->created_at, 'd') }}</span>
                     </div>
                     <div>
                         <h4 class="font-bold text-sm text-gray-900">{{ $event->title }}</h4>
@@ -217,8 +217,8 @@
                     @forelse($recentNotices as $notice)
                         <a href="{{ route('admin.notices.edit', $notice) }}" class="flex gap-4 p-3 hover:bg-red-50 rounded transition-colors border border-transparent hover:border-red-100">
                             <div class="flex-shrink-0 flex flex-col items-center justify-center w-12 h-12 bg-white text-[#8B0000] rounded border border-gray-200 shadow-sm">
-                                <span class="text-[10px] font-bold leading-none uppercase">{{ $notice->created_at->format('M') }}</span>
-                                <span class="text-lg font-black leading-none mt-1">{{ $notice->created_at->format('d') }}</span>
+                                <span class="text-[10px] font-bold leading-none uppercase">{{ bsDate($notice->created_at, 'M') }}</span>
+                                <span class="text-lg font-black leading-none mt-1">{{ bsDate($notice->created_at, 'd') }}</span>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <h4 class="font-bold text-sm text-gray-900 truncate">{{ $notice->title }}</h4>

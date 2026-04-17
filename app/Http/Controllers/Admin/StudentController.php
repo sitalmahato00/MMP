@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\NepaliDateHelper;
 use App\Models\Student;
 use App\Models\Program;
 use App\Models\User;
@@ -42,12 +43,11 @@ class StudentController extends Controller
             'email'            => 'required|email|unique:users,email',
             'phone'            => 'nullable|string|max:20',
             'gender'           => 'nullable|in:male,female,other',
-            'dob'              => 'nullable|date',
+            'dob'              => 'nullable|string|max:10',
             'address'          => 'nullable|string',
             'avatar'           => 'nullable|image|max:2048',
             'password'         => 'required|string|min:8',
             'admission_number' => 'required|string|max:50|unique:students,admission_number',
-            'dob_bs'           => 'nullable|string|max:15',
             'program_id'       => 'required|exists:programs,id',
             'current_semester' => 'required|integer|min:1|max:10',
         ]);
@@ -61,7 +61,7 @@ class StudentController extends Controller
             'email'     => $data['email'],
             'phone'     => $data['phone'] ?? null,
             'gender'    => $data['gender'] ?? null,
-            'dob'       => $data['dob'] ?? null,
+            'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
             'address'   => $data['address'] ?? null,
             'avatar'    => $data['avatar'] ?? null,
             'password'  => Hash::make($data['password']),
@@ -72,7 +72,6 @@ class StudentController extends Controller
         $student = Student::create([
             'user_id'          => $user->id,
             'admission_number' => $data['admission_number'],
-            'dob_bs'           => $data['dob_bs'],
             'program_id'       => $data['program_id'],
             'current_semester' => $data['current_semester'],
         ]);
@@ -99,11 +98,10 @@ class StudentController extends Controller
             'email'            => ['required', 'email', Rule::unique('users')->ignore($student->user_id)],
             'phone'            => 'nullable|string|max:20',
             'gender'           => 'nullable|in:male,female,other',
-            'dob'              => 'nullable|date',
+            'dob'              => 'nullable|string|max:10',
             'address'          => 'nullable|string',
             'avatar'           => 'nullable|image|max:2048',
             'admission_number' => ['required', 'string', 'max:50', Rule::unique('students')->ignore($student->id)],
-            'dob_bs'           => 'nullable|string|max:15',
             'program_id'       => 'required|exists:programs,id',
             'current_semester' => 'required|integer|min:1|max:10',
         ]);
@@ -122,13 +120,12 @@ class StudentController extends Controller
             'email'   => $data['email'],
             'phone'   => $data['phone'] ?? null,
             'gender'  => $data['gender'] ?? null,
-            'dob'     => $data['dob'] ?? null,
+            'dob'     => NepaliDateHelper::toAD($data['dob'] ?? null),
             'address' => $data['address'] ?? null,
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));
 
         $student->update([
             'admission_number' => $data['admission_number'],
-            'dob_bs'           => $data['dob_bs'],
             'program_id'       => $data['program_id'],
             'current_semester' => $data['current_semester'],
         ]);

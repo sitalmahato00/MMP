@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\NepaliDateHelper;
 use App\Models\AcademicSession;
 use Illuminate\Http\Request;
 
@@ -23,10 +24,13 @@ class AcademicSessionController extends Controller
     {
         $data = $request->validate([
             'name'       => 'required|string|max:100|unique:academic_sessions',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after:start_date',
+            'start_date' => 'required|string|max:10',
+            'end_date'   => 'required|string|max:10',
             'is_current' => 'boolean',
         ]);
+
+        $data['start_date'] = NepaliDateHelper::toAD($data['start_date']);
+        $data['end_date']   = NepaliDateHelper::toAD($data['end_date']);
 
         if (!empty($data['is_current'])) {
             AcademicSession::where('is_current', true)->update(['is_current' => false]);
@@ -47,9 +51,12 @@ class AcademicSessionController extends Controller
     {
         $data = $request->validate([
             'name'       => "required|string|max:100|unique:academic_sessions,name,{$academicSession->id}",
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after:start_date',
+            'start_date' => 'required|string|max:10',
+            'end_date'   => 'required|string|max:10',
         ]);
+
+        $data['start_date'] = NepaliDateHelper::toAD($data['start_date']);
+        $data['end_date']   = NepaliDateHelper::toAD($data['end_date']);
 
         $academicSession->update($data);
 

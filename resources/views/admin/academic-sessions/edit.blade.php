@@ -12,11 +12,11 @@
             <x-form-field label="Session Name" name="name" :required="true" span="full">
                 <x-input name="name" :value="$session->name" :required="true"/>
             </x-form-field>
-            <x-form-field label="Start Date" name="start_date" :required="true">
-                <x-input name="start_date" type="date" :value="$session->start_date ? \Carbon\Carbon::parse($session->start_date)->format('Y-m-d') : ''" :required="true"/>
+            <x-form-field label="Start Date (BS)" name="start_date" :required="true">
+                <x-bs-date-picker name="start_date" :value="bsDate($session->start_date)" :required="true"/>
             </x-form-field>
-            <x-form-field label="End Date" name="end_date" :required="true">
-                <x-input name="end_date" type="date" :value="$session->end_date ? \Carbon\Carbon::parse($session->end_date)->format('Y-m-d') : ''" :required="true"/>
+            <x-form-field label="End Date (BS)" name="end_date" :required="true">
+                <x-bs-date-picker name="end_date" :value="bsDate($session->end_date)" :required="true"/>
             </x-form-field>
         </x-form-row>
     </x-form-section>

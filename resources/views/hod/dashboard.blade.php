@@ -53,7 +53,7 @@
             <div class="p-4 rounded-lg bg-gray-50 border border-gray-100 flex justify-between items-start">
                 <div>
                     <h4 class="font-semibold text-gray-900">{{ $notice->title }}</h4>
-                    <p class="text-xs text-gray-500 mt-1">{{ $notice->created_at->format('M d, Y h:i A') }} • By {{ $notice->author->name ?? 'System' }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ bsDate($notice->created_at, 'M d, Y') }} • By {{ $notice->author->name ?? 'System' }}</p>
                 </div>
                 <span class="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">Published</span>
             </div>

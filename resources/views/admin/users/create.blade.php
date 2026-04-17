@@ -26,8 +26,8 @@
                     <option value="other">Other</option>
                 </x-select>
             </x-form-field>
-            <x-form-field label="Date of Birth" name="dob">
-                <x-input name="dob" type="date"/>
+            <x-form-field label="Date of Birth (BS)" name="dob">
+                <x-bs-date-picker name="dob"/>
             </x-form-field>
             <x-form-field label="Address" name="address" span="full">
                 <x-textarea name="address" rows="2" placeholder="Full address"></x-textarea>

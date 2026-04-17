@@ -27,8 +27,8 @@
                     <option value="other" {{ $user->gender == 'other' ? 'selected' : '' }}>Other</option>
                 </x-select>
             </x-form-field>
-            <x-form-field label="Date of Birth" name="dob">
-                <x-input name="dob" type="date" :value="$user->dob ? \Carbon\Carbon::parse($user->dob)->format('Y-m-d') : ''"/>
+            <x-form-field label="Date of Birth (BS)" name="dob">
+                <x-bs-date-picker name="dob" :value="$user->dob ? bsDate($user->dob) : ''"/>
             </x-form-field>
             <x-form-field label="Address" name="address" span="full">
                 <x-textarea name="address" rows="2">{{ $user->address }}</x-textarea>

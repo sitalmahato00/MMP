@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\NepaliDateHelper;
 use App\Models\Exam;
 use App\Models\AcademicSession;
 use Illuminate\Http\Request;
@@ -27,11 +28,13 @@ class ExamController extends Controller
         $data = $request->validate([
             'name'                => 'required|string|max:255',
             'academic_session_id' => 'required|exists:academic_sessions,id',
-            'start_date'          => 'nullable|date',
-            'end_date'            => 'nullable|date|after_or_equal:start_date',
+            'start_date'          => 'nullable|string|max:10',
+            'end_date'            => 'nullable|string|max:10',
             'marks_open'          => 'boolean',
         ]);
 
+        $data['start_date']   = NepaliDateHelper::toAD($data['start_date'] ?? null);
+        $data['end_date']     = NepaliDateHelper::toAD($data['end_date'] ?? null);
         $data['is_published'] = false;
         $data['marks_open'] = $request->has('marks_open');
 
@@ -57,11 +60,13 @@ class ExamController extends Controller
         $data = $request->validate([
             'name'                => 'required|string|max:255',
             'academic_session_id' => 'required|exists:academic_sessions,id',
-            'start_date'          => 'nullable|date',
-            'end_date'            => 'nullable|date|after_or_equal:start_date',
+            'start_date'          => 'nullable|string|max:10',
+            'end_date'            => 'nullable|string|max:10',
             'marks_open'          => 'boolean',
         ]);
 
+        $data['start_date'] = NepaliDateHelper::toAD($data['start_date'] ?? null);
+        $data['end_date']   = NepaliDateHelper::toAD($data['end_date'] ?? null);
         $data['marks_open'] = $request->has('marks_open');
         $exam->update($data);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\NepaliDateHelper;
 use App\Models\Teacher;
 use App\Models\Department;
 use App\Models\User;
@@ -40,14 +41,14 @@ class TeacherController extends Controller
             'email'          => 'required|email|unique:users,email',
             'phone'          => 'nullable|string|max:20',
             'gender'         => 'nullable|in:male,female,other',
-            'dob'            => 'nullable|date',
+            'dob'            => 'nullable|string|max:10',
             'address'        => 'nullable|string',
             'avatar'         => 'nullable|image|max:2048',
             'password'       => 'required|string|min:8',
             'department_id'  => 'required|exists:departments,id',
             'qualification'  => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
-            'hire_date'      => 'nullable|date',
+            'join_date'      => 'nullable|string|max:10',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -59,7 +60,7 @@ class TeacherController extends Controller
             'email'     => $data['email'],
             'phone'     => $data['phone'] ?? null,
             'gender'    => $data['gender'] ?? null,
-            'dob'       => $data['dob'] ?? null,
+            'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
             'address'   => $data['address'] ?? null,
             'avatar'    => $data['avatar'] ?? null,
             'password'  => Hash::make($data['password']),
@@ -72,7 +73,7 @@ class TeacherController extends Controller
             'department_id'  => $data['department_id'],
             'qualification'  => $data['qualification'] ?? null,
             'specialization' => $data['specialization'] ?? null,
-            'hire_date'      => $data['hire_date'] ?? null,
+            'join_date'      => NepaliDateHelper::toAD($data['join_date'] ?? null),
         ]);
 
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher added successfully.');
@@ -97,13 +98,13 @@ class TeacherController extends Controller
             'email'          => ['required', 'email', Rule::unique('users')->ignore($teacher->user_id)],
             'phone'          => 'nullable|string|max:20',
             'gender'         => 'nullable|in:male,female,other',
-            'dob'            => 'nullable|date',
+            'dob'            => 'nullable|string|max:10',
             'address'        => 'nullable|string',
             'avatar'         => 'nullable|image|max:2048',
             'department_id'  => 'required|exists:departments,id',
             'qualification'  => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
-            'hire_date'      => 'nullable|date',
+            'join_date'      => 'nullable|string|max:10',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -120,7 +121,7 @@ class TeacherController extends Controller
             'email'   => $data['email'],
             'phone'   => $data['phone'] ?? null,
             'gender'  => $data['gender'] ?? null,
-            'dob'     => $data['dob'] ?? null,
+            'dob'     => NepaliDateHelper::toAD($data['dob'] ?? null),
             'address' => $data['address'] ?? null,
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));
 
@@ -128,7 +129,7 @@ class TeacherController extends Controller
             'department_id'  => $data['department_id'],
             'qualification'  => $data['qualification'] ?? null,
             'specialization' => $data['specialization'] ?? null,
-            'hire_date'      => $data['hire_date'] ?? null,
+            'join_date'      => NepaliDateHelper::toAD($data['join_date'] ?? null),
         ]);
 
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher updated successfully.');

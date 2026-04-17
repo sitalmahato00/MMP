@@ -77,8 +77,8 @@
                     @endforeach
                 </x-select>
             </x-form-field>
-            <x-form-field label="Publish Date" name="published_at">
-                <x-input name="published_at" type="datetime-local" :value="$notice->published_at ? \Carbon\Carbon::parse($notice->published_at)->format('Y-m-d\TH:i') : ''"/>
+            <x-form-field label="Publish Date (BS)" name="published_at">
+                <x-bs-date-picker name="published_at" :value="$notice->published_at ? bsDate($notice->published_at) : ''"/>
             </x-form-field>
         </x-form-row>
     </x-form-section>

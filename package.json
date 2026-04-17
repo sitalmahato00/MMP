@@ -16,5 +16,8 @@
         "postcss": "^8.5.9",
         "tailwindcss": "^4.2.2",
         "vite": "^7.0.7"
+    },
+    "dependencies": {
+        "nepali-date-converter": "^3.4.0"
     }
 }

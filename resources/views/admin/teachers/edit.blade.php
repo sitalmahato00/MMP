@@ -27,8 +27,8 @@
                     <option value="other" {{ $teacher->user->gender == 'other' ? 'selected' : '' }}>Other</option>
                 </x-select>
             </x-form-field>
-            <x-form-field label="Date of Birth" name="dob">
-                <x-input name="dob" type="date" :value="$teacher->user->dob ? \Carbon\Carbon::parse($teacher->user->dob)->format('Y-m-d') : ''"/>
+            <x-form-field label="Date of Birth (BS)" name="dob">
+                <x-bs-date-picker name="dob" :value="$teacher->user->dob ? bsDate($teacher->user->dob) : ''"/>
             </x-form-field>
             <x-form-field label="Address" name="address" span="full">
                 <x-textarea name="address" rows="2">{{ $teacher->user->address }}</x-textarea>
@@ -56,8 +56,8 @@
             <x-form-field label="Specialization" name="specialization">
                 <x-input name="specialization" :value="$teacher->specialization"/>
             </x-form-field>
-            <x-form-field label="Hire Date" name="hire_date">
-                <x-input name="hire_date" type="date" :value="$teacher->hire_date ? \Carbon\Carbon::parse($teacher->hire_date)->format('Y-m-d') : ''"/>
+            <x-form-field label="Join Date (BS)" name="join_date">
+                <x-bs-date-picker name="join_date" :value="$teacher->join_date ? bsDate($teacher->join_date) : ''"/>
             </x-form-field>
         </x-form-row>
     </x-form-section>
