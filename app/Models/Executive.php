@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Executive extends Model
 {
@@ -24,5 +25,10 @@ class Executive extends Model
     public function scopePrincipals($query)
     {
         return $query->where('type', 'principal')->orderBy('order');
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar ? Storage::disk('public')->url($this->avatar) : null;
     }
 }

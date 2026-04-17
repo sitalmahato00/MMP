@@ -22,8 +22,10 @@ class DashboardController extends Controller
             ];
         });
 
-        $department = Department::find($deptId);
-        $recentNotices = Notice::published()->forDepartment($deptId)->latest()->take(5)->get();
+        $department = Cache::remember("hod_dashboard_department:{$deptId}", 300, fn () => Department::find($deptId));
+        $recentNotices = Cache::remember("hod_dashboard_notices:{$deptId}", 300, function () use ($deptId) {
+            return Notice::published()->forDepartment($deptId)->latest()->take(5)->get();
+        });
 
         return view('hod.dashboard', compact('stats', 'department', 'session', 'recentNotices'));
     }

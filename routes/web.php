@@ -35,7 +35,7 @@ Route::get('/departments/{slug}', [HomeController::class, 'departmentShow'])->na
 Route::get('/downloads', [HomeController::class, 'downloads'])->name('public.downloads');
 Route::get('/question-bank', [HomeController::class, 'questionBank'])->name('public.question-bank');
 Route::get('/gallery', [HomeController::class, 'gallery'])->name('public.gallery');
-Route::get('/result', [HomeController::class, 'result'])->name('public.result');
+Route::get('/result', [HomeController::class, 'result'])->middleware('throttle:result-check')->name('public.result');
 Route::get('/people', [HomeController::class, 'people'])->name('public.people');
 Route::get('/people/{type}/{id}', [HomeController::class, 'peopleProfile'])
     ->where('type', 'hod|teacher|staff')
@@ -51,12 +51,12 @@ Route::get('/page/{slug}', [HomeController::class, 'page'])->name('public.page')
 
 // ─── Apply Now (Public Application Form) ───────────────────
 Route::get('/apply', [HomeController::class, 'apply'])->name('public.apply');
-Route::post('/apply', [HomeController::class, 'applyStore'])->name('public.apply.store');
+Route::post('/apply', [HomeController::class, 'applyStore'])->middleware('throttle:apply')->name('public.apply.store');
 
 // ─── Auth Routes ──────────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 });
 
 Route::middleware('auth')->group(function () {

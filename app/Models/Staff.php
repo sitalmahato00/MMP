@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Staff extends Model
 {
@@ -23,7 +24,7 @@ class Staff extends Model
     public function getPhotoUrlAttribute()
     {
         if ($this->photo) {
-            return asset('storage/' . $this->photo);
+            return Storage::disk('public')->url($this->photo);
         }
         if ($this->user_id && $this->user->avatar) {
             return $this->user->avatar_url;

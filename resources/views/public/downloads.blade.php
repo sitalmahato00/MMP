@@ -41,11 +41,11 @@
                             @endif
                         </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
-                                <a href="{{ asset('storage/' . $download->file_path) }}" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded transition-colors border border-[#8B0000] text-[#8B0000] hover:bg-red-50">
+                                <a href="{{ $download->file_url }}" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded transition-colors border border-[#8B0000] text-[#8B0000] hover:bg-red-50">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     View
                                 </a>
-                                <a href="{{ asset('storage/' . $download->file_path) }}" download class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white rounded transition-colors" style="background-color: #8B0000; hover:opacity-80">
+                                <a href="{{ $download->file_url }}" download class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white rounded transition-colors" style="background-color: #8B0000; hover:opacity-80">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     Download
                                 </a>

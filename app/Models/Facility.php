@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Facility extends Model
 {
@@ -27,5 +28,32 @@ class Facility extends Model
     public function program()
     {
         return $this->belongsTo(Program::class);
+    }
+
+    public function getImageUrlsAttribute(): array
+    {
+        return collect($this->images ?? [])
+            ->filter()
+            ->map(fn ($path) => Storage::disk('public')->url($path))
+            ->values()
+            ->all();
+    }
+
+    public function getDocumentUrlsAttribute(): array
+    {
+        return collect($this->documents ?? [])
+            ->filter()
+            ->map(fn ($path) => Storage::disk('public')->url($path))
+            ->values()
+            ->all();
+    }
+
+    public function getVideoUrlsAttribute(): array
+    {
+        return collect($this->videos ?? [])
+            ->filter()
+            ->map(fn ($path) => Storage::disk('public')->url($path))
+            ->values()
+            ->all();
     }
 }

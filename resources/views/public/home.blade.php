@@ -62,7 +62,7 @@
         @foreach($bannerSlides as $i => $banner)
             <div class="absolute inset-0 transition-opacity duration-700"
                  :class="current === {{ $i }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-                <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
+                <img src="{{ $banner->image_url ?? asset('assets/image.png') }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
                 <div class="absolute inset-0 flex flex-col justify-center">
                     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
@@ -228,8 +228,8 @@
                     @foreach(array_filter([$currentPresident, $currentPrincipal]) as $exec)
                     <div class="flex gap-4 items-center">
                         <div class="w-14 h-16 bg-gray-200 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
-                            @if($exec->avatar)
-                                <img src="{{ asset('storage/'.$exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
+                            @if($exec->avatar_url)
+                                <img src="{{ $exec->avatar_url }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#8B0000;">{{ strtoupper(substr($exec->name,0,1)) }}</div>
                             @endif

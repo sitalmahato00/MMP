@@ -322,18 +322,18 @@
             @foreach($media as $item)
             <div class="group bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all duration-200">
                 @if(str_starts_with($item->mime_type ?? '', 'image'))
-                    <a href="{{ asset('storage/'.$item->file_path) }}" target="_blank">
-                        <img src="{{ asset('storage/'.$item->file_path) }}" alt="{{ $item->file_name }}" class="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300">
+                    <a href="{{ $item->url }}" target="_blank">
+                        <img src="{{ $item->url }}" alt="{{ $item->file_name }}" class="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300">
                     </a>
                 @elseif(str_starts_with($item->mime_type ?? '', 'video'))
-                    <a href="{{ asset('storage/'.$item->file_path) }}" target="_blank" class="block relative">
-                        <video src="{{ asset('storage/'.$item->file_path) }}" class="w-full h-28 object-cover bg-black" muted preload="none"></video>
+                    <a href="{{ $item->url }}" target="_blank" class="block relative">
+                        <video src="{{ $item->url }}" class="w-full h-28 object-cover bg-black" muted preload="none"></video>
                         <span class="absolute inset-0 flex items-center justify-center bg-black/30">
                             <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </span>
                     </a>
                 @else
-                    <a href="{{ asset('storage/'.$item->file_path) }}" target="_blank" class="flex items-center justify-center w-full h-28 bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <a href="{{ $item->url }}" target="_blank" class="flex items-center justify-center w-full h-28 bg-gray-50 hover:bg-gray-100 transition-colors">
                         @php $fext = strtolower(pathinfo($item->file_name ?? $item->file_path, PATHINFO_EXTENSION)); @endphp
                         @if($fext === 'pdf')
                             <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
@@ -347,7 +347,7 @@
                     <div class="flex items-center justify-between mt-1.5 gap-1">
                         <span class="text-[9px] font-semibold px-1.5 py-0.5 rounded-full {{ $item->file_type === 'gallery' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500' }}">{{ $item->file_type }}</span>
                         <div class="flex items-center gap-1.5">
-                            <a href="{{ asset('storage/'.$item->file_path) }}" target="_blank" title="View" class="text-blue-400 hover:text-blue-600">
+                            <a href="{{ $item->url }}" target="_blank" title="View" class="text-blue-400 hover:text-blue-600">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
                             <form method="POST" action="{{ route('admin.media.destroy', $item) }}" onsubmit="return confirm('Delete this file permanently?')">
@@ -417,7 +417,7 @@
                         <td class="px-5 py-3">
                             <div class="flex items-center justify-end gap-3">
                                 @if($dl->file_path)
-                                <a href="{{ asset('storage/'.$dl->file_path) }}" target="_blank" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                <a href="{{ $dl->file_url }}" target="_blank" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     View
                                 </a>

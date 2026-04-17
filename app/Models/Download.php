@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Download extends Model
 {
@@ -13,6 +14,17 @@ class Download extends Model
 
     public function storageDisk(): string
     {
-        return $this->is_public ? 'public' : 'local';
+        return $this->is_public ? 'public' : 'private';
+    }
+
+    public function getFileUrlAttribute(): string
+    {
+        if (! $this->file_path) {
+            return '';
+        }
+
+        return $this->is_public
+            ? Storage::disk('public')->url($this->file_path)
+            : route('admin.downloads.file', $this);
     }
 }

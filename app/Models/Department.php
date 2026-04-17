@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Department extends Model
 {
@@ -66,11 +67,11 @@ class Department extends Model
 
     public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo ? asset('storage/' . $this->photo) : null;
+        return $this->photo ? Storage::disk('public')->url($this->photo) : null;
     }
 
     public function getSyllabusUrlAttribute(): ?string
     {
-        return $this->syllabus ? asset('storage/' . $this->syllabus) : null;
+        return $this->syllabus ? Storage::disk('public')->url($this->syllabus) : null;
     }
 }

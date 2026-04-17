@@ -21,11 +21,11 @@
                         <div class="bg-white rounded shadow-sm border border-gray-200 overflow-hidden group">
                             {{-- Image Carousel or Thumbnail --}}
                             <div class="w-full h-48 bg-gray-200 relative overflow-hidden">
-                                @if(is_array($facility->images) && count($facility->images) > 0)
-                                    <img src="{{ asset('storage/' . $facility->images[0]) }}" alt="{{ $facility->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                                    @if(count($facility->images) > 1)
+                                @if(count($facility->image_urls) > 0)
+                                    <img src="{{ $facility->image_urls[0] }}" alt="{{ $facility->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    @if(count($facility->image_urls) > 1)
                                         <div class="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded shadow">
-                                            +{{ count($facility->images) - 1 }} Photos
+                                            +{{ count($facility->image_urls) - 1 }} Photos
                                         </div>
                                     @endif
                                 @else
@@ -60,15 +60,15 @@
                                     {{ $facility->description ?? strip_tags($facility->content) }}
                                 </p>
                                 
-                                @if(is_array($facility->documents) && count($facility->documents) > 0)
+                                @if(count($facility->document_urls) > 0)
                                 <div class="border-t border-gray-100 pt-3">
                                     <h4 class="text-xs font-bold text-gray-900 mb-2">Resources</h4>
                                     <ul class="space-y-2">
-                                        @foreach($facility->documents as $doc)
+                                        @foreach($facility->document_urls as $index => $docUrl)
                                         <li>
-                                            <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="flex items-center gap-2 text-xs text-blue-600 hover:text-blue-800 transition-colors">
+                                            <a href="{{ $docUrl }}" target="_blank" class="flex items-center gap-2 text-xs text-blue-600 hover:text-blue-800 transition-colors">
                                                 <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                                Document {{ $loop->iteration }}
+                                                Document {{ $index + 1 }}
                                             </a>
                                         </li>
                                         @endforeach

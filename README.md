@@ -1,176 +1,207 @@
-# MMP College Management System 
+# MMP College Management System
 
 [![Laravel](https://img.shields.io/badge/Laravel-12-brightgreen.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue.svg)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-> **Modern, role-based college management system with public portal, CMS, and CTEVT integrations.**
+MMP College Management System is a role-based Laravel application for the college website, administration, academics, and public content delivery. The current codebase is prepared for production deployment with MySQL, Redis, CDN-aware public files, private file streaming, route throttling, and short-lived dashboard caching.
 
-## 🌟 Quick Start (Local Development)
+## Overview
+
+The system is split into a public portal and several authenticated portals:
+
+- Public portal for homepage content, departments, facilities, leadership, gallery, downloads, question bank, apply form, and result checking.
+- Admin CMS for banners, media, pages, departments, executives, facilities, downloads, and site settings.
+- Academic portals for students, teachers, HODs, parents, and alumni.
+- Automated student-to-alumni promotion when academic sessions are closed.
+- Object-storage friendly media handling with CDN-backed public URLs and protected private downloads.
+
+## Feature Highlights
+
+- Public content is assembled through `PublicDataService` and cached for short periods to reduce repeated database work.
+- Dashboards for students, teachers, HODs, parents, and alumni cache notices, assignments, timetable slots, and department lookups.
+- Named rate limiters protect login, application, result checking, and public API traffic.
+- Media, banner, staff, executive, department, and facility URLs are generated through model accessors instead of hardcoded `asset('storage/...')` links.
+- Public downloads use the `public` disk and CDN URL, while private downloads are streamed through the admin controller.
+- Department forms use the real schema fields: `photo` and `syllabus`.
+
+## Technology Stack
+
+| Area | Stack |
+| --- | --- |
+| Backend | Laravel 12, PHP 8.2+ |
+| Authentication | Laravel Sanctum, spatie/laravel-permission |
+| Frontend | Blade, Alpine.js, Tailwind CSS 4, Vite |
+| Storage | Local storage for development, S3-compatible object storage for production |
+| Cache / Session / Queue | Redis in production |
+| Database | MySQL in production |
+| Testing | PHPUnit |
+| Tooling | Laravel Pint, Laravel Pail, Composer scripts, Vite build pipeline |
+
+## Repository Layout
+
+```text
+app/
+config/
+database/
+docs/
+public/
+resources/
+routes/
+storage/
+tests/
+```
+
+Key files for deployment and runtime behavior:
+
+- [.env.example](.env.example)
+- [config/filesystems.php](config/filesystems.php)
+- [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php)
+- [routes/web.php](routes/web.php)
+- [routes/api.php](routes/api.php)
+- [app/Http/Controllers/Admin/DownloadController.php](app/Http/Controllers/Admin/DownloadController.php)
+- [app/Models/Download.php](app/Models/Download.php)
+- [docs/ctevt-result-notices-integration.md](docs/ctevt-result-notices-integration.md)
+
+## Local Development
+
+For a fresh local bootstrap, the Composer setup script installs PHP and Node dependencies, copies the environment file, generates an application key, runs migrations, and builds the frontend bundle:
 
 ```bash
-# Clone & Install
-git clone <repo> d:/MMP
-cd d:/MMP
+composer run setup
+```
 
-# Backend
+If you want the steps manually:
+
+```bash
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate --seed  # Includes DemoDataSeeder, RolesAndPermissionsSeeder
-
-# Frontend
+php artisan migrate --seed
 npm install
-npm run dev  # or npm run build for prod
-
-# Run Server
+npm run dev
 php artisan serve
-# Visit http://127.0.0.1:8000 (public home) or /login
 ```
 
-**Demo Login**: Use seeded data (run `php artisan db:seed --class=DemoDataSeeder`):
-- Admin/Principal: `principal@mmp.edu.np` / `password`
-- Teacher: `teacher1@mmp.edu.np` / `password`
-- Student: `student1@mmp.edu.np` / `password`
+Notes for local development:
 
-## 📁 Project Structure
+- `composer run setup` is the fastest way to bootstrap the project from scratch.
+- `npm run dev` starts the Vite development server.
+- If you use local public storage during development, run `php artisan storage:link` so public files are reachable.
+- Seeders are available in `database/seeders` for demo or test data.
 
-```
-d:/MMP/
-├── app/
-│   ├── Http/Controllers/     # Admin/Public/HOD/Student/etc.
-│   ├── Models/               # 24+ (User, Student, Teacher, Attendance, etc.)
-│   ├── Services/             # PublicDataService, AttendanceService, etc.
-│   └── Policies/             # StaffPolicy, FacilityPolicy, etc.
-├── database/
-│   ├── migrations/           # Up to create_cms_tables.php
-│   └── seeders/              # DemoDataSeeder, ExecutiveSeeder, etc.
-├── resources/
-│   ├── views/public/         # home.blade.php, facilities.blade.php, result.blade.php
-│   └── views/admin/          # web-control/index.blade.php, etc.
-├── routes/                   # web.php, admin.php, hod.php, etc.
-├── public/                   # Assets
-├── tests/                    # Feature/PublicManagedPagesTest.php, etc.
-├── docs/                     # ctevt-result-notices-integration.md
-├── TODO.md                   # Current tasks
-├── composer.json             # Laravel 12 + spatie/laravel-permission
-└── README.md                 # This file
-```
+## Environment Configuration
 
-## 🚀 Features
+The repository ships with production-oriented defaults in [.env.example](.env.example). Update the following values before deploying:
 
-### Core Academic Management
-- **Roles & Portals**: Admin/Principal (global), HOD (dept timetables), Teacher (attendance/assignments/marks), Student (schedule/results), Parent (monitoring), Alumni (directory).
-- **Academic Entities**: Departments → Programs → Subjects → Timetables → Attendance/Assignments/Exams/Marks.
-- **Middleware**: Role checks, audit logs, dept isolation, active sessions.
+| Category | Important variables | Purpose |
+| --- | --- | --- |
+| Application | `APP_ENV`, `APP_DEBUG`, `APP_URL` | Production should use `production`, `false`, and the real public domain |
+| Database | `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | MySQL credentials and database name |
+| Cache / Session / Queue | `CACHE_STORE`, `SESSION_DRIVER`, `SESSION_CONNECTION`, `SESSION_STORE`, `QUEUE_CONNECTION`, `REDIS_*` | Redis-backed runtime services |
+| Storage | `FILESYSTEM_DISK`, `PUBLIC_FILESYSTEM_DRIVER`, `PUBLIC_FILESYSTEM_URL`, `PRIVATE_FILESYSTEM_DRIVER`, `AWS_*` | Object storage and CDN integration |
+| Mail | `MAIL_*` | Outbound mail delivery |
+| External feeds | `CTEVT_*` | Public notice and result integrations |
 
-### Public Portal (SEO-Optimized)
-- Homepage with banners, stats, notices (via PublicDataService).
-- Pages: Departments/{slug}, Facilities, Staff/Leadership, Gallery, Downloads, Alumni, News/Events, Result Checker, CTEVT notices/results.
-- Routes: `routes/web.php` via `HomeController`.
+Important storage behavior:
 
-### CMS & Admin Tools
-- Banners, Media, Site Settings, Pages, Executives, Facilities (Admin controllers).
-- WebControl dashboard for content management.
+- Public images and documents should resolve through CDN-aware URLs from the `public` disk.
+- Private files should stay on the `private` disk and be served through controller responses.
+- Do not add new `asset('storage/...')` references in views or models.
 
-### Integrations
-- **CTEVt Result Notices**: See [docs/ctevt-result-notices-integration.md](docs/ctevt-result-notices-integration.md). Fetches notices/results via PublicDataService.
+## Production Deployment
 
-## 🛠 Technology Stack
-
-| Backend | Laravel 12, PHP 8.2+, Eloquent, Sanctum, spatie/laravel-permission |
-| Frontend | Vite, TailwindCSS, Alpine.js, Blade Components |
-| Database | MySQL/SQLite (24+ migrations) |
-| Testing | PHPUnit (public pages, home settings tests) |
-| Other | Audit logs, caching, file uploads |
-
-## 📖 Detailed Architecture (Original Spec)
-
-### Database Schema (Key Models)
-| Model | Key Fields | Relations |
-|-------|------------|-----------|
-| User | id, name, email, is_active | Base for all roles |
-| AcademicSession | name (2080/81), is_current | Sessions |
-| Department | code (CSIT), hod_id | Programs, Teachers |
-| Student | admission_number, program_id, current_semester | Attendance, Marks, Parent |
-| Teacher | department_id, qualification | Timetables, Attendance |
-| Attendance | status (P/A/L/E), remarks | Session, Student |
-| Marks | exam_id, student_id, status | Student, Exam |
-| Notice | title, type (general/exam), target (students/parents) | Attachments |
-
-*(Full schema/workflows/roles from original README preserved here - see historical version for exhaustive details on timetables, attendance loops, exam checking, security, UI glassmorphism, etc.)*
-
-## 🧪 Testing
-
-```bash
-# Run tests
-php artisan test
-# Specific: public pages
-php artisan test --filter=PublicManagedPagesTest
-# Coverage
-php artisan test --coverage
-```
-
-Key tests: `PublicManagedPagesTest`, `HomeLandingWebSettingsTest`.
-
-## 🔧 Local Development
-
-- **Hot Reload**: `npm run dev` + `php artisan serve`.
-- **Demo Data**: `php artisan db:seed --class=DemoDataSeeder`.
-- **Queues/Jobs**: `php artisan queue:work` (if needed).
-- **Logs**: `tail -f storage/logs/laravel.log`.
-- **Vite Assets**: Ensure `VITE_APP_URL=http://127.0.0.1:8000` in .env.
-
-## 🚀 Production Deployment
+Use the following checklist when deploying to a production host:
 
 ```bash
 composer install --optimize-autoloader --no-dev
-npm ci && npm run build
+npm ci
+npm run build
+php artisan migrate --force
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-php artisan migrate --force
 php artisan queue:restart
 ```
 
-**Env Vars**: `APP_ENV=production`, `DB_*`, `FILESYSTEM_DISK=s3` (optional).
+Deployment checklist:
 
-## 📸 Screenshots
-Landing page
-![alt text](image.png)
+1. Provision MySQL, Redis, and an S3-compatible object storage bucket.
+2. Point `APP_URL` to the public site domain.
+3. Set `PUBLIC_FILESYSTEM_URL` to the CDN origin or public bucket URL you want browsers to use.
+4. Fill in the `AWS_*` credentials for the public and private storage disks.
+5. Ensure the queue worker runs continuously under Supervisor, systemd, Forge, or your platform equivalent.
+6. Add a cron entry for the Laravel scheduler if you use scheduled tasks.
+7. Run a backup, then test a restore on staging before going live.
+8. Confirm error monitoring or centralized logging is active before the first production release.
 
-Admin dashboard
-![alt text](image-1.png)
+Recommended runtime services:
 
-![Home](public/screenshots/home.png)
-![Admin Dashboard](public/screenshots/admin.png)
-![Public Facilities](resources/views/public/facilities.blade.php screenshot)
+- `php artisan queue:work` as a long-lived worker process.
+- `php artisan schedule:run` once per minute from cron, if scheduled tasks are enabled.
+- `php artisan optimize:clear` before a fresh deploy when you need to invalidate caches manually.
 
-## 🤝 Contributing
+## Storage and CDN
 
-1. Fork & PR to `main`.
-2. Follow PSR-12/Laravel Pint: `vendor/bin/pint`.
-3. Add tests for new features.
-4. Update README/TODO.md.
-5. Prefix branches: `feature/readme-update`.
+The storage layer is intentionally split so public and private content behave differently:
 
-**Coding Standards**: Thin controllers, services for logic, FormRequests for validation.
+- `public` disk: banners, staff images, department photos, facility images, public media, and public downloads.
+- `private` disk: restricted download files that should not be directly exposed from storage.
+- CDN URLs are generated by model accessors such as `image_url`, `avatar_url`, `file_url`, `url`, `photo_url`, `syllabus_url`, `image_urls`, `document_urls`, and `video_urls`.
 
-## 🔒 Security & Auditing
-- RBAC via Spatie.
-- AuditActivity middleware on all web routes.
-- Policies for Staff/Facility/Executive.
-- Rate limiting on login/result.
+Relevant runtime files:
 
-## ❗ Troubleshooting
-- **Seeds Fail**: `php artisan migrate:fresh --seed`.
-- **Assets Missing**: `npm run build`.
-- **Permissions**: `chmod -R 775 storage/ bootstrap/cache/`.
-- **CTEVt Issues**: Check [docs/ctevt-result-notices-integration.md](docs/ctevt-result-notices-integration.md).
+- [config/filesystems.php](config/filesystems.php)
+- [app/Models/Download.php](app/Models/Download.php)
+- [app/Models/Media.php](app/Models/Media.php)
+- [app/Models/Department.php](app/Models/Department.php)
+- [app/Models/Facility.php](app/Models/Facility.php)
 
-## 📄 License
-MIT - See [LICENSE](LICENSE).
+## Rate Limiting, Cache, and Sessions
 
-**Built with ❤️ for MMP College. Questions? Open an issue.**
+The current production hardening adds named rate limiters and Redis-backed defaults:
 
+- `login`: 5 attempts per minute per email and IP.
+- `apply`: 10 attempts per hour per email and IP.
+- `result-check`: 30 requests per minute per IP.
+- `public-api`: 120 requests per minute per IP.
+
+Short-lived caching is used for dashboard content and public homepage data so repeated requests do less work. This keeps the public site responsive without turning the application into a cache-only system.
+
+## Data Flow Notes
+
+- Student records remain the source of truth for alumni promotion.
+- Academic session changes can automatically transition students to alumni when they complete the final stage.
+- Department media uses `photo` and `syllabus` fields, not a legacy cover image schema.
+- Public downloads and media should always use the storage accessors defined on the models.
+
+## Testing and Verification
+
+```bash
+php artisan test
+npm run build
+```
+
+Suggested smoke tests after deployment:
+
+- Load the homepage and verify banners, leadership cards, and department content.
+- Open a public download and confirm public files use the CDN URL.
+- Open a private download and confirm the controller streams the file correctly.
+- Submit the apply form and confirm rate limiting behaves as expected.
+- Check login and result pages for correct throttling and redirect behavior.
+- Confirm dashboard pages load cached notices and assignments without errors.
+
+## Troubleshooting
+
+- Broken public images usually mean `PUBLIC_FILESYSTEM_URL` or the `public` disk configuration is wrong.
+- Missing private downloads usually mean the file is not present on the `private` disk or the stored path is stale.
+- Queue jobs not processing usually means the Redis worker is not running.
+- Stale content after a deploy usually means config, route, or view caches need to be cleared and rebuilt.
+- If you are still seeing local storage URLs, search for `asset('storage/...')` and replace them with model accessors.
+
+## Contributing
+
+1. Keep controllers thin and put repeated logic in services or model accessors.
+2. Run `vendor/bin/pint` before opening a pull request.
+3. Add tests for new public pages, uploads, or deployment-sensitive logic.
+4. Update this README whenever deployment defaults or environment variables change.

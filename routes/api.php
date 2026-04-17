@@ -8,7 +8,7 @@ use App\Http\Controllers\Public\PublicApiController;
 Route::prefix('v1')->group(function () {
 
     // Public API — Strict Gateway for external pages
-    Route::prefix('public')->group(function () {
+    Route::prefix('public')->middleware('throttle:public-api')->group(function () {
         Route::get('/homepage', [PublicApiController::class, 'homepage']);
         Route::get('/notices', [PublicApiController::class, 'notices']);
         Route::get('/departments', [PublicApiController::class, 'departments']);

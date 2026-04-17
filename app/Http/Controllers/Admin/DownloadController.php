@@ -41,7 +41,7 @@ class DownloadController extends Controller
 
         $file = $request->file('file');
         $isPublic = $request->boolean('is_public');
-        $disk = $isPublic ? 'public' : 'local';
+        $disk = $isPublic ? 'public' : 'private';
         
         Download::create([
             'title'       => $data['title'],
@@ -81,7 +81,7 @@ class DownloadController extends Controller
         ]);
 
         $isPublic = $request->boolean('is_public');
-        $targetDisk = $isPublic ? 'public' : 'local';
+        $targetDisk = $isPublic ? 'public' : 'private';
 
         if ($request->hasFile('file')) {
             if ($download->file_path && Storage::disk($download->storageDisk())->exists($download->file_path)) {
@@ -115,11 +115,9 @@ class DownloadController extends Controller
 
         $disk = $download->storageDisk();
         abort_unless(Storage::disk($disk)->exists($download->file_path), 404);
+        $filename = $download->file_name ?: basename($download->file_path);
 
-        $path = Storage::disk($disk)->path($download->file_path);
-        $filename = $download->file_name ?: basename($path);
-
-        return response()->file($path, [
+        return Storage::disk($disk)->response($download->file_path, $filename, [
             'Content-Disposition' => sprintf('inline; filename="%s"', $filename),
         ]);
     }

@@ -27,7 +27,7 @@
     @forelse($media as $item)
     <div class="group relative bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all duration-200">
         @if(Str::startsWith($item->mime_type ?? '', 'image'))
-            <img src="{{ asset('storage/'.$item->file_path) }}"
+            <img src="{{ $item->url }}"
                  alt="{{ $item->file_name }}"
                  class="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300">
         @else
