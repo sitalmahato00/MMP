@@ -34,16 +34,42 @@
                         @endif
                     </div>
                 </div>
-                <div class="flex gap-2 flex-shrink-0 self-start">
+                <div class="flex gap-2 flex-shrink-0 self-start" x-data="{ confirmDelete: false }">
                     <a href="{{ route('admin.teachers.edit', $teacher) }}"
                        class="inline-flex items-center gap-2 rounded-xl bg-white/20 hover:bg-white/30 px-4 py-2 text-sm font-bold text-white transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         Edit
                     </a>
+                    <button type="button" @click="confirmDelete = true"
+                            class="inline-flex items-center gap-2 rounded-xl bg-red-500/30 hover:bg-red-500/50 px-4 py-2 text-sm font-bold text-white transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Delete
+                    </button>
                     <a href="{{ route('admin.teachers.index') }}"
                        class="inline-flex items-center gap-2 rounded-xl bg-white/20 hover:bg-white/30 px-4 py-2 text-sm font-bold text-white transition">
                         ← Back
                     </a>
+                    {{-- Delete confirm modal --}}
+                    <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-50 flex items-center justify-center px-4"
+                         @keydown.escape.window="confirmDelete = false">
+                        <div class="absolute inset-0 bg-black/50" @click="confirmDelete = false"
+                             x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
+                        <div class="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+                             x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </div>
+                            <h3 class="text-base font-black text-slate-900">Delete Teacher?</h3>
+                            <p class="mt-1 text-sm text-slate-500">This will permanently remove <strong>{{ $teacher->user?->name }}</strong> and their account. This action cannot be undone.</p>
+                            <div class="mt-5 flex gap-3">
+                                <button type="button" @click="confirmDelete = false" class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">Cancel</button>
+                                <form method="POST" action="{{ route('admin.teachers.destroy', $teacher) }}" class="flex-1">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition">Yes, Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -221,7 +247,9 @@
             </div>
             <div class="rounded-xl border border-slate-200 p-5">
                 <h3 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Monthly Sessions (Last 6 Months)</h3>
-                <canvas id="attendanceChart" height="100"></canvas>
+                <div style="position:relative;height:160px">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -236,7 +264,9 @@
             @if($stats['performanceBySubject']->isNotEmpty())
             <div class="rounded-xl border border-slate-200 p-5">
                 <h3 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">Pass Rate by Subject</h3>
-                <canvas id="performanceChart" height="80"></canvas>
+                <div style="position:relative;height:160px">
+                    <canvas id="performanceChart"></canvas>
+                </div>
             </div>
             <div class="space-y-2.5">
                 @foreach($stats['performanceBySubject'] as $subjectName => $rate)
@@ -313,12 +343,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     label: 'Sessions',
                     data: {!! $attendanceValues !!},
                     backgroundColor: '#8B0000cc',
-                    borderRadius: 8,
+                    borderRadius: 6,
                     borderSkipped: false,
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
             }
@@ -335,12 +366,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     label: 'Pass Rate %',
                     data: {!! $perfValues !!},
                     backgroundColor: '#6366f1cc',
-                    borderRadius: 8,
+                    borderRadius: 6,
                     borderSkipped: false,
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 indexAxis: 'y',
                 plugins: { legend: { display: false } },
                 scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }

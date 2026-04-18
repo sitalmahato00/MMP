@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <div class="mt-5 flex gap-2">
+        <div class="mt-5 flex gap-2" x-data="{ confirmDelete: false }">
             <a href="{{ route('admin.teachers.show', $teacher) }}"
                class="flex-1 rounded-xl bg-white/20 hover:bg-white/30 px-3 py-2 text-center text-xs font-bold text-white transition">
                 Full Profile →
@@ -42,6 +42,31 @@
                class="flex-1 rounded-xl bg-white/20 hover:bg-white/30 px-3 py-2 text-center text-xs font-bold text-white transition">
                 Edit
             </a>
+            <button type="button" @click="confirmDelete = true"
+                    class="rounded-xl bg-red-500/30 hover:bg-red-500/50 px-3 py-2 text-xs font-bold text-white transition">
+                Delete
+            </button>
+            {{-- Delete confirm --}}
+            <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center px-4"
+                 @keydown.escape.window="confirmDelete = false">
+                <div class="absolute inset-0 bg-black/50" @click="confirmDelete = false"
+                     x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
+                <div class="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+                     x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </div>
+                    <h3 class="text-base font-black text-slate-900">Delete Teacher?</h3>
+                    <p class="mt-1 text-sm text-slate-500">Remove <strong>{{ $teacher->user?->name }}</strong> permanently?</p>
+                    <div class="mt-5 flex gap-3">
+                        <button type="button" @click="confirmDelete = false" class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">Cancel</button>
+                        <form method="POST" action="{{ route('admin.teachers.destroy', $teacher) }}" class="flex-1">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition">Yes, Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -194,9 +219,17 @@
         </div>
         <div class="rounded-xl border border-slate-100 p-4">
             <p class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Sessions Conducted (Last 6 Months)</p>
-            <canvas id="drawerAttendanceChart" height="140"
-                    data-labels="{{ json_encode(array_keys($stats['monthlyAttendance'])) }}"
-                    data-values="{{ json_encode(array_values($stats['monthlyAttendance'])) }}"></canvas>
+            @php $maxAtt = max(array_values($stats['monthlyAttendance']) ?: [1]); @endphp
+            <div class="flex items-end gap-1.5 h-20">
+                @foreach($stats['monthlyAttendance'] as $label => $count)
+                @php $pct = $maxAtt > 0 ? round(($count / $maxAtt) * 100) : 0; @endphp
+                <div class="flex flex-1 flex-col items-center gap-1">
+                    <span class="text-[10px] font-bold text-slate-600">{{ $count }}</span>
+                    <div class="w-full rounded-t-md bg-[#8B0000]/80 transition-all" style="height:{{ max($pct, 4) }}%"></div>
+                    <span class="text-[9px] text-slate-400 truncate w-full text-center">{{ explode(' ', $label)[0] }}</span>
+                </div>
+                @endforeach
+            </div>
         </div>
     </div>
 
@@ -207,12 +240,6 @@
             <p class="text-xs text-slate-500">Avg Pass Rate</p>
         </div>
         @if($stats['performanceBySubject']->isNotEmpty())
-        <div class="rounded-xl border border-slate-100 p-4">
-            <p class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Pass Rate by Subject</p>
-            <canvas id="drawerPerformanceChart" height="160"
-                    data-labels="{{ json_encode($stats['performanceBySubject']->keys()->all()) }}"
-                    data-values="{{ json_encode($stats['performanceBySubject']->values()->all()) }}"></canvas>
-        </div>
         <div class="space-y-2">
             @foreach($stats['performanceBySubject'] as $subjectName => $rate)
             <div class="flex items-center gap-3">
@@ -232,41 +259,4 @@
 
 </div>
 
-<script>
-window.initDrawerCharts = function() {
-    const attCtx = document.getElementById('drawerAttendanceChart');
-    if (attCtx && window.Chart) {
-        if (attCtx._chartInstance) attCtx._chartInstance.destroy();
-        attCtx._chartInstance = new Chart(attCtx, {
-            type: 'bar',
-            data: {
-                labels: JSON.parse(attCtx.dataset.labels),
-                datasets: [{
-                    label: 'Sessions',
-                    data: JSON.parse(attCtx.dataset.values),
-                    backgroundColor: '#8B0000cc',
-                    borderRadius: 6,
-                }]
-            },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-        });
-    }
-    const perfCtx = document.getElementById('drawerPerformanceChart');
-    if (perfCtx && window.Chart) {
-        if (perfCtx._chartInstance) perfCtx._chartInstance.destroy();
-        perfCtx._chartInstance = new Chart(perfCtx, {
-            type: 'bar',
-            data: {
-                labels: JSON.parse(perfCtx.dataset.labels),
-                datasets: [{
-                    label: 'Pass Rate %',
-                    data: JSON.parse(perfCtx.dataset.values),
-                    backgroundColor: '#6366f1cc',
-                    borderRadius: 6,
-                }]
-            },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }, indexAxis: 'y' }
-        });
-    }
-};
-</script>
+{{-- No client-side scripts needed — charts are pure CSS --}}
