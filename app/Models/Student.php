@@ -12,10 +12,11 @@ class Student extends Model
 
     protected $fillable = [
         'user_id', 'department_id', 'program_id', 'academic_session_id',
-        'roll_number', 'registration_number', 'symbol_number',
+        'student_no', 'registration_number',
         'current_semester', 'section', 'batch', 'admission_date',
         'guardian_name', 'guardian_phone', 'blood_group',
         'status', 'is_archived',
+        // roll_number is set by HOD only, not admin-fillable
     ];
 
     protected $casts = [

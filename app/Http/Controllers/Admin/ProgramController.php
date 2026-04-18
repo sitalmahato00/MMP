@@ -34,7 +34,7 @@ class ProgramController extends Controller
             'name'             => 'required|string|max:255',
             'department_id'    => 'required|exists:departments,id',
             'duration_years'   => 'required|integer|min:1|max:6',
-            'total_semesters'  => 'required|integer|min:1|max:12',
+            'total_semesters'  => 'required|integer|min:1|max:6',
         ]);
 
         Program::create($data);
@@ -56,7 +56,7 @@ class ProgramController extends Controller
             'name'            => 'required|string|max:255',
             'department_id'   => 'required|exists:departments,id',
             'duration_years'  => 'required|integer|min:1|max:6',
-            'total_semesters' => 'required|integer|min:1|max:12',
+            'total_semesters' => 'required|integer|min:1|max:6',
         ]);
 
         $program->update($data);

@@ -122,7 +122,7 @@ class AcademicSessionController extends Controller
                 'delayed' => 'Delayed',
                 'completed' => 'Completed',
             ],
-            'semesterNumberOptions' => range(1, 8),
+            'semesterNumberOptions' => range(1, 6),
         ]);
     }
 
@@ -227,7 +227,7 @@ class AcademicSessionController extends Controller
         abort_if($academicSession->is_locked, 403, 'Cannot modify semesters for an archived session.');
 
         $data = $request->validate([
-            'semester_number' => 'required|integer|min:1|max:8|unique:academic_session_semesters,semester_number,NULL,id,academic_session_id,' . $academicSession->id,
+            'semester_number' => 'required|integer|min:1|max:6|unique:academic_session_semesters,semester_number,NULL,id,academic_session_id,' . $academicSession->id,
             'start_date' => 'required|string|max:10',
             'end_date' => 'nullable|string|max:10',
             'status' => 'required|in:upcoming,running,delayed,completed',
@@ -273,7 +273,7 @@ class AcademicSessionController extends Controller
         abort_unless((int) $semester->academic_session_id === (int) $academicSession->id, 404);
 
         $data = $request->validate([
-            'semester_number' => 'required|integer|min:1|max:8|unique:academic_session_semesters,semester_number,' . $semester->id . ',id,academic_session_id,' . $academicSession->id,
+            'semester_number' => 'required|integer|min:1|max:6|unique:academic_session_semesters,semester_number,' . $semester->id . ',id,academic_session_id,' . $academicSession->id,
             'start_date' => 'required|string|max:10',
             'end_date' => 'nullable|string|max:10',
             'status' => 'required|in:upcoming,running,delayed,completed',

@@ -47,8 +47,7 @@
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <x-section-header title="Account Information"/>
             <dl class="divide-y divide-gray-50">
-                <x-info-row label="Student ID">{{ $student->id }}</x-info-row>
-                <x-info-row label="Admission Number">{{ $student->admission_number }}</x-info-row>
+                <x-info-row label="Student ID">{{ $student->student_no }}</x-info-row>
                 <x-info-row label="Full Name">{{ $student->user->name }}</x-info-row>
                 <x-info-row label="Email">{{ $student->user->email }}</x-info-row>
                 <x-info-row label="Phone">{{ $student->user->phone ?? '—' }}</x-info-row>

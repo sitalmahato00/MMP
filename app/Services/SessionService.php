@@ -103,7 +103,7 @@ class SessionService
 
         // Calculate what next-session semesters would be created
         $runningSemNums = $runningSemesters->pluck('semester_number')->all();
-        $maxSemesters = (int) \App\Models\Program::max('total_semesters') ?: 8;
+        $maxSemesters = (int) \App\Models\Program::max('total_semesters') ?: 6;
 
         $nextSemesterNumbers = collect($runningSemNums)
             ->map(fn ($num) => $num + 1)
@@ -594,7 +594,7 @@ class SessionService
         }
 
         // Calculate next semester numbers: each current +1 for promoted students
-        $maxSemesters = (int) \App\Models\Program::max('total_semesters') ?: 8;
+        $maxSemesters = (int) \App\Models\Program::max('total_semesters') ?: 6;
         $semesterStartDate = $nextSession->start_date ?? now();
         $semesterEndDate = $this->semesterEndDate($semesterStartDate);
 

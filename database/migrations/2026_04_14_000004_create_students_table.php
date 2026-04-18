@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
             $table->foreignId('program_id')->constrained()->cascadeOnDelete();
             $table->foreignId('academic_session_id')->constrained('academic_sessions')->cascadeOnDelete();
-            $table->string('roll_number')->nullable();
+            $table->string('student_no', 50)->nullable()->unique(); // Student ID assigned by admin
             $table->string('registration_number')->nullable();
             $table->unsignedTinyInteger('current_semester')->default(1);
             $table->string('section')->nullable();
@@ -28,7 +28,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['roll_number', 'academic_session_id']);
+            // Roll number assigned by HOD (not by admin)
+            $table->string('roll_number', 20)->nullable();
             // Performance indexes
             $table->index(['department_id', 'academic_session_id'], 'idx_students_dept_session');
             $table->index(['program_id', 'current_semester'], 'idx_students_program_sem');

@@ -62,15 +62,8 @@
         [
             'label' => 'Configurations',
             'items' => [
-                ['label' => 'Departments', 'iconName' => 'office-building', 'href' => route('admin.departments.index'), 'isActive' => $active('admin.departments.*')],
                 ['label' => 'Academic Sessions', 'iconName' => 'calendar', 'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
-            ],
-        ],
-        [
-            'label' => 'Applications',
-            'items' => [
-                ['label' => 'Applications', 'iconName' => 'doc-text', 'href' => route('admin.applications.index'), 'isActive' => $active('admin.applications.*') && request('status') !== 'pending', 'badge' => $pendingApplications],
-                ['label' => 'Funnel', 'iconName' => 'funnel', 'href' => route('admin.applications.index', ['status' => 'pending']), 'isActive' => $active('admin.applications.*') && request('status') === 'pending'],
+                ['label' => 'Departments', 'iconName' => 'office-building', 'href' => route('admin.departments.index'), 'isActive' => $active('admin.departments.*')],
             ],
         ],
         [
@@ -81,6 +74,13 @@
                 ['label' => 'Programs', 'iconName' => 'academic-cap', 'href' => route('admin.programs.index'), 'isActive' => $active('admin.programs.*')],
                 ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => route('admin.dashboard'), 'isActive' => false],
                 ['label' => 'Exams & Results', 'iconName' => 'doc-text', 'href' => route('admin.exams.index'), 'isActive' => $active('admin.exams.*')],
+            ],
+        ],
+        [
+            'label' => 'Applications',
+            'items' => [
+                ['label' => 'Applications', 'iconName' => 'doc-text', 'href' => route('admin.applications.index'), 'isActive' => $active('admin.applications.*') && request('status') !== 'pending', 'badge' => $pendingApplications],
+                ['label' => 'Funnel', 'iconName' => 'funnel', 'href' => route('admin.applications.index', ['status' => 'pending']), 'isActive' => $active('admin.applications.*') && request('status') === 'pending'],
             ],
         ],
         [
