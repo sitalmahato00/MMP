@@ -182,7 +182,7 @@ class DashboardController extends Controller
             return response()->json($dashboardState);
         }
 
-        return view('admin.dashboard', array_merge($payload, [
+        return view('admin.dashboard-modern', array_merge($payload, [
             'greeting' => $this->greeting(),
             'period' => $period,
             'periodLabel' => $window['label'],

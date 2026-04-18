@@ -409,10 +409,16 @@ const parseDashboardState = (stateText) => {
     }
 
     try {
-        return JSON.parse(stateText);
-    } catch (error) {
-        console.warn('[Dashboard] Invalid state payload:', error);
-        return null;
+        // Primary path: state is base64 encoded JSON from Blade.
+        return JSON.parse(window.atob(stateText));
+    } catch {
+        try {
+            // Backward compatibility fallback for plain JSON payload.
+            return JSON.parse(stateText);
+        } catch (error) {
+            console.warn('[Dashboard] Invalid state payload:', error);
+            return null;
+        }
     }
 };
 

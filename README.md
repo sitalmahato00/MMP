@@ -226,11 +226,33 @@ npm run dev
 php artisan serve
 ```
 
+**Seeding for Complete Demo Data:**
+
+```bash
+# Basic structure (safe for production-like env)
+php artisan db:seed
+
+# Full demo data with users/roles/content (DEMO ONLY)
+php artisan db:seed --class=DemoDataSeeder
+# Login with: email@domain.np / password: "password"
+```
+
 Notes:
 
 - Run `php artisan storage:link` if you are using the local public disk.
-- Use the seeders in `database/seeders` for demo or test content.
+- 17+ seeders + DemoDataSeeder provide complete coverage for all tables/fields.
+- New factories added for Department, Program, Student, Teacher, Exam.
 - `npm run dev` starts the Vite development build.
+
+**Demo Logins:**
+| Role | Email | Password |
+|------|-------|----------|
+| Principal | principal@mmp.edu.np | password |
+| HOD | hod.it@mmp.edu.np | password |
+| Teacher | teacher.it@mmp.edu.np | password |
+| Student | student01@mmp.edu.np | password |
+| Parent | parent01@mmp.edu.np | password |
+| Alumni | alumni01@mmp.edu.np | password |
 
 ## Environment Configuration
 

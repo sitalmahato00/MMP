@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             CommunicationSeeder::class,
             OperationsSeeder::class,
             ApplicationSeeder::class,
+            // DemoDataSeeder::class,  // Uncomment for full demo data (DEMO ONLY - password: "password")
         ]);
 
         PublicDataService::invalidate('*');

@@ -94,13 +94,15 @@
     $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable';
     $ctevtGeneralPageUrl = $ctevtGeneralNotices['page_url'] ?? route('public.notices', ['type' => 'ctevt-general']);
     $ctevtResultPageUrl = $ctevtResultNotices['page_url'] ?? route('public.notices', ['type' => 'ctevt-result']);
+    $dashboardStateJson = json_encode($dashboardState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+    $dashboardStateEncoded = $dashboardStateJson ? base64_encode($dashboardStateJson) : '';
 @endphp
 
 <div id="principal-dashboard"
     class="space-y-8"
     data-principal-dashboard
     data-dashboard-endpoint="{{ route('admin.dashboard') }}"
-    data-dashboard-state='@js($dashboardState)'>
+    data-dashboard-state="{{ $dashboardStateEncoded }}">
     <section class="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-6 shadow-[0_28px_80px_rgba(15,23,42,0.08)] sm:px-8 lg:px-10">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,0,0,0.10),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(248,113,113,0.08),transparent_32%)]"></div>
         <div class="absolute right-0 top-0 h-40 w-40 translate-x-1/2 -translate-y-1/2 rounded-full bg-red-100/60 blur-3xl"></div>
