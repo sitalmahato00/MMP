@@ -248,6 +248,8 @@
                             ['l'=>'Semesters',       'v'=> $program->total_semesters],
                             ['l'=>'Affiliation',     'v'=> $program->affiliation_type ?? '—'],
                             ['l'=>'CTEVT Code',      'v'=> $program->ctevt_code ?? '—'],
+                            ['l'=>'Created',         'v'=> bsDate($program->created_at, 'Y, F d')],
+                            ['l'=>'Last Updated',    'v'=> bsDate($program->updated_at, 'Y, F d')],
                         ]; @endphp
                         @foreach($details as $d)
                         <div class="flex items-center justify-between gap-2">
@@ -586,7 +588,7 @@
                             <strong class="text-slate-900">{{ $log->user?->name ?? 'System' }}</strong>
                             performed <strong class="font-mono text-xs text-[#8B0000]">{{ $log->action }}</strong>
                         </p>
-                        <p class="mt-0.5 text-[11px] text-slate-400">{{ bsDate($log->created_at, 'd M Y, h:i A') }} &bull; {{ $log->ip_address }}</p>
+                        <p class="mt-0.5 text-[11px] text-slate-400">{{ bsDate($log->created_at, 'Y, F d h:i A') }} &bull; {{ $log->ip_address }}</p>
                     </div>
                 </div>
                 @endforeach

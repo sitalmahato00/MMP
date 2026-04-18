@@ -55,7 +55,7 @@
             <x-badge :color="$statusColors[$app->status] ?? 'gray'">{{ ucfirst($app->status) }}</x-badge>
         </td>
         <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">
-            {{ bsDate($app->created_at, 'd F Y') }}
+            {{ bsDate($app->created_at, 'Y, F d') }}
         </td>
         <td class="px-5 py-3.5 text-right">
             <div class="flex items-center justify-end gap-1">

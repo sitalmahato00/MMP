@@ -397,8 +397,8 @@ class ExamController extends Controller
                 'semester_label' => $exam->programs->pluck('pivot.semester')->filter()->unique()->sort()->map(fn ($semester) => 'Sem ' . $semester)->implode(' · ') ?: '—',
                 'total_subjects' => $subjectRows->count() ?: $exam->marks->pluck('subject_id')->unique()->count(),
                 'total_students' => $studentRows->count(),
-                'start_date_label' => bsDate($exam->start_date, 'd M Y') ?: '—',
-                'end_date_label' => bsDate($exam->end_date, 'd M Y') ?: '—',
+                'start_date_label' => bsDate($exam->start_date, 'Y, F d') ?: '—',
+                'end_date_label' => bsDate($exam->end_date, 'Y, F d') ?: '—',
                 'status_key' => $state['key'],
                 'status_label' => $state['label'],
                 'status_tone' => $state['tone'],
@@ -663,10 +663,10 @@ class ExamController extends Controller
                     'hall' => 'TBD',
                     'invigilator' => $teacher?->user?->name ?? 'Unassigned',
                     'exam_date' => $exam->start_date,
-                    'exam_date_label' => bsDate($exam->start_date, 'd M Y') ?: '—',
+                    'exam_date_label' => bsDate($exam->start_date, 'Y, F d') ?: '—',
                     'start_time' => 'TBD',
                     'end_time' => 'TBD',
-                    'last_updated' => $subjectMarks->max('updated_at') ? bsDate($subjectMarks->max('updated_at'), 'd M Y, h:i A') : '—',
+                    'last_updated' => $subjectMarks->max('updated_at') ? bsDate($subjectMarks->max('updated_at'), 'Y, F d h:i A') : '—',
                     'status_key' => $state['key'],
                     'status_label' => $state['label'],
                     'status_tone' => $state['tone'],
@@ -763,7 +763,7 @@ class ExamController extends Controller
             'subjectResults' => $subjectResults,
             'absent_count' => $studentMarks->where('is_absent', true)->count(),
             'withheld_count' => $studentMarks->where('is_withheld', true)->count(),
-            'last_updated' => $studentMarks->max('updated_at') ? bsDate($studentMarks->max('updated_at'), 'd M Y, h:i A') : '—',
+            'last_updated' => $studentMarks->max('updated_at') ? bsDate($studentMarks->max('updated_at'), 'd F Y, h:i A') : '—',
         ];
     }
 
@@ -1153,7 +1153,7 @@ class ExamController extends Controller
 
     private function exportFilename(string $format): string
     {
-        $stamp = str_replace([' ', ':'], ['_', '-'], bsDate(now(), 'd_M_Y_H_i'));
+        $stamp = str_replace([' ', ':'], ['_', '-'], bsDate(now(), 'd_F_Y_H_i'));
 
         return "exam-results-{$stamp}.{$format}";
     }

@@ -168,7 +168,7 @@ class AttendanceController extends Controller
         ];
 
         $trend = [
-            'labels' => $trendSessions->map(fn (AttendanceSession $session) => bsDate($session->date, 'd M') ?: $session->date?->format('d M'))->all(),
+            'labels' => $trendSessions->map(fn (AttendanceSession $session) => bsDate($session->date, 'd F') ?: $session->date?->format('d M'))->all(),
             'values' => $trendSessions->map(function (AttendanceSession $session) {
                 $total = $session->records_count ?? $session->records->count();
                 $present = $session->present_records_count ?? $session->records->where('status', 'present')->count();
@@ -500,7 +500,7 @@ class AttendanceController extends Controller
                     'completed_sessions' => $completed,
                     'pending_sessions' => $pending,
                     'reliability' => $reliability,
-                    'last_session' => bsDate($teacherSessions->sortByDesc('date')->first()?->date, 'd M Y') ?: '—',
+                    'last_session' => bsDate($teacherSessions->sortByDesc('date')->first()?->date, 'd F Y') ?: '—',
                     'status' => $reliability >= 90 ? 'Excellent' : ($reliability >= 75 ? 'Stable' : 'Needs attention'),
                 ];
             })
@@ -548,7 +548,7 @@ class AttendanceController extends Controller
                 'risk' => $risk,
                 'absent_streak' => $streak,
                 'sparkline' => $this->sparklinePath($sparkline['values'] ?? []),
-                'last_record' => bsDate($studentRecords->sortByDesc(fn (Attendance $record) => $record->attendanceSession?->date)->first()?->attendanceSession?->date, 'd M Y') ?: '—',
+                'last_record' => bsDate($studentRecords->sortByDesc(fn (Attendance $record) => $record->attendanceSession?->date)->first()?->attendanceSession?->date, 'd F Y') ?: '—',
             ];
         })->sortBy('attendance_rate')->values();
     }
@@ -730,7 +730,7 @@ class AttendanceController extends Controller
             $key = $cursor->toDateString();
             $bucket = $grouped->get($key, collect());
             $result = $resolver($bucket, $key);
-            $labels[] = bsDate($cursor, 'd M') ?: $cursor->format('d M');
+            $labels[] = bsDate($cursor, 'd F') ?: $cursor->format('d M');
 
             if (is_array($result)) {
                 $values[] = (float) ($result['value'] ?? 0);
@@ -766,8 +766,8 @@ class AttendanceController extends Controller
     private function windowLabel(Carbon $start, Carbon $end): string
     {
         return $start->isSameDay($end)
-            ? (bsDate($start, 'd M Y') ?: $start->format('d M Y'))
-            : (bsDate($start, 'd M Y') ?: $start->format('d M Y')) . ' - ' . (bsDate($end, 'd M Y') ?: $end->format('d M Y'));
+            ? (bsDate($start, 'Y, F d') ?: $start->format('Y, M d'))
+            : (bsDate($start, 'Y, F d') ?: $start->format('Y, M d')) . ' - ' . (bsDate($end, 'Y, F d') ?: $end->format('Y, M d'));
     }
 
     private function sparklinePath(array $values, int $width = 96, int $height = 28): string

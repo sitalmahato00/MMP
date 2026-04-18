@@ -248,6 +248,7 @@
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Semester</th>
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Session</th>
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Enrolled</th>
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden xl:table-cell">Parent</th>
                         <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500">Actions</th>
                     </tr>
@@ -300,6 +301,9 @@
                                 <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60"></span>
                                 {{ $st['label'] }}
                             </span>
+                        </td>
+                        <td class="px-5 py-3.5 text-xs text-slate-400 hidden lg:table-cell">
+                            {{ bsDate($student->created_at, 'Y, F d') }}
                         </td>
                         <td class="px-5 py-3.5 text-xs hidden xl:table-cell">
                             @if($grd)

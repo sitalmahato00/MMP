@@ -1712,7 +1712,7 @@ class AnalyticsController extends Controller
 
         while ($cursor <= $end) {
             $key = $bucketType === 'month' ? $cursor->format('Y-m') : $cursor->format('Y-m-d');
-            $label = $bucketType === 'month' ? $cursor->format('M Y') : $cursor->format('d M');
+            $label = $bucketType === 'month' ? bsDate($cursor, 'F Y') : bsDate($cursor, 'd F');
 
             $buckets[$key] = [
                 'label' => $label,

@@ -142,6 +142,23 @@ class HomeController extends Controller
         return view('public.result', compact('resultForm'));
     }
 
+    public function resultSubmit(Request $request)
+    {
+        $payload = $request->validate([
+            'src_year' => ['required', 'string', 'in:2082,2081,2080,2079,2078,2077'],
+            'src_level' => ['required', 'string', 'in:2,3'],
+            'exam_symbol_number' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9\-]+$/'],
+            'dob' => ['required', 'string', 'regex:/^\d{4}-\d{2}-\d{2}$/'],
+        ]);
+
+        unset($payload);
+
+        return response('', 307)->header(
+            'Location',
+            config('services.ctevt_result.url', 'https://itms.ctevt.org.np:5580/search_results')
+        );
+    }
+
     public function questionBank()
     {
         $downloads = $this->service->getQuestionBankDownloads();

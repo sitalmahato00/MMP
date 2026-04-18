@@ -66,8 +66,10 @@
                         <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Department: {{ $exam->department?->code ? $exam->department->code . ' - ' . $exam->department->name : ($exam->department?->name ?? 'Common') }}</span>
                         <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Programs: {{ $exam->programs->count() }}</span>
                         <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Semesters: {{ $semesterLabels }}</span>
-                        <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">Start {{ bsDate($exam->start_date, 'd M Y') ?: '—' }}</span>
-                        <span class="rounded-full bg-sky-50 px-3 py-1.5 text-sky-700">End {{ bsDate($exam->end_date, 'd M Y') ?: '—' }}</span>
+                        <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">Start {{ bsDate($exam->start_date, 'Y, F d') ?: '—' }}</span>
+                        <span class="rounded-full bg-sky-50 px-3 py-1.5 text-sky-700">End {{ bsDate($exam->end_date, 'Y, F d') ?: '—' }}</span>
+                        <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600">Created {{ bsDate($exam->created_at, 'Y, F d') }}</span>
+                        <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600">Updated {{ bsDate($exam->updated_at, 'Y, F d') }}</span>
                     </div>
                 </div>
 
@@ -158,7 +160,7 @@
                         Marks open: <span class="font-bold text-slate-900">{{ $exam->marks_open ? 'Yes' : 'No' }}</span> · Published: <span class="font-bold text-slate-900">{{ $published ? 'Yes' : 'No' }}</span>
                     </p>
                     @if($exam->published_at)
-                        <p class="mt-1 text-sm leading-6 text-slate-600">Published at {{ bsDate($exam->published_at, 'd M Y, h:i A') ?: '—' }}</p>
+                        <p class="mt-1 text-sm leading-6 text-slate-600">Published at {{ bsDate($exam->published_at, 'Y, F d h:i A') ?: '—' }}</p>
                     @endif
                 </div>
             </div>
@@ -213,7 +215,7 @@
                         </div>
                         <div class="rounded-2xl bg-slate-50 p-4">
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Schedule</p>
-                            <p class="mt-1 text-sm leading-6 text-slate-600">{{ bsDate($exam->start_date, 'd M Y') ?: '—' }} to {{ bsDate($exam->end_date, 'd M Y') ?: '—' }}</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-600">{{ bsDate($exam->start_date, 'Y, F d') ?: '—' }} to {{ bsDate($exam->end_date, 'Y, F d') ?: '—' }}</p>
                         </div>
                         <div class="rounded-2xl bg-slate-50 p-4 md:col-span-2">
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Remarks</p>
@@ -507,7 +509,7 @@
                         </div>
                         <div class="rounded-2xl bg-slate-50 p-4">
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Publish state</p>
-                            <p class="mt-1 font-semibold text-slate-900">{{ $published ? 'Published at ' . (bsDate($exam->published_at, 'd M Y, h:i A') ?: '—') : 'Awaiting release' }}</p>
+                            <p class="mt-1 font-semibold text-slate-900">{{ $published ? 'Published at ' . (bsDate($exam->published_at, 'Y, F d h:i A') ?: '—') : 'Awaiting release' }}</p>
                         </div>
                     </div>
 

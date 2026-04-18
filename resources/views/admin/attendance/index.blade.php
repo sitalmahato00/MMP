@@ -396,7 +396,7 @@
                                 @endphp
                                 <tr class="group transition hover:bg-slate-50/70">
                                     <td class="px-4 py-3.5">
-                                        <p class="font-semibold text-slate-900">{{ bsDate($session->date, 'd M Y') ?: '—' }}</p>
+                                        <p class="font-semibold text-slate-900">{{ bsDate($session->date, 'Y, F d') ?: '—' }}</p>
                                         <p class="text-[11px] text-slate-400">{{ bsDate($session->date, 'D') ?: ($session->date?->format('D') ?? '—') }}</p>
                                     </td>
                                     <td class="px-4 py-3.5">

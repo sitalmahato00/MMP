@@ -82,7 +82,7 @@
                 {{ $user->is_active ? 'Active' : 'Inactive' }}
             </x-badge>
         </td>
-        <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ bsDate($user->created_at, 'd F Y') }}</td>
+        <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ bsDate($user->created_at, 'Y, F d') }}</td>
         <td class="px-5 py-3.5">
             <x-table-actions
                 :show="route('admin.users.show', $user)"

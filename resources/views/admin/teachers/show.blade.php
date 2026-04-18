@@ -117,7 +117,7 @@
                             <div><dt class="text-slate-500">Email</dt><dd class="mt-0.5 font-semibold text-slate-800 truncate">{{ $teacher->user?->email ?? '—' }}</dd></div>
                             <div><dt class="text-slate-500">Phone</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->user?->phone ?? '—' }}</dd></div>
                             <div><dt class="text-slate-500">Gender</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ ucfirst($teacher->user?->gender ?? '—') }}</dd></div>
-                            <div><dt class="text-slate-500">Date of Birth</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->user?->dob ? bsDate($teacher->user->dob, 'd M Y') : '—' }}</dd></div>
+                            <div><dt class="text-slate-500">Date of Birth</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->user?->dob ? bsDate($teacher->user->dob, 'Y, F d') : '—' }}</dd></div>
                             <div><dt class="text-slate-500">Address</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->user?->address ?? '—' }}</dd></div>
                         </dl>
                     </div>
@@ -128,8 +128,10 @@
                             <div><dt class="text-slate-500">Department</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->department?->name ?? '—' }}</dd></div>
                             <div><dt class="text-slate-500">Designation</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->designation ?? '—' }}</dd></div>
                             <div><dt class="text-slate-500">Employment Type</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ ucfirst($teacher->employment_type ?? '—') }}</dd></div>
-                            <div><dt class="text-slate-500">Join Date</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->join_date ? bsDate($teacher->join_date, 'd M Y') : '—' }}</dd></div>
+                            <div><dt class="text-slate-500">Join Date</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ $teacher->join_date ? bsDate($teacher->join_date, 'Y, F d') : '—' }}</dd></div>
                             <div><dt class="text-slate-500">Status</dt><dd class="mt-0.5 font-semibold {{ $teacher->is_active ? 'text-emerald-600' : 'text-slate-400' }}">{{ $teacher->is_active ? 'Active' : 'Inactive' }}</dd></div>
+                            <div><dt class="text-slate-500">Added On</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ bsDate($teacher->created_at, 'Y, F d') }}</dd></div>
+                            <div><dt class="text-slate-500">Last Updated</dt><dd class="mt-0.5 font-semibold text-slate-800">{{ bsDate($teacher->updated_at, 'Y, F d') }}</dd></div>
                         </dl>
                     </div>
                 </div>

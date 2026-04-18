@@ -286,8 +286,8 @@ class DashboardController extends Controller
                 },
                 'delayReason' => $sem->delay_reason ? ($delayLabels[$sem->delay_reason] ?? ucfirst($sem->delay_reason)) : null,
                 'progress' => $progress,
-                'startDate' => $sem->start_date ? bsDate($sem->start_date, 'd M Y') : null,
-                'endDate' => $sem->end_date ? bsDate($sem->end_date, 'd M Y') : null,
+                'startDate' => $sem->start_date ? bsDate($sem->start_date, 'Y, F d') : null,
+                'endDate' => $sem->end_date ? bsDate($sem->end_date, 'Y, F d') : null,
                 'isActive' => $sem->is_active,
                 'notes' => $sem->notes,
             ];
@@ -581,8 +581,8 @@ class DashboardController extends Controller
             'periodLabel' => $window['label'],
             'sessionId' => $selectedSessionId,
             'sessionLabel' => $selectedSession?->name ?? 'Current session',
-            'rangeLabel' => bsDate($window['start'], 'd M Y') . ' - ' . bsDate($window['end'], 'd M Y'),
-            'updatedAt' => now()->toIso8601String(),
+            'rangeLabel' => bsDate($window['start'], 'Y, F d') . ' - ' . bsDate($window['end'], 'Y, F d'),
+            'updatedAt' => bsDate(now(), 'Y, F d') . ', ' . now()->format('h:i A'),
             'periodOptions' => [
                 ['value' => 'week', 'label' => 'Week', 'hint' => 'Last 7 days'],
                 ['value' => 'month', 'label' => 'Month', 'hint' => 'Last 30 days'],
@@ -622,7 +622,7 @@ class DashboardController extends Controller
             'recentNotices' => $payload['recentNotices']->map(fn (Notice $n) => [
                 'title' => $n->title,
                 'excerpt' => Str::limit(strip_tags((string) $n->content), 100),
-                'date' => bsDate($n->created_at, 'd M Y'),
+                'date' => bsDate($n->created_at, 'Y, F d'),
                 'author' => $n->author->name ?? 'System',
                 'type' => $n->type,
                 'href' => route('admin.notices.edit', $n),
@@ -634,7 +634,7 @@ class DashboardController extends Controller
                     'department' => $app->department->name ?? 'General intake',
                     'phone' => $app->phone,
                     'email' => $app->email,
-                    'date' => bsDate($app->created_at, 'd M Y'),
+                    'date' => bsDate($app->created_at, 'Y, F d'),
                     'status' => $status,
                     'statusLabel' => ucfirst($status),
                     'statusClass' => match ($status) {
@@ -663,7 +663,7 @@ class DashboardController extends Controller
 
         while ($cursor <= $end) {
             $key = $bucketType === 'month' ? $cursor->format('Y-m') : $cursor->format('Y-m-d');
-            $label = $bucketType === 'month' ? $cursor->format('M Y') : $cursor->format('d M');
+            $label = $bucketType === 'month' ? bsDate($cursor, 'F Y') : bsDate($cursor, 'd F');
             $buckets[$key] = ['label' => $label, 'value' => 0];
             $cursor = $bucketType === 'month' ? $cursor->copy()->addMonthNoOverflow()->startOfMonth() : $cursor->copy()->addDay();
         }

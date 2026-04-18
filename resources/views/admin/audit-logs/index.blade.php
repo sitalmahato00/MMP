@@ -32,7 +32,7 @@
     @endphp
     <tr class="hover:bg-gray-50/70 transition-colors">
         <td class="px-5 py-3 text-xs text-gray-400 whitespace-nowrap font-mono">
-            {{ bsDate($log->created_at, 'd F Y') }} {{ $log->created_at->format('H:i:s') }}
+            {{ bsDate($log->created_at, 'Y, F d') }} {{ $log->created_at->format('H:i:s') }}
         </td>
         <td class="px-5 py-3">
             @if($log->user)

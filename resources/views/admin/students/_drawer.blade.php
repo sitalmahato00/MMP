@@ -106,7 +106,7 @@
                 ['Email',        $student->user?->email],
                 ['Phone',        $student->user?->phone],
                 ['Gender',       ucfirst($student->user?->gender ?? '—')],
-                ['Date of Birth', $student->user?->dob ? bsDate($student->user->dob, 'd F Y') : '—'],
+                ['Date of Birth', $student->user?->dob ? bsDate($student->user->dob, 'Y, F d') : '—'],
                 ['Address',      $student->user?->address],
                 ['Blood Group',  $student->blood_group],
             ] as [$label, $value])
@@ -131,7 +131,9 @@
                 ['Semester',        'Semester '.$student->current_semester],
                 ['Section',         $student->section],
                 ['Batch',           $student->batch],
-                ['Admitted',        $student->admission_date ? bsDate($student->admission_date, 'd F Y') : '—'],
+                ['Admitted',        $student->admission_date ? bsDate($student->admission_date, 'Y, F d') : '—'],
+                ['Enrolled',        bsDate($student->created_at, 'Y, F d')],
+                ['Last Updated',    bsDate($student->updated_at, 'Y, F d')],
             ] as [$label, $value])
             <div class="flex gap-4 px-4 py-2.5">
                 <dt class="w-32 flex-shrink-0 text-xs text-slate-500">{{ $label }}</dt>
@@ -365,7 +367,7 @@
                 <p class="mt-0.5 text-xs text-slate-500">
                     {{ $sub->assignment?->subject?->name ?? '—' }}
                     @if($sub->assignment?->due_date)
-                        · Due {{ bsDate($sub->assignment->due_date, 'd M Y') }}
+                        · Due {{ bsDate($sub->assignment->due_date, 'Y, F d') }}
                     @endif
                 </p>
             </div>
@@ -488,7 +490,7 @@
                 <div class="flex items-start justify-between gap-2">
                     <p class="text-sm font-semibold text-slate-800">{{ $item['title'] }}</p>
                     <time class="flex-shrink-0 text-[11px] text-slate-400">
-                        {{ bsDate($date, 'd M Y') }}
+                        {{ bsDate($date, 'Y, F d') }}
                     </time>
                 </div>
                 @if($item['sub'])

@@ -53,7 +53,7 @@
                         <div class="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
                         <div>
                             <p class="text-sm font-medium text-gray-900">{{ $notice->title }}</p>
-                            <p class="text-xs text-gray-500">{{ bsDate($notice->created_at, 'M d, Y') }}</p>
+                            <p class="text-xs text-gray-500">{{ bsDate($notice->created_at, 'Y, F d') }}</p>
                         </div>
                     </div>
                 @endforeach

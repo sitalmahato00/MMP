@@ -192,7 +192,7 @@ class StudentController extends Controller
             ->take(6)
             ->sortKeys()
             ->map(fn ($group) => [
-                'label'   => bsDate($group->first()->attendanceSession->date, 'M Y'),
+                'label'   => bsDate($group->first()->attendanceSession->date, 'F Y'),
                 'present' => $group->where('status', 'present')->count(),
                 'absent'  => $group->where('status', 'absent')->count(),
                 'total'   => $group->count(),
@@ -403,7 +403,7 @@ class StudentController extends Controller
             ->take(6)
             ->sortKeys()
             ->map(fn ($group) => [
-                'label'   => bsDate($group->first()->attendanceSession->date, 'M Y'),
+                'label'   => bsDate($group->first()->attendanceSession->date, 'F Y'),
                 'present' => $group->where('status', 'present')->count(),
                 'absent'  => $group->where('status', 'absent')->count(),
                 'total'   => $group->count(),

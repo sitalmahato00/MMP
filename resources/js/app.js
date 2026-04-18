@@ -354,10 +354,12 @@ const formatNumber = (value, decimals = 0) => {
 };
 
 const formatTimestamp = (value) => {
-    const parsed = new Date(value);
+    if (!value) return '';
 
+    // If value is already a pre-formatted BS date string (not ISO), return as-is
+    const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) {
-        return '';
+        return String(value);
     }
 
     const date = new Intl.DateTimeFormat('en-GB', {

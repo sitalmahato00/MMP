@@ -50,7 +50,7 @@
     ];
 
     $sessionName = $selectedSession?->name ?? $activeSession?->name ?? 'Current session';
-    $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'd M Y') . ' â€“ ' . bsDate($rangeEnd, 'd M Y') : null;
+$rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' â€" ' . bsDate($rangeEnd, 'Y, F d') : null;
     $semesters = $runningSemesters ?? [];
     $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
     $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
@@ -122,7 +122,7 @@
                         <span data-dashboard-range-display>{{ $rangeLabel }}</span>
                         <span class="text-slate-300">|</span>
                     @endif
-                    <span data-dashboard-updated-display>Updated {{ $lastUpdated->format('h:i A') }}</span>
+                    <span data-dashboard-updated-display>Updated {{ bsDate($lastUpdated, 'Y, F d') }}, {{ $lastUpdated->format('h:i A') }}</span>
                 </div>
             </div>
         </div>
@@ -376,12 +376,13 @@
                 @forelse($recentNotices as $notice)
                     <a href="{{ route('admin.notices.edit', $notice) }}" class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
                         <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                            <span class="text-[9px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'M') }}</span>
+                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
                             <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
+                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'd M Y') }} Â· {{ $notice->author->name ?? 'System' }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'Y, F d') }} Â· {{ $notice->author->name ?? 'System' }}</p>
                         </div>
                         <span class="shrink-0 self-center rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">{{ $notice->type }}</span>
                     </a>
@@ -408,7 +409,7 @@
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-medium text-slate-900">{{ $application->full_name }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ $application->department->name ?? 'General' }} Â· {{ bsDate($application->created_at, 'd M Y') }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500">{{ $application->department->name ?? 'General' }} Â· {{ bsDate($application->created_at, 'Y, F d') }}</p>
                         </div>
                         <span class="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold {{ $statusColors[$appStatus] ?? $statusColors['pending'] }}">
                             {{ ucfirst($appStatus) }}

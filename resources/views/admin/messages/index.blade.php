@@ -60,7 +60,7 @@
                     <x-badge color="amber">Unread</x-badge>
                 @endif
             </td>
-            <td class="px-5 py-4 text-xs text-gray-500 whitespace-nowrap">{{ bsDate($message->created_at, 'd F Y, h:i A') }}</td>
+            <td class="px-5 py-4 text-xs text-gray-500 whitespace-nowrap">{{ bsDate($message->created_at, 'Y, F d h:i A') }}</td>
         </tr>
     @empty
         <tr>

@@ -24,7 +24,7 @@
                                 @if($download->department)
                                     <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{{ $download->department->name }}</span>
                                 @endif
-                                <span class="text-xs text-gray-400">{{ bsDate($download->created_at, 'M d, Y') }}</span>
+                                <span class="text-xs text-gray-400">{{ bsDate($download->created_at, 'Y, F d') }}</span>
                             </div>
                         </div>
                         <a href="{{ $download->file_url }}" download class="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-bold text-white rounded transition-colors hover:opacity-90" style="background-color: #8B0000;">

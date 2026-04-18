@@ -727,7 +727,7 @@ class PublicDataService
     private function formatDisplayDate(mixed $value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
-            return $value->format('d M Y');
+            return bsDate($value, 'Y, F d');
         }
 
         $formatted = trim((string) $value);

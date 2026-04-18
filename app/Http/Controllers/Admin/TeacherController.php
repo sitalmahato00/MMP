@@ -286,7 +286,7 @@ class TeacherController extends Controller
         $monthlyAttendance = [];
         for ($i = 5; $i >= 0; $i--) {
             $dt  = now()->subMonths($i);
-            $key = bsDate($dt, 'M Y') ?: $dt->format('M Y');
+            $key = bsDate($dt, 'F Y') ?: $dt->format('M Y');
             $monthlyAttendance[$key] = $teacher->attendanceSessions
                 ->filter(fn($s) => $s->date && (bsDate($s->date, 'Y-m') ?: Carbon::parse($s->date)->format('Y-m')) === (bsDate($dt, 'Y-m') ?: $dt->format('Y-m')))
                 ->count();

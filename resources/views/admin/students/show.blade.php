@@ -141,7 +141,7 @@
                     ['Email',        $student->user?->email],
                     ['Phone',        $student->user?->phone],
                     ['Gender',       ucfirst($student->user?->gender ?? '—')],
-                    ['Date of Birth',$student->user?->dob ? bsDate($student->user->dob, 'd F Y') : '—'],
+                    ['Date of Birth',$student->user?->dob ? bsDate($student->user->dob, 'Y, F d') : '—'],
                     ['Blood Group',  $student->blood_group ?? '—'],
                     ['Address',      $student->user?->address],
                 ] as [$label, $value])
@@ -179,8 +179,9 @@
                     ['Section',         $student->section],
                     ['Batch / Year',    $student->batch],
                     ['Roll Number',     $student->roll_number ?? 'Set by HOD'],
-                    ['Admitted',        $student->admission_date ? bsDate($student->admission_date, 'd F Y') : '—'],
-                    ['Enrolled on',     bsDate($student->created_at, 'd F Y')],
+                    ['Admitted',        $student->admission_date ? bsDate($student->admission_date, 'Y, F d') : '—'],
+                    ['Enrolled on',     bsDate($student->created_at, 'Y, F d')],
+                    ['Last Updated',    bsDate($student->updated_at, 'Y, F d')],
                 ] as [$label, $value])
                 <div class="flex gap-3 py-2.5 border-b border-slate-100 sm:odd:pr-4 sm:even:pl-4 sm:even:border-l">
                     <dt class="w-32 flex-shrink-0 text-xs text-slate-500 pt-0.5">{{ $label }}</dt>
@@ -433,7 +434,7 @@
                     <td class="px-5 py-3 font-medium text-slate-800 max-w-[200px] truncate">{{ $sub->assignment?->title ?? '—' }}</td>
                     <td class="px-5 py-3 text-xs text-slate-500">{{ $sub->assignment?->subject?->name ?? '—' }}</td>
                     <td class="px-5 py-3 text-xs text-slate-500 hidden sm:table-cell">
-                        {{ $sub->assignment?->due_date ? bsDate($sub->assignment->due_date, 'd M Y') : '—' }}
+                        {{ $sub->assignment?->due_date ? bsDate($sub->assignment->due_date, 'Y, F d') : '—' }}
                     </td>
                     <td class="px-5 py-3 text-center">
                         <span class="rounded-lg px-2.5 py-1 text-[11px] font-bold {{ $subCls }}">{{ ucfirst($sub->status) }}</span>
@@ -557,7 +558,7 @@
                 <div class="flex flex-wrap items-start justify-between gap-2">
                     <p class="text-sm font-bold text-slate-800">{{ $item['title'] }}</p>
                     <time class="flex-shrink-0 rounded-lg bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
-                        {{ $tDate ? bsDate($tDate, 'd M Y, h:i A') : $tDate }}
+                        {{ $tDate ? bsDate($tDate, 'Y, F d h:i A') : $tDate }}
                     </time>
                 </div>
                 @if($item['sub'])

@@ -110,7 +110,7 @@
         <h1 class="title">Exam Export</h1>
         <p class="subtitle">Managed examination overview with status, program assignments, and result workflow metrics.</p>
         <div class="meta">
-            <div><strong>Generated at:</strong> {{ bsDate($generatedAt, 'd M Y, h:i A') }}</div>
+            <div><strong>Generated at:</strong> {{ bsDate($generatedAt, 'Y, F d h:i A') }}</div>
             <div><strong>Total rows:</strong> {{ count($rows) }}</div>
             <div><strong>Session filter:</strong> {{ $filters['year'] ?? 'All' }}</div>
             <div><strong>Department filter:</strong> {{ $filters['department_id'] ?? 'All' }}</div>

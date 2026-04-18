@@ -235,6 +235,7 @@
                         <th class="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Semesters</th>
                         <th class="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden xl:table-cell">Employment</th>
                         <th class="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</th>
+                        <th class="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden xl:table-cell">Joined</th>
                         <th class="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500">Actions</th>
                     </tr>
                 </thead>
@@ -299,6 +300,9 @@
                             @else
                                 <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>Inactive</span>
                             @endif
+                        </td>
+                        <td class="px-4 py-3 text-xs text-slate-400 hidden xl:table-cell">
+                            {{ bsDate($teacher->join_date ?? $teacher->created_at, 'Y, F d') }}
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

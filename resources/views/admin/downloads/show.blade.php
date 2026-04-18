@@ -49,7 +49,11 @@
                 </div>
                 <div>
                     <div class="text-xs font-bold text-gray-400 uppercase">Uploaded</div>
-                    <div class="mt-1 text-gray-900">{{ bsDate($download->created_at, 'd F Y') }}</div>
+                    <div class="mt-1 text-gray-900">{{ bsDate($download->created_at, 'Y, F d') }}</div>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-gray-400 uppercase">Last Updated</div>
+                    <div class="mt-1 text-gray-900">{{ bsDate($download->updated_at, 'Y, F d') }}</div>
                 </div>
                 <div>
                     <div class="text-xs font-bold text-gray-400 uppercase">Filename</div>

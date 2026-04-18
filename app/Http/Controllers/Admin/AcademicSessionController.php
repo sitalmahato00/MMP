@@ -530,8 +530,8 @@ class AcademicSessionController extends Controller
                 'id' => $semester->id,
                 'semester_number' => $semester->semester_number,
                 'title' => 'Semester ' . $semester->semester_number,
-                'start_date_bs' => bsDate($semester->start_date, 'd M Y'),
-                'end_date_bs' => bsDate($semester->end_date, 'd M Y'),
+                'start_date_bs' => bsDate($semester->start_date, 'Y, F d'),
+                'end_date_bs' => bsDate($semester->end_date, 'Y, F d'),
                 'start_date_input' => bsDate($semester->start_date),
                 'end_date_input' => bsDate($semester->end_date),
                 'status' => $semester->status,
@@ -579,8 +579,8 @@ class AcademicSessionController extends Controller
     {
         if ($semesters->isEmpty()) {
             return [
-                'start' => $session?->start_date ? bsDate($session->start_date, 'd F Y') : null,
-                'end' => $session?->end_date ? bsDate($session->end_date, 'd F Y') : null,
+                'start' => $session?->start_date ? bsDate($session->start_date, 'Y, F d') : null,
+                'end' => $session?->end_date ? bsDate($session->end_date, 'Y, F d') : null,
                 'rows' => [],
                 'months' => [],
                 'todayPct' => null,
@@ -683,8 +683,8 @@ class AcademicSessionController extends Controller
                     'completed' => 'Completed',
                     default => ucfirst($semester->status),
                 },
-                'start_label' => bsDate($start, 'd F Y'),
-                'end_label' => bsDate($end, 'd F Y'),
+                'start_label' => bsDate($start, 'Y, F d'),
+                'end_label' => bsDate($end, 'Y, F d'),
                 'left' => $leftPct,
                 'width' => max($widthPct, 2),
                 'barClass' => $barClass,
@@ -693,8 +693,8 @@ class AcademicSessionController extends Controller
         })->all();
 
         return [
-            'start' => bsDate($globalStart, 'd F Y'),
-            'end' => bsDate($globalEnd, 'd F Y'),
+            'start' => bsDate($globalStart, 'Y, F d'),
+            'end' => bsDate($globalEnd, 'Y, F d'),
             'rows' => $rows,
             'months' => $months,
             'todayPct' => $todayPct,
@@ -756,7 +756,7 @@ class AcademicSessionController extends Controller
 
             $dateWindow = 'Follows session timeline';
             if ($dateCandidates->isNotEmpty()) {
-                $dateWindow = bsDate($dateCandidates->min(), 'd M Y') . ' - ' . bsDate($dateCandidates->max(), 'd M Y');
+                $dateWindow = bsDate($dateCandidates->min(), 'd F Y') . ' - ' . bsDate($dateCandidates->max(), 'd F Y');
             }
 
             return [

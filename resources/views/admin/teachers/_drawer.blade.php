@@ -115,7 +115,7 @@
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Employment</p>
                 <dl class="space-y-1.5 text-sm">
                     <div class="flex gap-2"><dt class="w-24 text-slate-500 shrink-0">Department</dt><dd class="font-medium text-slate-700 truncate">{{ $teacher->department?->name ?? '—' }}</dd></div>
-                    <div class="flex gap-2"><dt class="w-24 text-slate-500 shrink-0">Joined</dt><dd class="font-medium text-slate-700">{{ $teacher->join_date ? bsDate($teacher->join_date, 'd M Y') : '—' }}</dd></div>
+                    <div class="flex gap-2"><dt class="w-24 text-slate-500 shrink-0">Joined</dt><dd class="font-medium text-slate-700">{{ $teacher->join_date ? bsDate($teacher->join_date, 'Y, F d') : '—' }}</dd></div>
                     <div class="flex gap-2"><dt class="w-24 text-slate-500 shrink-0">Type</dt><dd class="font-medium text-slate-700">{{ ucfirst($teacher->employment_type ?? '—') }}</dd></div>
                 </dl>
             </div>

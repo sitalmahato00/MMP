@@ -34,7 +34,7 @@
                         <span class="rounded-full bg-white/15 px-3 py-1.5">Sem {{ $attendanceSession->semester }}</span>
                     </div>
                     <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">{{ $attendanceSession->subject?->name ?? 'Class attendance' }}</h1>
-                    <p class="mt-2 text-sm leading-6 text-white/75">Detailed class attendance review for {{ $attendanceSession->teacher?->user?->name ?? 'the teacher' }} on {{ bsDate($attendanceSession->date, 'd M Y') ?: '—' }}.</p>
+                    <p class="mt-2 text-sm leading-6 text-white/75">Detailed class attendance review for {{ $attendanceSession->teacher?->user?->name ?? 'the teacher' }} on {{ bsDate($attendanceSession->date, 'Y, F d') ?: '—' }}.</p>
                     <div class="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold text-white/80">
                         <span class="rounded-full bg-white/15 px-3 py-1.5">{{ $attendanceSession->program?->department?->name ?? 'Department' }}</span>
                         <span class="rounded-full bg-white/15 px-3 py-1.5">{{ $attendanceSession->program?->name ?? 'Program' }}</span>
@@ -190,7 +190,7 @@
                     </div>
                     <div class="flex items-center justify-between gap-3">
                         <dt class="text-slate-500">Date & Time</dt>
-                        <dd class="font-semibold text-slate-900">{{ bsDate($attendanceSession->date, 'd M Y') ?: '—' }} · {{ $attendanceSession->period ?? 'N/A' }}</dd>
+                        <dd class="font-semibold text-slate-900">{{ bsDate($attendanceSession->date, 'Y, F d') ?: '—' }} · {{ $attendanceSession->period ?? 'N/A' }}</dd>
                     </div>
                     <div class="flex items-center justify-between gap-3">
                         <dt class="text-slate-500">Semester</dt>
@@ -233,7 +233,7 @@
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
-                                    <p class="font-bold text-slate-900">{{ bsDate($history->date, 'd M Y') ?: '—' }}</p>
+                                    <p class="font-bold text-slate-900">{{ bsDate($history->date, 'Y, F d') ?: '—' }}</p>
                                     <p class="text-xs text-slate-400">{{ $history->teacher?->user?->name ?? 'Teacher' }} · Sem {{ $history->semester }}</p>
                                 </div>
                                 <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700 shadow-sm">{{ $historyRate }}%</span>
