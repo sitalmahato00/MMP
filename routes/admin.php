@@ -62,6 +62,8 @@ Route::resource('students', StudentController::class);
 Route::post('students/bulk-promote', [StudentController::class, 'bulkPromote'])->name('students.bulk-promote');
 Route::get('students/{student}/drawer', [StudentController::class, 'drawer'])->name('students.drawer');
 Route::resource('teachers', TeacherController::class);
+Route::get('teachers/{teacher}/drawer', [TeacherController::class, 'drawer'])->name('teachers.drawer');
+Route::post('teachers/bulk-action', [TeacherController::class, 'bulkAction'])->name('teachers.bulk-action');
 Route::resource('parents', ParentController::class);
 Route::resource('alumni', AlumniController::class);
 Route::resource('staff', StaffController::class);
