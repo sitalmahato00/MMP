@@ -182,6 +182,13 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
         if (this._parseValue(this.bsValue)) {
             this._syncAD();
             this.buildCalendar();
+
+            this.$nextTick(() => {
+                const el = this.$refs.input;
+                if (el) {
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
         }
     },
 
@@ -208,18 +215,16 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
 }));
 
 const dashboardKpiStyles = {
-    red: {
-        trend: 'bg-red-50 text-[#8B0000] ring-1 ring-red-100',
-    },
-    amber: {
-        trend: 'bg-amber-50 text-amber-700 ring-1 ring-amber-100',
-    },
-    green: {
-        trend: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
-    },
-    slate: {
-        trend: 'bg-slate-50 text-slate-700 ring-1 ring-slate-200',
-    },
+    blue:    { bg: 'bg-blue-50',    text: 'text-blue-600',    trend: 'bg-blue-50 text-blue-600' },
+    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', trend: 'bg-emerald-50 text-emerald-600' },
+    violet:  { bg: 'bg-violet-50',  text: 'text-violet-600',  trend: 'bg-violet-50 text-violet-600' },
+    amber:   { bg: 'bg-amber-50',   text: 'text-amber-600',   trend: 'bg-amber-50 text-amber-600' },
+    indigo:  { bg: 'bg-indigo-50',  text: 'text-indigo-600',  trend: 'bg-indigo-50 text-indigo-600' },
+    rose:    { bg: 'bg-rose-50',    text: 'text-rose-600',    trend: 'bg-rose-50 text-rose-600' },
+    // Legacy fallbacks
+    red:     { bg: 'bg-red-50',     text: 'text-red-600',     trend: 'bg-red-50 text-red-600' },
+    green:   { bg: 'bg-emerald-50', text: 'text-emerald-600', trend: 'bg-emerald-50 text-emerald-600' },
+    slate:   { bg: 'bg-slate-50',   text: 'text-slate-600',   trend: 'bg-slate-50 text-slate-600' },
 };
 
 const dashboardAlertStyles = {
@@ -430,22 +435,14 @@ const initializePrincipalDashboard = () => {
     }
 
     const endpoint = root.dataset.dashboardEndpoint || window.location.href;
-    const loadingBadge = root.querySelector('[data-dashboard-loading]');
-    const periodDisplays = Array.from(root.querySelectorAll('[data-dashboard-period-display]'));
-    const periodLabel = root.querySelector('[data-dashboard-period-label]');
     const sessionDisplay = root.querySelector('[data-dashboard-session-display]');
-    const heroSession = root.querySelector('[data-dashboard-hero-session]');
     const rangeDisplay = root.querySelector('[data-dashboard-range-display]');
     const updatedDisplay = root.querySelector('[data-dashboard-updated-display]');
-    const sessionPanel = root.querySelector('[data-dashboard-session-panel]');
-    const sessionSelect = root.querySelector('[data-dashboard-session-select]');
-    const sessionApply = root.querySelector('[data-dashboard-session-apply]');
     const alertList = root.querySelector('[data-dashboard-alert-list]');
     const highlightContainer = root.querySelector('[data-dashboard-highlight]');
     const noticeList = root.querySelector('[data-dashboard-notice-list]');
     const applicationList = root.querySelector('[data-dashboard-application-list]');
     const kpiCards = Array.from(root.querySelectorAll('[data-kpi-card]'));
-    const periodButtons = Array.from(root.querySelectorAll('[data-dashboard-period]'));
     const enrollmentCanvas = root.querySelector('[data-principal-chart="enrollment"]');
     const departmentCanvas = root.querySelector('[data-principal-chart="department"]');
     const chartsSection = root.querySelector('#main-insights');
@@ -461,50 +458,13 @@ const initializePrincipalDashboard = () => {
     };
 
     const setLoading = (isLoading) => {
-        if (loadingBadge) {
-            loadingBadge.classList.toggle('hidden', !isLoading);
-        }
-
-        periodButtons.forEach((button) => {
-            button.disabled = isLoading;
-        });
-
-        if (sessionApply) {
-            sessionApply.disabled = isLoading;
-            sessionApply.classList.toggle('opacity-70', isLoading);
-            sessionApply.classList.toggle('cursor-wait', isLoading);
-        }
-    };
-
-    const setPeriodButtonState = (activePeriod) => {
-        periodButtons.forEach((button) => {
-            const isActive = button.dataset.dashboardPeriod === activePeriod;
-            button.setAttribute('aria-pressed', String(isActive));
-            button.classList.toggle('border-[#8B0000]', isActive);
-            button.classList.toggle('bg-white', isActive);
-            button.classList.toggle('shadow-sm', isActive);
-            button.classList.toggle('border-slate-200', !isActive);
-            button.classList.toggle('bg-white/70', !isActive);
-            button.classList.toggle('hover:border-red-200', !isActive);
-            button.classList.toggle('hover:bg-white', !isActive);
-        });
+        root.classList.toggle('opacity-70', isLoading);
+        root.classList.toggle('pointer-events-none', isLoading);
     };
 
     const syncHeaderState = (state) => {
-        periodDisplays.forEach((element) => {
-            element.textContent = `${capitalize(state.period)} view`;
-        });
-
-        if (periodLabel) {
-            periodLabel.textContent = state.periodLabel || '';
-        }
-
         if (sessionDisplay) {
             sessionDisplay.textContent = state.sessionLabel || 'Current session';
-        }
-
-        if (heroSession) {
-            heroSession.textContent = state.sessionLabel || 'Current session';
         }
 
         if (rangeDisplay) {
@@ -512,18 +472,8 @@ const initializePrincipalDashboard = () => {
         }
 
         if (updatedDisplay) {
-            updatedDisplay.textContent = formatTimestamp(state.updatedAt) || '';
+            updatedDisplay.textContent = `Updated ${formatTimestamp(state.updatedAt) || ''}`;
         }
-
-        if (sessionSelect && state.sessionId !== undefined && state.sessionId !== null) {
-            sessionSelect.value = String(state.sessionId);
-        }
-
-        if (sessionPanel) {
-            sessionPanel.classList.toggle('hidden', state.period !== 'session');
-        }
-
-        setPeriodButtonState(state.period || 'month');
     };
 
     const syncKpis = (state) => {
@@ -536,25 +486,20 @@ const initializePrincipalDashboard = () => {
                 return;
             }
 
-            if (card.href) {
-                element.setAttribute('href', card.href);
-            }
-
             const valueNode = element.querySelector('[data-kpi-value]');
             const trendNode = element.querySelector('[data-kpi-trend]');
             const noteNode = element.querySelector('[data-kpi-note]');
-            const trendStyle = dashboardKpiStyles[card.tone] || dashboardKpiStyles.slate;
+            const trendStyle = dashboardKpiStyles[card.tone] || dashboardKpiStyles.blue;
 
             if (valueNode) {
                 valueNode.textContent = card.value;
             }
 
             if (trendNode) {
-                trendNode.className = `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${trendStyle.trend}`;
+                trendNode.className = `inline-flex items-center gap-1 rounded-md ${trendStyle.trend} px-1.5 py-0.5 text-[10px] font-semibold`;
                 trendNode.innerHTML = `
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        ${trendIconMarkup(card.trendDirection)}
-                    </svg>
+                    ${card.trendDirection === 'up' ? '<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17l5-5 5 5M7 7l5 5 5-5"/></svg>' : ''}
+                    ${card.trendDirection === 'down' ? '<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7l-5 5-5-5m0 10l5-5 5 5"/></svg>' : ''}
                     ${escapeHtml(card.trend)}
                 `;
             }
@@ -573,29 +518,27 @@ const initializePrincipalDashboard = () => {
         const alerts = Array.isArray(state.alerts) ? state.alerts : [];
 
         if (!alerts.length) {
-            alertList.innerHTML = dashboardEmptyState({
-                title: 'No alerts',
-                message: 'The campus looks stable for the selected period.',
-            });
+            alertList.innerHTML = '<div class="py-8 text-center"><p class="text-xs text-slate-400">No alerts for this period.</p></div>';
             return;
         }
 
-        alertList.innerHTML = alerts.map((alert) => {
-            const style = dashboardAlertStyles[alert.tone] || dashboardAlertStyles.info;
+        const dotColors = {
+            danger: 'bg-rose-500',
+            warning: 'bg-amber-500',
+            success: 'bg-emerald-500',
+            info: 'bg-sky-500',
+        };
 
+        alertList.innerHTML = alerts.map((alert) => {
+            const dot = dotColors[alert.tone] || dotColors.info;
             return `
-                <div class="flex items-start gap-4 rounded-3xl border px-4 py-4 ${style.shell}">
-                    <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${style.iconWrap}">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">${style.icon}</svg>
-                    </div>
+                <div class="flex items-start gap-3 py-3.5">
+                    <div class="mt-0.5 h-2 w-2 shrink-0 rounded-full ${dot}"></div>
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-bold text-slate-950">${escapeHtml(alert.title)}</p>
-                        <p class="mt-1 text-sm leading-6 text-slate-600">${escapeHtml(alert.message)}</p>
+                        <p class="text-sm font-semibold text-slate-900">${escapeHtml(alert.title)}</p>
+                        <p class="mt-0.5 text-xs text-slate-500">${escapeHtml(alert.message)}</p>
                     </div>
-                    <div class="flex flex-col items-end gap-2">
-                        <span class="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] ${style.pill}">${escapeHtml(capitalize(alert.tone))}</span>
-                        ${alert.actionHref ? `<a href="${escapeHtml(alert.actionHref)}" class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:border-[#8B0000] hover:text-[#8B0000]">${escapeHtml(alert.actionLabel || 'Open')}</a>` : ''}
-                    </div>
+                    ${alert.actionHref ? `<a href="${escapeHtml(alert.actionHref)}" class="shrink-0 rounded-md border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">${escapeHtml(alert.actionLabel || 'View')}</a>` : ''}
                 </div>
             `;
         }).join('');
@@ -609,40 +552,47 @@ const initializePrincipalDashboard = () => {
         const highlight = state.highlight;
 
         if (!highlight) {
-            highlightContainer.innerHTML = dashboardEmptyState({
-                title: 'No highlight yet',
-                message: 'Add attendance and result data to reveal the strongest department.',
-            });
+            highlightContainer.innerHTML = `
+                <div class="flex h-full items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-8">
+                    <div class="text-center">
+                        <svg class="mx-auto h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/></svg>
+                        <p class="mt-2 text-xs font-medium text-slate-500">No highlight data yet</p>
+                        <p class="text-[11px] text-slate-400">Add attendance and results to see top department.</p>
+                    </div>
+                </div>
+            `;
             return;
         }
 
         highlightContainer.innerHTML = `
-            <div class="rounded-[1.75rem] bg-gradient-to-br from-slate-950 via-slate-900 to-[#8B0000] p-5 text-white shadow-[0_24px_60px_rgba(15,23,42,0.24)]">
-                <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-white/70">Top Department</p>
-                <h3 class="mt-3 text-2xl font-black tracking-tight">${escapeHtml(highlight.name)}</h3>
-                <p class="mt-2 text-sm leading-6 text-white/80">${escapeHtml(highlight.summary)}</p>
-                <div class="mt-5 flex items-end justify-between gap-4">
-                    <div>
-                        <span class="text-4xl font-black">${formatNumber(highlight.score, 1)}%</span>
-                        <p class="text-xs uppercase tracking-[0.18em] text-white/60">Performance score</p>
-                    </div>
-                    <div class="rounded-2xl bg-white/10 px-4 py-3 text-right">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">Students</p>
-                        <p class="mt-1 text-lg font-bold">${formatNumber(highlight.students, 0)}</p>
+            <div class="overflow-hidden rounded-xl border border-slate-200/80 shadow-sm">
+                <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-5 py-5 text-white">
+                    <p class="text-[10px] font-semibold uppercase tracking-widest text-white/50">Top Department</p>
+                    <h3 class="mt-2 text-xl font-bold tracking-tight">${escapeHtml(highlight.name)}</h3>
+                    <p class="mt-1 text-xs text-white/70">${escapeHtml(highlight.summary)}</p>
+                    <div class="mt-4 flex items-end justify-between">
+                        <div>
+                            <span class="text-3xl font-bold">${formatNumber(highlight.score, 1)}%</span>
+                            <p class="text-[10px] uppercase tracking-wider text-white/50">Performance</p>
+                        </div>
+                        <div class="rounded-lg bg-white/10 px-3 py-2 text-right">
+                            <p class="text-[10px] text-white/50">Students</p>
+                            <p class="text-sm font-bold">${formatNumber(highlight.students, 0)}</p>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-5 grid grid-cols-3 gap-3 text-center">
-                    <div class="rounded-2xl bg-white/10 px-3 py-3">
-                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">Attendance</p>
-                        <p class="mt-1 text-sm font-bold">${formatNumber(highlight.attendance_rate ?? 0, 1)}%</p>
+                <div class="grid grid-cols-3 divide-x divide-slate-100 bg-white">
+                    <div class="px-3 py-3 text-center">
+                        <p class="text-sm font-bold text-slate-900">${formatNumber(highlight.attendance_rate ?? 0, 1)}%</p>
+                        <p class="text-[10px] text-slate-500">Attendance</p>
                     </div>
-                    <div class="rounded-2xl bg-white/10 px-3 py-3">
-                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">Pass rate</p>
-                        <p class="mt-1 text-sm font-bold">${formatNumber(highlight.pass_rate ?? 0, 1)}%</p>
+                    <div class="px-3 py-3 text-center">
+                        <p class="text-sm font-bold text-slate-900">${formatNumber(highlight.pass_rate ?? 0, 1)}%</p>
+                        <p class="text-[10px] text-slate-500">Pass Rate</p>
                     </div>
-                    <div class="rounded-2xl bg-white/10 px-3 py-3">
-                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">Score</p>
-                        <p class="mt-1 text-sm font-bold">${formatNumber(highlight.score, 1)}%</p>
+                    <div class="px-3 py-3 text-center">
+                        <p class="text-sm font-bold text-slate-900">${formatNumber(highlight.score, 1)}%</p>
+                        <p class="text-[10px] text-slate-500">Score</p>
                     </div>
                 </div>
             </div>
@@ -657,35 +607,28 @@ const initializePrincipalDashboard = () => {
         const notices = Array.isArray(state.recentNotices) ? state.recentNotices : [];
 
         if (!notices.length) {
-            noticeList.innerHTML = dashboardEmptyState({
-                title: 'No notices',
-                message: 'No notices have been published recently.',
-                actionHref: '/admin/notices/create',
-                actionLabel: 'Post Notice',
-            });
+            noticeList.innerHTML = '<div class="py-8 text-center"><p class="text-xs text-slate-400">No recent notices.</p></div>';
             return;
         }
 
-        noticeList.innerHTML = notices.map((notice) => `
-            <a href="${escapeHtml(notice.href)}" class="group flex gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md">
-                <div class="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-2xl bg-red-50 text-[#8B0000]">
-                    <span class="text-[10px] font-bold uppercase leading-none">${escapeHtml(String(notice.date || '').split(' ')[1] || '')}</span>
-                    <span class="mt-1 text-lg font-black leading-none">${escapeHtml(String(notice.date || '').split(' ')[0] || '')}</span>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <p class="truncate text-sm font-bold text-slate-950">${escapeHtml(notice.title)}</p>
-                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">${escapeHtml(notice.type || 'Notice')}</span>
+        noticeList.innerHTML = notices.map((notice) => {
+            const dateParts = String(notice.date || '').split(' ');
+            const day = dateParts[0] || '';
+            const month = dateParts[1] || '';
+            return `
+                <a href="${escapeHtml(notice.href)}" class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
+                    <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                        <span class="text-[9px] font-semibold uppercase leading-none">${escapeHtml(month)}</span>
+                        <span class="text-sm font-bold leading-none">${escapeHtml(day)}</span>
                     </div>
-                    <p class="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">${escapeHtml(notice.excerpt || '')}</p>
-                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                        <span>${escapeHtml(notice.date || '')}</span>
-                        <span>•</span>
-                        <span>${escapeHtml(notice.author || 'System')}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium text-slate-900">${escapeHtml(notice.title)}</p>
+                        <p class="mt-0.5 text-xs text-slate-500">${escapeHtml(notice.date || '')} · ${escapeHtml(notice.author || 'System')}</p>
                     </div>
-                </div>
-            </a>
-        `).join('');
+                    <span class="shrink-0 self-center rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">${escapeHtml(notice.type || 'Notice')}</span>
+                </a>
+            `;
+        }).join('');
     };
 
     const renderApplicationList = (state) => {
@@ -696,34 +639,20 @@ const initializePrincipalDashboard = () => {
         const applications = Array.isArray(state.recentApplications) ? state.recentApplications : [];
 
         if (!applications.length) {
-            applicationList.innerHTML = dashboardEmptyState({
-                title: 'No applications',
-                message: 'Applications will appear here as soon as students start applying.',
-                actionHref: '/apply',
-                actionLabel: 'Open Apply Page',
-            });
+            applicationList.innerHTML = '<div class="py-8 text-center"><p class="text-xs text-slate-400">No applications yet.</p></div>';
             return;
         }
 
         applicationList.innerHTML = applications.map((application) => `
-            <a href="${escapeHtml(application.href)}" class="group flex gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h6M9 3h6a2 2 0 012 2v14l-5-3-5 3V5a2 2 0 012-2z" />
-                    </svg>
+            <a href="${escapeHtml(application.href)}" class="flex items-center gap-3 px-5 py-3.5 transition hover:bg-slate-50">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <p class="truncate text-sm font-bold text-slate-950">${escapeHtml(application.full_name)}</p>
-                        <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${escapeHtml(application.statusClass || '')}">${escapeHtml(application.statusLabel || 'Pending')}</span>
-                    </div>
-                    <p class="mt-1 text-sm leading-6 text-slate-600">${escapeHtml(application.department || 'General intake')} · ${escapeHtml(application.phone || '')}</p>
-                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                        <span>${escapeHtml(application.date || '')}</span>
-                        <span>•</span>
-                        <span>${escapeHtml(application.email || '')}</span>
-                    </div>
+                    <p class="truncate text-sm font-medium text-slate-900">${escapeHtml(application.full_name)}</p>
+                    <p class="mt-0.5 text-xs text-slate-500">${escapeHtml(application.department || 'General')} · ${escapeHtml(application.date || '')}</p>
                 </div>
+                <span class="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold ${escapeHtml(application.statusClass || 'bg-amber-100 text-amber-700')}">${escapeHtml(application.statusLabel || 'Pending')}</span>
             </a>
         `).join('');
     };
@@ -914,30 +843,6 @@ const initializePrincipalDashboard = () => {
             }
         }
     };
-
-    periodButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            const selectedPeriod = button.dataset.dashboardPeriod;
-
-            if (!selectedPeriod || selectedPeriod === currentState.period) {
-                return;
-            }
-
-            fetchState({
-                period: selectedPeriod,
-                session_id: sessionSelect?.value || currentState.sessionId,
-            });
-        });
-    });
-
-    if (sessionApply) {
-        sessionApply.addEventListener('click', () => {
-            fetchState({
-                period: 'session',
-                session_id: sessionSelect?.value || currentState.sessionId,
-            });
-        });
-    }
 
     if (chartsSection && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {

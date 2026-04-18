@@ -10,13 +10,15 @@ class Mark extends Model
     use HasFactory;
 
     protected $fillable = [
-        'exam_id', 'student_id', 'subject_id', 'teacher_id',
+        'exam_id', 'student_id', 'subject_id', 'program_id', 'teacher_id',
+        'semester',
         'internal_theory_marks', 'external_theory_marks',
         'internal_practical_marks', 'external_practical_marks',
         'is_absent', 'is_withheld', 'status', 'remarks',
     ];
 
     protected $casts = [
+        'semester' => 'integer',
         'internal_theory_marks' => 'decimal:2',
         'external_theory_marks' => 'decimal:2',
         'internal_practical_marks' => 'decimal:2',
@@ -40,6 +42,11 @@ class Mark extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
     }
 
     public function teacher()

@@ -46,6 +46,11 @@ class AcademicSession extends Model
         return $this->hasMany(AttendanceSession::class);
     }
 
+    public function semesters()
+    {
+        return $this->hasMany(AcademicSessionSemester::class)->orderBy('semester_number');
+    }
+
     // ─── Scopes ────────────────────────────────────────────
 
     public function scopeActive($query)

@@ -15,6 +15,7 @@ class Timetable extends Model
     ];
 
     protected $casts = [
+        'semester' => 'integer',
         'start_date' => 'date',
         'effective_from' => 'date',
         'is_active' => 'boolean',

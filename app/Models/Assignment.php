@@ -16,6 +16,7 @@ class Assignment extends Model
     ];
 
     protected $casts = [
+        'semester' => 'integer',
         'due_date' => 'date',
     ];
 

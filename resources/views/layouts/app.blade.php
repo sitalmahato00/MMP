@@ -61,33 +61,6 @@
         </div>
     </div>
 
-    {{-- Floating Save Button (auto-detects the main save/edit form on the page) --}}
-    <div id="floating-save-btn" class="hidden fixed bottom-6 right-6 z-50">
-        <button type="button" id="floating-save-trigger"
-            class="flex items-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold text-sm px-5 py-3 rounded-full shadow-lg shadow-green-900/30 transition-all duration-150 hover:scale-105 active:scale-95">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-            </svg>
-            Save Changes
-        </button>
-    </div>
-    <script>
-    (function () {
-        // Find the primary "save" form on this page (has a submit button containing save/create/update text)
-        const allForms = Array.from(document.querySelectorAll('form'));
-        const mainForm = allForms.find(function (f) {
-            const btn = f.querySelector('button[type="submit"]');
-            return btn && /save|create|update|add|publish/i.test(btn.textContent.trim());
-        });
-        if (mainForm) {
-            document.getElementById('floating-save-btn').classList.remove('hidden');
-            document.getElementById('floating-save-trigger').addEventListener('click', function () {
-                mainForm.requestSubmit ? mainForm.requestSubmit() : mainForm.submit();
-            });
-        }
-    })();
-    </script>
-    
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

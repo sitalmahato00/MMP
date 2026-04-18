@@ -11,10 +11,30 @@ use Illuminate\Support\Facades\Storage;
 
 class DepartmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $departments = Department::with('hod')->withCount('programs')->latest()->get();
-        return view('admin.departments.index', compact('departments'));
+        $search = trim($request->string('search')->toString());
+
+        $departments = Department::query()
+            ->select(['id', 'name', 'code', 'description', 'photo', 'hod_id', 'is_active', 'created_at'])
+            ->with(['hod:id,name'])
+            ->withCount('programs')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($inner) use ($search) {
+                    $inner->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('hod', fn ($hod) => $hod->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->latest('id')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('admin.departments.index', [
+            'departments' => $departments,
+            'search' => $search,
+        ]);
     }
 
     public function create()

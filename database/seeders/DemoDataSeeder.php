@@ -1393,6 +1393,8 @@ class DemoDataSeeder extends Seeder
                         'subject_id' => $subject->id,
                     ],
                     [
+                        'program_id' => $subject->program_id,
+                        'semester' => $subject->semester,
                         'teacher_id' => $teacher->id,
                         'internal_theory_marks' => $internalTheoryMarks,
                         'external_theory_marks' => $externalTheoryMarks,

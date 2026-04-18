@@ -2,7 +2,7 @@
 @section('title', $department->name)
 
 @section('content')
-<x-page-header :title="$department->name" subtitle="Department profile, media, and academic links."
+<x-page-header :title="$department->name" subtitle="Department profile, syllabus, and academic links."
                back="{{ route('admin.departments.index') }}">
     <x-slot name="actions">
         <x-btn href="{{ route('admin.departments.edit', $department) }}" variant="secondary" size="sm">Edit</x-btn>
@@ -42,37 +42,32 @@
 
     <div class="lg:col-span-2 space-y-4">
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <x-section-header title="Department Information"/>
-            <dl class="divide-y divide-gray-50">
-                <x-info-row label="Name">{{ $department->name }}</x-info-row>
-                <x-info-row label="Code">{{ $department->code }}</x-info-row>
-                <x-info-row label="HOD">{{ $department->hod?->name ?? '—' }}</x-info-row>
-                <x-info-row label="Description">{{ $department->description ?? '—' }}</x-info-row>
-            </dl>
-        </div>
+            <x-section-header title="Syllabus"/>
 
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <x-section-header title="Media"/>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="rounded-lg border border-gray-100 p-4">
-                    <div class="text-xs font-bold text-gray-400 uppercase mb-2">Department Photo</div>
-                    @if($department->photo_url)
-                        <img src="{{ $department->photo_url }}" alt="{{ $department->name }}" class="w-full h-48 object-cover rounded-lg border border-gray-100">
-                    @else
-                        <p class="text-sm text-gray-500">No department photo uploaded.</p>
-                    @endif
-                </div>
-                <div class="rounded-lg border border-gray-100 p-4">
-                    <div class="text-xs font-bold text-gray-400 uppercase mb-2">Syllabus</div>
-                    @if($department->syllabus_url)
-                        <a href="{{ $department->syllabus_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-semibold text-[#8B0000] hover:underline">
-                            Download syllabus PDF
+            @if($department->syllabus_url)
+                <div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                    <p class="text-sm text-gray-600">Syllabus document is available for preview.</p>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ $department->syllabus_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 rounded-lg border border-[#8B0000]/20 bg-white px-3 py-1.5 text-xs font-bold text-[#8B0000] transition hover:bg-red-50">
+                            Preview PDF
                         </a>
-                    @else
-                        <p class="text-sm text-gray-500">No syllabus document uploaded.</p>
-                    @endif
+                        <a href="{{ $department->syllabus_url }}" download class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:bg-gray-100">
+                            Download PDF
+                        </a>
+                    </div>
                 </div>
-            </div>
+
+                <div class="mt-3 overflow-hidden rounded-lg border border-gray-200">
+                    <iframe
+                        src="{{ $department->syllabus_url }}#view=FitH"
+                        title="{{ $department->name }} syllabus preview"
+                        loading="lazy"
+                        class="h-[420px] w-full"
+                    ></iframe>
+                </div>
+            @else
+                <p class="text-sm text-gray-500">No syllabus document uploaded.</p>
+            @endif
         </div>
 
         @if($department->programs->count() > 0)
@@ -88,6 +83,16 @@
                 </div>
             </div>
         @endif
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <x-section-header title="Department Information"/>
+            <dl class="divide-y divide-gray-50">
+                <x-info-row label="Name">{{ $department->name }}</x-info-row>
+                <x-info-row label="Code">{{ $department->code }}</x-info-row>
+                <x-info-row label="HOD">{{ $department->hod?->name ?? '—' }}</x-info-row>
+                <x-info-row label="Description">{{ $department->description ?? '—' }}</x-info-row>
+            </dl>
+        </div>
     </div>
 </div>
 @endsection

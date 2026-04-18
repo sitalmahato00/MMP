@@ -13,7 +13,9 @@ return new class extends Migration
             $table->foreignId('exam_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
             $table->foreignId('subject_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('program_id')->constrained()->cascadeOnDelete();
             $table->foreignId('teacher_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedTinyInteger('semester');
 
             // CTEVT Marks Structure
             $table->decimal('internal_theory_marks', 5, 2)->nullable();
@@ -34,6 +36,7 @@ return new class extends Migration
             // Performance indexes
             $table->index(['exam_id', 'status'], 'idx_marks_exam_status');
             $table->index(['student_id', 'status'], 'idx_marks_student_status');
+            $table->index(['program_id', 'semester'], 'idx_marks_program_semester');
         });
     }
 

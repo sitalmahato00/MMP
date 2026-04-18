@@ -17,6 +17,7 @@ class Notice extends Model
     ];
 
     protected $casts = [
+        'semester' => 'integer',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
     ];

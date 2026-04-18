@@ -39,6 +39,20 @@ Route::resource('users', UserController::class);
 Route::resource('academic-sessions', AcademicSessionController::class);
 Route::patch('academic-sessions/{academicSession}/set-current', [AcademicSessionController::class, 'setCurrent'])
     ->name('academic-sessions.set-current');
+Route::get('academic-sessions/{academicSession}/preview-end', [AcademicSessionController::class, 'previewEnd'])
+    ->name('academic-sessions.preview-end');
+Route::post('academic-sessions/{academicSession}/end', [AcademicSessionController::class, 'endSession'])
+    ->name('academic-sessions.end');
+Route::post('academic-sessions/{academicSession}/semesters', [AcademicSessionController::class, 'storeSemester'])
+    ->name('academic-sessions.semesters.store');
+Route::put('academic-sessions/{academicSession}/semesters/{semester}', [AcademicSessionController::class, 'updateSemester'])
+    ->name('academic-sessions.semesters.update');
+Route::delete('academic-sessions/{academicSession}/semesters/{semester}', [AcademicSessionController::class, 'destroySemester'])
+    ->name('academic-sessions.semesters.destroy');
+Route::get('academic-sessions/{academicSession}/preview-advance', [AcademicSessionController::class, 'previewAdvance'])
+    ->name('academic-sessions.preview-advance');
+Route::post('academic-sessions/{academicSession}/advance', [AcademicSessionController::class, 'advanceSemesters'])
+    ->name('academic-sessions.advance');
 
 Route::resource('departments', DepartmentController::class);
 Route::resource('programs', ProgramController::class);

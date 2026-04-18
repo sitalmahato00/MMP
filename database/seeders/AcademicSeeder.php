@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\AcademicSession;
+use App\Models\AcademicSessionSemester;
 use App\Models\Alumni;
 use App\Models\Department;
 use App\Models\ParentModel;
@@ -43,6 +44,60 @@ class AcademicSeeder extends Seeder
                     'notes' => 'Seeded demo academic session for MMP.',
                 ]
             );
+
+            $semesterPlan = [
+                [
+                    'semester_number' => 1,
+                    'start_date' => now()->subDays(45)->toDateString(),
+                    'end_date' => now()->addDays(75)->toDateString(),
+                    'status' => 'running',
+                    'delay_reason' => null,
+                    'is_active' => true,
+                    'notes' => 'Regular intake semester is running as planned.',
+                ],
+                [
+                    'semester_number' => 3,
+                    'start_date' => now()->subDays(30)->toDateString(),
+                    'end_date' => now()->addDays(55)->toDateString(),
+                    'status' => 'running',
+                    'delay_reason' => null,
+                    'is_active' => true,
+                    'notes' => 'Mid-level batch currently in regular run.',
+                ],
+                [
+                    'semester_number' => 5,
+                    'start_date' => now()->subDays(70)->toDateString(),
+                    'end_date' => now()->addDays(18)->toDateString(),
+                    'status' => 'delayed',
+                    'delay_reason' => 'exam_late',
+                    'is_active' => true,
+                    'notes' => 'Delay due to exam publication and practical board schedule.',
+                ],
+                [
+                    'semester_number' => 4,
+                    'start_date' => now()->subDays(15)->toDateString(),
+                    'end_date' => now()->addDays(90)->toDateString(),
+                    'status' => 'delayed',
+                    'delay_reason' => 'internal_delay',
+                    'is_active' => true,
+                    'notes' => 'Late start caused by internal timetable realignment.',
+                ],
+            ];
+
+            AcademicSessionSemester::query()
+                ->where('academic_session_id', $session->id)
+                ->whereNotIn('semester_number', collect($semesterPlan)->pluck('semester_number')->all())
+                ->delete();
+
+            foreach ($semesterPlan as $semesterSetup) {
+                AcademicSessionSemester::query()->updateOrCreate(
+                    [
+                        'academic_session_id' => $session->id,
+                        'semester_number' => $semesterSetup['semester_number'],
+                    ],
+                    $semesterSetup
+                );
+            }
 
             $department = Department::withTrashed()->updateOrCreate(
                 ['code' => 'IT'],

@@ -2,11 +2,12 @@
 @section('title', 'Edit Department')
 
 @section('content')
-<x-page-header title="Edit Department" :subtitle="$department->name"
-               back="{{ route('admin.departments.index') }}"/>
+<div class="mx-auto max-w-4xl space-y-6">
+    <x-page-header title="Edit Department" :subtitle="$department->name"
+                   back="{{ route('admin.departments.index') }}"/>
 
-<form method="POST" action="{{ route('admin.departments.update', $department) }}" enctype="multipart/form-data" class="max-w-3xl space-y-6">
-    @csrf @method('PUT')
+    <form method="POST" action="{{ route('admin.departments.update', $department) }}" enctype="multipart/form-data" class="mx-auto w-full max-w-3xl space-y-6">
+        @csrf @method('PUT')
 
     <x-form-section title="Department Details">
         <x-form-row>
@@ -43,9 +44,14 @@
         </x-form-row>
     </x-form-section>
 
-    <div class="flex items-center gap-3">
-        <x-btn type="submit">Save Changes</x-btn>
-        <x-btn href="{{ route('admin.departments.index') }}" variant="secondary">Cancel</x-btn>
-    </div>
-</form>
+        <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <button type="submit" class="inline-flex items-center rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#6e0000]">
+                Save Changes
+            </button>
+            <a href="{{ route('admin.departments.index') }}" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
 @endsection
