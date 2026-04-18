@@ -22,6 +22,7 @@ class AcademicSeeder extends Seeder
         $demo = new DemoDataSeeder();
 
         DB::transaction(function () use ($demo): void {
+            $seedNow = now();
             $principal = $demo->seedUser('Dr. Principal', 'principal@mmp.edu.np', 'principal');
             $hod = $demo->seedUser('Er. Yubraj Chaudhary', 'hod.it@mmp.edu.np', 'hod');
             $teacherUser = $demo->seedUser('Er. Anil Khatri', 'teacher.it@mmp.edu.np', 'teacher');
@@ -48,8 +49,7 @@ class AcademicSeeder extends Seeder
             $semesterPlan = [
                 [
                     'semester_number' => 1,
-                    'start_date' => now()->subDays(45)->toDateString(),
-                    'end_date' => now()->addDays(75)->toDateString(),
+                    'start_date' => $seedNow->copy()->subDays(45),
                     'status' => 'running',
                     'delay_reason' => null,
                     'is_active' => true,
@@ -57,8 +57,7 @@ class AcademicSeeder extends Seeder
                 ],
                 [
                     'semester_number' => 3,
-                    'start_date' => now()->subDays(30)->toDateString(),
-                    'end_date' => now()->addDays(55)->toDateString(),
+                    'start_date' => $seedNow->copy()->subDays(30),
                     'status' => 'running',
                     'delay_reason' => null,
                     'is_active' => true,
@@ -66,8 +65,7 @@ class AcademicSeeder extends Seeder
                 ],
                 [
                     'semester_number' => 5,
-                    'start_date' => now()->subDays(70)->toDateString(),
-                    'end_date' => now()->addDays(18)->toDateString(),
+                    'start_date' => $seedNow->copy()->subDays(70),
                     'status' => 'delayed',
                     'delay_reason' => 'exam_late',
                     'is_active' => true,
@@ -75,14 +73,22 @@ class AcademicSeeder extends Seeder
                 ],
                 [
                     'semester_number' => 4,
-                    'start_date' => now()->subDays(15)->toDateString(),
-                    'end_date' => now()->addDays(90)->toDateString(),
+                    'start_date' => $seedNow->copy()->subDays(15),
                     'status' => 'delayed',
                     'delay_reason' => 'internal_delay',
                     'is_active' => true,
                     'notes' => 'Late start caused by internal timetable realignment.',
                 ],
             ];
+
+            $semesterPlan = array_map(function (array $semesterSetup) {
+                $startDate = $semesterSetup['start_date'];
+
+                return array_merge($semesterSetup, [
+                    'start_date' => $startDate->toDateString(),
+                    'end_date' => $startDate->copy()->addMonthsNoOverflow(6)->toDateString(),
+                ]);
+            }, $semesterPlan);
 
             AcademicSessionSemester::query()
                 ->where('academic_session_id', $session->id)

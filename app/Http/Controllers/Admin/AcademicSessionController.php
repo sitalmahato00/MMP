@@ -415,16 +415,29 @@ class AcademicSessionController extends Controller
         abort_if($academicSession->is_locked, 403, 'Session is already ended.');
         abort_unless($academicSession->is_active, 403, 'Only the active session can advance.');
 
-        $request->validate(['confirm_advance' => 'required|accepted']);
+        $data = $request->validate([
+            'confirm_advance' => 'required|accepted',
+            'selected_semesters' => 'required|array|min:1',
+            'selected_semesters.*' => 'integer|min:1',
+        ]);
 
-        $result = $this->sessionService->advanceSemesters($academicSession);
+        $result = $this->sessionService->advanceSemesters($academicSession, $data['selected_semesters'] ?? []);
 
         if (($result['failed'] ?? 0) > 0) {
-            return back()->with('error', 'Advance failed: ' . implode('; ', $result['errors'] ?? []));
+            $error = 'Advance failed: ' . implode('; ', $result['errors'] ?? []);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => $error], 422);
+            }
+            return back()
+                ->with('error', $error)
+                ->with('open_advance_modal', true)
+                ->withInput();
         }
 
         $created = implode(', ', $result['created'] ?? []);
-        $message = "Semesters advanced successfully.";
+        $message = ($result['created_new_session'] ?? false)
+            ? "New session '{$result['target_session']}' was created automatically and activated."
+            : "Semesters advanced successfully.";
 
         if (($result['promoted'] ?? 0) > 0) {
             $message .= " {$result['promoted']} student(s) promoted.";
@@ -441,8 +454,12 @@ class AcademicSessionController extends Controller
             }
         }
 
-        return redirect()->route('admin.academic-sessions.index')
-            ->with('success', $message);
+        $redirectUrl = route('admin.academic-sessions.index');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => $message, 'redirect' => $redirectUrl]);
+        }
+
+        return redirect($redirectUrl)->with('success', $message);
     }
 
     private function resolveSessionScope(string $scope): string

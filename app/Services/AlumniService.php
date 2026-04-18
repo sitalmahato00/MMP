@@ -12,20 +12,22 @@ use Illuminate\Support\Facades\DB;
 class AlumniService
 {
     /**
-     * Auto-convert all final-semester students to alumni when session ends.
-     * This is the core automation engine triggered by session end.
+     * Auto-convert final-semester students to alumni when a session ends or advances.
+     * When semester numbers are provided, only students in those semesters are converted.
      */
-    public function convertFinalYearStudents(AcademicSession $session): array
+    public function convertFinalYearStudents(AcademicSession $session, ?array $semesterNumbers = null): array
     {
         $converted = 0;
         $failed = 0;
         $errors = [];
 
-        // Get all final-semester active students in this session
         $finalStudents = Student::active()
             ->inSession($session->id)
             ->whereDoesntHave('alumnus')
             ->with(['user', 'department', 'program'])
+            ->when(!empty($semesterNumbers), function ($query) use ($semesterNumbers) {
+                $query->whereIn('current_semester', collect($semesterNumbers)->map(fn ($number) => (int) $number)->all());
+            })
             ->get()
             ->filter(fn ($student) => $student->isFinalSemester());
 

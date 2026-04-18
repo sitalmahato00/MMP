@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}?v=2">
     <meta name="application-name" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">
     <meta name="apple-mobile-web-app-title" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">

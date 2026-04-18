@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Helpers\NepaliDateHelper;
 use App\Models\{AcademicSession, AcademicSessionSemester, AuditLog, Program, Student};
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -219,17 +221,45 @@ class SessionService
 
         $runningNumbers = $runningSemesters->pluck('semester_number')->sort()->values()->all();
         $maxSemesters = (int) Program::max('total_semesters') ?: 6;
+        $activeStudents = Student::active()->inSession($session->id)->with('program')->get();
+        $studentsBySemester = $activeStudents->groupBy('current_semester');
 
-        // Calculate next semester numbers
-        $nextNumbers = [];
-        $graduatingNumbers = [];
-        foreach ($runningNumbers as $num) {
-            if ($num >= $maxSemesters) {
-                $graduatingNumbers[] = $num;
-            } else {
-                $nextNumbers[] = $num + 1;
-            }
-        }
+        $runningSemesterRows = $runningSemesters->map(function (AcademicSessionSemester $semester) use ($studentsBySemester, $maxSemesters) {
+            $semesterStudents = $studentsBySemester->get($semester->semester_number, collect());
+            $nextStartDate = Carbon::parse($semester->end_date)->startOfDay();
+            $nextEndDate = $this->semesterEndDate($nextStartDate);
+            $nextStatus = $this->semesterStatusByDates($nextStartDate, $nextEndDate);
+
+            return [
+                'id' => $semester->id,
+                'number' => $semester->semester_number,
+                'label' => 'Semester ' . $semester->semester_number,
+                'status' => $semester->status,
+                'status_label' => $this->semesterStatusLabel($semester->status),
+                'start_label' => bsDate($semester->start_date, 'd M Y'),
+                'end_label' => bsDate($semester->end_date, 'd M Y'),
+                'student_count' => $semesterStudents->count(),
+                'promote_count' => $semesterStudents->reject(fn (Student $student) => $student->isFinalSemester())->count(),
+                'graduate_count' => $semesterStudents->filter(fn (Student $student) => $student->isFinalSemester())->count(),
+                'next_number' => $semester->semester_number < $maxSemesters ? $semester->semester_number + 1 : null,
+                'next_start_label' => bsDate($nextStartDate, 'd M Y'),
+                'next_end_label' => bsDate($nextEndDate, 'd M Y'),
+                'next_status' => $nextStatus,
+                'next_status_label' => $this->semesterStatusLabel($nextStatus),
+            ];
+        })->values();
+
+        $nextNumbers = $runningSemesterRows
+            ->pluck('next_number')
+            ->filter()
+            ->values()
+            ->all();
+
+        $graduatingNumbers = $runningSemesterRows
+            ->filter(fn (array $row) => (int) $row['number'] >= $maxSemesters)
+            ->pluck('number')
+            ->values()
+            ->all();
 
         // Determine if we need a new session
         $existingCompleted = $session->semesters()
@@ -246,8 +276,6 @@ class SessionService
         }
         sort($nextNumbers);
 
-        // Student counts
-        $activeStudents = Student::active()->inSession($session->id)->with('program')->get();
         $toPromote = $activeStudents->reject(fn ($s) => $s->isFinalSemester())->count();
         $toGraduate = $activeStudents->filter(fn ($s) => $s->isFinalSemester())->count();
 
@@ -264,12 +292,20 @@ class SessionService
         }
         ksort($bySemester);
 
-        $targetSession = $session;
+        $targetSession = null;
+        $targetSessionName = null;
         if ($needsNewSession) {
             $targetSession = AcademicSession::where('status', 'upcoming')
                 ->where('id', '!=', $session->id)
                 ->orderBy('start_date')
                 ->first();
+
+            $targetSessionName = $targetSession?->name;
+
+            if (!$targetSessionName && $runningSemesters->isNotEmpty()) {
+                $targetSessionData = $this->buildAutoSessionData($runningSemesters);
+                $targetSessionName = $targetSessionData['name'];
+            }
         }
 
         return [
@@ -277,13 +313,15 @@ class SessionService
             'next_numbers' => $nextNumbers,
             'graduating_numbers' => $graduatingNumbers,
             'needs_new_session' => $needsNewSession,
-            'target_session' => $targetSession?->name,
+            'target_session' => $targetSessionName,
             'target_session_exists' => $targetSession !== null,
             'total_students' => $activeStudents->count(),
             'to_promote' => $toPromote,
             'to_graduate' => $toGraduate,
             'by_semester' => $bySemester,
             'max_semesters' => $maxSemesters,
+            'running_semesters' => $runningSemesterRows->all(),
+            'default_selected_numbers' => $runningNumbers,
         ];
     }
 
@@ -300,10 +338,10 @@ class SessionService
      * 4. Create next semesters (in same session or new session)
      * 5. If new session needed: end current, activate next
      */
-    public function advanceSemesters(AcademicSession $session): array
+    public function advanceSemesters(AcademicSession $session, array $selectedSemesterNumbers = []): array
     {
         try {
-            return DB::transaction(function () use ($session) {
+            return DB::transaction(function () use ($session, $selectedSemesterNumbers) {
                 $runningSemesters = $session->semesters()
                     ->where('status', 'running')
                     ->orderBy('semester_number')
@@ -314,15 +352,28 @@ class SessionService
                 }
 
                 $runningNumbers = $runningSemesters->pluck('semester_number')->sort()->values()->all();
+                $selectedNumbers = collect($selectedSemesterNumbers)
+                    ->map(fn ($number) => (int) $number)
+                    ->unique()
+                    ->values();
+
+                if ($selectedNumbers->isEmpty()) {
+                    return ['failed' => 1, 'errors' => ['Select at least one semester to advance.']];
+                }
+
+                $selectedSemesters = $runningSemesters->whereIn('semester_number', $selectedNumbers->all())->values();
+
+                if ($selectedSemesters->isEmpty()) {
+                    return ['failed' => 1, 'errors' => ['Selected semesters are not available for advance.']];
+                }
+
                 $maxSemesters = (int) Program::max('total_semesters') ?: 6;
 
-                // Calculate next semester numbers
-                $nextNumbers = [];
-                foreach ($runningNumbers as $num) {
-                    if ($num < $maxSemesters) {
-                        $nextNumbers[] = $num + 1;
-                    }
-                }
+                $nextNumbers = $selectedSemesters
+                    ->map(fn (AcademicSessionSemester $semester) => $semester->semester_number + 1)
+                    ->filter(fn ($number) => $number <= $maxSemesters)
+                    ->unique()
+                    ->values();
 
                 // Determine if next semesters conflict with existing completed ones
                 $existingCompleted = $session->semesters()
@@ -330,19 +381,28 @@ class SessionService
                     ->pluck('semester_number')
                     ->all();
 
-                $needsNewSession = !empty(array_intersect($nextNumbers, $existingCompleted));
+                $needsNewSession = !empty(array_intersect($nextNumbers->all(), $existingCompleted));
 
-                // Include sem 1 for new admissions when staying in same session
-                if (!$needsNewSession && !in_array(1, $nextNumbers)) {
-                    $nextNumbers[] = 1;
+                if ($needsNewSession && $selectedSemesters->count() !== $runningSemesters->count()) {
+                    return [
+                        'failed' => 1,
+                        'errors' => ['Select all running semesters to move the cycle into the next session.'],
+                    ];
                 }
-                sort($nextNumbers);
+
+                // Include sem 1 for new admissions only when the full running set is being advanced in-place.
+                if (!$needsNewSession && $selectedSemesters->count() === $runningSemesters->count() && !in_array(1, $nextNumbers->all(), true)) {
+                    $nextNumbers->push(1);
+                }
+
+                $nextNumbers = $nextNumbers->unique()->sort()->values();
 
                 // ── Step 1: Promote students ──────────────────────────
-                $promoted = $this->promoteStudents($session);
+                $selectedSemesterNumberList = $selectedSemesters->pluck('semester_number')->values()->all();
+                $promoted = $this->promoteStudents($session, $selectedSemesterNumberList);
 
                 // ── Step 2: Graduate final-semester students ──────────
-                $alumniResult = $this->alumniService->convertFinalYearStudents($session);
+                $alumniResult = $this->alumniService->convertFinalYearStudents($session, $selectedSemesterNumberList);
                 $converted = $alumniResult['converted'] ?? 0;
 
                 if (($alumniResult['failed'] ?? 0) > 0) {
@@ -351,13 +411,15 @@ class SessionService
                     );
                 }
 
-                // ── Step 3: Mark running semesters as completed ───────
+                // ── Step 3: Mark selected running semesters as completed ───────
                 $session->semesters()
+                    ->whereIn('semester_number', $selectedSemesterNumberList)
                     ->where('status', 'running')
                     ->update(['status' => 'completed', 'is_active' => false]);
 
                 // ── Step 4: Determine target session ─────────────────
                 $targetSession = $session;
+                $createdNewSession = false;
 
                 if ($needsNewSession) {
                     $nextSession = AcademicSession::where('status', 'upcoming')
@@ -366,9 +428,8 @@ class SessionService
                         ->first();
 
                     if (!$nextSession) {
-                        throw new \RuntimeException(
-                            'No upcoming session available. Create a new session first.'
-                        );
+                        $nextSession = $this->createAutoSession($session, $selectedSemesters);
+                        $createdNewSession = true;
                     }
 
                     // End current session
@@ -386,32 +447,51 @@ class SessionService
 
                 // ── Step 5: Create next semesters ────────────────────
                 $created = [];
-                $semesterStartDate = $needsNewSession
-                    ? ($targetSession->start_date ?? now())
-                    : now();
-                $semesterEndDate = $this->semesterEndDate($semesterStartDate);
 
-                foreach ($nextNumbers as $num) {
-                    $exists = $targetSession->semesters()
-                        ->where('semester_number', $num)
-                        ->exists();
+                foreach ($selectedSemesters as $semester) {
+                    $nextNumber = $semester->semester_number + 1;
 
-                    if (!$exists) {
-                        $targetSession->semesters()->create([
-                            'semester_number' => $num,
+                    if ($nextNumber > $maxSemesters) {
+                        continue;
+                    }
+
+                    $semesterStartDate = Carbon::parse($semester->end_date)->startOfDay();
+                    $semesterEndDate = $this->semesterEndDate($semesterStartDate);
+                    $semesterStatus = $this->semesterStatusByDates($semesterStartDate, $semesterEndDate);
+                    $isActive = $semesterStatus === 'running';
+
+                    $targetSession->semesters()->updateOrCreate(
+                        ['semester_number' => $nextNumber],
+                        [
                             'start_date' => $semesterStartDate,
                             'end_date' => $semesterEndDate,
-                            'status' => 'running',
-                            'is_active' => true,
-                        ]);
-                        $created[] = $num;
-                    } else {
-                        // Activate existing upcoming semesters
-                        $targetSession->semesters()
-                            ->where('semester_number', $num)
-                            ->where('status', 'upcoming')
-                            ->update(['status' => 'running', 'is_active' => true]);
-                        $created[] = $num;
+                            'status' => $semesterStatus,
+                            'is_active' => $isActive,
+                            'delay_reason' => null,
+                        ]
+                    );
+
+                    $created[] = $nextNumber;
+                }
+
+                if (!$needsNewSession && $selectedSemesters->count() === $runningSemesters->count() && !$targetSession->semesters()->where('semester_number', 1)->exists()) {
+                    $firstSelectedSemester = $selectedSemesters->sortBy('semester_number')->first();
+
+                    if ($firstSelectedSemester) {
+                        $semesterStartDate = Carbon::parse($firstSelectedSemester->end_date)->startOfDay();
+                        $semesterEndDate = $this->semesterEndDate($semesterStartDate);
+                        $semesterStatus = $this->semesterStatusByDates($semesterStartDate, $semesterEndDate);
+
+                        $targetSession->semesters()->updateOrCreate(
+                            ['semester_number' => 1],
+                            [
+                                'start_date' => $semesterStartDate,
+                                'end_date' => $semesterEndDate,
+                                'status' => $semesterStatus,
+                                'is_active' => $semesterStatus === 'running',
+                                'delay_reason' => null,
+                            ]
+                        );
                     }
                 }
 
@@ -430,6 +510,8 @@ class SessionService
                     'created' => $created,
                     'target_session' => $targetSession->name,
                     'needs_new_session' => $needsNewSession,
+                    'created_new_session' => $createdNewSession,
+                    'selected_semesters' => $selectedSemesterNumberList,
                     'failed' => 0,
                     'errors' => [],
                 ];
@@ -444,6 +526,7 @@ class SessionService
                 'promoted' => 0,
                 'converted' => 0,
                 'created' => [],
+                'selected_semesters' => [],
                 'failed' => 1,
                 'errors' => [$e->getMessage()],
             ];
@@ -457,11 +540,14 @@ class SessionService
      * via marks.semester and marks.exam_id — those foreign keys don't change.
      * Only the student's current_semester pointer advances.
      */
-    private function promoteStudents(AcademicSession $session): int
+    private function promoteStudents(AcademicSession $session, array $semesterNumbers = []): int
     {
         $students = Student::active()
             ->inSession($session->id)
             ->with(['program'])
+            ->when(!empty($semesterNumbers), function ($query) use ($semesterNumbers) {
+                $query->whereIn('current_semester', $semesterNumbers);
+            })
             ->get()
             ->reject(fn (Student $s) => $s->isFinalSemester());
 
@@ -556,8 +642,77 @@ class SessionService
         return $created;
     }
 
+    private function createAutoSession(AcademicSession $sourceSession, Collection $selectedSemesters): AcademicSession
+    {
+        $sessionData = $this->buildAutoSessionData($selectedSemesters);
+
+        $baseName = $sessionData['name'];
+        $sessionName = $baseName;
+        $suffix = 2;
+
+        while (AcademicSession::where('name', $sessionName)->exists()) {
+            $sessionName = $baseName . '-' . $suffix;
+            $suffix++;
+        }
+
+        return AcademicSession::create([
+            'name' => $sessionName,
+            'name_bs' => $sessionName,
+            'start_date' => $sessionData['start_date'],
+            'end_date' => $sessionData['end_date'],
+            'status' => 'upcoming',
+            'is_active' => false,
+            'is_locked' => false,
+            'notes' => 'Auto-created during semester advance from ' . $sourceSession->name . '.',
+        ]);
+    }
+
+    private function buildAutoSessionData(Collection $selectedSemesters): array
+    {
+        $firstSelectedSemester = $selectedSemesters->sortBy('end_date')->first();
+        $startDate = Carbon::parse($firstSelectedSemester->end_date)->startOfDay();
+        $endDate = $startDate->copy()->addMonthsNoOverflow(12);
+
+        return [
+            'name' => $this->buildSessionName($startDate, $endDate),
+            'name_bs' => $this->buildSessionName($startDate, $endDate),
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->toDateString(),
+        ];
+    }
+
+    private function buildSessionName(Carbon $startDate, Carbon $endDate): string
+    {
+        $startYear = NepaliDateHelper::toBS($startDate, 'Y') ?: $startDate->format('Y');
+        $endYear = NepaliDateHelper::toBS($endDate, 'Y') ?: $endDate->format('Y');
+
+        return $startYear . '-' . $endYear;
+    }
+
     private function semesterEndDate(Carbon $startDate): Carbon
     {
         return $startDate->copy()->addMonthsNoOverflow(6);
+    }
+
+    private function semesterStatusByDates(Carbon $startDate, Carbon $endDate, ?Carbon $referenceDate = null): string
+    {
+        $referenceDate ??= now();
+
+        if ($startDate->gt($referenceDate)) {
+            return 'upcoming';
+        }
+
+        return 'running';
+    }
+
+    private function semesterStatusLabel(string $status): string
+    {
+        return match ($status) {
+            'running' => 'Running',
+            'upcoming' => 'Upcoming',
+            'delayed' => 'Delayed',
+            'completed' => 'Completed',
+            default => ucfirst($status),
+        };
     }
 }

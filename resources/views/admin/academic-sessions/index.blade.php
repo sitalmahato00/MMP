@@ -2,88 +2,151 @@
 @section('title', 'Academic Sessions')
 
 @section('content')
-<div class="space-y-6" x-data='{
-    openCreateSemester: {{ $errors->any() ? 'true' : 'false' }},
-    openEditSemester: null,
-    showEndModal: false,
-    endPreview: null,
-    endLoading: false,
-    showAdvanceModal: false,
-    advancePreview: null,
-    advanceLoading: false,
-    semesterDurationMonths: 6,
-    formatBsDate(date) {
-        return `${date.year}-${String(date.month + 1).padStart(2, "0")}-${String(date.date).padStart(2, "0")}`;
-    },
-    syncSemesterDuration(event) {
-        const form = event?.target?.closest("form");
-        if (!form || typeof NepaliDate === "undefined") {
-            return;
+@php
+    $semesterFormErrorKeys = ['semester_number', 'start_date', 'end_date', 'status', 'delay_reason', 'notes', 'is_active'];
+    $advanceFormErrorKeys = ['confirm_advance', 'selected_semesters'];
+@endphp
+
+<div class="space-y-6"
+    x-data='{ 
+        openCreateSemester: {{ $errors->hasAny($semesterFormErrorKeys) ? 'true' : 'false' }},
+        openEditSemester: null,
+        showEndModal: {{ $errors->has('confirm_end') ? 'true' : 'false' }},
+        endPreview: null,
+        endLoading: false,
+        showAdvanceModal: {{ ($errors->hasAny($advanceFormErrorKeys) || session("open_advance_modal")) ? 'true' : 'false' }},
+        advancePreview: null,
+        advanceLoading: false,
+        advanceSubmitting: false,
+        advanceError: null,
+        confirmAdvance: false,
+        selectedAdvanceSemesters: [],
+        semesterDurationMonths: 6,
+        init() {
+            if (this.showEndModal) {
+                this.loadEndPreview();
+            }
+
+            if (this.showAdvanceModal) {
+                this.loadAdvancePreview();
+            }
+        },
+        formatBsDate(date) {
+            return `${date.year}-${String(date.month + 1).padStart(2, "0")}-${String(date.date).padStart(2, "0")}`;
+        },
+        setDefaultAdvanceSelection() {
+            if (!Array.isArray(this.advancePreview?.running_semesters)) {
+                this.selectedAdvanceSemesters = [];
+                return;
+            }
+
+            this.selectedAdvanceSemesters = this.advancePreview.running_semesters.map((semester) => String(semester.number));
+        },
+        selectAllAdvanceSemesters(checked) {
+            if (!Array.isArray(this.advancePreview?.running_semesters)) {
+                this.selectedAdvanceSemesters = [];
+                return;
+            }
+
+            this.selectedAdvanceSemesters = checked
+                ? this.advancePreview.running_semesters.map((semester) => String(semester.number))
+                : [];
+        },
+        syncSemesterDuration(event) {
+            const form = event?.target?.closest("form");
+            if (!form || typeof NepaliDate === "undefined") {
+                return;
+            }
+
+            const startInput = form.querySelector("input[name=\"start_date\"]");
+            const endInput = form.querySelector("input[name=\"end_date\"]");
+
+            if (!startInput || !endInput) {
+                return;
+            }
+
+            const startValue = (startInput.value || "").trim();
+
+            if (!startValue) {
+                return;
+            }
+
+            try {
+                const semesterEnd = new NepaliDate(startValue);
+                semesterEnd.setMonth(semesterEnd.getMonth() + this.semesterDurationMonths);
+
+                endInput.value = this.formatBsDate(semesterEnd.getBS());
+                endInput.dispatchEvent(new Event("input", { bubbles: true }));
+                endInput.dispatchEvent(new Event("change", { bubbles: true }));
+            } catch (error) {
+                // Ignore invalid partial input until the date becomes valid.
+            }
+        },
+        loadEndPreview() {
+            this.endLoading = true;
+            this.endPreview = null;
+            fetch("{{ $selectedSession ? route('admin.academic-sessions.preview-end', $selectedSession) : '#' }}", {
+                headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(r => r.json())
+            .then(data => { this.endPreview = data; this.endLoading = false; })
+            .catch(() => { this.endLoading = false; });
+        },
+        loadAdvancePreview() {
+            this.advanceLoading = true;
+            this.advancePreview = null;
+            this.confirmAdvance = false;
+            this.advanceError = null;
+            fetch("{{ $selectedSession ? route('admin.academic-sessions.preview-advance', $selectedSession) : '#' }}", {
+                headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(r => r.json())
+            .then(data => { this.advancePreview = data; this.setDefaultAdvanceSelection(); this.advanceLoading = false; })
+            .catch(() => { this.advanceLoading = false; });
+        },
+        async submitAdvance() {
+            if (this.selectedAdvanceSemesters.length === 0 || !this.confirmAdvance || this.advanceSubmitting) return;
+            this.advanceSubmitting = true;
+            this.advanceError = null;
+            const body = new FormData();
+            const tokenMeta = document.querySelector("meta[name=\"csrf-token\"]");
+            body.append("_token", tokenMeta ? tokenMeta.content : "");
+            body.append("confirm_advance", "1");
+            this.selectedAdvanceSemesters.forEach(n => body.append("selected_semesters[]", n));
+            try {
+                const response = await fetch("{{ $selectedSession ? route('admin.academic-sessions.advance', $selectedSession) : '#' }}", {
+                    method: "POST",
+                    headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+                    body,
+                });
+                const data = await response.json();
+                if (response.ok && data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.error) {
+                    this.advanceError = data.error;
+                    this.advanceSubmitting = false;
+                } else {
+                    this.advanceError = "Unexpected response. Please try again.";
+                    this.advanceSubmitting = false;
+                }
+            } catch (err) {
+                this.advanceError = "Network error: " + err.message;
+                this.advanceSubmitting = false;
+            }
         }
+    }'
+    x-init="init()">
 
-        const startInput = form.querySelector("input[name=\"start_date\"]");
-        const endInput = form.querySelector("input[name=\"end_date\"]");
-
-        if (!startInput || !endInput) {
-            return;
-        }
-
-        const startValue = (startInput.value || "").trim();
-
-        if (!startValue) {
-            return;
-        }
-
-        try {
-            const semesterEnd = new NepaliDate(startValue);
-            semesterEnd.setMonth(semesterEnd.getMonth() + this.semesterDurationMonths);
-
-            endInput.value = this.formatBsDate(semesterEnd.getBS());
-            endInput.dispatchEvent(new Event("input", { bubbles: true }));
-            endInput.dispatchEvent(new Event("change", { bubbles: true }));
-        } catch (error) {
-            // Ignore invalid partial input until the date becomes valid.
-        }
-    },
-    loadEndPreview() {
-        this.endLoading = true;
-        this.endPreview = null;
-        fetch("{{ $selectedSession ? route('admin.academic-sessions.preview-end', $selectedSession) : '#' }}", {
-            headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(r => r.json())
-        .then(data => { this.endPreview = data; this.endLoading = false; })
-        .catch(() => { this.endLoading = false; });
-    },
-    loadAdvancePreview() {
-        this.advanceLoading = true;
-        this.advancePreview = null;
-        fetch("{{ $selectedSession ? route('admin.academic-sessions.preview-advance', $selectedSession) : '#' }}", {
-            headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(r => r.json())
-        .then(data => { this.advancePreview = data; this.advanceLoading = false; })
-        .catch(() => { this.advanceLoading = false; });
-    }
-}'>
     <section class="rounded-[1.6rem] border border-slate-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
-        <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-slate-950">Academic Sessions</h1>
-                <p class="mt-2 text-sm text-slate-600">Manage CTEVT-style sessions where multiple semesters can run together across all departments.</p>
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Session Controls</p>
+                <h2 class="mt-1 text-base font-black text-slate-950">Filter sessions or start a new one</h2>
             </div>
-
-            <a href="{{ route('admin.academic-sessions.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#6e0000]">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
-                </svg>
-                New Session
-            </a>
+            <a href="{{ route('admin.academic-sessions.create') }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-red-200 hover:text-[#8B0000]">New Session</a>
         </div>
-    </section>
 
-    <section class="rounded-[1.6rem] border border-slate-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
-        <form method="GET" action="{{ route('admin.academic-sessions.index') }}" class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <form method="GET" action="{{ route('admin.academic-sessions.index') }}" class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <div>
                 <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Session Type</label>
                 <select name="session_scope" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
@@ -629,8 +692,8 @@
 
     {{-- ── Advance Semesters Confirmation Modal ──────────── --}}
     @if($selectedSession?->is_active && !$selectedSession?->is_locked)
-        <div x-show="showAdvanceModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @keydown.escape.window="showAdvanceModal = false">
-            <div @click.outside="showAdvanceModal = false" class="mx-4 w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div x-show="showAdvanceModal" x-cloak class="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-6 backdrop-blur-sm" @keydown.escape.window="showAdvanceModal = false">
+            <div @click.outside="showAdvanceModal = false" class="w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
                 <div class="flex items-start justify-between">
                     <div>
                         <h3 class="text-lg font-black text-blue-900">Advance Semesters: {{ $selectedSession->name }}</h3>
@@ -650,94 +713,121 @@
                 {{-- Preview Content --}}
                 <template x-if="advancePreview && !advanceLoading">
                     <div class="mt-4 space-y-4">
-                        {{-- Current → Next --}}
                         <div class="rounded-xl bg-slate-50 p-4">
-                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Semester Transition</p>
-                            <div class="mt-2 flex items-center gap-3">
-                                <div class="rounded-lg bg-white px-3 py-2 text-sm font-bold text-slate-800 ring-1 ring-slate-200">
-                                    Sem <span x-text="advancePreview.running_numbers.join(', ')"></span>
-                                </div>
-                                <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                                <div class="rounded-lg bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 ring-1 ring-blue-200">
-                                    Sem <span x-text="advancePreview.next_numbers.join(', ')"></span>
-                                </div>
-                            </div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Advance Selection</p>
+                            <p class="mt-1 text-sm text-slate-700">Default all running semesters are selected. Uncheck any semester you do not want to advance.</p>
+                            <p class="mt-2 text-xs text-slate-500">
+                                <span class="font-semibold text-slate-700" x-text="selectedAdvanceSemesters.length"></span>
+                                semester(s) selected.
+                            </p>
                         </div>
 
-                        {{-- Student Impact --}}
-                        <div class="grid grid-cols-3 gap-3">
-                            <div class="rounded-xl bg-slate-50 px-3 py-2 text-center">
-                                <p class="text-[10px] font-bold uppercase text-slate-500">Total Students</p>
-                                <p class="text-lg font-black text-slate-900" x-text="advancePreview.total_students"></p>
+                        <template x-if="advancePreview.needs_new_session && !advancePreview.target_session_exists">
+                            <div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                No upcoming session was found. A new session will be created automatically when you advance:
+                                <span class="font-semibold" x-text="advancePreview.target_session"></span>
                             </div>
-                            <div class="rounded-xl bg-emerald-50 px-3 py-2 text-center">
-                                <p class="text-[10px] font-bold uppercase text-emerald-600">Promote</p>
-                                <p class="text-lg font-black text-emerald-700" x-text="advancePreview.to_promote"></p>
-                            </div>
-                            <div class="rounded-xl bg-amber-50 px-3 py-2 text-center">
-                                <p class="text-[10px] font-bold uppercase text-amber-600">Graduate</p>
-                                <p class="text-lg font-black text-amber-700" x-text="advancePreview.to_graduate"></p>
-                            </div>
-                        </div>
+                        </template>
 
-                        {{-- Per-semester breakdown --}}
-                        <template x-if="Object.keys(advancePreview.by_semester).length > 0">
-                            <div class="rounded-xl border border-slate-100 bg-white p-3">
-                                <p class="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Per-Semester Breakdown</p>
-                                <template x-for="(data, sem) in advancePreview.by_semester" :key="sem">
-                                    <div class="flex items-center justify-between border-b border-slate-50 py-1.5 text-xs last:border-0">
-                                        <span class="font-bold text-slate-700" x-text="sem"></span>
-                                        <div class="flex gap-3">
-                                            <span class="text-emerald-600" x-text="data.promote + ' promote'"></span>
-                                            <span class="text-amber-600" x-text="data.graduate + ' graduate'"></span>
+                        <template x-if="advancePreview.running_semesters?.length">
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between rounded-xl border border-slate-100 bg-white px-3 py-2.5">
+                                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                        <input
+                                            type="checkbox"
+                                            class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200"
+                                            :checked="selectedAdvanceSemesters.length > 0 && selectedAdvanceSemesters.length === advancePreview.running_semesters.length"
+                                            @change="selectAllAdvanceSemesters($event.target.checked)"
+                                        >
+                                        Select All
+                                    </label>
+                                    <span class="text-xs text-slate-500">Checked by default</span>
+                                </div>
+
+                                <template x-for="semester in advancePreview.running_semesters" :key="semester.id">
+                                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-white px-3 py-3 transition hover:border-slate-200">
+                                        <input
+                                            type="checkbox"
+                                            name="selected_semesters[]"
+                                            x-model="selectedAdvanceSemesters"
+                                            :value="String(semester.number)"
+                                            class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200"
+                                        >
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p class="text-sm font-bold text-slate-900" x-text="semester.label"></p>
+                                                    <p class="text-xs text-slate-500">
+                                                        <span x-text="semester.start_label"></span> → <span x-text="semester.end_label"></span>
+                                                    </p>
+                                                </div>
+                                                <span
+                                                    class="rounded-full px-2.5 py-1 text-[10px] font-bold"
+                                                    :class="semester.status === 'running' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'"
+                                                    x-text="semester.status_label"
+                                                ></span>
+                                            </div>
+
+                                            <div class="mt-3 grid gap-2 sm:grid-cols-3">
+                                                <div class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                                                    <span class="block font-semibold text-slate-500">Students</span>
+                                                    <span class="font-bold text-slate-800" x-text="semester.student_count"></span>
+                                                </div>
+                                                <div class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                                                    <span class="block font-semibold text-slate-500">Promote</span>
+                                                    <span class="font-bold text-emerald-700" x-text="semester.promote_count"></span>
+                                                </div>
+                                                <div class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                                                    <span class="block font-semibold text-slate-500">Graduate</span>
+                                                    <span class="font-bold text-amber-700" x-text="semester.graduate_count"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-3 rounded-lg border border-sky-100 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+                                                Next semester starts from the previous end date <span class="font-semibold" x-text="semester.next_start_label"></span>
+                                                and defaults to <span class="font-semibold" x-text="semester.next_status_label"></span>.
+                                            </div>
                                         </div>
-                                    </div>
+                                    </label>
                                 </template>
                             </div>
                         </template>
 
-                        {{-- Graduating semesters --}}
-                        <template x-if="advancePreview.graduating_numbers.length > 0">
-                            <div class="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2">
-                                <p class="text-xs text-amber-800">
-                                    <span class="font-bold">Semester <span x-text="advancePreview.graduating_numbers.join(', ')"></span></span>
-                                    students will be graduated to alumni (final semester).
-                                </p>
-                            </div>
+                        <template x-if="!advancePreview.running_semesters?.length">
+                            <p class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center text-sm text-slate-500">
+                                No running semesters are available to advance.
+                            </p>
                         </template>
 
-                        {{-- New session warning --}}
-                        <template x-if="advancePreview.needs_new_session">
-                            <div class="rounded-xl border px-3 py-2" :class="advancePreview.target_session_exists ? 'border-blue-100 bg-blue-50' : 'border-red-200 bg-red-50'">
-                                <template x-if="advancePreview.target_session_exists">
-                                    <p class="text-xs text-blue-800">
-                                        Advancing requires a <span class="font-bold">new session</span>. Current session will be ended and
-                                        <span class="font-bold" x-text="'\"' + advancePreview.target_session + '\"'"></span> will be activated.
-                                    </p>
-                                </template>
-                                <template x-if="!advancePreview.target_session_exists">
-                                    <p class="text-xs font-bold text-red-800">
-                                        ⚠ No upcoming session found! Create a new session first before advancing.
-                                    </p>
-                                </template>
-                            </div>
+                        <div class="rounded-xl border border-red-200 bg-red-50 p-3">
+                            <p class="text-xs font-bold text-red-800">Review before continuing.</p>
+                            <ul class="mt-1 space-y-0.5 text-xs text-red-700">
+                                <li>• Only checked semesters will be advanced</li>
+                                <li>• New semesters start from the previous semester end date</li>
+                                <li>• New semester status is set from its dates</li>
+                                <li>• If the cycle needs a new session, it will be created automatically</li>
+                            </ul>
+                        </div>
+
+                        <template x-if="advanceError">
+                            <div class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700" x-text="advanceError"></div>
                         </template>
 
-                        {{-- Confirm form --}}
-                        <form method="POST" action="{{ route('admin.academic-sessions.advance', $selectedSession) }}">
-                            @csrf
-                            <label class="flex items-center gap-2 text-sm text-slate-700">
-                                <input type="checkbox" name="confirm_advance" value="1" required class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200">
-                                I confirm advancing all running semesters
-                            </label>
-                            <div class="mt-4 flex items-center justify-end gap-2">
-                                <button type="button" @click="showAdvanceModal = false" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Cancel</button>
-                                <button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700"
-                                    :disabled="advancePreview?.needs_new_session && !advancePreview?.target_session_exists">
-                                    Advance Semesters →
-                                </button>
-                            </div>
-                        </form>
+                        <label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                            <input type="checkbox" x-model="confirmAdvance" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200">
+                            I confirm advancing the selected semesters
+                        </label>
+                        <div class="mt-4 flex items-center justify-end gap-2">
+                            <button type="button" @click="showAdvanceModal = false" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Cancel</button>
+                            <button
+                                type="button"
+                                @click="submitAdvance()"
+                                class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="selectedAdvanceSemesters.length === 0 || !confirmAdvance || advanceSubmitting">
+                                <span x-show="!advanceSubmitting">Advance Selected Semesters →</span>
+                                <span x-show="advanceSubmitting">Advancing…</span>
+                            </button>
+                        </div>
                     </div>
                 </template>
             </div>
