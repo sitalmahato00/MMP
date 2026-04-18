@@ -11,8 +11,10 @@ class Program extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'department_id', 'name', 'code', 'slug',
-        'total_semesters', 'duration_years', 'description', 'is_active',
+        'department_id', 'coordinator_id', 'name', 'code', 'slug',
+        'ctevt_code', 'affiliation_type',
+        'total_semesters', 'duration_years',
+        'description', 'eligibility', 'syllabus', 'is_active',
     ];
 
     protected $casts = [
@@ -26,6 +28,11 @@ class Program extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function coordinator()
+    {
+        return $this->belongsTo(Teacher::class, 'coordinator_id');
     }
 
     public function subjects()

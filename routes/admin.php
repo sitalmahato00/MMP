@@ -56,6 +56,7 @@ Route::post('academic-sessions/{academicSession}/advance', [AcademicSessionContr
 
 Route::resource('departments', DepartmentController::class);
 Route::resource('programs', ProgramController::class);
+Route::post('programs/bulk-action', [ProgramController::class, 'bulkAction'])->name('programs.bulk-action');
 
 // ── People Management ──────────────────────────────────────
 Route::resource('students', StudentController::class);
