@@ -22,7 +22,7 @@
     $attendancePctColor = $attendancePct === null ? 'text-slate-500' : ($attendancePct >= 75 ? 'text-emerald-600' : ($attendancePct >= 50 ? 'text-amber-600' : 'text-red-600'));
 @endphp
 
-<div x-data="{ tab: 'overview' }">
+<div x-data="{ tab: '{{ request('tab', 'overview') }}' }">
 
 {{-- ── HERO HEADER ─────────────────────────────────────────── --}}
 <div class="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 shadow-lg">
@@ -433,7 +433,7 @@
                     <td class="px-5 py-3 font-medium text-slate-800 max-w-[200px] truncate">{{ $sub->assignment?->title ?? '—' }}</td>
                     <td class="px-5 py-3 text-xs text-slate-500">{{ $sub->assignment?->subject?->name ?? '—' }}</td>
                     <td class="px-5 py-3 text-xs text-slate-500 hidden sm:table-cell">
-                        {{ $sub->assignment?->due_date ? Carbon::parse($sub->assignment->due_date)->format('d M Y') : '—' }}
+                        {{ $sub->assignment?->due_date ? bsDate($sub->assignment->due_date, 'd M Y') : '—' }}
                     </td>
                     <td class="px-5 py-3 text-center">
                         <span class="rounded-lg px-2.5 py-1 text-[11px] font-bold {{ $subCls }}">{{ ucfirst($sub->status) }}</span>
@@ -557,7 +557,7 @@
                 <div class="flex flex-wrap items-start justify-between gap-2">
                     <p class="text-sm font-bold text-slate-800">{{ $item['title'] }}</p>
                     <time class="flex-shrink-0 rounded-lg bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
-                        {{ $tDate instanceof \Carbon\Carbon ? $tDate->format('d M Y, h:i A') : $tDate }}
+                        {{ $tDate ? bsDate($tDate, 'd M Y, h:i A') : $tDate }}
                     </time>
                 </div>
                 @if($item['sub'])

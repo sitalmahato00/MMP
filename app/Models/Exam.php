@@ -13,11 +13,15 @@ class Exam extends Model
     protected $fillable = [
         'academic_session_id', 'department_id', 'name', 'type',
         'start_date', 'end_date', 'status',
+        'marks_open', 'is_published', 'published_at',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'marks_open' => 'boolean',
+        'is_published' => 'boolean',
+        'published_at' => 'datetime',
     ];
 
     public function academicSession()
@@ -40,6 +44,37 @@ class Exam extends Model
     public function marks()
     {
         return $this->hasMany(Mark::class);
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        if ($this->is_published || $this->status === 'results_published') {
+            return 'Published';
+        }
+
+        return match ($this->status) {
+            'ongoing' => 'Ongoing',
+            'completed' => $this->marks_open ? 'Marks Pending' : 'Verifying',
+            default => 'Upcoming',
+        };
+    }
+
+    public function getStatusToneAttribute(): string
+    {
+        if ($this->is_published || $this->status === 'results_published') {
+            return 'green';
+        }
+
+        return match ($this->status) {
+            'ongoing' => 'orange',
+            'completed' => $this->marks_open ? 'yellow' : 'purple',
+            default => 'blue',
+        };
+    }
+
+    public function getIsPublishedStateAttribute(): bool
+    {
+        return (bool) ($this->is_published || $this->status === 'results_published');
     }
 
     public function scopeBySession($query, $sessionId)

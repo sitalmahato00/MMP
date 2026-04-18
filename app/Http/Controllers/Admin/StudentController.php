@@ -187,12 +187,12 @@ class StudentController extends Controller
 
         $monthlyAttendance = $student->attendances
             ->filter(fn ($a) => $a->attendanceSession?->date !== null)
-            ->groupBy(fn ($a) => $a->attendanceSession->date->format('Y-m'))
+            ->groupBy(fn ($a) => bsDate($a->attendanceSession->date, 'Y-m'))
             ->sortKeysDesc()
             ->take(6)
             ->sortKeys()
             ->map(fn ($group) => [
-                'label'   => \Carbon\Carbon::parse($group->first()->attendanceSession->date)->format('M Y'),
+                'label'   => bsDate($group->first()->attendanceSession->date, 'M Y'),
                 'present' => $group->where('status', 'present')->count(),
                 'absent'  => $group->where('status', 'absent')->count(),
                 'total'   => $group->count(),
@@ -398,12 +398,12 @@ class StudentController extends Controller
         // Monthly breakdown (last 6 months)
         $monthlyAttendance = $student->attendances
             ->filter(fn ($a) => $a->attendanceSession?->date !== null)
-            ->groupBy(fn ($a) => $a->attendanceSession->date->format('Y-m'))
+            ->groupBy(fn ($a) => bsDate($a->attendanceSession->date, 'Y-m'))
             ->sortKeysDesc()
             ->take(6)
             ->sortKeys()
             ->map(fn ($group) => [
-                'label'   => \Carbon\Carbon::parse($group->first()->attendanceSession->date)->format('M Y'),
+                'label'   => bsDate($group->first()->attendanceSession->date, 'M Y'),
                 'present' => $group->where('status', 'present')->count(),
                 'absent'  => $group->where('status', 'absent')->count(),
                 'total'   => $group->count(),

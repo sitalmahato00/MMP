@@ -586,7 +586,7 @@
                             <strong class="text-slate-900">{{ $log->user?->name ?? 'System' }}</strong>
                             performed <strong class="font-mono text-xs text-[#8B0000]">{{ $log->action }}</strong>
                         </p>
-                        <p class="mt-0.5 text-[11px] text-slate-400">{{ $log->created_at->diffForHumans() }} &bull; {{ $log->ip_address }}</p>
+                        <p class="mt-0.5 text-[11px] text-slate-400">{{ bsDate($log->created_at, 'd M Y, h:i A') }} &bull; {{ $log->ip_address }}</p>
                     </div>
                 </div>
                 @endforeach

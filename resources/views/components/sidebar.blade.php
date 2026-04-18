@@ -72,7 +72,7 @@
                 ['label' => 'Students', 'iconName' => 'user-group', 'href' => route('admin.students.index'), 'isActive' => $active('admin.students.*')],
                 ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => route('admin.teachers.index'), 'isActive' => $active('admin.teachers.*')],
                 ['label' => 'Programs', 'iconName' => 'academic-cap', 'href' => route('admin.programs.index'), 'isActive' => $active('admin.programs.*')],
-                ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => route('admin.dashboard'), 'isActive' => false],
+                ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'), 'isActive' => $active('admin.attendance.*')],
                 ['label' => 'Exams & Results', 'iconName' => 'doc-text', 'href' => route('admin.exams.index'), 'isActive' => $active('admin.exams.*')],
             ],
         ],

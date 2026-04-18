@@ -286,15 +286,15 @@ class TeacherController extends Controller
         $monthlyAttendance = [];
         for ($i = 5; $i >= 0; $i--) {
             $dt  = now()->subMonths($i);
-            $key = $dt->format('M Y');
+            $key = bsDate($dt, 'M Y') ?: $dt->format('M Y');
             $monthlyAttendance[$key] = $teacher->attendanceSessions
-                ->filter(fn($s) => $s->date && Carbon::parse($s->date)->format('Y-m') === $dt->format('Y-m'))
+                ->filter(fn($s) => $s->date && (bsDate($s->date, 'Y-m') ?: Carbon::parse($s->date)->format('Y-m')) === (bsDate($dt, 'Y-m') ?: $dt->format('Y-m')))
                 ->count();
         }
 
         $totalSessionsConducted = $teacher->attendanceSessions->count();
         $monthSessionsConducted = $teacher->attendanceSessions
-            ->filter(fn($s) => $s->date && Carbon::parse($s->date)->format('Y-m') === now()->format('Y-m'))
+            ->filter(fn($s) => $s->date && (bsDate($s->date, 'Y-m') ?: Carbon::parse($s->date)->format('Y-m')) === (bsDate(now(), 'Y-m') ?: now()->format('Y-m')))
             ->count();
 
         // Performance keyed by subject name => pass_rate

@@ -1,44 +1,46 @@
 @extends('layouts.app')
+
 @section('title', 'Edit Exam')
 
 @section('content')
-<x-page-header title="Edit Exam" :subtitle="$exam->name"
-               back="{{ route('admin.exams.index') }}"/>
+<div class="space-y-6">
+    <section class="relative overflow-hidden rounded-[28px] border border-slate-200 bg-white px-6 py-8 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:px-8">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(249,115,22,0.16),_transparent_38%),radial-gradient(circle_at_bottom_left,_rgba(59,130,246,0.12),_transparent_30%)]"></div>
+        <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-3xl space-y-3">
+                <div class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-amber-700">
+                    <i class="fas fa-pen-to-square"></i>
+                    Update workflow
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Edit exam configuration</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+                        Adjust the exam header, schedule window, program assignments, and workflow settings without breaking published results.
+                    </p>
+                </div>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-3 lg:w-[28rem]">
+                <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Edit safely</div>
+                    <div class="mt-2 text-sm font-semibold text-slate-900">Preserve marks history</div>
+                </div>
+                <div class="rounded-2xl border border-sky-200 bg-sky-50/80 p-4">
+                    <div class="text-xs uppercase tracking-[0.2em] text-sky-600">Session aware</div>
+                    <div class="mt-2 text-sm font-semibold text-sky-900">Keep result linkage</div>
+                </div>
+                <div class="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4">
+                    <div class="text-xs uppercase tracking-[0.2em] text-emerald-600">Publish ready</div>
+                    <div class="mt-2 text-sm font-semibold text-emerald-900">Workflow state intact</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<form method="POST" action="{{ route('admin.exams.update', $exam) }}" class="max-w-2xl space-y-6">
-    @csrf @method('PUT')
-    <x-form-section title="Exam Details">
-        <x-form-row>
-            <x-form-field label="Exam Name" name="name" :required="true" span="full">
-                <x-input name="name" :value="$exam->name" :required="true"/>
-            </x-form-field>
-            <x-form-field label="Academic Session" name="academic_session_id" :required="true">
-                <x-select name="academic_session_id" :required="true">
-                    @foreach($sessions as $session)
-                        <option value="{{ $session->id }}" {{ $exam->academic_session_id == $session->id ? 'selected' : '' }}>
-                            {{ $session->name }}
-                        </option>
-                    @endforeach
-                </x-select>
-            </x-form-field>
-            <x-form-field label="Start Date (BS)" name="start_date">
-                <x-bs-date-picker name="start_date" :value="$exam->start_date ? bsDate($exam->start_date) : ''"/>
-            </x-form-field>
-            <x-form-field label="End Date (BS)" name="end_date">
-                <x-bs-date-picker name="end_date" :value="$exam->end_date ? bsDate($exam->end_date) : ''"/>
-            </x-form-field>
-            <x-form-field label="Open Mark Entry" name="marks_open" span="full">
-                <label class="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" name="marks_open" value="1" {{ $exam->marks_open ? 'checked' : '' }}
-                           class="w-4 h-4 accent-[#8B0000] rounded">
-                    <span class="text-sm text-gray-600">Allow teachers to enter marks</span>
-                </label>
-            </x-form-field>
-        </x-form-row>
-    </x-form-section>
-    <div class="flex items-center gap-3">
-        <x-btn type="submit">Save Changes</x-btn>
-        <x-btn href="{{ route('admin.exams.index') }}" variant="secondary">Cancel</x-btn>
-    </div>
-</form>
+    @include('admin.exams._form', [
+        'exam' => $exam,
+        'action' => route('admin.exams.update', $exam),
+        'method' => 'PUT',
+        'submitLabel' => 'Save Changes',
+    ])
+</div>
 @endsection

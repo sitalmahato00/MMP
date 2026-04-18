@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ParentController;
 use App\Http\Controllers\Admin\AlumniController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\AcademicSessionController;
+use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\ExamController;
 use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\AuditLogController;
@@ -54,6 +55,9 @@ Route::get('academic-sessions/{academicSession}/preview-advance', [AcademicSessi
 Route::post('academic-sessions/{academicSession}/advance', [AcademicSessionController::class, 'advanceSemesters'])
     ->name('academic-sessions.advance');
 
+Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+Route::get('attendance/sessions/{attendanceSession}', [AttendanceController::class, 'session'])->name('attendance.sessions.show');
+
 Route::resource('departments', DepartmentController::class);
 Route::resource('programs', ProgramController::class);
 Route::post('programs/bulk-action', [ProgramController::class, 'bulkAction'])->name('programs.bulk-action');
@@ -70,7 +74,10 @@ Route::resource('alumni', AlumniController::class);
 Route::resource('staff', StaffController::class);
 
 // ── Examinations & Results ─────────────────────────────────
+Route::get('exams/analytics', [ExamController::class, 'analytics'])->name('exams.analytics');
+Route::get('exams/export/{format}', [ExamController::class, 'export'])->name('exams.export');
 Route::resource('exams', ExamController::class);
+Route::get('exams/{exam}/students/{student}/sheet', [ExamController::class, 'resultSheet'])->name('exams.result-sheet');
 Route::patch('exams/{exam}/publish', [ExamController::class, 'publish'])->name('exams.publish');
 
 // ── Content & Communications ───────────────────────────────

@@ -106,7 +106,7 @@
                 ['Email',        $student->user?->email],
                 ['Phone',        $student->user?->phone],
                 ['Gender',       ucfirst($student->user?->gender ?? '—')],
-                ['Date of Birth', $student->user?->dob ? ($student->user->dob instanceof \Carbon\Carbon ? $student->user->dob->format('Y-m-d') : $student->user->dob) : '—'],
+                ['Date of Birth', $student->user?->dob ? bsDate($student->user->dob, 'd F Y') : '—'],
                 ['Address',      $student->user?->address],
                 ['Blood Group',  $student->blood_group],
             ] as [$label, $value])
@@ -131,7 +131,7 @@
                 ['Semester',        'Semester '.$student->current_semester],
                 ['Section',         $student->section],
                 ['Batch',           $student->batch],
-                ['Admitted',        $student->admission_date ? ($student->admission_date instanceof \Carbon\Carbon ? $student->admission_date->format('Y-m-d') : $student->admission_date) : '—'],
+                ['Admitted',        $student->admission_date ? bsDate($student->admission_date, 'd F Y') : '—'],
             ] as [$label, $value])
             <div class="flex gap-4 px-4 py-2.5">
                 <dt class="w-32 flex-shrink-0 text-xs text-slate-500">{{ $label }}</dt>
@@ -365,7 +365,7 @@
                 <p class="mt-0.5 text-xs text-slate-500">
                     {{ $sub->assignment?->subject?->name ?? '—' }}
                     @if($sub->assignment?->due_date)
-                        · Due {{ \Carbon\Carbon::parse($sub->assignment->due_date)->format('d M Y') }}
+                        · Due {{ bsDate($sub->assignment->due_date, 'd M Y') }}
                     @endif
                 </p>
             </div>
@@ -488,7 +488,7 @@
                 <div class="flex items-start justify-between gap-2">
                     <p class="text-sm font-semibold text-slate-800">{{ $item['title'] }}</p>
                     <time class="flex-shrink-0 text-[11px] text-slate-400">
-                        {{ $date instanceof \Carbon\Carbon ? $date->format('d M Y') : $date }}
+                        {{ bsDate($date, 'd M Y') }}
                     </time>
                 </div>
                 @if($item['sub'])
