@@ -20,6 +20,9 @@
     drawerLoading: false,
     drawerHtml: '',
     drawerStudentId: null,
+    promoteModal: false,
+    promoteLoading: false,
+    promoteResult: null,
     setView(v) { this.view = v; localStorage.setItem('mmp_students_view', v); },
     toggleAll(ids) {
         if (this.selected.length === ids.length) { this.selected = []; }
@@ -38,7 +41,32 @@
         .then(html => { this.drawerHtml = html; this.drawerLoading = false; })
         .catch(() => { this.drawerHtml = '<p class=\'p-8 text-center text-red-500\'>Failed to load.</p>'; this.drawerLoading = false; });
     },
-    closeDrawer() { this.drawer = false; this.drawerStudentId = null; }
+    closeDrawer() { this.drawer = false; this.drawerStudentId = null; },
+    confirmPromote() { this.promoteResult = null; this.promoteModal = true; },
+    async bulkPromote() {
+        this.promoteLoading = true;
+        try {
+            const res = await fetch('{{ route('admin.students.bulk-promote') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ ids: this.selected }),
+            });
+            const data = await res.json();
+            this.promoteResult = data;
+            this.promoteLoading = false;
+            if (data.success) {
+                this.selected = [];
+                setTimeout(() => { window.location.reload(); }, 1800);
+            }
+        } catch (e) {
+            this.promoteResult = { success: false, message: 'Request failed. Please try again.' };
+            this.promoteLoading = false;
+        }
+    },
 }" class="space-y-5"
    @keydown.escape.window="closeDrawer()"
    x-init="$watch('drawerHtml', () => { if (drawerHtml) $nextTick(() => { if (window.initDrawerCharts) window.initDrawerCharts(); }) })"
@@ -155,7 +183,8 @@
             <template x-if="selected.length > 0">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-bold text-slate-800" x-text="selected.length + ' selected'"></span>
-                    <button type="button" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Promote</button>
+                    <button type="button" @click="confirmPromote()"
+                            class="rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-700 hover:bg-violet-100 transition">Promote</button>
                     <button type="button" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Change Status</button>
                     <button type="button" @click="selected = []" class="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition">Clear</button>
                 </div>
@@ -417,6 +446,70 @@
             </svg>
         </div>
         <div x-show="!drawerLoading" x-html="drawerHtml"></div>
+    </div>
+</div>
+
+{{-- ── PROMOTE CONFIRM MODAL ──────────────────────────────── --}}
+<div x-show="promoteModal" x-cloak
+     class="fixed inset-0 z-50 flex items-center justify-center px-4"
+     @keydown.escape.window="if(!promoteLoading) promoteModal = false">
+    {{-- Backdrop --}}
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+         @click="if(!promoteLoading) promoteModal = false"
+         x-transition:enter="transition ease-out duration-150"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"></div>
+
+    {{-- Panel --}}
+    <div class="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl"
+         x-transition:enter="transition ease-out duration-150"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+
+        {{-- Result state --}}
+        <template x-if="promoteResult">
+            <div class="p-8 text-center">
+                <div :class="promoteResult.success ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'"
+                     class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl">
+                    <svg x-show="promoteResult.success" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <svg x-show="!promoteResult.success" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </div>
+                <p class="text-base font-bold text-slate-800" x-text="promoteResult.success ? 'Done!' : 'Error'"></p>
+                <p class="mt-1 text-sm text-slate-500" x-text="promoteResult.message"></p>
+                <template x-if="!promoteResult.success">
+                    <button type="button" @click="promoteModal = false; promoteResult = null"
+                            class="mt-5 rounded-xl border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">Close</button>
+                </template>
+            </div>
+        </template>
+
+        {{-- Confirm state --}}
+        <template x-if="!promoteResult">
+            <div class="p-6">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <h3 class="text-base font-black text-slate-900">Promote Students?</h3>
+                <p class="mt-1.5 text-sm text-slate-500">
+                    <span x-text="selected.length"></span> selected student(s) will be moved to the next semester.
+                    Students already in <strong>Semester 6</strong> will be marked as <strong>Graduated</strong>.
+                </p>
+                <p class="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5 text-xs text-amber-700">
+                    This action is <strong>not reversible</strong> without manually editing each student.
+                </p>
+                <div class="mt-5 flex gap-3">
+                    <button type="button" :disabled="promoteLoading" @click="promoteModal = false"
+                            class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition disabled:opacity-50">
+                        Cancel
+                    </button>
+                    <button type="button" :disabled="promoteLoading" @click="bulkPromote()"
+                            class="flex-1 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-violet-700 transition disabled:opacity-60 flex items-center justify-center gap-2">
+                        <svg x-show="promoteLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                        <span x-text="promoteLoading ? 'Promoting…' : 'Yes, Promote'"></span>
+                    </button>
+                </div>
+            </div>
+        </template>
     </div>
 </div>
 

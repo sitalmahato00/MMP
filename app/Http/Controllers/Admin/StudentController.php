@@ -305,6 +305,74 @@ class StudentController extends Controller
         return redirect()->route('admin.students.index')->with('success', 'Student deleted.');
     }
 
+    // ── Bulk Promote ───────────────────────────────────────────────────────
+    public function bulkPromote(Request $request)
+    {
+        $request->validate([
+            'ids'   => ['required', 'array', 'min:1', 'max:200'],
+            'ids.*' => ['integer', 'exists:students,id'],
+        ]);
+
+        $promoted  = 0;
+        $skipped   = 0;
+        $graduated = 0;
+
+        DB::transaction(function () use ($request, &$promoted, &$skipped, &$graduated) {
+            $students = Student::whereIn('id', $request->ids)->get();
+
+            foreach ($students as $student) {
+                if ($student->current_semester >= 6) {
+                    // Already at final semester — graduate instead
+                    if ($student->status !== 'graduated') {
+                        $student->status = 'graduated';
+                        $student->save();
+                        $graduated++;
+
+                        AuditLog::create([
+                            'user_id'    => auth()->id(),
+                            'action'     => 'student.graduated',
+                            'model_type' => Student::class,
+                            'model_id'   => $student->id,
+                            'new_values' => json_encode(['status' => 'graduated']),
+                            'ip_address' => $request->ip(),
+                        ]);
+                    } else {
+                        $skipped++;
+                    }
+                    continue;
+                }
+
+                $old = $student->current_semester;
+                $student->current_semester = $old + 1;
+                $student->save();
+                $promoted++;
+
+                AuditLog::create([
+                    'user_id'    => auth()->id(),
+                    'action'     => 'student.promoted',
+                    'model_type' => Student::class,
+                    'model_id'   => $student->id,
+                    'old_values' => json_encode(['current_semester' => $old]),
+                    'new_values' => json_encode(['current_semester' => $student->current_semester]),
+                    'ip_address' => $request->ip(),
+                ]);
+            }
+        });
+
+        $parts = [];
+        if ($promoted)  $parts[] = "{$promoted} promoted to next semester";
+        if ($graduated) $parts[] = "{$graduated} marked as graduated";
+        if ($skipped)   $parts[] = "{$skipped} already graduated (skipped)";
+
+        return response()->json([
+            'success'  => true,
+            'message'  => implode(', ', $parts) . '.',
+            'promoted' => $promoted,
+            'graduated'=> $graduated,
+            'skipped'  => $skipped,
+        ]);
+    }
+
     // ── Drawer ─────────────────────────────────────────────────────────────
     public function drawer(Student $student)
     {

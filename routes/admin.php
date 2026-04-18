@@ -59,6 +59,7 @@ Route::resource('programs', ProgramController::class);
 
 // ── People Management ──────────────────────────────────────
 Route::resource('students', StudentController::class);
+Route::post('students/bulk-promote', [StudentController::class, 'bulkPromote'])->name('students.bulk-promote');
 Route::get('students/{student}/drawer', [StudentController::class, 'drawer'])->name('students.drawer');
 Route::resource('teachers', TeacherController::class);
 Route::resource('parents', ParentController::class);
