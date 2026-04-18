@@ -165,8 +165,65 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
-        $student->load(['user', 'department', 'program.department', 'academicSession', 'parents.user', 'alumnus.user', 'alumnus.program.department']);
-        return view('admin.students.show', compact('student'));
+        $student->load([
+            'user',
+            'program.department',
+            'department',
+            'academicSession',
+            'parents.user',
+            'alumnus',
+            'marks.subject',
+            'marks.exam',
+            'attendances.attendanceSession',
+            'submissions.assignment.subject',
+        ]);
+
+        // Attendance
+        $attendanceTotal   = $student->attendances->count();
+        $attendancePresent = $student->attendances->where('status', 'present')->count();
+        $attendancePct     = $attendanceTotal > 0
+            ? round(($attendancePresent / $attendanceTotal) * 100, 1)
+            : null;
+
+        $monthlyAttendance = $student->attendances
+            ->filter(fn ($a) => $a->attendanceSession?->date !== null)
+            ->groupBy(fn ($a) => $a->attendanceSession->date->format('Y-m'))
+            ->sortKeysDesc()
+            ->take(6)
+            ->sortKeys()
+            ->map(fn ($group) => [
+                'label'   => \Carbon\Carbon::parse($group->first()->attendanceSession->date)->format('M Y'),
+                'present' => $group->where('status', 'present')->count(),
+                'absent'  => $group->where('status', 'absent')->count(),
+                'total'   => $group->count(),
+            ])
+            ->values();
+
+        // Marks
+        $marksBySemester = $student->marks
+            ->where('status', 'published')
+            ->groupBy('semester')
+            ->sortKeys()
+            ->map(fn ($group) => $group->groupBy(fn ($m) => $m->subject?->name ?? 'Unknown'));
+
+        // Assignments
+        $submissions = $student->submissions->sortByDesc('created_at')->take(20);
+
+        // Timeline
+        $timeline = AuditLog::where('model_type', Student::class)
+            ->where('model_id', $student->id)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
+        return view('admin.students.show', compact(
+            'student',
+            'attendanceTotal', 'attendancePresent', 'attendancePct', 'monthlyAttendance',
+            'marksBySemester',
+            'submissions',
+            'timeline'
+        ));
     }
 
     public function edit(Student $student)
