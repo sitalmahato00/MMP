@@ -383,14 +383,23 @@ class HomeController extends Controller
 
     public function alumniDirectory()
     {
-        $alumni = $this->service->getFeaturedAlumni(20);
+        $alumni = $this->service->getAlumniDirectory(
+            request('department') ? (int) request('department') : null,
+            request('search'),
+            request('year'),
+        );
         $departments = $this->service->getDepartments();
-        return view('public.alumni', compact('alumni', 'departments'));
+        $graduationYears = \App\Models\Alumni::publicVisible()
+            ->select('graduation_year')
+            ->distinct()
+            ->orderByDesc('graduation_year')
+            ->pluck('graduation_year');
+        return view('public.alumni', compact('alumni', 'departments', 'graduationYears'));
     }
 
     public function alumniProfile(int $id)
     {
-        $alumnus = \App\Models\Alumni::with(['user', 'department', 'program'])->findOrFail($id);
+        $alumnus = $this->service->getAlumniProfile($id);
         return view('public.alumni-profile', compact('alumnus'));
     }
 

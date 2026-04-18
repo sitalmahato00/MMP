@@ -119,6 +119,30 @@ class PublicDataService
         });
     }
 
+    public function getAlumniDirectory(?int $departmentId = null, ?string $search = null, ?string $gradYear = null, int $perPage = 24)
+    {
+        $page = request()->integer('page', 1);
+        $cacheKey = "public:alumni:directory:{$departmentId}:{$search}:{$gradYear}:{$perPage}:{$page}";
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($departmentId, $search, $gradYear, $perPage) {
+            return Alumni::publicVisible()
+                ->with(['user:id,name,avatar', 'department:id,name,code', 'program:id,name,code', 'projects:id,alumni_id,type,title'])
+                ->when($departmentId, fn($q) => $q->where('department_id', $departmentId))
+                ->when($search, fn($q) => $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%")))
+                ->when($gradYear, fn($q) => $q->where('graduation_year', $gradYear))
+                ->latest('graduation_year')
+                ->paginate($perPage);
+        });
+    }
+
+    public function getAlumniProfile(int $id): \App\Models\Alumni
+    {
+        return Cache::remember("public:alumni:profile:{$id}", self::CACHE_TTL, function () use ($id) {
+            return Alumni::publicVisible()
+                ->with(['user', 'department', 'program', 'projects', 'achievementRecords', 'employmentHistory'])
+                ->findOrFail($id);
+        });
+    }
+
     public function getDownloads(?string $category = null): Collection
     {
         $downloads = Cache::remember('public:downloads', self::CACHE_TTL, function () {

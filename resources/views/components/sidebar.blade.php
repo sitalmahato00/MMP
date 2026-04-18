@@ -178,10 +178,16 @@
 
     $alumniGroups = [
         ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('alumni.dashboard'), 'isActive' => $active('alumni.dashboard')]]],
+        ['label' => 'My Profile', 'items' => [
+            ['label' => 'Profile', 'iconName' => 'users', 'href' => $portalRoute('alumni.profile.index', 'alumni.dashboard'), 'isActive' => $active('alumni.profile.*')],
+            ['label' => 'Career', 'iconName' => 'briefcase', 'href' => $portalRoute('alumni.career.index', 'alumni.dashboard'), 'isActive' => $active('alumni.career.*')],
+        ]],
+        ['label' => 'Portfolio', 'items' => [
+            ['label' => 'Projects', 'iconName' => 'code', 'href' => $portalRoute('alumni.projects.index', 'alumni.dashboard'), 'isActive' => $active('alumni.projects.*')],
+            ['label' => 'Achievements', 'iconName' => 'star', 'href' => $portalRoute('alumni.achievements.index', 'alumni.dashboard'), 'isActive' => $active('alumni.achievements.*')],
+        ]],
         ['label' => 'Community', 'items' => [
-            ['label' => 'My Profile', 'iconName' => 'users', 'href' => $portalRoute('alumni.profile.edit', 'alumni.dashboard'), 'isActive' => $active('alumni.profile.*')],
-            ['label' => 'Events', 'iconName' => 'bell', 'href' => $portalRoute('alumni.notices.index', 'alumni.dashboard'), 'isActive' => $active('alumni.notices.*')],
-            ['label' => 'Gallery', 'iconName' => 'photo', 'href' => $portalRoute('alumni.gallery.index', 'alumni.dashboard'), 'isActive' => $active('alumni.gallery.*')],
+            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('alumni.notices.index', 'alumni.dashboard'), 'isActive' => $active('alumni.notices.*')],
         ]],
     ];
 

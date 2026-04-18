@@ -71,6 +71,7 @@ Route::get('teachers/{teacher}/drawer', [TeacherController::class, 'drawer'])->n
 Route::post('teachers/bulk-action', [TeacherController::class, 'bulkAction'])->name('teachers.bulk-action');
 Route::resource('parents', ParentController::class);
 Route::resource('alumni', AlumniController::class);
+Route::post('alumni/{alumnus}/toggle-featured', [AlumniController::class, 'toggleFeatured'])->name('alumni.toggle-featured');
 Route::resource('staff', StaffController::class);
 
 // ── Examinations & Results ─────────────────────────────────
