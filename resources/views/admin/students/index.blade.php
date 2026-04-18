@@ -16,12 +16,33 @@
 <div x-data="{
     view: localStorage.getItem('mmp_students_view') ?? 'table',
     selected: [],
+    drawer: false,
+    drawerLoading: false,
+    drawerHtml: '',
+    drawerStudentId: null,
     setView(v) { this.view = v; localStorage.setItem('mmp_students_view', v); },
     toggleAll(ids) {
         if (this.selected.length === ids.length) { this.selected = []; }
         else { this.selected = ids; }
-    }
-}" class="space-y-5">
+    },
+    openDrawer(id) {
+        if (this.drawerStudentId === id && this.drawer) return;
+        this.drawerStudentId = id;
+        this.drawer = true;
+        this.drawerLoading = true;
+        this.drawerHtml = '';
+        fetch('/admin/students/' + id + '/drawer', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' }
+        })
+        .then(r => r.text())
+        .then(html => { this.drawerHtml = html; this.drawerLoading = false; })
+        .catch(() => { this.drawerHtml = '<p class=\'p-8 text-center text-red-500\'>Failed to load.</p>'; this.drawerLoading = false; });
+    },
+    closeDrawer() { this.drawer = false; this.drawerStudentId = null; }
+}" class="space-y-5"
+   @keydown.escape.window="closeDrawer()"
+   x-init="$watch('drawerHtml', () => { if (drawerHtml) $nextTick(() => { if (window.initDrawerCharts) window.initDrawerCharts(); }) })"
+>
 
 {{-- ── HEADER ─────────────────────────────────────────────── --}}
 <div class="flex flex-wrap items-start justify-between gap-4">
@@ -226,8 +247,8 @@
                                     <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br {{ $grad }} text-sm font-black text-white shadow-sm">{{ $initials }}</div>
                                 @endif
                                 <div class="min-w-0">
-                                    <a href="{{ route('admin.students.show', $student) }}"
-                                       class="block font-semibold text-slate-900 hover:text-[#8B0000] truncate transition text-sm">{{ $student->user?->name }}</a>
+                                    <button type="button" @click="openDrawer({{ $student->id }})"
+                                            class="block font-semibold text-slate-900 hover:text-[#8B0000] truncate transition text-sm text-left">{{ $student->user?->name }}</button>
                                     <p class="font-mono text-[11px] text-slate-400 truncate">{{ $student->student_no ?? '—' }}</p>
                                     <p class="text-[11px] text-slate-400 truncate hidden sm:block">{{ $student->user?->email }}</p>
                                 </div>
@@ -321,7 +342,8 @@
                             {{ strtoupper(substr($student->user?->name ?? 'S', 0, 1)) }}
                         </div>
                     @endif
-                    <h3 class="mt-3 text-sm font-bold text-slate-900 leading-tight pr-5">{{ $student->user?->name }}</h3>
+                    <button type="button" @click="openDrawer({{ $student->id }})"
+                            class="mt-3 text-sm font-bold text-slate-900 hover:text-[#8B0000] transition leading-tight pr-5 text-center">{{ $student->user?->name }}</button>
                     <p class="mt-0.5 font-mono text-[11px] text-slate-400">{{ $student->student_no ?? '—' }}</p>
                 </div>
                 {{-- Badges --}}
@@ -352,5 +374,51 @@
     </div>
 
 </div>{{-- /panel --}}
+
+{{-- ── STUDENT DETAIL DRAWER ──────────────────────────────── --}}
+{{-- Backdrop --}}
+<div x-show="drawer"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="closeDrawer()"
+     class="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]"
+     x-cloak></div>
+
+{{-- Panel --}}
+<div x-show="drawer"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="translate-x-full"
+     x-transition:enter-end="translate-x-0"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="translate-x-0"
+     x-transition:leave-end="translate-x-full"
+     class="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-white shadow-2xl"
+     x-cloak>
+
+    {{-- Close button --}}
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4 flex-shrink-0">
+        <h2 class="text-base font-bold text-slate-900">Student Profile</h2>
+        <button type="button" @click="closeDrawer()"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+
+    {{-- Content --}}
+    <div class="flex-1 overflow-y-auto">
+        <div x-show="drawerLoading" class="flex items-center justify-center py-24">
+            <svg class="h-8 w-8 animate-spin text-[#8B0000]" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+            </svg>
+        </div>
+        <div x-show="!drawerLoading" x-html="drawerHtml"></div>
+    </div>
+</div>
+
 </div>{{-- /x-data --}}
 @endsection

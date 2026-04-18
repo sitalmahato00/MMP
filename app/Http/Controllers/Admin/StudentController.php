@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Helpers\NepaliDateHelper;
 use App\Models\AcademicSession;
+use App\Models\AuditLog;
 use App\Models\Department;
 use App\Models\ParentModel;
 use App\Models\Program;
@@ -245,5 +246,69 @@ class StudentController extends Controller
         $student->user->delete();
         $student->delete();
         return redirect()->route('admin.students.index')->with('success', 'Student deleted.');
+    }
+
+    // ── Drawer ─────────────────────────────────────────────────────────────
+    public function drawer(Student $student)
+    {
+        $student->load([
+            'user',
+            'program',
+            'department',
+            'academicSession',
+            'parents.user',
+            'marks.subject',
+            'marks.exam',
+            'attendances.attendanceSession',
+            'submissions.assignment.subject',
+        ]);
+
+        // ── Attendance summary ─────────────────────────────────────────────
+        $attendanceTotal   = $student->attendances->count();
+        $attendancePresent = $student->attendances->where('status', 'present')->count();
+        $attendancePct     = $attendanceTotal > 0
+            ? round(($attendancePresent / $attendanceTotal) * 100, 1)
+            : null;
+
+        // Monthly breakdown (last 6 months)
+        $monthlyAttendance = $student->attendances
+            ->filter(fn ($a) => $a->attendanceSession?->date !== null)
+            ->groupBy(fn ($a) => $a->attendanceSession->date->format('Y-m'))
+            ->sortKeysDesc()
+            ->take(6)
+            ->sortKeys()
+            ->map(fn ($group) => [
+                'label'   => \Carbon\Carbon::parse($group->first()->attendanceSession->date)->format('M Y'),
+                'present' => $group->where('status', 'present')->count(),
+                'absent'  => $group->where('status', 'absent')->count(),
+                'total'   => $group->count(),
+            ])
+            ->values();
+
+        // ── Marks summary ──────────────────────────────────────────────────
+        $marksBySemester = $student->marks
+            ->where('status', 'published')
+            ->groupBy('semester')
+            ->sortKeys()
+            ->map(fn ($group) => $group->groupBy(fn ($m) => $m->subject?->name ?? 'Unknown'));
+
+        // ── Assignments ────────────────────────────────────────────────────
+        $submissions = $student->submissions->sortByDesc('created_at')->take(20);
+
+        // ── Timeline ──────────────────────────────────────────────────────
+        $timeline = AuditLog::where('model_type', Student::class)
+            ->where('model_id', $student->id)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
+        return view('admin.students._drawer', compact(
+            'student',
+            'attendanceTotal', 'attendancePresent', 'attendancePct', 'monthlyAttendance',
+            'marksBySemester',
+            'submissions',
+            'timeline'
+        ));
     }
 }
