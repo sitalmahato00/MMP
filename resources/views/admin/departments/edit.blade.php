@@ -38,9 +38,6 @@
             <x-form-field label="Department Photo" name="photo">
                 <x-file-input name="photo" accept="image/*" :current="$department->photo" label="Replace department photo"/>
             </x-form-field>
-            <x-form-field label="Syllabus PDF" name="syllabus">
-                <x-file-input name="syllabus" accept="application/pdf" :current="$department->syllabus" label="Replace syllabus document"/>
-            </x-form-field>
         </x-form-row>
     </x-form-section>
 

@@ -2,7 +2,7 @@
 @section('title', $department->name)
 
 @section('content')
-<x-page-header :title="$department->name" subtitle="Department profile, syllabus, and academic links."
+<x-page-header :title="$department->name" subtitle="Department profile and academic programs."
                back="{{ route('admin.departments.index') }}">
     <x-slot name="actions">
         <x-btn href="{{ route('admin.departments.edit', $department) }}" variant="secondary" size="sm">Edit</x-btn>
@@ -34,53 +34,37 @@
             <dl class="divide-y divide-gray-50">
                 <x-info-row label="Programs">{{ $department->programs->count() }}</x-info-row>
                 <x-info-row label="Photo">{{ $department->photo ? 'Uploaded' : 'Not set' }}</x-info-row>
-                <x-info-row label="Syllabus">{{ $department->syllabus ? 'Uploaded' : 'Not set' }}</x-info-row>
                 <x-info-row label="Active">{{ $department->is_active ? 'Yes' : 'No' }}</x-info-row>
             </dl>
         </div>
     </div>
 
     <div class="lg:col-span-2 space-y-4">
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <x-section-header title="Syllabus"/>
-
-            @if($department->syllabus_url)
-                <div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3">
-                    <p class="text-sm text-gray-600">Syllabus document is available for preview.</p>
-                    <div class="flex items-center gap-2">
-                        <a href="{{ $department->syllabus_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 rounded-lg border border-[#8B0000]/20 bg-white px-3 py-1.5 text-xs font-bold text-[#8B0000] transition hover:bg-red-50">
-                            Preview PDF
-                        </a>
-                        <a href="{{ $department->syllabus_url }}" download class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:bg-gray-100">
-                            Download PDF
-                        </a>
-                    </div>
-                </div>
-
-                <div class="mt-3 overflow-hidden rounded-lg border border-gray-200">
-                    <iframe
-                        src="{{ $department->syllabus_url }}#view=FitH"
-                        title="{{ $department->name }} syllabus preview"
-                        loading="lazy"
-                        class="h-[420px] w-full"
-                    ></iframe>
-                </div>
-            @else
-                <p class="text-sm text-gray-500">No syllabus document uploaded.</p>
-            @endif
-        </div>
-
         @if($department->programs->count() > 0)
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
                 <x-section-header title="Programs"/>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     @foreach($department->programs as $program)
-                        <div class="rounded-lg border border-gray-100 p-4">
-                            <div class="font-semibold text-gray-900">{{ $program->name }}</div>
-                            <div class="text-xs text-gray-500 mt-1">{{ $program->total_semesters }} semesters · {{ $program->duration_years }} years</div>
-                        </div>
+                        <a href="{{ route('admin.programs.show', $program) }}" class="group rounded-lg border border-gray-100 p-4 transition hover:border-[#8B0000]/20 hover:bg-red-50/30">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <div class="font-semibold text-gray-900 group-hover:text-[#8B0000]">{{ $program->name }}</div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ $program->code }} · {{ $program->total_semesters }} semesters · {{ $program->duration_years }} yrs</div>
+                                </div>
+                                <span class="shrink-0 rounded-md {{ $program->is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500' }} px-2 py-0.5 text-[10px] font-bold">
+                                    {{ $program->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
+                            @if($program->description)
+                                <p class="mt-2 text-xs text-gray-500 line-clamp-2">{{ $program->description }}</p>
+                            @endif
+                        </a>
                     @endforeach
                 </div>
+            </div>
+        @else
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 text-center">
+                <p class="text-sm text-gray-500">No programs added to this department yet.</p>
             </div>
         @endif
 

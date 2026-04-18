@@ -24,7 +24,7 @@ class PublicDataService
                 'banners' => Banner::active()->get(['id', 'title', 'subtitle', 'image', 'link', 'order']),
                 'departments' => Department::active()
                     ->withCount('programs')
-                    ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus']),
+                    ->get(['id', 'name', 'code', 'slug', 'description', 'photo']),
                 'featured_alumni' => Alumni::featured()->verified()
                     ->with('user:id,name,avatar')
                     ->with('department:id,name,code')
@@ -58,7 +58,7 @@ class PublicDataService
         return Cache::remember('public:departments', self::CACHE_TTL, function () {
             return Department::active()
                 ->withCount(['programs', 'students', 'teachers'])
-                ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity']);
+                ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity']);
         });
     }
 
@@ -70,7 +70,7 @@ class PublicDataService
                     $query->active()->orderBy('name');
                 }])
                 ->orderBy('name')
-                ->get(['id', 'name', 'code', 'slug', 'photo', 'syllabus']);
+                ->get(['id', 'name', 'code', 'slug', 'photo']);
         });
     }
 
@@ -78,9 +78,32 @@ class PublicDataService
     {
         return Cache::remember("public:department:{$slug}", self::CACHE_TTL, function () use ($slug) {
             return Department::where('slug', $slug)
-                ->with(['programs:id,department_id,name,code,total_semesters,duration_years'])
+                ->with(['programs' => function ($q) {
+                    $q->active()->orderBy('name')->with(['subjects' => function ($sq) {
+                        $sq->where('is_active', true)->orderBy('semester')->orderBy('name');
+                    }]);
+                }])
                 ->with(['hod:id,name'])
-                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity', 'hod_id']);
+                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity', 'hod_id']);
+        });
+    }
+
+    public function getProgramBySlug(string $departmentSlug, string $programSlug): array
+    {
+        return Cache::remember("public:program:{$departmentSlug}:{$programSlug}", self::CACHE_TTL, function () use ($departmentSlug, $programSlug) {
+            $department = Department::where('slug', $departmentSlug)
+                ->firstOrFail(['id', 'name', 'code', 'slug']);
+
+            $program = Program::where('department_id', $department->id)
+                ->where('slug', $programSlug)
+                ->with(['subjects' => function ($q) {
+                    $q->where('is_active', true)->orderBy('semester')->orderBy('name');
+                }])
+                ->with(['coordinator:id,name'])
+                ->with(['department:id,name,code,slug'])
+                ->firstOrFail();
+
+            return compact('department', 'program');
         });
     }
 

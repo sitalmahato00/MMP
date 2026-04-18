@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Program extends Model
 {
@@ -58,6 +59,11 @@ class Program extends Model
     }
 
     // ─── Helpers ───────────────────────────────────────────
+
+    public function getSyllabusUrlAttribute(): ?string
+    {
+        return $this->syllabus ? Storage::disk('public')->url($this->syllabus) : null;
+    }
 
     public function getFinalSemester(): int
     {

@@ -71,9 +71,17 @@
             'items' => [
                 ['label' => 'Students', 'iconName' => 'user-group', 'href' => route('admin.students.index'), 'isActive' => $active('admin.students.*')],
                 ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => route('admin.teachers.index'), 'isActive' => $active('admin.teachers.*')],
+                ['label' => 'Parents', 'iconName' => 'heart', 'href' => route('admin.parents.index'), 'isActive' => $active('admin.parents.*')],
                 ['label' => 'Programs', 'iconName' => 'academic-cap', 'href' => route('admin.programs.index'), 'isActive' => $active('admin.programs.*')],
                 ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'), 'isActive' => $active('admin.attendance.*')],
                 ['label' => 'Exams & Results', 'iconName' => 'doc-text', 'href' => route('admin.exams.index'), 'isActive' => $active('admin.exams.*')],
+            ],
+        ],
+        [
+            'label' => 'People',
+            'items' => [
+                ['label' => 'Alumni', 'iconName' => 'graduation-cap', 'href' => route('admin.alumni.index'), 'isActive' => $active('admin.alumni.*')],
+                ['label' => 'Staff', 'iconName' => 'users', 'href' => route('admin.staff.index'), 'isActive' => $active('admin.staff.*')],
             ],
         ],
         [
@@ -81,14 +89,6 @@
             'items' => [
                 ['label' => 'Applications', 'iconName' => 'doc-text', 'href' => route('admin.applications.index'), 'isActive' => $active('admin.applications.*') && request('status') !== 'pending', 'badge' => $pendingApplications],
                 ['label' => 'Funnel', 'iconName' => 'funnel', 'href' => route('admin.applications.index', ['status' => 'pending']), 'isActive' => $active('admin.applications.*') && request('status') === 'pending'],
-            ],
-        ],
-        [
-            'label' => 'People',
-            'items' => [
-                ['label' => 'Parents', 'iconName' => 'heart', 'href' => route('admin.parents.index'), 'isActive' => $active('admin.parents.*')],
-                ['label' => 'Alumni', 'iconName' => 'graduation-cap', 'href' => route('admin.alumni.index'), 'isActive' => $active('admin.alumni.*')],
-                ['label' => 'Staff', 'iconName' => 'users', 'href' => route('admin.staff.index'), 'isActive' => $active('admin.staff.*')],
             ],
         ],
         [

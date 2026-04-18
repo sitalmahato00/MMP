@@ -13,7 +13,7 @@ class Department extends Model
 
     protected $fillable = [
         'name', 'code', 'slug', 'description', 'photo',
-        'syllabus', 'seat_capacity', 'hod_id', 'is_active',
+        'seat_capacity', 'hod_id', 'is_active',
     ];
 
     protected $casts = [
@@ -68,10 +68,5 @@ class Department extends Model
     public function getPhotoUrlAttribute(): ?string
     {
         return $this->photo ? Storage::disk('public')->url($this->photo) : null;
-    }
-
-    public function getSyllabusUrlAttribute(): ?string
-    {
-        return $this->syllabus ? Storage::disk('public')->url($this->syllabus) : null;
     }
 }

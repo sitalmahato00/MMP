@@ -38,9 +38,6 @@
             <x-form-field label="Department Photo" name="photo">
                 <x-file-input name="photo" accept="image/jpeg,image/png" label="Upload department photo (JPG, PNG)"/>
             </x-form-field>
-            <x-form-field label="Syllabus PDF" name="syllabus">
-                <x-file-input name="syllabus" accept="application/pdf" label="Upload syllabus document (PDF)"/>
-            </x-form-field>
         </x-form-row>
     </x-form-section>
 

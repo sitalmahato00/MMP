@@ -96,6 +96,12 @@ class HomeController extends Controller
         return view('public.department-show', compact('department'));
     }
 
+    public function programShow(string $departmentSlug, string $programSlug)
+    {
+        $data = $this->service->getProgramBySlug($departmentSlug, $programSlug);
+        return view('public.program-show', $data);
+    }
+
     public function downloads(Request $request)
     {
         $category = trim($request->string('category')->toString());

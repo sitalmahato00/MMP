@@ -131,7 +131,7 @@
                             ['href' => route('public.leadership'), 'label' => 'Presidents & Principals'],
                             ['href' => route('public.contact'), 'label' => 'Contact Us'],
                         ]],
-                        ['label' => 'COURSES', 'items' => []],
+                        ['label' => 'DEPARTMENTS', 'items' => []],
                         ['label' => 'FEATURES', 'items' => [
                             ['href' => route('public.facilities'), 'label' => 'Campus Facilities & Resources'],
                             ['href' => route('public.page', 'scholarship-schemes'), 'label' => 'Scholarship Schemes'],
@@ -149,15 +149,18 @@
                             </button>
                             <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
                                 class="absolute top-full left-0 mt-0 {{ $menu['label'] === 'PEOPLE' ? 'w-80 max-h-96 overflow-y-auto' : 'w-64' }} bg-[#404040] py-2 z-50 shadow-xl border-t-2 border-white">
-                                @if($menu['label'] === 'COURSES')
+                                @if($menu['label'] === 'DEPARTMENTS')
                                     @forelse($courseMenu as $course)
-                                        @php $courseLabel = optional($course->programs->first())->name ?: $course->name; @endphp
                                         <a href="{{ route('public.department.show', $course->slug) }}" class="block px-5 py-2.5 text-[13px] text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium border-b border-white/5 last:border-0">
-                                            {{ $courseLabel }}
+                                            {{ $course->name }}
                                         </a>
                                     @empty
-                                        <span class="block px-5 py-2.5 text-[13px] text-gray-400">No courses available</span>
+                                        <span class="block px-5 py-2.5 text-[13px] text-gray-400">No departments available</span>
                                     @endforelse
+                                    <div class="my-1 border-t border-white/10"></div>
+                                    <a href="{{ route('public.departments') }}" class="block px-5 py-2.5 text-[13px] text-yellow-300 hover:text-white hover:bg-white/10 transition-colors font-bold border-b border-white/5 last:border-0">
+                                        All Departments →
+                                    </a>
                                 @elseif($menu['label'] === 'PEOPLE')
                                     <div class="px-5 py-2 text-[11px] uppercase tracking-[0.18em] text-gray-400 border-b border-white/5">
                                         Departments
@@ -257,15 +260,17 @@
 
                 <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
                     <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors">
-                        COURSES <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        DEPARTMENTS <svg class="w-4 h-4 transition-transform z-10" :class="subOpen ? 'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div x-show="subOpen" class="bg-[#222222] pl-8 pr-4 py-2 space-y-3 font-medium text-[12px] text-gray-300">
                         @forelse($courseMenu as $course)
-                            @php $courseLabel = optional($course->programs->first())->name ?: $course->name; @endphp
-                            <a href="{{ route('public.department.show', $course->slug) }}" class="block hover:text-white">{{ $courseLabel }}</a>
+                            <a href="{{ route('public.department.show', $course->slug) }}" class="block hover:text-white">{{ $course->name }}</a>
                         @empty
-                            <span class="block text-gray-500">No courses available</span>
+                            <span class="block text-gray-500">No departments available</span>
                         @endforelse
+                        <div class="pt-2 border-t border-white/10">
+                            <a href="{{ route('public.departments') }}" class="block hover:text-yellow-300 text-yellow-400 font-bold">All Departments →</a>
+                        </div>
                     </div>
                 </div>
 
@@ -354,7 +359,7 @@
                         @foreach([
                             ['href' => route('home'), 'label' => 'Home'],
                             ['href' => route('public.page', 'what-is-mmp'), 'label' => 'About MMP'],
-                            ['href' => route('public.departments'), 'label' => 'Courses & Programs'],
+                            ['href' => route('public.departments'), 'label' => 'Departments & Programs'],
                             ['href' => route('public.notices'), 'label' => 'Notice Board'],
                             ['href' => route('public.downloads'), 'label' => 'Downloads & Forms'],
                             ['href' => route('public.contact'), 'label' => 'Contact Us'],
@@ -365,18 +370,17 @@
                     </ul>
                 </div>
 
-                {{-- Programs --}}
+                {{-- Departments --}}
                 <div>
-                    <h3 class="font-bold font-serif text-lg mb-4 text-yellow-400">Our Programs</h3>
+                    <h3 class="font-bold font-serif text-lg mb-4 text-yellow-400">Our Departments</h3>
                     <ul class="space-y-2 text-sm text-red-200">
                         @forelse($courseMenu as $course)
-                            @php $courseLabel = optional($course->programs->first())->name ?: $course->name; @endphp
-                            <li><a href="{{ route('public.department.show', $course->slug) }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> {{ $courseLabel }}</a></li>
+                            <li><a href="{{ route('public.department.show', $course->slug) }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> {{ $course->name }}</a></li>
                         @empty
-                            <li><a href="{{ route('public.departments') }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> Courses & Programs</a></li>
+                            <li><a href="{{ route('public.departments') }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> Departments & Programs</a></li>
                         @endforelse
                         @if($courseMenu->isNotEmpty())
-                            <li><a href="{{ route('public.departments') }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> View All Programs</a></li>
+                            <li><a href="{{ route('public.departments') }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> View All Departments</a></li>
                         @endif
                     </ul>
                 </div>
