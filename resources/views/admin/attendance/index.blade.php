@@ -88,16 +88,6 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <a href="{{ route('admin.reports.export', array_merge(request()->query(), ['format' => 'pdf', 'report_type' => 'attendance'])) }}"
-                       class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7a0000]">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-6m0 0l-3 3m3-3l3 3M5 20h14a1 1 0 001-1v-4H4v4a1 1 0 001 1z"/></svg>
-                        Generate PDF
-                    </a>
-                    <a href="{{ route('admin.reports.export', array_merge(request()->query(), ['format' => 'excel', 'report_type' => 'attendance'])) }}"
-                       class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v18m6-18v18M4 7h16M4 17h16"/></svg>
-                        Export Excel
-                    </a>
                     <a href="#attendance-rules"
                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-rose-200 hover:bg-rose-50/70">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L8 21l-1.75-4m0 0L2 14l4-1.75M6.25 14L8 10l1.75 4m0 0L14 15.75 10 17.5m4-1.75L16 21l1.75-4M18.25 14L22 15.75l-4 1.75M14 15.75L12.25 12l1.75-4M12.25 12L16 10.25l4 1.75"/></svg>

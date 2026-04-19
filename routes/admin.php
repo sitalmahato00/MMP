@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ProgramController;
@@ -23,14 +22,10 @@ use App\Http\Controllers\Admin\WebControlController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\ExecutiveController;
 use App\Http\Controllers\Admin\ApplicationController;
-use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RolePermissionController;
 
 // ── Dashboard ──────────────────────────────────────────────
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
-Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-Route::get('/reports/export/{format}', [ReportController::class, 'export'])->name('reports.export');
 
 // ── User Management ────────────────────────────────────────
 Route::resource('users', UserController::class);

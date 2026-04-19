@@ -88,9 +88,9 @@
             ],
         ],
         [
-            'label' => 'Communication',
+            'standalone' => true,
             'items' => [
-                ['label' => 'Notifications', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
+                ['label' => 'Notice', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
             ],
         ],
         [
@@ -98,16 +98,8 @@
             'items' => [
                 ['label' => 'Pages', 'iconName' => 'doc-text', 'href' => route('admin.web-control.index', ['tab' => 2]), 'isActive' => $active('admin.web-control.*') && (int) request('tab', 0) === 2],
                 ['label' => 'Media', 'iconName' => 'photo', 'href' => route('admin.media.index'), 'isActive' => $active('admin.media.*')],
-                ['label' => 'Notices', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*')],
                 ['label' => 'Downloads', 'iconName' => 'download', 'href' => route('admin.downloads.index'), 'isActive' => $active('admin.downloads.*')],
                 ['label' => 'Banners', 'iconName' => 'collection', 'href' => route('admin.banners.index'), 'isActive' => $active('admin.banners.*')],
-            ],
-        ],
-        [
-            'label' => 'Insights',
-            'items' => [
-                ['label' => 'Analytics', 'iconName' => 'chart-bar', 'href' => route('admin.analytics'), 'isActive' => $active('admin.analytics')],
-                ['label' => 'Reports', 'iconName' => 'doc-report', 'href' => route('admin.reports.index'), 'isActive' => $active('admin.reports.*')],
             ],
         ],
         [
@@ -222,18 +214,33 @@
     <nav class="flex-1 overflow-y-auto overflow-x-visible px-3 py-3 scrollbar-thin scrollbar-thumb-white/10">
         @if($isAdmin)
             @foreach($adminGroups as $group)
-                @include('components.sidebar-items.nav-section', ['label' => $group['label']])
-                @foreach($group['items'] as $item)
-                    @include('components.sidebar-items.nav-link', [
-                        'href' => $item['href'],
-                        'iconName' => $item['iconName'],
-                        'label' => $item['label'],
-                        'isActive' => $item['isActive'],
-                        'accent' => $accent,
-                        'badge' => $item['badge'] ?? null,
-                    ])
-                @endforeach
-                @include('components.sidebar-items.nav-section-end')
+                @if(!empty($group['standalone']))
+                    <div class="pt-4 pb-1 px-1 space-y-1">
+                        @foreach($group['items'] as $item)
+                            @include('components.sidebar-items.nav-link', [
+                                'href' => $item['href'],
+                                'iconName' => $item['iconName'],
+                                'label' => $item['label'],
+                                'isActive' => $item['isActive'],
+                                'accent' => $accent,
+                                'badge' => $item['badge'] ?? null,
+                            ])
+                        @endforeach
+                    </div>
+                @else
+                    @include('components.sidebar-items.nav-section', ['label' => $group['label']])
+                    @foreach($group['items'] as $item)
+                        @include('components.sidebar-items.nav-link', [
+                            'href' => $item['href'],
+                            'iconName' => $item['iconName'],
+                            'label' => $item['label'],
+                            'isActive' => $item['isActive'],
+                            'accent' => $accent,
+                            'badge' => $item['badge'] ?? null,
+                        ])
+                    @endforeach
+                    @include('components.sidebar-items.nav-section-end')
+                @endif
             @endforeach
         @elseif($isHod)
             @foreach($hodGroups as $group)
