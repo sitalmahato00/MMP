@@ -55,7 +55,7 @@ class TeacherController extends Controller
                 ->whereIn('subject_teacher.teacher_id', $teacherIds)
                 ->select(
                     'subject_teacher.teacher_id',
-                    DB::raw("GROUP_CONCAT(DISTINCT subjects.semester ORDER BY subjects.semester SEPARATOR ',') as semester_list")
+DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
                 )
                 ->groupBy('subject_teacher.teacher_id')
                 ->pluck('semester_list', 'teacher_id');
@@ -66,6 +66,7 @@ class TeacherController extends Controller
                 $semesterList = collect(explode(',', $semesterCsv))
                     ->filter(fn ($value) => $value !== '')
                     ->map(fn ($value) => (int) $value)
+                    ->sort()
                     ->values();
 
                 $teacher->setAttribute('semester_list', $semesterList);
