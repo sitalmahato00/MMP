@@ -25,6 +25,7 @@ class Alumni extends Model
     protected $casts = [
         'is_featured' => 'boolean',
         'is_verified' => 'boolean',
+        'profile_completion' => 'integer',
         'skills' => 'array',
     ];
 

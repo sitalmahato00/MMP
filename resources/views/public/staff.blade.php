@@ -4,101 +4,167 @@
 @section('breadcrumb', true)
 
 @section('content')
-@php
-    $staffByDept = $staff->groupBy(fn($s) => $s->department ?: 'General');
-    $deptNames = $staffByDept->keys()->sort()->values();
-@endphp
-<div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-8"
-     x-data="{ activeDept: 'all' }">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2">
-            <div class="section-header flex items-center justify-between pr-3" style="background-color: #8B0000;">
-                <span>👥 Administrative Staff</span>
-                <span class="text-yellow-300 text-xs font-normal" x-text="activeDept === 'all' ? '{{ $staff->count() }} members' : ''"></span>
-            </div>
-
-            {{-- Department Filter --}}
-            @if($deptNames->count() > 1)
-            <div class="bg-white border-x border-b border-gray-200 px-4 py-3 flex flex-wrap gap-2">
-                <button @click="activeDept = 'all'"
-                    :class="activeDept === 'all' ? 'bg-[#8B0000] text-white border-[#8B0000]' : 'bg-white text-gray-600 border-gray-300 hover:border-[#8B0000] hover:text-[#8B0000]'"
-                    class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors">
-                    All Departments
-                </button>
-                @foreach($deptNames as $dept)
-                <button @click="activeDept = '{{ addslashes($dept) }}'"
-                    :class="activeDept === '{{ addslashes($dept) }}' ? 'bg-[#8B0000] text-white border-[#8B0000]' : 'bg-white text-gray-600 border-gray-300 hover:border-[#8B0000] hover:text-[#8B0000]'"
-                    class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors">
-                    {{ $dept }}
-                </button>
-                @endforeach
-            </div>
-            @endif
-
-            <div class="bg-white border border-gray-200 border-t-0 p-5">
-                @if($staff->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                        @foreach($staff as $member)
-                            <div class="group text-center p-4 border border-gray-100 rounded hover:border-[#8B0000]/30 hover:shadow-md transition-all"
-                                 x-show="activeDept === 'all' || activeDept === '{{ addslashes($member->department ?: 'General') }}'"
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 scale-95"
-                                 x-transition:enter-end="opacity-100 scale-100">
-                                <div class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 group-hover:border-[#8B0000]/20 transition-colors bg-gray-200 shadow-sm">
-                                    <img src="{{ $member->photo_url }}" alt="{{ $member->name }}" class="w-full h-full object-cover" loading="lazy">
-                                </div>
-                                <h3 class="font-bold text-sm text-gray-900 group-hover:text-[#8B0000] transition-colors">{{ $member->name }}</h3>
-                                <p class="text-xs text-gray-500 mt-1">{{ $member->designation }}</p>
-                                @if($member->department)
-                                    <span class="text-[10px] text-red-700 bg-red-50 px-2 py-0.5 rounded inline-block mt-2 border border-red-100">{{ $member->department }}</span>
-                                @endif
-                                <a href="{{ route('public.people.profile', ['type' => 'staff', 'id' => $member->id]) }}" class="mt-4 inline-flex items-center justify-center rounded-full bg-[#8B0000] px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#6B0000]">
-                                    View Profile
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="py-16 text-center text-gray-400">
-                        <p class="text-5xl mb-4">👥</p>
-                        <p class="font-semibold text-gray-500">Staff directory is being updated.</p>
-                        <p class="text-sm text-gray-400 mt-2">Please check back later.</p>
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        {{-- Sidebar --}}
-        <div class="space-y-6">
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-[#8B0000] text-white shadow-[0_30px_80px_rgba(15,23,42,0.35)]">
+        <div class="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr] lg:p-10">
             <div>
-                <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
-                <div class="bg-white border border-gray-200 border-t-0">
-                    @foreach([
-                        ['label' => 'Presidents & Principals', 'href' => route('public.leadership')],
-                        ['label' => 'Our Programs', 'href' => route('public.departments')],
-                        ['label' => 'Notice Board', 'href' => route('public.notices')],
-                        ['label' => 'Contact Us', 'href' => route('public.contact')],
-                    ] as $link)
-                        <a href="{{ $link['href'] }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors">
-                            <span class="text-red-600">›</span>{{ $link['label'] }}
-                        </a>
-                    @endforeach
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-white/65">Public Directory</p>
+                <h1 class="mt-3 text-3xl font-semibold tracking-tight lg:text-4xl">Administrative Staff</h1>
+                <p class="mt-3 max-w-2xl text-sm text-white/75">Browse the staff who have been made public, filter by department or designation, and open full profiles when contact visibility is allowed.</p>
+
+                <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <div class="rounded-2xl bg-white/10 p-4 backdrop-blur">
+                        <div class="text-xs uppercase tracking-[0.25em] text-white/55">Visible Staff</div>
+                        <div class="mt-2 text-3xl font-semibold">{{ $totalVisible }}</div>
+                    </div>
+                    <div class="rounded-2xl bg-white/10 p-4 backdrop-blur">
+                        <div class="text-xs uppercase tracking-[0.25em] text-white/55">Active</div>
+                        <div class="mt-2 text-3xl font-semibold">{{ $activeVisible }}</div>
+                    </div>
+                    <div class="rounded-2xl bg-white/10 p-4 backdrop-blur">
+                        <div class="text-xs uppercase tracking-[0.25em] text-white/55">Featured</div>
+                        <div class="mt-2 text-3xl font-semibold">{{ $featuredVisible }}</div>
+                    </div>
+                    <div class="rounded-2xl bg-white/10 p-4 backdrop-blur">
+                        <div class="text-xs uppercase tracking-[0.25em] text-white/55">This Year</div>
+                        <div class="mt-2 text-3xl font-semibold">{{ $addedThisYear }}</div>
+                    </div>
                 </div>
             </div>
 
-            @if($departments->count() > 0)
-                <div>
-                    <div class="section-header" style="background-color: #8B0000;">🏛️ Departments</div>
-                    <div class="bg-white border border-gray-200 border-t-0">
-                        @foreach($departments as $dept)
-                            <a href="{{ route('public.department.show', $dept->slug) }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors">
-                                <span class="text-red-600">›</span>{{ $dept->name }}
-                            </a>
-                        @endforeach
+            <div class="rounded-[1.75rem] border border-white/15 bg-white/10 p-5 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/65">Featured Department</p>
+                <h2 class="mt-2 text-lg font-semibold">{{ $topDepartment?->department ?? 'No department yet' }}</h2>
+                <p class="mt-2 text-sm text-white/70">{{ $topDepartment?->total ? $topDepartment->total . ' staff members' : 'Public staff data is still being populated.' }}</p>
+
+                <div class="mt-5 space-y-3 text-sm">
+                    <a href="{{ route('public.departments') }}" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-white transition hover:bg-white/15">
+                        <span>Explore programs</span>
+                        <span class="text-white/60">→</span>
+                    </a>
+                    <a href="{{ route('public.people') }}" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-white transition hover:bg-white/15">
+                        <span>Browse all people</span>
+                        <span class="text-white/60">→</span>
+                    </a>
+                    <a href="{{ route('public.contact') }}" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-white transition hover:bg-white/15">
+                        <span>Contact the college</span>
+                        <span class="text-white/60">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="GET" class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] lg:p-6">
+        <div class="grid gap-4 xl:grid-cols-6">
+            <div class="space-y-2 xl:col-span-2">
+                <label class="text-sm font-medium text-slate-700">Search</label>
+                <input type="search" name="search" value="{{ request('search') }}" placeholder="Search staff name or code" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-slate-700">Department</label>
+                <select name="department" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">
+                    <option value="">All</option>
+                    @foreach($departments as $department)
+                        <option value="{{ $department }}" @selected(request('department') === $department)>{{ $department }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-slate-700">Designation</label>
+                <select name="designation" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">
+                    <option value="">All</option>
+                    @foreach($designations as $designation)
+                        <option value="{{ $designation }}" @selected(request('designation') === $designation)>{{ $designation }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-slate-700">Status</label>
+                <select name="employment_status" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">
+                    <option value="">All</option>
+                    @foreach(['active' => 'Active', 'leave' => 'Leave', 'resigned' => 'Resigned'] as $value => $label)
+                        <option value="{{ $value }}" @selected(request('employment_status') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-slate-700">Joined Year</label>
+                <select name="joined_year" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">
+                    <option value="">All</option>
+                    @foreach($joinedYears as $year)
+                        <option value="{{ $year }}" @selected(request('joined_year') === $year)>{{ $year }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-slate-700">Featured</label>
+                <select name="featured" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">
+                    <option value="">All</option>
+                    <option value="1" @selected(request('featured') === '1')>Featured only</option>
+                    <option value="0" @selected(request('featured') === '0')>Not featured</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <div class="text-sm text-slate-500">{{ $staff->total() }} public staff profiles</div>
+            <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#8B0000] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f0000]">Apply Filters</button>
+        </div>
+    </form>
+
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        @forelse($staff as $member)
+            <article class="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
+                <div class="flex items-start gap-4">
+                    <div class="h-20 w-20 overflow-hidden rounded-3xl border border-slate-200 bg-slate-100">
+                        <img src="{{ $member->photo_url }}" alt="{{ $member->name }}" class="h-full w-full object-cover">
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap gap-2">
+                            @if($member->featured)
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-700">Featured</span>
+                            @endif
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600">{{ ucfirst($member->employment_status ?? 'active') }}</span>
+                        </div>
+                        <h3 class="mt-3 text-lg font-semibold text-slate-900">{{ $member->name }}</h3>
+                        <p class="mt-1 text-sm text-[#8B0000]">{{ $member->designation }}</p>
+                        <p class="mt-2 text-sm text-slate-500">{{ $member->department ?: 'General Administration' }}</p>
                     </div>
                 </div>
-            @endif
-        </div>
+
+                <div class="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                    <div class="rounded-2xl bg-slate-50 p-3">
+                        <div class="text-xs uppercase tracking-[0.25em] text-slate-500">Staff Code</div>
+                        <div class="mt-1 font-semibold text-slate-900">{{ $member->staff_code }}</div>
+                    </div>
+                    <div class="rounded-2xl bg-slate-50 p-3">
+                        <div class="text-xs uppercase tracking-[0.25em] text-slate-500">Public Docs</div>
+                        <div class="mt-1 font-semibold text-slate-900">{{ $member->public_documents_count ?? 0 }}</div>
+                    </div>
+                </div>
+
+                <div class="mt-5 space-y-2 text-sm text-slate-600">
+                    <div>{{ $member->show_email_public ? $member->email : 'Email hidden' }}</div>
+                    <div>{{ $member->show_phone_public ? $member->phone : 'Phone hidden' }}</div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-between gap-3">
+                    <a href="{{ route('public.staff.profile', $member->id) }}" class="inline-flex items-center justify-center rounded-full bg-[#8B0000] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f0000]">View Profile</a>
+                    <span class="text-xs text-slate-400">Joined {{ $member->join_date ? bsDate($member->join_date, 'Y') : '—' }}</span>
+                </div>
+            </article>
+        @empty
+            <div class="col-span-full rounded-[2rem] border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
+                <div class="text-5xl">👥</div>
+                <h3 class="mt-4 text-lg font-semibold text-slate-900">No public staff profiles yet</h3>
+                <p class="mt-2 text-sm text-slate-500">The administrative team is still preparing visible staff records.</p>
+            </div>
+        @endforelse
+    </div>
+
+    <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-4 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        {{ $staff->links() }}
     </div>
 </div>
 @endsection

@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Helpers\NepaliDateHelper;
 use App\Models\{Department, Notice, Banner, Alumni, Download, Page, Program, Staff, Student, SiteSetting, Facility, Executive, Media, Teacher};
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -24,7 +26,7 @@ class PublicDataService
                 'banners' => Banner::active()->get(['id', 'title', 'subtitle', 'image', 'link', 'order']),
                 'departments' => Department::active()
                     ->withCount('programs')
-                    ->get(['id', 'name', 'code', 'slug', 'description', 'photo']),
+                    ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus']),
                 'featured_alumni' => Alumni::featured()->verified()
                     ->with('user:id,name,avatar')
                     ->with('department:id,name,code')
@@ -58,7 +60,7 @@ class PublicDataService
         return Cache::remember('public:departments', self::CACHE_TTL, function () {
             return Department::active()
                 ->withCount(['programs', 'students', 'teachers'])
-                ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity']);
+                ->get(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity']);
         });
     }
 
@@ -70,7 +72,7 @@ class PublicDataService
                     $query->active()->orderBy('name');
                 }])
                 ->orderBy('name')
-                ->get(['id', 'name', 'code', 'slug', 'photo']);
+                ->get(['id', 'name', 'code', 'slug', 'photo', 'syllabus']);
         });
     }
 
@@ -78,32 +80,9 @@ class PublicDataService
     {
         return Cache::remember("public:department:{$slug}", self::CACHE_TTL, function () use ($slug) {
             return Department::where('slug', $slug)
-                ->with(['programs' => function ($q) {
-                    $q->active()->orderBy('name')->with(['subjects' => function ($sq) {
-                        $sq->where('is_active', true)->orderBy('semester')->orderBy('name');
-                    }]);
-                }])
+                ->with(['programs:id,department_id,name,code,total_semesters,duration_years'])
                 ->with(['hod:id,name'])
-                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'seat_capacity', 'hod_id']);
-        });
-    }
-
-    public function getProgramBySlug(string $departmentSlug, string $programSlug): array
-    {
-        return Cache::remember("public:program:{$departmentSlug}:{$programSlug}", self::CACHE_TTL, function () use ($departmentSlug, $programSlug) {
-            $department = Department::where('slug', $departmentSlug)
-                ->firstOrFail(['id', 'name', 'code', 'slug']);
-
-            $program = Program::where('department_id', $department->id)
-                ->where('slug', $programSlug)
-                ->with(['subjects' => function ($q) {
-                    $q->where('is_active', true)->orderBy('semester')->orderBy('name');
-                }])
-                ->with(['coordinator:id,name'])
-                ->with(['department:id,name,code,slug'])
-                ->firstOrFail();
-
-            return compact('department', 'program');
+                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity', 'hod_id']);
         });
     }
 
@@ -119,28 +98,221 @@ class PublicDataService
         });
     }
 
-    public function getAlumniDirectory(?int $departmentId = null, ?string $search = null, ?string $gradYear = null, int $perPage = 24)
+    public function getAlumniDirectory(?int $departmentId = null, ?string $search = null, ?string $graduationYear = null, int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $page = request()->integer('page', 1);
-        $cacheKey = "public:alumni:directory:{$departmentId}:{$search}:{$gradYear}:{$perPage}:{$page}";
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($departmentId, $search, $gradYear, $perPage) {
-            return Alumni::publicVisible()
-                ->with(['user:id,name,avatar', 'department:id,name,code', 'program:id,name,code', 'projects:id,alumni_id,type,title'])
-                ->when($departmentId, fn($q) => $q->where('department_id', $departmentId))
-                ->when($search, fn($q) => $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%")))
-                ->when($gradYear, fn($q) => $q->where('graduation_year', $gradYear))
-                ->latest('graduation_year')
-                ->paginate($perPage);
+        $version = $this->alumniCacheVersion();
+        $cacheKey = "public:alumni:directory:v{$version}:{$departmentId}:{$search}:{$graduationYear}:{$perPage}:{$page}";
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($departmentId, $search, $graduationYear, $perPage) {
+            $query = Alumni::publicVisible()
+                ->verified()
+                ->with([
+                    'user:id,name,avatar',
+                    'department:id,name,code,slug',
+                    'program:id,name,code,slug',
+                    'student:id,user_id,student_no,registration_number,batch,current_semester,section,status,admission_date',
+                    'projects' => fn ($projects) => $projects
+                        ->where('is_visible', true)
+                        ->orderByDesc('year')
+                        ->orderBy('type'),
+                ])
+                ->withCount([
+                    'projects as visible_projects_count' => fn ($projects) => $projects->where('is_visible', true),
+                    'achievementRecords',
+                    'employmentHistory',
+                ]);
+
+            if (filled($search = trim((string) $search))) {
+                $query->where(function ($builder) use ($search) {
+                    $builder->whereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhere('current_job', 'like', "%{$search}%")
+                    ->orWhere('company_name', 'like', "%{$search}%")
+                    ->orWhere('work_location', 'like', "%{$search}%")
+                    ->orWhere('achievements', 'like', "%{$search}%")
+                    ->orWhere('bio', 'like', "%{$search}%")
+                    ->orWhere('roll_number', 'like', "%{$search}%")
+                    ->orWhere('admission_year', 'like', "%{$search}%")
+                    ->orWhere('graduation_year', 'like', "%{$search}%");
+                });
+            }
+
+            if (filled($departmentId)) {
+                $query->where('department_id', $departmentId);
+            }
+
+            if (filled($graduationYear)) {
+                $query->where('graduation_year', $graduationYear);
+            }
+
+            return $query
+                ->orderByDesc('is_featured')
+                ->orderByDesc('graduation_year')
+                ->orderBy('id', 'desc')
+                ->paginate($perPage)
+                ->withQueryString();
         });
     }
 
-    public function getAlumniProfile(int $id): \App\Models\Alumni
+    public function getAlumniGraduationYears(): \Illuminate\Support\Collection
     {
-        return Cache::remember("public:alumni:profile:{$id}", self::CACHE_TTL, function () use ($id) {
+        return Cache::remember('public:alumni:graduation_years', self::CACHE_TTL, function () {
             return Alumni::publicVisible()
-                ->with(['user', 'department', 'program', 'projects', 'achievementRecords', 'employmentHistory'])
+                ->verified()
+                ->select('graduation_year')
+                ->distinct()
+                ->orderByDesc('graduation_year')
+                ->pluck('graduation_year');
+        });
+    }
+
+    public function getAlumniProfile(int $id): Alumni
+    {
+        $version = $this->alumniCacheVersion();
+
+        return Cache::remember("public:alumni:profile:v{$version}:{$id}", self::CACHE_TTL, function () use ($id) {
+            return Alumni::publicVisible()
+                ->verified()
+                ->with([
+                    'user:id,name,email,phone,address,gender,dob,avatar',
+                    'department:id,name,code,slug',
+                    'program:id,name,code,slug',
+                    'student:id,user_id,student_no,registration_number,batch,current_semester,section,status,admission_date',
+                    'projects' => fn ($projects) => $projects
+                        ->orderByDesc('is_visible')
+                        ->orderByDesc('year'),
+                    'achievementRecords' => fn ($records) => $records->orderByDesc('year'),
+                    'employmentHistory' => fn ($history) => $history->orderByDesc('start_date'),
+                ])
+                ->withCount([
+                    'projects as visible_projects_count' => fn ($projects) => $projects->where('is_visible', true),
+                    'achievementRecords',
+                    'employmentHistory',
+                ])
                 ->findOrFail($id);
         });
+    }
+
+    public function getPublicStaffDirectory(
+        ?string $search = null,
+        ?string $department = null,
+        ?string $designation = null,
+        ?string $employmentStatus = null,
+        ?string $joinedYear = null,
+        ?string $featured = null,
+        int $perPage = 12
+    ): array {
+        $page = request()->integer('page', 1);
+        $version = $this->staffCacheVersion();
+        $cacheKey = "public:staff:directory:v{$version}:{$search}:{$department}:{$designation}:{$employmentStatus}:{$joinedYear}:{$featured}:{$perPage}:{$page}";
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($search, $department, $designation, $employmentStatus, $joinedYear, $featured, $perPage) {
+            $query = Staff::publicVisible()
+                ->with(['documents' => fn ($documents) => $documents->where('is_public', true)])
+                ->withCount(['documents as public_documents_count' => fn ($documents) => $documents->where('is_public', true)]);
+
+            if ($search = trim((string) $search)) {
+                $query->where(function ($builder) use ($search) {
+                    $builder->where('name', 'like', "%{$search}%")
+                        ->orWhere('staff_code', 'like', "%{$search}%");
+                });
+            }
+
+            if (filled($department)) {
+                $query->where('department', $department);
+            }
+
+            if (filled($designation)) {
+                $query->where('designation', $designation);
+            }
+
+            if (filled($employmentStatus)) {
+                $query->where('employment_status', $employmentStatus);
+            }
+
+            $this->applyBsJoinedYearFilter($query, $joinedYear);
+
+            if (filled($featured)) {
+                $query->where('featured', filter_var($featured, FILTER_VALIDATE_BOOLEAN));
+            }
+
+            $staff = $query->orderByDesc('featured')->orderBy('order')->orderBy('name')->paginate($perPage)->withQueryString();
+
+            $departments = Staff::publicVisible()
+                ->whereNotNull('department')
+                ->where('department', '!=', '')
+                ->distinct()
+                ->orderBy('department')
+                ->pluck('department');
+
+            $designations = Staff::publicVisible()
+                ->whereNotNull('designation')
+                ->where('designation', '!=', '')
+                ->distinct()
+                ->orderBy('designation')
+                ->pluck('designation');
+
+            $joinedYears = Staff::publicVisible()
+                ->whereNotNull('join_date')
+                ->get(['join_date'])
+                ->map(fn ($member) => bsDate($member->join_date, 'Y'))
+                ->filter()
+                ->unique()
+                ->sortDesc()
+                ->values();
+
+            $totalVisible = Staff::publicVisible()->count();
+            $activeVisible = Staff::publicVisible()->where('employment_status', 'active')->count();
+            $resignedVisible = Staff::publicVisible()->where('employment_status', 'resigned')->count();
+            $featuredVisible = Staff::publicVisible()->featured()->count();
+            $addedThisYear = Staff::publicVisible()->whereYear('created_at', now()->year)->count();
+
+            $topDepartment = Staff::publicVisible()
+                ->select('department', DB::raw('count(*) as total'))
+                ->whereNotNull('department')
+                ->where('department', '!=', '')
+                ->groupBy('department')
+                ->orderByDesc('total')
+                ->first();
+
+            return compact(
+                'staff', 'departments', 'designations', 'joinedYears',
+                'totalVisible', 'activeVisible', 'resignedVisible', 'featuredVisible', 'addedThisYear', 'topDepartment'
+            );
+        });
+    }
+
+    public function getPublicStaffProfile(int $id): Staff
+    {
+        $version = $this->staffCacheVersion();
+
+        return Cache::remember("public:staff:profile:v{$version}:{$id}", self::CACHE_TTL, function () use ($id) {
+            return Staff::publicVisible()
+                ->with(['documents' => fn ($documents) => $documents->where('is_public', true)])
+                ->withCount(['documents as public_documents_count' => fn ($documents) => $documents->where('is_public', true)])
+                ->findOrFail($id);
+        });
+    }
+
+    private function applyBsJoinedYearFilter($query, ?string $joinedYear): void
+    {
+        $joinedYear = trim((string) $joinedYear);
+
+        if ($joinedYear === '' || ! preg_match('/^\d{4}$/', $joinedYear)) {
+            return;
+        }
+
+        $startDate = NepaliDateHelper::toAD("{$joinedYear}-01-01");
+        $endDate = NepaliDateHelper::toAD(((int) $joinedYear + 1) . '-01-01');
+
+        if (! $startDate || ! $endDate) {
+            return;
+        }
+
+        $query->whereDate('join_date', '>=', $startDate->toDateString())
+            ->whereDate('join_date', '<', $endDate->toDateString());
     }
 
     public function getDownloads(?string $category = null): Collection
@@ -250,6 +422,26 @@ class PublicDataService
         return $this->getDownloads('question-bank');
     }
 
+    public function bustStaffCaches(): void
+    {
+        Cache::forever('public:staff:version', $this->staffCacheVersion() + 1);
+    }
+
+    public function bustAlumniCaches(): void
+    {
+        Cache::forever('public:alumni:version', $this->alumniCacheVersion() + 1);
+    }
+
+    private function staffCacheVersion(): int
+    {
+        return (int) Cache::get('public:staff:version', 1);
+    }
+
+    private function alumniCacheVersion(): int
+    {
+        return (int) Cache::get('public:alumni:version', 1);
+    }
+
     public function getNewsEvents(int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return Notice::published()
@@ -328,7 +520,6 @@ class PublicDataService
             $pageUrl = $isResult
                 ? config('services.ctevt_notice.result_url', 'https://itms.ctevt.org.np:5580/notices/result')
                 : config('services.ctevt_notice.general_url', 'https://itms.ctevt.org.np:5580/notices');
-
             $response = Http::timeout(20)
                 ->retry(2, 250)
                 ->withoutVerifying()
@@ -541,6 +732,9 @@ class PublicDataService
             }
 
             Cache::forget('brand:site_logo');
+
+            app(self::class)->bustAlumniCaches();
+            app(self::class)->bustStaffCaches();
         } else {
             Cache::forget("public:{$key}");
         }
@@ -774,7 +968,7 @@ class PublicDataService
     private function formatDisplayDate(mixed $value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
-            return bsDate($value, 'Y, F d');
+            return $value->format('d M Y');
         }
 
         $formatted = trim((string) $value);

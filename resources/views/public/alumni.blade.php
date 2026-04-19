@@ -51,6 +51,7 @@
             @php
                 $gradients = ['from-blue-500 to-indigo-600','from-violet-500 to-purple-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-rose-500 to-pink-600','from-cyan-500 to-sky-600'];
                 $grad = $gradients[$a->id % 6];
+                $profileCompletion = max(0, min(100, (int) ($a->profile_completion ?? 0)));
             @endphp
             <a href="{{ route('public.alumni.profile', $a->id) }}"
                class="group rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden hover:shadow-md hover:border-slate-300 transition">
@@ -71,13 +72,30 @@
                     @if($a->current_job)
                         <p class="text-xs text-slate-500 truncate">{{ $a->current_job }}@if($a->company_name) · {{ $a->company_name }}@endif</p>
                     @endif
+                    @if($a->work_location)
+                        <p class="text-[11px] text-slate-400 truncate">{{ $a->work_location }}</p>
+                    @endif
                     <div class="mt-2 flex flex-wrap gap-1">
                         <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">{{ $a->department?->code }}</span>
-                        <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">{{ $a->graduation_year }}</span>
-                        @if($a->projects?->count())
-                            <span class="rounded bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600">{{ $a->projects->count() }} {{ Str::plural('project', $a->projects->count()) }}</span>
+                        <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">Batch {{ $a->graduation_year }}</span>
+                        @if($a->is_verified)
+                            <span class="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Verified</span>
+                        @endif
+                        @if(($a->visible_projects_count ?? 0) > 0)
+                            <span class="rounded bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600">{{ $a->visible_projects_count }} {{ Str::plural('project', $a->visible_projects_count) }}</span>
+                        @endif
+                        @if(($a->achievement_records_count ?? 0) > 0)
+                            <span class="rounded bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">{{ $a->achievement_records_count }} {{ Str::plural('achievement', $a->achievement_records_count) }}</span>
                         @endif
                     </div>
+                    @if($profileCompletion > 0)
+                        <div class="mt-3">
+                            <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-gradient-to-r from-[#8B0000] to-amber-500" style="width: {{ $profileCompletion }}%"></div>
+                            </div>
+                            <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Profile {{ $profileCompletion }}%</p>
+                        </div>
+                    @endif
                 </div>
             </a>
             @endforeach

@@ -354,11 +354,26 @@ class HomeController extends Controller
         ));
     }
 
-    public function staff()
+    public function staff(Request $request)
     {
-        $staff = $this->service->getStaff();
-        $departments = $this->service->getDepartments();
-        return view('public.staff', compact('staff', 'departments'));
+        $directory = $this->service->getPublicStaffDirectory(
+            search: $request->string('search')->toString() ?: null,
+            department: $request->string('department')->toString() ?: null,
+            designation: $request->string('designation')->toString() ?: null,
+            employmentStatus: $request->string('employment_status')->toString() ?: null,
+            joinedYear: $request->string('joined_year')->toString() ?: null,
+            featured: $request->string('featured')->toString() ?: null,
+            perPage: 12,
+        );
+
+        return view('public.staff', $directory);
+    }
+
+    public function staffProfile(int $id)
+    {
+        $staff = $this->service->getPublicStaffProfile($id);
+
+        return view('public.staff-profile', compact('staff'));
     }
 
     public function peopleProfile(string $type, int $id)
@@ -389,11 +404,7 @@ class HomeController extends Controller
             request('year'),
         );
         $departments = $this->service->getDepartments();
-        $graduationYears = \App\Models\Alumni::publicVisible()
-            ->select('graduation_year')
-            ->distinct()
-            ->orderByDesc('graduation_year')
-            ->pluck('graduation_year');
+        $graduationYears = $this->service->getAlumniGraduationYears();
         return view('public.alumni', compact('alumni', 'departments', 'graduationYears'));
     }
 

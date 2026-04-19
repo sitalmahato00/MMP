@@ -44,6 +44,7 @@ Route::get('/people/{type}/{id}', [HomeController::class, 'peopleProfile'])
     ->whereNumber('id')
     ->name('public.people.profile');
 Route::get('/staff', [HomeController::class, 'staff'])->name('public.staff');
+Route::get('/staff/{id}', [HomeController::class, 'staffProfile'])->whereNumber('id')->name('public.staff.profile');
 Route::get('/leadership', [HomeController::class, 'leadership'])->name('public.leadership');
 Route::get('/facilities', [HomeController::class, 'facilities'])->name('public.facilities');
 Route::get('/contact', [HomeController::class, 'contact'])->name('public.contact');

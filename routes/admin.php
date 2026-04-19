@@ -72,7 +72,16 @@ Route::post('teachers/bulk-action', [TeacherController::class, 'bulkAction'])->n
 Route::resource('parents', ParentController::class);
 Route::resource('alumni', AlumniController::class);
 Route::post('alumni/{alumnus}/toggle-featured', [AlumniController::class, 'toggleFeatured'])->name('alumni.toggle-featured');
+Route::post('staff/import', [StaffController::class, 'import'])->name('staff.import');
+Route::get('staff/export/csv', [StaffController::class, 'exportCsv'])->name('staff.export.csv');
+Route::get('staff/export/pdf', [StaffController::class, 'exportPdf'])->name('staff.export.pdf');
 Route::resource('staff', StaffController::class);
+Route::patch('staff/{staff}/status', [StaffController::class, 'updateStatus'])->name('staff.status.update');
+Route::post('staff/{staff}/toggle-featured', [StaffController::class, 'toggleFeatured'])->name('staff.toggle-featured');
+Route::post('staff/{staff}/toggle-public', [StaffController::class, 'togglePublic'])->name('staff.toggle-public');
+Route::get('staff/{staff}/documents', [StaffController::class, 'documents'])->name('staff.documents');
+Route::post('staff/{staff}/documents', [StaffController::class, 'storeDocument'])->name('staff.documents.store');
+Route::delete('staff/{staff}/documents/{document}', [StaffController::class, 'destroyDocument'])->name('staff.documents.destroy');
 
 // ── Examinations & Results ─────────────────────────────────
 Route::get('exams/analytics', [ExamController::class, 'analytics'])->name('exams.analytics');

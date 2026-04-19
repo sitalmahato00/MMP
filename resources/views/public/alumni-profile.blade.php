@@ -13,10 +13,74 @@
         'unknown'    => ['label' => 'Unknown',    'cls' => 'bg-slate-100 text-slate-600 ring-slate-200'],
     ];
     $st = $statusMap[$alumnus->employment_status] ?? $statusMap['unknown'];
+    $profileCompletion = max(0, min(100, (int) ($alumnus->profile_completion ?? 0)));
+    $skills = collect($alumnus->skills ?? [])->filter()->values();
+    $visibleProjects = $alumnus->projects ? $alumnus->projects->where('is_visible', true)->values() : collect();
+    $achievementRecords = $alumnus->achievementRecords ?? collect();
+    $employmentHistory = $alumnus->employmentHistory ?? collect();
+    $student = $alumnus->student;
+    $visibilityLabel = ucfirst((string) ($alumnus->visibility ?? 'public'));
+    $phoneLink = $alumnus->user?->phone ? 'tel:' . preg_replace('/\s+/', '', $alumnus->user->phone) : null;
+    $emailLink = $alumnus->user?->email ? 'mailto:' . $alumnus->user->email : null;
+    $achievementSummary = trim((string) $alumnus->achievements);
+    $stats = [
+        ['label' => 'Projects', 'value' => $alumnus->visible_projects_count ?? $visibleProjects->count()],
+        ['label' => 'Achievements', 'value' => $alumnus->achievement_records_count ?? $achievementRecords->count()],
+        ['label' => 'Career entries', 'value' => $alumnus->employment_history_count ?? $employmentHistory->count()],
+        ['label' => 'Completion', 'value' => $profileCompletion . '%'],
+    ];
+    $detailSections = [
+        [
+            'title' => 'Contact & Identity',
+            'items' => [
+                ['label' => 'Email', 'value' => $alumnus->user?->email, 'url' => $emailLink],
+                ['label' => 'Phone', 'value' => $alumnus->user?->phone, 'url' => $phoneLink],
+                ['label' => 'Address', 'value' => $alumnus->user?->address],
+                ['label' => 'Gender', 'value' => $alumnus->user?->gender],
+                ['label' => 'Birth Date', 'value' => optional($alumnus->user?->dob)->format('d M Y')],
+            ],
+        ],
+        [
+            'title' => 'Academic Record',
+            'items' => [
+                ['label' => 'Department', 'value' => $alumnus->department?->name],
+                ['label' => 'Program', 'value' => $alumnus->program?->name],
+                ['label' => 'Roll Number', 'value' => $alumnus->roll_number],
+                ['label' => 'Admission Year', 'value' => $alumnus->admission_year],
+                ['label' => 'Graduation Year', 'value' => $alumnus->graduation_year],
+                ['label' => 'Student No.', 'value' => $student?->student_no],
+                ['label' => 'Registration No.', 'value' => $student?->registration_number],
+                ['label' => 'Student Batch', 'value' => $student?->batch],
+                ['label' => 'Section', 'value' => $student?->section],
+                ['label' => 'Current Semester', 'value' => $student?->current_semester],
+                ['label' => 'Student Status', 'value' => $student?->status],
+                ['label' => 'Admission Date', 'value' => optional($student?->admission_date)->format('d M Y')],
+            ],
+        ],
+        [
+            'title' => 'Professional Record',
+            'items' => [
+                ['label' => 'Current Job', 'value' => $alumnus->current_job],
+                ['label' => 'Company', 'value' => $alumnus->company_name],
+                ['label' => 'Work Location', 'value' => $alumnus->work_location],
+                ['label' => 'Employment Status', 'value' => $st['label']],
+            ],
+        ],
+        [
+            'title' => 'Public Status',
+            'items' => [
+                ['label' => 'Visibility', 'value' => $visibilityLabel],
+                ['label' => 'Profile Completion', 'value' => $profileCompletion . '%'],
+                ['label' => 'Verified', 'value' => $alumnus->is_verified ? 'Yes' : 'No'],
+                ['label' => 'Featured', 'value' => $alumnus->is_featured ? 'Yes' : 'No'],
+            ],
+        ],
+    ];
 @endphp
 
-<section class="py-12 lg:py-16">
-    <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+<section class="relative py-12 lg:py-16">
+    <div class="absolute inset-x-0 top-0 -z-10 h-64 bg-gradient-to-b from-slate-50 to-transparent"></div>
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 
         {{-- Back --}}
         <a href="{{ route('public.alumni') }}" class="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 transition">
@@ -25,93 +89,155 @@
         </a>
 
         {{-- Hero Header --}}
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-8">
-            <div class="h-28 bg-gradient-to-br {{ $grad }} relative"></div>
+        <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm mb-8">
+            <div class="h-32 bg-gradient-to-br {{ $grad }} relative"></div>
             <div class="px-6 pb-6 -mt-10 relative">
                 <div class="flex flex-wrap items-end gap-5">
                     @if($alumnus->user?->avatar)
-                        <img src="{{ asset('storage/'.$alumnus->user->avatar) }}" alt="" class="h-20 w-20 rounded-2xl object-cover ring-4 ring-white shadow-lg"/>
+                        <img src="{{ asset('storage/'.$alumnus->user->avatar) }}" alt="" class="h-24 w-24 rounded-2xl object-cover ring-4 ring-white shadow-lg"/>
                     @else
-                        <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br {{ $grad }} text-3xl font-black text-white ring-4 ring-white shadow-lg">
+                        <div class="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br {{ $grad }} text-4xl font-black text-white ring-4 ring-white shadow-lg">
                             {{ strtoupper(substr($alumnus->user?->name ?? 'A', 0, 1)) }}
                         </div>
                     @endif
-                    <div class="flex-1 min-w-0 pt-10">
+                    <div class="flex-1 min-w-0 pt-12">
                         <div class="flex flex-wrap items-center gap-2">
-                            <h1 class="text-2xl font-black text-slate-900">{{ $alumnus->user?->name }}</h1>
+                            <h1 class="text-3xl font-black text-slate-900">{{ $alumnus->user?->name }}</h1>
                             @if($alumnus->is_featured)
-                                <span class="rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200">★ Featured</span>
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200">Featured</span>
                             @endif
-                            <span class="rounded-lg px-2.5 py-1 text-xs font-bold ring-1 {{ $st['cls'] }}">{{ $st['label'] }}</span>
+                            @if($alumnus->is_verified)
+                                <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-200">Verified</span>
+                            @endif
+                            <span class="rounded-full px-3 py-1 text-xs font-bold ring-1 {{ $st['cls'] }}">{{ $st['label'] }}</span>
                         </div>
-                        <p class="text-sm text-slate-500 mt-1">
+                        <p class="mt-1 text-sm text-slate-500">
                             @if($alumnus->current_job){{ $alumnus->current_job }}@endif
                             @if($alumnus->company_name) at {{ $alumnus->company_name }}@endif
-                            @if(!$alumnus->current_job && !$alumnus->company_name)Alumni @endif
-                            · {{ $alumnus->department?->name }} · Batch {{ $alumnus->graduation_year }}
+                            @if(! $alumnus->current_job && ! $alumnus->company_name)
+                                Alumni
+                            @endif
+                            · {{ $alumnus->department?->name }}
+                            · {{ $alumnus->program?->name }}
+                            · Batch {{ $alumnus->graduation_year }}
                         </p>
+                        @if($alumnus->work_location)
+                            <p class="mt-1 text-sm text-slate-400">{{ $alumnus->work_location }}</p>
+                        @endif
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            @if($alumnus->linkedin_url)
+                                <a href="{{ $alumnus->linkedin_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">LinkedIn</a>
+                            @endif
+                            @if($alumnus->github_url)
+                                <a href="{{ $alumnus->github_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">GitHub</a>
+                            @endif
+                            @if($alumnus->portfolio_url)
+                                <a href="{{ $alumnus->portfolio_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Portfolio</a>
+                            @endif
+                            @if($alumnus->cv_path)
+                                <a href="{{ asset('storage/'.$alumnus->cv_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-3 py-2 text-xs font-semibold text-white hover:bg-[#720000] transition">Download CV</a>
+                            @endif
+                        </div>
                     </div>
                 </div>
-                {{-- Social Links --}}
-                @if($alumnus->linkedin_url || $alumnus->github_url || $alumnus->portfolio_url)
-                <div class="mt-4 flex flex-wrap gap-2">
-                    @if($alumnus->linkedin_url)
-                    <a href="{{ $alumnus->linkedin_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">LinkedIn</a>
-                    @endif
-                    @if($alumnus->github_url)
-                    <a href="{{ $alumnus->github_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">GitHub</a>
-                    @endif
-                    @if($alumnus->portfolio_url)
-                    <a href="{{ $alumnus->portfolio_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Portfolio</a>
-                    @endif
+
+                <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    @foreach($stats as $stat)
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+                            <div class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $stat['label'] }}</div>
+                            <div class="mt-1 text-lg font-black text-slate-900">{{ $stat['value'] }}</div>
+                        </div>
+                    @endforeach
                 </div>
-                @endif
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 space-y-6">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div class="space-y-6 lg:col-span-2">
 
                 {{-- Bio --}}
                 @if($alumnus->bio)
-                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
                     <h3 class="font-bold text-slate-900 mb-3">About</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">{!! nl2br(e($alumnus->bio)) !!}</p>
+                    <p class="text-sm leading-relaxed text-slate-600">{!! nl2br(e($alumnus->bio)) !!}</p>
+                </div>
+                @endif
+
+                {{-- Achievements Summary --}}
+                @if($achievementSummary !== '')
+                <div class="rounded-2xl border border-amber-200 bg-amber-50/70 shadow-sm p-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-700">Summary</span>
+                        <h3 class="font-bold text-slate-900">Achievements</h3>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-700">{!! nl2br(e($achievementSummary)) !!}</p>
                 </div>
                 @endif
 
                 {{-- Projects --}}
-                @if($alumnus->projects?->count())
+                @if($visibleProjects->isNotEmpty())
                 <div class="space-y-4">
-                    @foreach($alumnus->projects->where('is_visible', true) as $project)
-                    <div class="rounded-2xl border {{ $project->type === 'minor' ? 'border-cyan-200' : 'border-violet-200' }} bg-white shadow-sm overflow-hidden">
-                        <div class="border-b {{ $project->type === 'minor' ? 'border-cyan-100 bg-cyan-50/50' : 'border-violet-100 bg-violet-50/50' }} px-5 py-3 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="rounded-lg {{ $project->type === 'minor' ? 'bg-cyan-100 text-cyan-700' : 'bg-violet-100 text-violet-700' }} px-2 py-0.5 text-[10px] font-bold uppercase">{{ $project->type }}</span>
-                                <h3 class="font-bold text-slate-900">{{ $project->title }}</h3>
+                    @foreach($visibleProjects as $project)
+                    @php
+                        $projectTypeBadge = $project->type === 'minor'
+                            ? ['label' => 'Minor Project', 'cls' => 'bg-cyan-100 text-cyan-700']
+                            : ['label' => 'Major Project', 'cls' => 'bg-violet-100 text-violet-700'];
+                        $projectStatusBadge = $project->status === 'in_progress'
+                            ? ['label' => 'In Progress', 'cls' => 'bg-amber-50 text-amber-700 ring-amber-200']
+                            : ['label' => 'Completed', 'cls' => 'bg-emerald-50 text-emerald-700 ring-emerald-200'];
+                        $technologies = collect($project->technologies ?? [])->filter()->values();
+                        $teamMembers = collect($project->team_members ?? [])->filter()->values();
+                        $screenshots = collect($project->screenshots ?? [])->filter()->values();
+                    @endphp
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        @if($project->cover_image)
+                            <img src="{{ asset('storage/'.$project->cover_image) }}" alt="{{ $project->title }}" class="h-52 w-full object-cover">
+                        @endif
+                        <div class="border-b border-slate-100 px-5 py-4">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] {{ $projectTypeBadge['cls'] }}">{{ $projectTypeBadge['label'] }}</span>
+                                        <span class="rounded-full px-2.5 py-1 text-[10px] font-bold ring-1 {{ $projectStatusBadge['cls'] }}">{{ $projectStatusBadge['label'] }}</span>
+                                    </div>
+                                    <h3 class="text-xl font-black text-slate-900">{{ $project->title }}</h3>
+                                </div>
+                                @if($project->year)
+                                    <span class="text-xs font-semibold text-slate-500">{{ $project->year }}</span>
+                                @endif
                             </div>
-                            @if($project->year)<span class="text-xs text-slate-500">{{ $project->year }}</span>@endif
                         </div>
                         <div class="p-5">
                             @if($project->description)
-                                <p class="text-sm text-slate-600 mb-3">{{ $project->description }}</p>
+                                <p class="text-sm leading-relaxed text-slate-600">{{ $project->description }}</p>
                             @endif
-                            @if($project->supervisor)
-                                <p class="text-xs text-slate-500 mb-2">Supervisor: <strong>{{ $project->supervisor }}</strong></p>
-                            @endif
-                            @if($project->technologies && count($project->technologies))
-                                <div class="flex flex-wrap gap-1 mb-3">
-                                    @foreach($project->technologies as $tech)
-                                        <span class="rounded {{ $project->type === 'minor' ? 'bg-cyan-50 text-cyan-700' : 'bg-violet-50 text-violet-700' }} px-2 py-0.5 text-[10px] font-bold">{{ $tech }}</span>
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                @if($project->supervisor)
+                                    <div>
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Supervisor</p>
+                                        <p class="mt-1 text-sm font-semibold text-slate-800">{{ $project->supervisor }}</p>
+                                    </div>
+                                @endif
+                                @if($project->status)
+                                    <div>
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Status</p>
+                                        <p class="mt-1 text-sm font-semibold text-slate-800">{{ ucfirst(str_replace('_', ' ', $project->status)) }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                            @if($technologies->isNotEmpty())
+                                <div class="mt-4 flex flex-wrap gap-1.5">
+                                    @foreach($technologies as $tech)
+                                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-700">{{ $tech }}</span>
                                     @endforeach
                                 </div>
                             @endif
-                            @if($project->team_members && count($project->team_members))
-                                <p class="text-xs text-slate-500 mb-2">Team: {{ implode(', ', $project->team_members) }}</p>
+                            @if($teamMembers->isNotEmpty())
+                                <p class="mt-4 text-xs text-slate-500">Team: {{ $teamMembers->implode(', ') }}</p>
                             @endif
-                            <div class="flex flex-wrap gap-2 mt-3">
+                            <div class="mt-4 flex flex-wrap gap-2">
                                 @if($project->report_path)
-                                    <a href="{{ asset('storage/'.$project->report_path) }}" target="_blank" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Report (PDF)</a>
+                                    <a href="{{ asset('storage/'.$project->report_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Report</a>
                                 @endif
                                 @if($project->github_url)
                                     <a href="{{ $project->github_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">GitHub</a>
@@ -120,10 +246,10 @@
                                     <a href="{{ $project->demo_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Live Demo</a>
                                 @endif
                             </div>
-                            @if($project->screenshots && count($project->screenshots))
-                                <div class="mt-4 grid grid-cols-3 gap-2">
-                                    @foreach(array_slice($project->screenshots, 0, 6) as $ss)
-                                        <img src="{{ asset('storage/'.$ss) }}" class="rounded-lg object-cover h-24 w-full" alt="Screenshot"/>
+                            @if($screenshots->isNotEmpty())
+                                <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                    @foreach($screenshots->take(6) as $screenshot)
+                                        <img src="{{ asset('storage/'.$screenshot) }}" class="h-24 w-full rounded-xl object-cover" alt="Project screenshot"/>
                                     @endforeach
                                 </div>
                             @endif
@@ -131,24 +257,62 @@
                     </div>
                     @endforeach
                 </div>
+                @else
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-500">No public projects have been shared yet.</div>
                 @endif
 
                 {{-- Achievements --}}
-                @if($alumnus->achievementRecords && $alumnus->achievementRecords->count())
+                @if($achievementRecords->isNotEmpty())
                 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                     <div class="border-b border-slate-100 px-5 py-4">
-                        <h3 class="font-bold text-slate-900">Achievements</h3>
+                        <h3 class="font-bold text-slate-900">Awards & Certifications</h3>
                     </div>
                     <div class="p-5">
-                        @foreach($alumnus->achievementRecords as $ach)
-                        <div class="flex gap-3 {{ !$loop->last ? 'mb-3 pb-3 border-b border-slate-50' : '' }}">
+                        @foreach($achievementRecords as $ach)
+                        <div class="flex gap-3 {{ !$loop->last ? 'mb-4 pb-4 border-b border-slate-100' : '' }}">
                             <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-50">
                                 <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
                             </div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-900">{{ $ach->title }}</p>
-                                @if($ach->year)<p class="text-xs text-slate-500">{{ $ach->year }}</p>@endif
-                                @if($ach->description)<p class="text-xs text-slate-600 mt-1">{{ $ach->description }}</p>@endif
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <p class="text-sm font-bold text-slate-900">{{ $ach->title }}</p>
+                                    @if($ach->year)<p class="text-xs text-slate-500">{{ $ach->year }}</p>@endif
+                                </div>
+                                @if($ach->description)<p class="mt-1 text-xs leading-relaxed text-slate-600">{{ $ach->description }}</p>@endif
+                                @if($ach->certificate_path)
+                                    <a href="{{ asset('storage/'.$ach->certificate_path) }}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Certificate</a>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @else
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-500">No public awards or certifications have been shared yet.</div>
+                @endif
+
+                {{-- Career Timeline --}}
+                @if($employmentHistory->isNotEmpty())
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div class="border-b border-slate-100 px-5 py-4">
+                        <h3 class="font-bold text-slate-900">Career Timeline</h3>
+                    </div>
+                    <div class="p-5">
+                        @foreach($employmentHistory as $job)
+                        <div class="flex gap-3 {{ !$loop->last ? 'mb-4 pb-4 border-b border-slate-100' : '' }}">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="h-2.5 w-2.5 rounded-full {{ $job->is_current ? 'bg-emerald-500' : 'bg-slate-300' }}"></div>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <p class="text-sm font-bold text-slate-900">{{ $job->job_title }}</p>
+                                    <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400">{{ $job->is_current ? 'Current' : 'Past' }}</p>
+                                </div>
+                                <p class="mt-1 text-xs text-slate-500">{{ $job->company_name }}@if($job->location) · {{ $job->location }}@endif</p>
+                                <p class="mt-1 text-[10px] text-slate-500">{{ $job->start_date?->format('M Y') ?? '—' }} – {{ $job->is_current ? 'Present' : ($job->end_date?->format('M Y') ?? '—') }}</p>
+                                @if($job->description)
+                                    <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ $job->description }}</p>
+                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -159,63 +323,127 @@
 
             {{-- Sidebar --}}
             <div class="space-y-6">
-                {{-- Info Card --}}
+                {{-- Contact Card --}}
                 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                     <div class="border-b border-slate-100 px-5 py-4">
-                        <h3 class="font-bold text-slate-900">Details</h3>
+                        <h3 class="font-bold text-slate-900">Contact & Identity</h3>
                     </div>
                     <div class="p-5 space-y-3">
                         @foreach([
-                            ['label' => 'Department', 'value' => $alumnus->department?->name],
-                            ['label' => 'Program',    'value' => $alumnus->program?->name],
-                            ['label' => 'Batch',      'value' => $alumnus->graduation_year],
-                            ['label' => 'Location',   'value' => $alumnus->work_location],
+                            ['label' => 'Email', 'value' => $alumnus->user?->email, 'url' => $emailLink],
+                            ['label' => 'Phone', 'value' => $alumnus->user?->phone, 'url' => $phoneLink],
+                            ['label' => 'Address', 'value' => $alumnus->user?->address],
+                            ['label' => 'Gender', 'value' => $alumnus->user?->gender],
+                            ['label' => 'Birth Date', 'value' => optional($alumnus->user?->dob)->format('d M Y')],
                         ] as $f)
                         @if($f['value'])
-                        <div class="flex justify-between py-1.5">
+                        <div class="flex items-start justify-between gap-4 py-1.5">
                             <span class="text-xs font-semibold text-slate-500">{{ $f['label'] }}</span>
-                            <span class="text-sm text-slate-900">{{ $f['value'] }}</span>
+                            @if(!empty($f['url']))
+                                <a href="{{ $f['url'] }}" class="text-sm font-medium text-slate-900 hover:text-[#8B0000] transition">{{ $f['value'] }}</a>
+                            @else
+                                <span class="text-sm text-right text-slate-900">{{ $f['value'] }}</span>
+                            @endif
                         </div>
                         @endif
                         @endforeach
                     </div>
                 </div>
 
+                {{-- Academic Card --}}
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div class="border-b border-slate-100 px-5 py-4">
+                        <h3 class="font-bold text-slate-900">Academic Record</h3>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        @foreach([
+                            ['label' => 'Department', 'value' => $alumnus->department?->name],
+                            ['label' => 'Program', 'value' => $alumnus->program?->name],
+                            ['label' => 'Roll Number', 'value' => $alumnus->roll_number],
+                            ['label' => 'Admission Year', 'value' => $alumnus->admission_year],
+                            ['label' => 'Graduation Year', 'value' => $alumnus->graduation_year],
+                            ['label' => 'Student No.', 'value' => $student?->student_no],
+                            ['label' => 'Registration No.', 'value' => $student?->registration_number],
+                            ['label' => 'Student Batch', 'value' => $student?->batch],
+                            ['label' => 'Section', 'value' => $student?->section],
+                            ['label' => 'Semester', 'value' => $student?->current_semester],
+                            ['label' => 'Admission Date', 'value' => optional($student?->admission_date)->format('d M Y')],
+                        ] as $f)
+                        @if($f['value'])
+                        <div class="flex justify-between gap-4 py-1.5">
+                            <span class="text-xs font-semibold text-slate-500">{{ $f['label'] }}</span>
+                            <span class="text-sm text-right text-slate-900">{{ $f['value'] }}</span>
+                        </div>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Professional Card --}}
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div class="border-b border-slate-100 px-5 py-4">
+                        <h3 class="font-bold text-slate-900">Professional Record</h3>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        @foreach([
+                            ['label' => 'Current Job', 'value' => $alumnus->current_job],
+                            ['label' => 'Company', 'value' => $alumnus->company_name],
+                            ['label' => 'Work Location', 'value' => $alumnus->work_location],
+                            ['label' => 'Employment Status', 'value' => $st['label']],
+                            ['label' => 'Visibility', 'value' => $visibilityLabel],
+                            ['label' => 'Profile Completion', 'value' => $profileCompletion . '%'],
+                        ] as $f)
+                        @if($f['value'])
+                        <div class="flex justify-between gap-4 py-1.5">
+                            <span class="text-xs font-semibold text-slate-500">{{ $f['label'] }}</span>
+                            <span class="text-sm text-right text-slate-900">{{ $f['value'] }}</span>
+                        </div>
+                        @endif
+                        @endforeach
+
+                        <div class="pt-2">
+                            <div class="h-2 overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-gradient-to-r from-[#8B0000] to-amber-500" style="width: {{ $profileCompletion }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Skills --}}
-                @if($alumnus->skills && count($alumnus->skills))
+                @if($skills->isNotEmpty())
                 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                     <div class="border-b border-slate-100 px-5 py-4">
                         <h3 class="font-bold text-slate-900">Skills</h3>
                     </div>
                     <div class="p-5 flex flex-wrap gap-1.5">
-                        @foreach($alumnus->skills as $skill)
+                        @foreach($skills as $skill)
                             <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{{ $skill }}</span>
                         @endforeach
                     </div>
                 </div>
                 @endif
 
-                {{-- Career Timeline --}}
-                @if($alumnus->employmentHistory?->count())
+                {{-- Public Links --}}
                 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                     <div class="border-b border-slate-100 px-5 py-4">
-                        <h3 class="font-bold text-slate-900">Career</h3>
+                        <h3 class="font-bold text-slate-900">Resources</h3>
                     </div>
-                    <div class="p-5">
-                        @foreach($alumnus->employmentHistory as $job)
-                        <div class="flex gap-3 {{ !$loop->last ? 'mb-3 pb-3 border-b border-slate-50' : '' }}">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="h-2.5 w-2.5 rounded-full {{ $job->is_current ? 'bg-emerald-500' : 'bg-slate-300' }}"></div>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-slate-900">{{ $job->job_title }}</p>
-                                <p class="text-[10px] text-slate-500">{{ $job->company_name }} · {{ $job->start_date?->format('M Y') ?? '—' }}–{{ $job->is_current ? 'Present' : ($job->end_date?->format('M Y') ?? '—') }}</p>
-                            </div>
-                        </div>
-                        @endforeach
+                    <div class="p-5 flex flex-wrap gap-2">
+                        @if($alumnus->linkedin_url)
+                            <a href="{{ $alumnus->linkedin_url }}" target="_blank" rel="noopener" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">LinkedIn</a>
+                        @endif
+                        @if($alumnus->github_url)
+                            <a href="{{ $alumnus->github_url }}" target="_blank" rel="noopener" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">GitHub</a>
+                        @endif
+                        @if($alumnus->portfolio_url)
+                            <a href="{{ $alumnus->portfolio_url }}" target="_blank" rel="noopener" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Portfolio</a>
+                        @endif
+                        @if($alumnus->cv_path)
+                            <a href="{{ asset('storage/'.$alumnus->cv_path) }}" target="_blank" rel="noopener" class="rounded-xl bg-[#8B0000] px-3 py-2 text-xs font-semibold text-white hover:bg-[#720000] transition">CV</a>
+                        @endif
                     </div>
                 </div>
-                @endif
+
             </div>
         </div>
 

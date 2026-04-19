@@ -24,6 +24,8 @@ use App\Models\Page;
 use App\Models\ParentModel;
 use App\Models\Program;
 use App\Models\SiteSetting;
+use App\Models\StaffAttendance;
+use App\Models\StaffDocument;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Models\Subject;
@@ -709,29 +711,227 @@ class DemoDataSeeder extends Seeder
     {
         $items = [
             [
+                'staff_code' => 'STA-001',
                 'name' => 'Suresh Adhikari',
                 'designation' => 'Accountant',
                 'department' => 'Administration',
                 'email' => 'accountant@mmp.edu.np',
                 'phone' => '9841000101',
+                'address' => 'Biratnagar, Morang',
+                'dob' => '1986-02-14',
+                'gender' => 'male',
+                'employment_type' => 'full_time',
+                'employment_status' => 'active',
+                'join_date' => now()->subYears(6)->toDateString(),
+                'salary_amount' => 45000,
+                'working_schedule' => [
+                    'label' => 'Office Hours',
+                    'days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+                    'start' => '09:00',
+                    'end' => '17:00',
+                ],
+                'assigned_roles' => ['Finance', 'Budgeting', 'Audit Support'],
+                'responsibilities' => ['Fee reconciliation', 'Payroll support', 'Financial reports'],
+                'bio' => 'Manages billing, ledgers, payroll support, and audit coordination for the college office.',
+                'public_visible' => true,
+                'featured' => true,
+                'show_email_public' => true,
+                'show_phone_public' => true,
                 'photo' => $assets['staff_accountant'],
                 'order' => 1,
                 'is_active' => true,
+                'documents' => [
+                    [
+                        'document_type' => 'appointment_letter',
+                        'label' => 'Appointment Letter',
+                        'file_path' => $assets['staff_accountant'],
+                        'issued_at' => now()->subYears(6)->toDateString(),
+                        'is_public' => true,
+                        'notes' => 'Seeded public staff document.',
+                    ],
+                ],
+                'attendance' => [
+                    ['attendance_date' => now()->subDays(3)->toDateString(), 'status' => 'present', 'check_in' => '09:03', 'check_out' => '17:04'],
+                    ['attendance_date' => now()->subDays(2)->toDateString(), 'status' => 'present', 'check_in' => '09:00', 'check_out' => '17:02'],
+                    ['attendance_date' => now()->subDay()->toDateString(), 'status' => 'late', 'check_in' => '09:18', 'check_out' => '17:05'],
+                ],
             ],
             [
+                'staff_code' => 'STA-002',
                 'name' => 'Laxmi Shrestha',
                 'designation' => 'Librarian',
                 'department' => 'Library',
                 'email' => 'librarian@mmp.edu.np',
                 'phone' => '9841000102',
+                'address' => 'Biratnagar, Morang',
+                'dob' => '1988-08-19',
+                'gender' => 'female',
+                'employment_type' => 'full_time',
+                'employment_status' => 'active',
+                'join_date' => now()->subYears(5)->toDateString(),
+                'salary_amount' => 39000,
+                'working_schedule' => [
+                    'label' => 'Library Hours',
+                    'days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+                    'start' => '09:30',
+                    'end' => '16:30',
+                ],
+                'assigned_roles' => ['Cataloguing', 'Reader Support'],
+                'responsibilities' => ['Book circulation', 'Library coordination', 'Digital catalog maintenance'],
+                'bio' => 'Coordinates book circulation, cataloguing, and reader support for students and staff.',
+                'public_visible' => true,
+                'featured' => true,
+                'show_email_public' => true,
+                'show_phone_public' => false,
                 'photo' => $assets['staff_librarian'],
                 'order' => 2,
                 'is_active' => true,
+                'documents' => [
+                    [
+                        'document_type' => 'certification',
+                        'label' => 'Library Science Certification',
+                        'file_path' => $assets['staff_librarian'],
+                        'issued_at' => now()->subYears(4)->toDateString(),
+                        'is_public' => true,
+                        'notes' => 'Seeded public staff document.',
+                    ],
+                ],
+                'attendance' => [
+                    ['attendance_date' => now()->subDays(3)->toDateString(), 'status' => 'present', 'check_in' => '09:12', 'check_out' => '16:28'],
+                    ['attendance_date' => now()->subDays(2)->toDateString(), 'status' => 'leave', 'check_in' => null, 'check_out' => null],
+                    ['attendance_date' => now()->subDay()->toDateString(), 'status' => 'present', 'check_in' => '09:09', 'check_out' => '16:31'],
+                ],
+            ],
+            [
+                'staff_code' => 'STA-003',
+                'name' => 'Bipin Karki',
+                'designation' => 'Office Assistant',
+                'department' => 'Administration',
+                'email' => 'assistant@mmp.edu.np',
+                'phone' => '9841000103',
+                'address' => 'Biratnagar, Morang',
+                'dob' => '1991-11-02',
+                'gender' => 'male',
+                'employment_type' => 'part_time',
+                'employment_status' => 'active',
+                'join_date' => now()->subYears(3)->toDateString(),
+                'salary_amount' => 28000,
+                'working_schedule' => [
+                    'label' => 'Morning Shift',
+                    'days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+                    'start' => '08:30',
+                    'end' => '14:30',
+                ],
+                'assigned_roles' => ['Reception', 'Records', 'Visitor Support'],
+                'responsibilities' => ['File organization', 'Visitor guidance', 'General office support'],
+                'bio' => 'Supports daily office operations, record handling, and visitor coordination.',
+                'public_visible' => true,
+                'featured' => false,
+                'show_email_public' => true,
+                'show_phone_public' => false,
+                'photo' => null,
+                'order' => 3,
+                'is_active' => true,
+                'documents' => [
+                    [
+                        'document_type' => 'id_card',
+                        'label' => 'Staff ID Card',
+                        'file_path' => $assets['staff_accountant'],
+                        'issued_at' => now()->subYears(3)->toDateString(),
+                        'is_public' => false,
+                        'notes' => 'Private identifier record.',
+                    ],
+                ],
+                'attendance' => [
+                    ['attendance_date' => now()->subDays(3)->toDateString(), 'status' => 'present', 'check_in' => '08:40', 'check_out' => '14:32'],
+                    ['attendance_date' => now()->subDays(2)->toDateString(), 'status' => 'present', 'check_in' => '08:35', 'check_out' => '14:28'],
+                    ['attendance_date' => now()->subDay()->toDateString(), 'status' => 'present', 'check_in' => '08:42', 'check_out' => '14:30'],
+                ],
+            ],
+            [
+                'staff_code' => 'STA-004',
+                'name' => 'Rupa Neupane',
+                'designation' => 'Procurement Officer',
+                'department' => 'Procurement',
+                'email' => 'procurement@mmp.edu.np',
+                'phone' => '9841000104',
+                'address' => 'Biratnagar, Morang',
+                'dob' => '1989-05-24',
+                'gender' => 'female',
+                'employment_type' => 'contract',
+                'employment_status' => 'leave',
+                'join_date' => now()->subYears(2)->toDateString(),
+                'end_date' => null,
+                'salary_amount' => 41000,
+                'working_schedule' => [
+                    'label' => 'Procurement Window',
+                    'days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday'],
+                    'start' => '10:00',
+                    'end' => '16:00',
+                ],
+                'assigned_roles' => ['Purchasing', 'Vendor Coordination'],
+                'responsibilities' => ['Purchase approvals', 'Vendor coordination', 'Stock procurement'],
+                'bio' => 'Coordinates purchasing workflows and vendor communication for the institution.',
+                'public_visible' => false,
+                'featured' => false,
+                'show_email_public' => false,
+                'show_phone_public' => false,
+                'photo' => null,
+                'order' => 4,
+                'is_active' => true,
+                'documents' => [],
+                'attendance' => [
+                    ['attendance_date' => now()->subDays(3)->toDateString(), 'status' => 'leave', 'check_in' => null, 'check_out' => null],
+                    ['attendance_date' => now()->subDays(2)->toDateString(), 'status' => 'leave', 'check_in' => null, 'check_out' => null],
+                    ['attendance_date' => now()->subDay()->toDateString(), 'status' => 'absent', 'check_in' => null, 'check_out' => null],
+                ],
             ],
         ];
 
         foreach ($items as $item) {
-            Staff::query()->updateOrCreate(['email' => $item['email']], $item);
+            $documents = $item['documents'] ?? [];
+            $attendanceRecords = $item['attendance'] ?? [];
+
+            unset($item['documents'], $item['attendance']);
+
+            $staff = Staff::query()->updateOrCreate(['email' => $item['email']], $item);
+
+            foreach ($documents as $document) {
+                $fileSize = Storage::disk('public')->exists($document['file_path'])
+                    ? Storage::disk('public')->size($document['file_path'])
+                    : null;
+
+                StaffDocument::query()->updateOrCreate(
+                    [
+                        'staff_id' => $staff->id,
+                        'label' => $document['label'],
+                    ],
+                    [
+                        'document_type' => $document['document_type'],
+                        'file_path' => $document['file_path'],
+                        'mime_type' => Storage::disk('public')->exists($document['file_path']) ? Storage::disk('public')->mimeType($document['file_path']) : null,
+                        'file_size' => $fileSize,
+                        'issued_at' => $document['issued_at'] ?? null,
+                        'is_public' => $document['is_public'] ?? false,
+                        'notes' => $document['notes'] ?? null,
+                    ]
+                );
+            }
+
+            foreach ($attendanceRecords as $attendance) {
+                StaffAttendance::query()->updateOrCreate(
+                    [
+                        'staff_id' => $staff->id,
+                        'attendance_date' => $attendance['attendance_date'],
+                    ],
+                    [
+                        'status' => $attendance['status'] ?? 'present',
+                        'check_in' => $attendance['check_in'] ?? null,
+                        'check_out' => $attendance['check_out'] ?? null,
+                        'notes' => $attendance['notes'] ?? null,
+                    ]
+                );
+            }
         }
     }
 
