@@ -527,7 +527,35 @@
                                                                                     </div>
                                                                                 </td>
                                                                                 <td class="px-4 py-3.5">
-                                                                                    <p class="font-bold text-slate-950">{{ number_format((float) $mark['total_marks'], 2) }}</p>
+                                                                                    @php
+                                                                                        $components = [];
+                                                                                        if (($exam->category ?? 'ctevt_final') === 'monthly_assessment') {
+                                                                                            $components = [
+                                                                                                $mark['assessment_obtained_marks'] ?? null
+                                                                                            ];
+                                                                                        } else {
+                                                                                            $components = [
+                                                                                                $mark['internal_theory'] ?? null,
+                                                                                                $mark['external_theory'] ?? null,
+                                                                                                $mark['internal_practical'] ?? null,
+                                                                                                $mark['external_practical'] ?? null
+                                                                                            ];
+                                                                                        }
+                                                                                        $hasEmpty = collect($components)->contains(function($v) { return $v === null || $v === ''; });
+                                                                                        $isAbsent = ($mark['is_absent'] ?? false);
+                                                                                        $isFail = (strtolower($mark['result_remark'] ?? '') === 'fail');
+                                                                                    @endphp
+                                                                                    <p class="font-bold text-slate-950">
+                                                                                        @if($hasEmpty)
+                                                                                            —
+                                                                                        @elseif($isAbsent)
+                                                                                            Absent
+                                                                                        @elseif($isFail)
+                                                                                            Fail
+                                                                                        @else
+                                                                                            {{ number_format((float) $mark['total_marks'], 2) }}
+                                                                                        @endif
+                                                                                    </p>
                                                                                     <p class="mt-1 text-[11px] text-slate-400">{{ isset($mark['percentage']) && $mark['percentage'] !== null ? number_format((float) $mark['percentage'], 1) . '%' : 'No percentage' }}</p>
                                                                                 </td>
                                                                                 <td class="px-4 py-3.5">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Helpers\NepaliDateHelper;
+use App\Models\Department;
 use App\Models\Notice;
 use App\Models\NoticeAttachment;
 use App\Services\PublicDataService;
@@ -15,14 +16,38 @@ class NoticeController extends Controller
 {
     public function index(Request $request)
     {
-        $notices = Notice::with('author', 'attachments')
-            ->withCount('attachments')
-            ->when($request->search, fn($q) => $q->where('title', 'like', "%{$request->search}%"))
-            ->when($request->type,   fn($q) => $q->where('type', $request->type))
-            ->latest()
-            ->paginate(20);
+        $filters = $request->only(['search', 'type', 'department_id', 'status']);
 
-        return view('admin.notices.index', compact('notices'));
+        $notices = Notice::with(['author:id,name,avatar', 'attachments'])
+            ->withCount('attachments')
+            ->when($filters['search'] ?? null, fn ($q) => $q->where('title', 'like', "%{$filters['search']}%"))
+            ->when($filters['type'] ?? null, fn ($q) => $q->where('type', $filters['type']))
+            ->when($filters['department_id'] ?? null, fn ($q) => $q->where('department_id', $filters['department_id']))
+            ->when($filters['status'] ?? null, function ($q) use ($filters) {
+                match ($filters['status']) {
+                    'published' => $q->where('is_published', true)->where(fn ($s) => $s->whereNull('published_at')->orWhere('published_at', '<=', now())),
+                    'scheduled' => $q->where('is_published', true)->where('published_at', '>', now()),
+                    'draft'     => $q->where('is_published', false),
+                    default     => null,
+                };
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        $allQuery = Notice::query();
+        $stats = [
+            'total'       => (clone $allQuery)->count(),
+            'published'   => (clone $allQuery)->where('is_published', true)->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))->count(),
+            'scheduled'   => (clone $allQuery)->where('is_published', true)->where('published_at', '>', now())->count(),
+            'draft'       => (clone $allQuery)->where('is_published', false)->count(),
+            'ctevt'       => (clone $allQuery)->where('type', 'exam')->count(),
+            'attachments' => NoticeAttachment::count(),
+        ];
+
+        $departments = Department::orderBy('name')->get(['id', 'name', 'code']);
+
+        return view('admin.notices.index', compact('notices', 'stats', 'departments', 'filters'));
     }
 
     public function create()
