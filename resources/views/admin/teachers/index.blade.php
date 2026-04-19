@@ -218,8 +218,8 @@
             <a href="{{ route('admin.teachers.create') }}" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white hover:bg-[#7a0000] transition">+ Add Teacher</a>
         </div>
         @else
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+        <div class="mmp-table-wrap">
+            <table class="mmp-table w-full text-sm">
                 <thead class="border-b border-slate-100 bg-slate-50/60">
                     <tr>
                         <th class="w-10 px-4 py-3">
@@ -245,7 +245,7 @@
                         $grad    = $gradients[$teacher->id % 6];
                         $desig   = $desigMap[$teacher->designation] ?? ['label' => $teacher->designation ?? 'Teacher', 'cls' => 'bg-slate-100 text-slate-600 ring-slate-200'];
                         $emp     = $empMap[$teacher->employment_type] ?? ['label' => ucfirst($teacher->employment_type ?? ''), 'cls' => 'bg-slate-100 text-slate-600'];
-                        $semesters = $teacher->subjects->pluck('semester')->unique()->sort()->values();
+                        $semesters = collect($teacher->semester_list ?? []);
                     @endphp
                     <tr class="group hover:bg-slate-50/60 transition-colors">
                         <td class="px-4 py-3">
@@ -278,7 +278,7 @@
                             <span class="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold ring-1 {{ $desig['cls'] }}">{{ $desig['label'] }}</span>
                         </td>
                         <td class="px-4 py-3 text-center hidden lg:table-cell">
-                            <span class="font-bold text-slate-700">{{ $teacher->subjects->count() }}</span>
+                            <span class="font-bold text-slate-700">{{ (int) ($teacher->subjects_count ?? 0) }}</span>
                         </td>
                         <td class="px-4 py-3 hidden lg:table-cell">
                             @if($semesters->isEmpty())
@@ -348,7 +348,7 @@
                 $grad = $gradients[$teacher->id % 6];
                 $desig = $desigMap[$teacher->designation] ?? ['label' => 'Teacher', 'cls' => 'bg-slate-100 text-slate-600 ring-slate-200'];
                 $emp   = $empMap[$teacher->employment_type] ?? ['label' => ucfirst($teacher->employment_type ?? ''), 'cls' => 'bg-slate-100 text-slate-600'];
-                $semesters = $teacher->subjects->pluck('semester')->unique()->sort()->values();
+                $semesters = collect($teacher->semester_list ?? []);
             @endphp
             <div class="group relative rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
                  @click="openDrawer({{ $teacher->id }})">
@@ -389,7 +389,7 @@
                     @endif
                     <div class="mt-3 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
                         <div class="text-center">
-                            <p class="text-lg font-black text-slate-800">{{ $teacher->subjects->count() }}</p>
+                            <p class="text-lg font-black text-slate-800">{{ (int) ($teacher->subjects_count ?? 0) }}</p>
                             <p class="text-[10px] text-slate-400">Subjects</p>
                         </div>
                         <div class="text-center border-l border-slate-100">

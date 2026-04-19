@@ -12,12 +12,17 @@ return new class extends Migration
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('coordinator_id')->nullable()->constrained('teachers')->nullOnDelete();
             $table->string('name');                         // e.g. "Diploma in Information Technology"
             $table->string('code')->unique();               // e.g. "DIT"
+            $table->string('ctevt_code', 50)->nullable();
+            $table->string('affiliation_type', 50)->default('CTEVT');
             $table->string('slug')->unique();
             $table->unsignedTinyInteger('total_semesters')->default(6); // CTEVT: typically 6 or 8
             $table->unsignedTinyInteger('duration_years')->default(3);
             $table->text('description')->nullable();
+            $table->text('eligibility')->nullable();
+            $table->string('syllabus')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();

@@ -151,28 +151,14 @@
                             </tbody>
                         </table>
                     </div>
+                    @if($records->hasPages())
+                        <div class="border-t border-slate-100 px-4 py-3">
+                            {{ $records->onEachSide(1)->links() }}
+                        </div>
+                    @endif
                 </div>
             </article>
 
-            {{-- Analytics --}}
-            <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="grid gap-6 xl:grid-cols-2">
-                    <div>
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Class Analytics</p>
-                        <h2 class="mt-1 text-xl font-black tracking-tight text-slate-950">Attendance distribution</h2>
-                        <div class="mt-4 h-[260px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                            <canvas id="sessionDistributionChart"></canvas>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Subject Trend</p>
-                        <h2 class="mt-1 text-xl font-black tracking-tight text-slate-950">Previous sessions of this subject</h2>
-                        <div class="mt-4 h-[260px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                            <canvas id="sessionTrendChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </article>
         </div>
 
         <aside class="space-y-6 xl:sticky xl:top-6 xl:self-start">
@@ -251,76 +237,3 @@
     </section>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (!window.Chart) {
-        return;
-    }
-
-    const distribution = @json($distribution);
-    const trend = @json($trend);
-
-    const distributionCanvas = document.getElementById('sessionDistributionChart');
-    if (distributionCanvas) {
-        new Chart(distributionCanvas, {
-            type: 'doughnut',
-            data: {
-                labels: distribution.labels,
-                datasets: [{
-                    data: distribution.values,
-                    backgroundColor: distribution.colors,
-                    borderWidth: 0,
-                    hoverOffset: 5,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '68%',
-                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } },
-            },
-        });
-    }
-
-    const trendCanvas = document.getElementById('sessionTrendChart');
-    if (trendCanvas) {
-        const ctx = trendCanvas.getContext('2d');
-        const fill = ctx.createLinearGradient(0, 0, 0, 260);
-        fill.addColorStop(0, 'rgba(139, 0, 0, 0.20)');
-        fill.addColorStop(1, 'rgba(139, 0, 0, 0.02)');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: trend.labels,
-                datasets: [{
-                    label: 'Attendance %',
-                    data: trend.values,
-                    borderColor: '#8B0000',
-                    backgroundColor: fill,
-                    fill: true,
-                    borderWidth: 3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#8B0000',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    tension: 0.38,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, suggestedMax: 100, ticks: { callback: value => value + '%' } },
-                },
-            },
-        });
-    }
-});
-</script>
-@endpush

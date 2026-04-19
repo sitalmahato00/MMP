@@ -135,8 +135,8 @@
             <div class="value">{{ number_format(collect($rows)->avg('marks_completion') ?? 0, 1) }}%</div>
         </div>
         <div class="summary-card">
-            <div class="label">Avg Pass Rate</div>
-            <div class="value">{{ number_format(collect($rows)->avg('pass_rate') ?? 0, 1) }}%</div>
+            <div class="label">Marks Submitted</div>
+            <div class="value">{{ number_format((int) collect($rows)->sum('submitted_marks_count')) }}</div>
         </div>
     </div>
 
@@ -148,8 +148,9 @@
                 <th>Programs</th>
                 <th>Schedule</th>
                 <th>Status</th>
-                <th class="right">Pass Rate</th>
-                <th class="right">Avg Score</th>
+                <th class="right">Marks</th>
+                <th class="right">Submitted</th>
+                <th class="right">Published</th>
             </tr>
         </thead>
         <tbody>
@@ -177,15 +178,16 @@
                     </td>
                     <td>
                         {{ $row['start_date_label'] }} to {{ $row['end_date_label'] }}<br>
-                        <span class="muted">{{ $row['total_subjects'] }} subjects · {{ $row['total_students'] }} students</span>
+                        <span class="muted">Completion {{ number_format($row['marks_completion'], 1) }}%</span>
                     </td>
                     <td><span class="badge {{ $statusClass }}">{{ $row['status_label'] }}</span></td>
-                    <td class="right">{{ number_format($row['pass_rate'], 1) }}%</td>
-                    <td class="right">{{ number_format($row['average_score'], 1) }}%</td>
+                    <td class="right">{{ number_format((int) ($row['marks_count'] ?? 0)) }}</td>
+                    <td class="right">{{ number_format((int) ($row['submitted_marks_count'] ?? 0)) }}</td>
+                    <td class="right">{{ number_format((int) ($row['published_marks_count'] ?? 0)) }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="muted">No exam records found for the selected filters.</td>
+                    <td colspan="8" class="muted">No exam records found for the selected filters.</td>
                 </tr>
             @endforelse
         </tbody>

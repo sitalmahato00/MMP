@@ -418,7 +418,7 @@
                 <h3 class="text-sm font-black text-slate-900">Enrolled Students</h3>
                 <span class="rounded-xl bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{{ $stats['totalStudents'] }} enrolled</span>
             </div>
-            @if($program->students->isEmpty())
+            @if($students->isEmpty())
             <div class="py-16 text-center">
                 <p class="text-sm text-slate-400">No students enrolled in this program yet.</p>
             </div>
@@ -435,7 +435,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
-                        @foreach($program->students->take(50) as $student)
+                        @foreach($students as $student)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
@@ -464,9 +464,9 @@
                     </tbody>
                 </table>
             </div>
-            @if($program->students->count() > 50)
-            <div class="px-5 py-3 border-t border-slate-100 text-xs text-slate-400 text-center">
-                Showing 50 of {{ $program->students->count() }}. <a href="{{ route('admin.students.index', ['program_id' => $program->id]) }}" class="text-[#8B0000] font-bold hover:underline">View all →</a>
+            @if($students->hasPages())
+            <div class="border-t border-slate-100 px-5 py-4">
+                {{ $students->onEachSide(1)->links() }}
             </div>
             @endif
             @endif

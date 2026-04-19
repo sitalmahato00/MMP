@@ -222,7 +222,7 @@
                 </div>
                 <span class="rounded-full bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700">Program rank</span>
             </div>
-            <div class="mt-4 space-y-3">
+            <div class="mt-4 max-h-[480px] overflow-y-auto space-y-3 pr-1">
                 @forelse($analytics['topPrograms'] ?? [] as $row)
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <div class="flex items-center justify-between gap-3">
@@ -247,8 +247,8 @@
                 </div>
                 <span class="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">Difficulty</span>
             </div>
-            <div class="mt-4 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
-                <div class="overflow-x-auto">
+            <div class="mt-4 max-h-[480px] overflow-y-auto overflow-x-auto rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
+                <div>
                     <table class="min-w-full divide-y divide-slate-100 text-sm">
                         <thead class="bg-slate-50/95 backdrop-blur">
                             <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
@@ -284,7 +284,7 @@
                 </div>
                 <span class="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold text-[#8B0000]">Faculty</span>
             </div>
-            <div class="mt-4 space-y-3">
+            <div class="mt-4 max-h-[480px] overflow-y-auto space-y-3 pr-1">
                 @forelse($analytics['teacherContribution'] ?? [] as $row)
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <div class="flex items-center gap-3">

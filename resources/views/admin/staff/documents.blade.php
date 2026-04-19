@@ -63,7 +63,7 @@
             <div class="flex items-center justify-between gap-3">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">Existing Documents</h2>
-                    <p class="text-sm text-slate-500">{{ $staff->documents->count() }} total records</p>
+                    <p class="text-sm text-slate-500">{{ $documents->total() }} total records</p>
                 </div>
             </div>
 
@@ -79,7 +79,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        @forelse($staff->documents as $document)
+                        @forelse($documents as $document)
                             @php($fileUrl = asset('storage/' . ltrim($document->file_path, '/')))
                             <tr>
                                 <td class="px-4 py-4">
@@ -110,6 +110,11 @@
                     </tbody>
                 </table>
             </div>
+            @if($documents->hasPages())
+                <div class="mt-4 border-t border-slate-100 pt-4">
+                    {{ $documents->onEachSide(1)->links() }}
+                </div>
+            @endif
         </div>
     </div>
 </div>

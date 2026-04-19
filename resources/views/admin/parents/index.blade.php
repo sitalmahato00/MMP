@@ -122,8 +122,8 @@
     {{-- TABLE VIEW --}}
     <div x-show="view==='table'" x-cloak>
         @if($parents->count())
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+        <div class="mmp-table-wrap">
+            <table class="mmp-table w-full text-left text-sm">
                 <thead class="border-b border-slate-100 bg-slate-50/60">
                     <tr>
                         <th class="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Parent/Guardian</th>

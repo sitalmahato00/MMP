@@ -12,7 +12,7 @@ class BannerController extends Controller
 {
     public function index()
     {
-        $banners = Banner::orderBy('order')->latest()->get();
+        $banners = Banner::orderBy('order')->latest()->paginate(12)->withQueryString();
         return view('admin.banners.index', compact('banners'));
     }
 

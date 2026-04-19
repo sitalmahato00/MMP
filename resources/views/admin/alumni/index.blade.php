@@ -156,8 +156,8 @@
 <div x-show="view==='table'" x-cloak>
     @if($alumni->count())
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+        <div class="mmp-table-wrap">
+            <table class="mmp-table w-full text-sm">
                 <thead>
                     <tr class="border-b border-slate-100 bg-slate-50/50">
                         <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Alumni</th>

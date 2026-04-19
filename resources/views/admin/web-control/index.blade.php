@@ -172,7 +172,7 @@
                     $aboutOrder = ['president_name','welcome_message','what_is_mmp','objectives','scholarship_schemes','internships_placements'];
                     $aboutMeta  = [
                         'president_name'        => ['label'=>"President's Name",       'hint'=>'Shown in the Management sidebar on the homepage.'],
-                        'welcome_message'        => ['label'=>'Homepage Welcome Box',   'hint'=>'Shown in the red "Welcome to MMP" box on the homepage. Longer text will scroll inside the card.'],
+                        'welcome_message'        => ['label'=>'Homepage Welcome Box',   'hint'=>'Shown in the red "Welcome to MMP" box on the homepage.'],
                         'what_is_mmp'            => ['label'=>'What is MMP (About)',    'hint'=>'Full text for the About / What is MMP page.'],
                         'objectives'             => ['label'=>'Objectives',             'hint'=>'Institutional objectives page content.'],
                         'scholarship_schemes'    => ['label'=>'Scholarship Schemes',    'hint'=>'Content for the Scholarship Schemes page.'],
@@ -434,6 +434,9 @@
                 </tbody>
             </table>
         </div>
+        @if($downloads->hasPages())
+            <div class="mt-4">{{ $downloads->onEachSide(1)->links() }}</div>
+        @endif
         @endif
     </div>
 
@@ -514,6 +517,9 @@
                 </tbody>
             </table>
         </div>
+        @if($notices->hasPages())
+            <div class="mt-4">{{ $notices->onEachSide(1)->links() }}</div>
+        @endif
         @endif
     </div>
 
@@ -558,6 +564,9 @@
                 </tbody>
             </table>
         </div>
+        @if($facilities->hasPages())
+            <div class="mt-4">{{ $facilities->onEachSide(1)->links() }}</div>
+        @endif
     </div>
 
     {{-- ── Tab 8: Leadership History ─────────────────────────── --}}
@@ -623,6 +632,9 @@
                 </tbody>
             </table>
         </div>
+        @if($executives->hasPages())
+            <div class="mt-4">{{ $executives->onEachSide(1)->links() }}</div>
+        @endif
     </div>
 
 </div>{{-- /x-data --}}

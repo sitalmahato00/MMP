@@ -23,16 +23,16 @@ class WebControlController extends Controller
         SiteSetting::ensureDefaults();
 
         $settings   = SiteSetting::all()->groupBy('group');
-        $facilities = Facility::with(['department', 'program'])->latest()->get();
-        $executives = Executive::orderBy('order')->get();
+        $facilities = Facility::with(['department', 'program'])->latest()->paginate(8, ['*'], 'facilities_page')->withQueryString();
+        $executives = Executive::orderBy('order')->paginate(8, ['*'], 'executives_page')->withQueryString();
         $banners    = Banner::orderBy('order')->get();
         $media      = Media::latest()->get();
-        $downloads  = Download::latest()->get();
+        $downloads  = Download::latest()->paginate(10, ['*'], 'downloads_page')->withQueryString();
         $notices    = Notice::with('author')
             ->whereIn('type', ['news', 'event'])
             ->latest()
-            ->take(60)
-            ->get();
+            ->paginate(10, ['*'], 'notices_page')
+            ->withQueryString();
 
         return view('admin.web-control.index', compact(
             'settings', 'facilities', 'executives',

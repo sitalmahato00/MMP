@@ -111,21 +111,39 @@ class AttendanceController extends Controller
             'teacher.department:id,name,code',
             'subject:id,name,code,type,semester,program_id,credit_hours',
             'program.department:id,name,code',
-            'records.student.user:id,name,avatar',
-            'records.student.department:id,name,code',
-            'records.student.program:id,name,code',
         ]);
 
-        $records = $attendanceSession->records
-            ->sortBy(fn (Attendance $record) => Str::lower($record->student?->user?->name ?? ''))
-            ->values();
+        $recordsQuery = Attendance::query()
+            ->with([
+                'student.user:id,name,avatar',
+                'student.department:id,name,code',
+                'student.program:id,name,code',
+            ])
+            ->where('attendance_session_id', $attendanceSession->id)
+            ->orderBy('id');
+
+        $records = (clone $recordsQuery)
+            ->paginate(15, ['*'], 'records_page')
+            ->withQueryString();
+        $records->setCollection(
+            $records->getCollection()->sortBy(fn (Attendance $record) => Str::lower($record->student?->user?->name ?? ''))->values()
+        );
+
+        $summaryRow = Attendance::query()
+            ->where('attendance_session_id', $attendanceSession->id)
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present")
+            ->selectRaw("SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END) as absent")
+            ->selectRaw("SUM(CASE WHEN status = 'late' THEN 1 ELSE 0 END) as late")
+            ->selectRaw("SUM(CASE WHEN status = 'excused' THEN 1 ELSE 0 END) as excused")
+            ->first();
 
         $summary = [
-            'total' => $records->count(),
-            'present' => $records->where('status', 'present')->count(),
-            'absent' => $records->where('status', 'absent')->count(),
-            'late' => $records->where('status', 'late')->count(),
-            'excused' => $records->where('status', 'excused')->count(),
+            'total' => (int) ($summaryRow->total ?? 0),
+            'present' => (int) ($summaryRow->present ?? 0),
+            'absent' => (int) ($summaryRow->absent ?? 0),
+            'late' => (int) ($summaryRow->late ?? 0),
+            'excused' => (int) ($summaryRow->excused ?? 0),
         ];
         $summary['completion'] = $summary['total'] > 0 ? round(($summary['present'] / $summary['total']) * 100, 1) : 0;
 
@@ -176,11 +194,14 @@ class AttendanceController extends Controller
             })->all(),
         ];
 
-        $notes = $records
+        $notes = Attendance::query()
+            ->where('attendance_session_id', $attendanceSession->id)
+            ->whereNotNull('remarks')
+            ->where('remarks', '!=', '')
+            ->select('remarks')
+            ->distinct()
+            ->limit(4)
             ->pluck('remarks')
-            ->filter()
-            ->unique()
-            ->take(4)
             ->values();
 
         return view('admin.attendance.session', [

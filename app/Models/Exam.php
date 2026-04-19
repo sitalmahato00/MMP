@@ -11,7 +11,7 @@ class Exam extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'academic_session_id', 'department_id', 'name', 'type',
+        'academic_session_id', 'department_id', 'name', 'type', 'category', 'assessment_number',
         'start_date', 'end_date', 'status',
         'marks_open', 'is_published', 'published_at',
     ];
@@ -19,6 +19,7 @@ class Exam extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'assessment_number' => 'integer',
         'marks_open' => 'boolean',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
@@ -46,6 +47,11 @@ class Exam extends Model
         return $this->hasMany(Mark::class);
     }
 
+    public function markingSchemes()
+    {
+        return $this->hasMany(ExamSubjectMarkingScheme::class);
+    }
+
     public function getStatusLabelAttribute(): string
     {
         if ($this->is_published || $this->status === 'results_published') {
@@ -56,6 +62,14 @@ class Exam extends Model
             'ongoing' => 'Ongoing',
             'completed' => $this->marks_open ? 'Marks Pending' : 'Verifying',
             default => 'Upcoming',
+        };
+    }
+
+    public function getCategoryLabelAttribute(): string
+    {
+        return match ($this->category) {
+            'monthly_assessment' => 'Monthly Assessment',
+            default => 'CTEVT Final',
         };
     }
 

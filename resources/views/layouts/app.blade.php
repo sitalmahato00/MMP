@@ -29,12 +29,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="h-full overflow-hidden text-gray-800 antialiased" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('mmp.sidebar.collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('mmp.sidebar.collapsed', value ? '1' : '0'))">
+<body class="h-full overflow-x-hidden text-gray-800 antialiased" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('mmp.sidebar.collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('mmp.sidebar.collapsed', value ? '1' : '0'))">
 
     <!-- Mobile Sidebar Backdrop -->
     <div x-show="sidebarOpen" class="fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm lg:hidden" x-cloak @click="sidebarOpen = false"></div>
 
-    <div class="flex h-full">
+    <div class="flex h-full w-full overflow-x-hidden">
         <!-- Sidebar -->
         <x-sidebar />
 
@@ -44,20 +44,20 @@
             <x-navbar />
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6 lg:p-8">
-                
-                @if (session('success'))
-                    <x-alert type="success" :message="session('success')" class="mb-6" />
-                @endif
-                
-                @if (session('error'))
-                    <x-alert type="error" :message="session('error')" class="mb-6" />
-                @endif
+            <main class="min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8">
+                <div class="mx-auto w-full max-w-full">
+                    @if (session('success'))
+                        <x-alert type="success" :message="session('success')" class="mb-6" />
+                    @endif
 
-                @yield('content')
-                
-                {{ $slot ?? '' }}
+                    @if (session('error'))
+                        <x-alert type="error" :message="session('error')" class="mb-6" />
+                    @endif
 
+                    @yield('content')
+
+                    {{ $slot ?? '' }}
+                </div>
             </main>
         </div>
     </div>

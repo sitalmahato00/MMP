@@ -175,9 +175,12 @@ class StaffController extends Controller
 
     public function documents(Staff $staff)
     {
-        $staff->load(['documents']);
+        $documents = $staff->documents()
+            ->latest()
+            ->paginate(12, ['*'], 'documents_page')
+            ->withQueryString();
 
-        return view('admin.staff.documents', compact('staff'));
+        return view('admin.staff.documents', compact('staff', 'documents'));
     }
 
     public function storeDocument(Request $request, Staff $staff)

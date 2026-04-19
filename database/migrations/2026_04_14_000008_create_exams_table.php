@@ -14,9 +14,14 @@ return new class extends Migration
             $table->foreignId('department_id')->nullable()->constrained()->cascadeOnDelete(); // Null if common exam
             $table->string('name'); // e.g. "First Assessment", "Final Exam - 2081"
             $table->string('type'); // assessment, pre-board, final
+            $table->string('category')->default('ctevt_final'); // ctevt_final, monthly_assessment
+            $table->unsignedTinyInteger('assessment_number')->nullable(); // For monthly assessments: 1,2,3...
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->enum('status', ['upcoming', 'ongoing', 'completed', 'results_published'])->default('upcoming');
+            $table->boolean('marks_open')->default(false);
+            $table->boolean('is_published')->default(false);
+            $table->timestamp('published_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

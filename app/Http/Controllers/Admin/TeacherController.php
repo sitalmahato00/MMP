@@ -22,7 +22,9 @@ class TeacherController extends Controller
     // ── Index ──────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
-        $query = Teacher::with(['user', 'department', 'subjects'])
+        $query = Teacher::query()
+            ->with(['user:id,name,email,avatar', 'department:id,name'])
+            ->withCount('subjects')
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
                 $q->where(function ($inner) use ($term) {
@@ -44,6 +46,33 @@ class TeacherController extends Controller
             });
 
         $teachers = (clone $query)->latest()->paginate(20)->withQueryString();
+        $teacherIds = $teachers->getCollection()->pluck('id')->all();
+
+        $semesterMap = empty($teacherIds)
+            ? collect()
+            : DB::table('subject_teacher')
+                ->join('subjects', 'subjects.id', '=', 'subject_teacher.subject_id')
+                ->whereIn('subject_teacher.teacher_id', $teacherIds)
+                ->select(
+                    'subject_teacher.teacher_id',
+                    DB::raw("GROUP_CONCAT(DISTINCT subjects.semester ORDER BY subjects.semester SEPARATOR ',') as semester_list")
+                )
+                ->groupBy('subject_teacher.teacher_id')
+                ->pluck('semester_list', 'teacher_id');
+
+        $teachers->setCollection(
+            $teachers->getCollection()->map(function (Teacher $teacher) use ($semesterMap) {
+                $semesterCsv = (string) ($semesterMap[$teacher->id] ?? '');
+                $semesterList = collect(explode(',', $semesterCsv))
+                    ->filter(fn ($value) => $value !== '')
+                    ->map(fn ($value) => (int) $value)
+                    ->values();
+
+                $teacher->setAttribute('semester_list', $semesterList);
+
+                return $teacher;
+            })
+        );
 
         // KPIs
         $totalTeachers  = Teacher::count();

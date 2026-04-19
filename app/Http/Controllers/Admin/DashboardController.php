@@ -16,6 +16,7 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Services\PublicDataService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -49,11 +50,12 @@ class DashboardController extends Controller
         $cacheKey = sprintf('admin_dashboard_v2:%s:%s', $period, $period === 'session' ? ($selectedSession?->id ?? 'none') : 'default');
 
         $payload = Cache::remember($cacheKey, 300, function () use ($period, $window, $comparison, $selectedSession, $activeSession) {
-            $currentAttendanceRecords = $this->loadAttendanceRecords($window['start'], $window['end'], $period === 'session' ? $selectedSession : null);
-            $previousAttendanceRecords = $this->loadAttendanceRecords($comparison['start'], $comparison['end'], $comparison['session']);
+            $currentScopeSession = $period === 'session' ? $selectedSession : null;
+            $currentAttendanceSummary = $this->attendanceSummaryForWindow($window['start'], $window['end'], $currentScopeSession);
+            $previousAttendanceSummary = $this->attendanceSummaryForWindow($comparison['start'], $comparison['end'], $comparison['session']);
 
-            $currentMarks = $this->loadPublishedMarks($window['start'], $window['end'], $period === 'session' ? $selectedSession : null);
-            $previousMarks = $this->loadPublishedMarks($comparison['start'], $comparison['end'], $comparison['session']);
+            $passSummary = $this->marksSummaryForWindow($window['start'], $window['end'], $currentScopeSession);
+            $previousPassSummary = $this->marksSummaryForWindow($comparison['start'], $comparison['end'], $comparison['session']);
 
             $currentAdmissions = $this->countAdmissions($window['start'], $window['end'], $period === 'session' ? $selectedSession : null);
             $previousAdmissions = $this->countAdmissions($comparison['start'], $comparison['end'], $comparison['session']);
@@ -67,13 +69,8 @@ class DashboardController extends Controller
             $totalParents = ParentModel::count();
             $totalAlumni = Alumni::count();
 
-            $attendanceSummary = $this->summarizeAttendance($currentAttendanceRecords);
-            $previousAttendanceSummary = $this->summarizeAttendance($previousAttendanceRecords);
-
-            $passSummary = $this->summarizeMarks($currentMarks);
-            $previousPassSummary = $this->summarizeMarks($previousMarks);
-
-            $departmentPerformance = $this->buildDepartmentPerformance($currentAttendanceRecords, $currentMarks);
+            $attendanceSummary = $currentAttendanceSummary;
+            $departmentPerformance = $this->buildDepartmentPerformance($window['start'], $window['end'], $currentScopeSession);
             $enrollmentTrend = $this->buildEnrollmentTrend($window['start'], $window['end'], $period, $selectedSession);
 
             $currentAdmissionsTrend = $this->formatTrend($currentAdmissions, $previousAdmissions);
@@ -350,29 +347,70 @@ class DashboardController extends Controller
 
     // ─── Data loaders ──────────────────────────────────────────
 
-    private function loadAttendanceRecords(Carbon $start, Carbon $end, ?AcademicSession $session): Collection
+    private function attendanceSummaryForWindow(Carbon $start, Carbon $end, ?AcademicSession $session): array
     {
-        return Attendance::query()
-            ->with(['student.department', 'attendanceSession'])
-            ->when($session, function ($query) use ($session) {
-                $query->whereHas('attendanceSession', fn ($q) => $q->where('academic_session_id', $session->id));
-            }, function ($query) use ($start, $end) {
-                $query->whereHas('attendanceSession', fn ($q) => $q->whereBetween('date', [$start->toDateString(), $end->toDateString()]));
-            })
-            ->get();
+        $row = Attendance::query()
+            ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+            ->when(
+                $session,
+                fn ($query) => $query->where('attendance_sessions.academic_session_id', $session->id),
+                fn ($query) => $query->whereBetween('attendance_sessions.date', [$start->toDateString(), $end->toDateString()])
+            )
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+            ->first();
+
+        $total = (int) ($row->total ?? 0);
+        $present = (int) ($row->present ?? 0);
+
+        return [
+            'total' => $total,
+            'present' => $present,
+            'rate' => $total > 0 ? round(($present / $total) * 100, 1) : 0.0,
+        ];
     }
 
-    private function loadPublishedMarks(Carbon $start, Carbon $end, ?AcademicSession $session): Collection
+    private function marksSummaryForWindow(Carbon $start, Carbon $end, ?AcademicSession $session): array
     {
-        return Mark::query()
+        $rows = Mark::query()
             ->published()
-            ->with(['subject', 'student.department', 'exam'])
-            ->when($session, function ($query) use ($session) {
-                $query->whereHas('exam', fn ($q) => $q->where('academic_session_id', $session->id));
-            }, function ($query) use ($start, $end) {
-                $query->whereBetween('updated_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()]);
-            })
-            ->get();
+            ->join('subjects', 'subjects.id', '=', 'marks.subject_id')
+            ->join('exams', 'exams.id', '=', 'marks.exam_id')
+            ->when(
+                $session,
+                fn ($query) => $query->where('exams.academic_session_id', $session->id),
+                fn ($query) => $query->whereBetween('marks.updated_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
+            )
+            ->select([
+                'marks.is_absent',
+                'marks.is_withheld',
+                'marks.internal_theory_marks',
+                'marks.external_theory_marks',
+                'marks.internal_practical_marks',
+                'marks.external_practical_marks',
+                'subjects.type as subject_type',
+                'subjects.pass_marks_internal_theory',
+                'subjects.pass_marks_external_theory',
+                'subjects.pass_marks_internal_practical',
+                'subjects.pass_marks_external_practical',
+            ])
+            ->cursor();
+
+        $total = 0;
+        $passed = 0;
+
+        foreach ($rows as $row) {
+            $total++;
+            if ($this->markRowIsPassed($row)) {
+                $passed++;
+            }
+        }
+
+        return [
+            'total' => $total,
+            'passed' => $passed,
+            'rate' => $total > 0 ? round(($passed / $total) * 100, 1) : 0.0,
+        ];
     }
 
     private function countAdmissions(Carbon $start, Carbon $end, ?AcademicSession $session): int
@@ -388,22 +426,6 @@ class DashboardController extends Controller
         return Application::query()
             ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
             ->count();
-    }
-
-    // ─── Summarizers ───────────────────────────────────────────
-
-    private function summarizeAttendance(Collection $records): array
-    {
-        $total = $records->count();
-        $present = $records->where('status', 'present')->count();
-        return ['total' => $total, 'present' => $present, 'rate' => $total > 0 ? round(($present / $total) * 100, 1) : 0.0];
-    }
-
-    private function summarizeMarks(Collection $marks): array
-    {
-        $total = $marks->count();
-        $passed = $marks->filter(fn ($mark) => $mark->is_passed)->count();
-        return ['total' => $total, 'passed' => $passed, 'rate' => $total > 0 ? round(($passed / $total) * 100, 1) : 0.0];
     }
 
     // ─── Builders ──────────────────────────────────────────────
@@ -432,16 +454,37 @@ class DashboardController extends Controller
         ];
     }
 
-    private function buildDepartmentPerformance(Collection $attendanceRecords, Collection $marks): array
+    private function buildDepartmentPerformance(Carbon $start, Carbon $end, ?AcademicSession $session): array
     {
         $departments = Department::active()->withCount('students')->get();
 
-        $rows = $departments->map(function (Department $department) use ($attendanceRecords, $marks) {
-            $deptAttendance = $attendanceRecords->filter(fn ($r) => (int) data_get($r, 'student.department_id') === (int) $department->id);
-            $deptMarks = $marks->filter(fn ($m) => (int) data_get($m, 'student.department_id') === (int) $department->id);
+        $attendanceByDepartment = Attendance::query()
+            ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+            ->join('students', 'students.id', '=', 'attendances.student_id')
+            ->when(
+                $session,
+                fn ($query) => $query->where('attendance_sessions.academic_session_id', $session->id),
+                fn ($query) => $query->whereBetween('attendance_sessions.date', [$start->toDateString(), $end->toDateString()])
+            )
+            ->selectRaw('students.department_id as department_id')
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+            ->groupBy('students.department_id')
+            ->get()
+            ->keyBy('department_id');
 
-            $attendanceRate = $deptAttendance->count() > 0 ? round(($deptAttendance->where('status', 'present')->count() / $deptAttendance->count()) * 100, 1) : null;
-            $passRate = $deptMarks->count() > 0 ? round(($deptMarks->filter(fn ($m) => $m->is_passed)->count() / $deptMarks->count()) * 100, 1) : null;
+        $marksByDepartment = $this->markStatsByDepartment($start, $end, $session);
+
+        $rows = $departments->map(function (Department $department) use ($attendanceByDepartment, $marksByDepartment) {
+            $attendanceRow = $attendanceByDepartment->get($department->id);
+            $attendanceTotal = (int) ($attendanceRow->total ?? 0);
+            $attendancePresent = (int) ($attendanceRow->present ?? 0);
+            $attendanceRate = $attendanceTotal > 0 ? round(($attendancePresent / $attendanceTotal) * 100, 1) : null;
+
+            $markRow = $marksByDepartment[$department->id] ?? ['total' => 0, 'passed' => 0];
+            $markTotal = (int) ($markRow['total'] ?? 0);
+            $markPassed = (int) ($markRow['passed'] ?? 0);
+            $passRate = $markTotal > 0 ? round(($markPassed / $markTotal) * 100, 1) : null;
 
             $score = match (true) {
                 $attendanceRate !== null && $passRate !== null => round(($attendanceRate * 0.45) + ($passRate * 0.55), 1),
@@ -459,7 +502,7 @@ class DashboardController extends Controller
                 'attendance_rate' => $attendanceRate,
                 'pass_rate' => $passRate,
                 'score' => $score,
-                'has_data' => $deptAttendance->isNotEmpty() || $deptMarks->isNotEmpty(),
+                'has_data' => $attendanceTotal > 0 || $markTotal > 0,
             ];
         })->sortByDesc('score')->values();
 
@@ -470,6 +513,77 @@ class DashboardController extends Controller
             'top' => $rows->first(),
             'hasData' => $rows->contains(fn (array $row) => $row['has_data']),
         ];
+    }
+
+    private function markStatsByDepartment(Carbon $start, Carbon $end, ?AcademicSession $session): array
+    {
+        $rows = Mark::query()
+            ->published()
+            ->join('subjects', 'subjects.id', '=', 'marks.subject_id')
+            ->join('students', 'students.id', '=', 'marks.student_id')
+            ->join('exams', 'exams.id', '=', 'marks.exam_id')
+            ->when(
+                $session,
+                fn ($query) => $query->where('exams.academic_session_id', $session->id),
+                fn ($query) => $query->whereBetween('marks.updated_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
+            )
+            ->select([
+                'students.department_id as department_id',
+                'marks.is_absent',
+                'marks.is_withheld',
+                'marks.internal_theory_marks',
+                'marks.external_theory_marks',
+                'marks.internal_practical_marks',
+                'marks.external_practical_marks',
+                'subjects.type as subject_type',
+                'subjects.pass_marks_internal_theory',
+                'subjects.pass_marks_external_theory',
+                'subjects.pass_marks_internal_practical',
+                'subjects.pass_marks_external_practical',
+            ])
+            ->cursor();
+
+        $stats = [];
+        foreach ($rows as $row) {
+            $departmentId = (int) ($row->department_id ?? 0);
+            if (! isset($stats[$departmentId])) {
+                $stats[$departmentId] = ['total' => 0, 'passed' => 0];
+            }
+
+            $stats[$departmentId]['total']++;
+            if ($this->markRowIsPassed($row)) {
+                $stats[$departmentId]['passed']++;
+            }
+        }
+
+        return $stats;
+    }
+
+    private function markRowIsPassed(object $row): bool
+    {
+        if ((bool) $row->is_absent || (bool) $row->is_withheld) {
+            return false;
+        }
+
+        $internalTheory = (float) ($row->internal_theory_marks ?? 0);
+        $externalTheory = (float) ($row->external_theory_marks ?? 0);
+        $internalPractical = (float) ($row->internal_practical_marks ?? 0);
+        $externalPractical = (float) ($row->external_practical_marks ?? 0);
+
+        $theoryPass = $internalTheory >= (float) ($row->pass_marks_internal_theory ?? 0)
+            && $externalTheory >= (float) ($row->pass_marks_external_theory ?? 0);
+
+        if (! $theoryPass) {
+            return false;
+        }
+
+        $requiresPractical = in_array((string) ($row->subject_type ?? 'theory'), ['practical', 'both'], true);
+        if (! $requiresPractical) {
+            return true;
+        }
+
+        return $internalPractical >= (float) ($row->pass_marks_internal_practical ?? 0)
+            && $externalPractical >= (float) ($row->pass_marks_external_practical ?? 0);
     }
 
     private function buildAlerts(Collection $departmentRows, array $attendanceSummary, array $passSummary, int $pendingApplications, int $applicationVolume, int $admissions, int $previousAdmissions): array

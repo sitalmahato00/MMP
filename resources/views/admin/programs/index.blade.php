@@ -326,8 +326,8 @@
     {{-- ═══════════ TABLE VIEW ═══════════ --}}
     <div x-show="view === 'table'" x-cloak>
         <div class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-100 text-sm">
+            <div class="mmp-table-wrap">
+                <table class="mmp-table divide-y divide-slate-100 text-sm">
                     <thead class="bg-slate-50/80 backdrop-blur-sm">
                         <tr>
                             <th class="px-4 py-3.5 text-left">

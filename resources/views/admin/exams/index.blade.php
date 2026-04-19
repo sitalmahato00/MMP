@@ -159,11 +159,11 @@
                         </select>
                     </div>
                     <div>
-                        <label class="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Type</label>
-                        <select name="type" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-rose-100">
-                            <option value="">All types</option>
-                            @foreach($typeOptions as $typeKey => $typeLabel)
-                                <option value="{{ $typeKey }}" @selected(($filters['type'] ?? null) === $typeKey)>{{ $typeLabel }}</option>
+                        <label class="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Exam Type</label>
+                        <select name="category" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-rose-100">
+                            <option value="">All exam types</option>
+                            @foreach($categoryOptions as $categoryKey => $categoryLabel)
+                                <option value="{{ $categoryKey }}" @selected(($filters['category'] ?? null) === $categoryKey)>{{ $categoryLabel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -194,81 +194,26 @@
         @foreach($kpis as $kpi)
             @php $tone = $kpiStyles[$kpi['tone']] ?? $kpiStyles['slate']; @endphp
             <article class="rounded-[1.5rem] border {{ $tone['card'] }} p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start justify-between gap-2">
                     <div>
                         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{{ $kpi['label'] }}</p>
                         <p class="mt-2 text-2xl font-black tracking-tight text-slate-950">{{ $kpi['value'] }}</p>
-                        <div class="mt-1 flex items-center gap-2 text-xs font-semibold {{ $kpi['direction'] === 'up' ? 'text-emerald-600' : ($kpi['direction'] === 'down' ? 'text-rose-600' : 'text-slate-400') }}">
-                            <span>{{ $kpi['direction'] === 'down' ? '↓' : '↑' }}</span>
-                            <span>{{ $kpi['trend'] }}</span>
-                            <span class="text-slate-400">{{ $kpi['note'] }}</span>
-                        </div>
                     </div>
-                    <div class="rounded-full {{ $tone['badge'] }} px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em]">{{ $kpi['note'] }}</div>
-                </div>
-                <div class="mt-3 rounded-2xl bg-white/70 p-2">
-                    <svg viewBox="0 0 96 28" class="h-8 w-full">
-                        <path d="{{ $kpi['sparkline'] }}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="{{ $tone['spark'] }}"></path>
-                    </svg>
+                    <div class="rounded-full {{ $tone['badge'] }} px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] whitespace-nowrap">{{ $kpi['note'] }}</div>
                 </div>
             </article>
         @endforeach
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-end justify-between gap-3">
-                <div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Lifecycle Breakdown</p>
-                    <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Exam status distribution</h2>
-                </div>
-                <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">Doughnut chart</span>
-            </div>
-            <div class="mt-5 h-[320px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                <canvas id="examStatusChart"></canvas>
-            </div>
-        </article>
-
-        <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-end justify-between gap-3">
-                <div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Academic Performance</p>
-                    <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Department pass rate</h2>
-                </div>
-                <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">Horizontal bars</span>
-            </div>
-            <div class="mt-5 h-[320px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                <canvas id="examDepartmentChart"></canvas>
-            </div>
-        </article>
-    </section>
-
-    <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-end justify-between gap-3">
-                <div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Grade Spread</p>
-                    <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Published marks distribution</h2>
-                </div>
-                <span class="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">Outcome mix</span>
-            </div>
-            <div class="mt-5 h-[320px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                <canvas id="examGradeChart"></canvas>
-            </div>
-        </article>
-
-        <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-end justify-between gap-3">
-                <div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Result Momentum</p>
-                    <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Yearly pass rate trend</h2>
-                </div>
-                <span class="rounded-full bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-700">Line chart</span>
-            </div>
-            <div class="mt-5 h-[320px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                <canvas id="examTrendChart"></canvas>
-            </div>
-        </article>
+    <section class="rounded-2xl border border-slate-200 bg-slate-50/60 px-6 py-4 flex items-center justify-between gap-4">
+        <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Detailed Analytics</p>
+            <p class="mt-0.5 text-sm text-slate-600">Department performance, grade distribution, yearly trends and more.</p>
+        </div>
+        <a href="{{ route('admin.exams.analytics') }}" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 transition-colors">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.5l6-6 4 4 8-8"/></svg>
+            View Charts
+        </a>
     </section>
 
     <section class="rounded-[2rem] border border-slate-200 bg-white shadow-sm">
@@ -281,8 +226,8 @@
         </div>
 
         <div class="overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-100 text-sm">
+            <div class="mmp-table-wrap">
+                <table class="mmp-table divide-y divide-slate-100 text-sm">
                     <thead class="bg-slate-50/95 backdrop-blur sticky top-0">
                         <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
                             <th class="px-4 py-3 text-left">Exam</th>
@@ -290,7 +235,6 @@
                             <th class="px-4 py-3 text-left">Schedule</th>
                             <th class="px-4 py-3 text-left">Completion</th>
                             <th class="px-4 py-3 text-left">Status</th>
-                            <th class="px-4 py-3 text-left">Sparkline</th>
                             <th class="px-4 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -303,7 +247,7 @@
                                 <td class="px-4 py-3.5">
                                     <a href="{{ route('admin.exams.show', $exam['exam']) }}" class="block">
                                         <p class="font-semibold text-slate-950 group-hover:text-[#8B0000]">{{ $exam['name'] }}</p>
-                                        <p class="mt-1 text-[11px] text-slate-400">{{ $exam['type_label'] }} · {{ $exam['total_subjects'] }} subjects · {{ $exam['total_students'] }} students</p>
+                                        <p class="mt-1 text-[11px] text-slate-400">{{ $exam['type_label'] }}</p>
                                     </a>
                                 </td>
                                 <td class="px-4 py-3.5">
@@ -325,15 +269,9 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3.5">
-                                    <div class="space-y-2">
+                                    <div class="space-y-1">
                                         <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $statusTone }}">{{ $exam['status_label'] }}</span>
-                                        <p class="text-[11px] text-slate-400">Pass rate {{ number_format($exam['pass_rate'], 1) }}% · Avg score {{ number_format($exam['average_score'], 1) }}%</p>
                                     </div>
-                                </td>
-                                <td class="px-4 py-3.5">
-                                    <svg viewBox="0 0 96 28" class="h-8 w-24 text-[#8B0000]">
-                                        <path d="{{ $exam['sparkline'] }}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <div class="flex items-center justify-end gap-1.5">
@@ -375,141 +313,3 @@
     </section>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (!window.Chart) {
-        return;
-    }
-
-    const statusData = @json($charts['statusBreakdown'] ?? ['labels' => [], 'values' => []]);
-    const departmentData = @json($charts['departmentPerformance'] ?? ['labels' => [], 'values' => []]);
-    const gradeData = @json($charts['gradeDistribution'] ?? ['labels' => [], 'values' => []]);
-    const trendData = @json($charts['yearTrend'] ?? ['labels' => [], 'values' => []]);
-
-    const palette = {
-        rose: 'rgba(139, 0, 0, 0.9)',
-        blue: 'rgba(59, 130, 246, 0.85)',
-        emerald: 'rgba(16, 185, 129, 0.85)',
-        amber: 'rgba(245, 158, 11, 0.85)',
-        violet: 'rgba(124, 58, 237, 0.85)',
-        slate: 'rgba(71, 85, 105, 0.85)',
-    };
-
-    const statusCanvas = document.getElementById('examStatusChart');
-    if (statusCanvas) {
-        new Chart(statusCanvas, {
-            type: 'doughnut',
-            data: {
-                labels: statusData.labels,
-                datasets: [{
-                    data: statusData.values,
-                    backgroundColor: [palette.rose, palette.blue, palette.amber, palette.violet, palette.emerald, palette.slate],
-                    borderWidth: 0,
-                    hoverOffset: 6,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '68%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                },
-            },
-        });
-    }
-
-    const departmentCanvas = document.getElementById('examDepartmentChart');
-    if (departmentCanvas) {
-        new Chart(departmentCanvas, {
-            type: 'bar',
-            data: {
-                labels: departmentData.labels,
-                datasets: [{
-                    label: 'Pass rate',
-                    data: departmentData.values,
-                    borderRadius: 10,
-                    borderSkipped: false,
-                    maxBarThickness: 24,
-                    backgroundColor: [palette.blue, palette.emerald, palette.amber, palette.violet, palette.rose, palette.slate],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { beginAtZero: true, suggestedMax: 100, ticks: { callback: value => value + '%' } },
-                    y: { grid: { display: false } },
-                },
-            },
-        });
-    }
-
-    const gradeCanvas = document.getElementById('examGradeChart');
-    if (gradeCanvas) {
-        new Chart(gradeCanvas, {
-            type: 'doughnut',
-            data: {
-                labels: gradeData.labels,
-                datasets: [{
-                    data: gradeData.values,
-                    backgroundColor: [palette.emerald, palette.blue, palette.amber, palette.rose],
-                    borderWidth: 0,
-                    hoverOffset: 6,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '68%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                },
-            },
-        });
-    }
-
-    const trendCanvas = document.getElementById('examTrendChart');
-    if (trendCanvas) {
-        const ctx = trendCanvas.getContext('2d');
-        const gradient = ctx.createLinearGradient(0, 0, 0, 320);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.22)');
-        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.03)');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: trendData.labels,
-                datasets: [{
-                    label: 'Pass rate',
-                    data: trendData.values,
-                    borderColor: '#8B0000',
-                    backgroundColor: gradient,
-                    fill: true,
-                    borderWidth: 3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#8B0000',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    tension: 0.38,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, suggestedMax: 100, ticks: { callback: value => value + '%' } },
-                },
-            },
-        });
-    }
-});
-</script>
-@endpush

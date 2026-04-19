@@ -104,6 +104,13 @@ class ProgramController extends Controller
             'timetables',
         ]);
 
+        $students = $program->students()
+            ->with('user:id,name,email,avatar')
+            ->orderBy('current_semester')
+            ->orderBy('student_no')
+            ->paginate(20, ['*'], 'students_page')
+            ->withQueryString();
+
         $subjectsBySemester = $program->subjects->groupBy('semester');
         $totalStudents      = $program->students->count();
         $activeStudents     = $program->students->where('status', 'active')->count();
@@ -164,7 +171,7 @@ class ProgramController extends Controller
             ->limit(20)
             ->get();
 
-        return view('admin.programs.show', compact('program', 'stats', 'auditLogs'));
+        return view('admin.programs.show', compact('program', 'stats', 'auditLogs', 'students'));
     }
 
     // ── Edit ───────────────────────────────────────────────────────────────

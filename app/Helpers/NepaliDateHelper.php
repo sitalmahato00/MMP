@@ -16,19 +16,31 @@ class NepaliDateHelper
      */
     public static function toBS($date, string $format = 'Y-m-d'): ?string
     {
+        static $cache = [];
+
         if (!$date) {
             return null;
         }
 
-        try {
-            $dateStr = $date instanceof \DateTimeInterface
-                ? $date->format('Y-m-d')
-                : (string) $date;
+        $dateStr = $date instanceof \DateTimeInterface
+            ? $date->format('Y-m-d')
+            : (string) $date;
 
-            return LaravelNepaliDate::from($dateStr)->toNepaliDate(format: $format, locale: 'en');
-        } catch (\Throwable) {
-            return null;
+        $key = $dateStr . '|' . $format;
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
         }
+
+        try {
+            $result = LaravelNepaliDate::from($dateStr)->toNepaliDate(format: $format, locale: 'en');
+        } catch (\Throwable) {
+            $result = null;
+        }
+
+        $cache[$key] = $result;
+
+        return $result;
     }
 
     /**

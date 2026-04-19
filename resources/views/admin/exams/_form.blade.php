@@ -2,8 +2,10 @@
     $selectedPrograms = collect(old('program_ids', $selectedProgramIds ?? []))->map(fn ($value) => (int) $value)->all();
     $selectedSessionId = old('academic_session_id', $exam?->academic_session_id ?? $currentSession?->id);
     $selectedDepartmentId = old('department_id', $exam?->department_id ?? '');
-    $selectedSemester = old('semester', $exam?->programs->first()?->pivot?->semester ?? 1);
+    $selectedSemester = old('semester', $selectedSemester ?? $exam?->programs->first()?->pivot?->semester ?? 1);
     $selectedType = old('type', $exam?->type ?? 'regular');
+    $selectedCategory = old('category', $exam?->category ?? 'ctevt_final');
+    $selectedAssessmentNumber = old('assessment_number', $exam?->assessment_number ?? '');
     $selectedStatus = old('status', $exam?->status ?? 'upcoming');
     $selectedMarksOpen = old('marks_open', $exam?->marks_open ?? false);
 @endphp
@@ -45,6 +47,24 @@
                     </label>
 
                     <label class="space-y-2">
+                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Exam Category</span>
+                        <select name="category" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                            @foreach($categoryOptions as $key => $label)
+                                <option value="{{ $key }}" @selected($selectedCategory === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('category')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                    </label>
+
+                    <label class="space-y-2">
+                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Assessment Number (for monthly)</span>
+                        <input name="assessment_number" type="number" min="1" max="12" value="{{ $selectedAssessmentNumber }}" placeholder="e.g. 1, 2, 3"
+                               class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                        <p class="text-[11px] leading-5 text-slate-500">Use numbering for repeated monthly tests/assessments in the same semester.</p>
+                        @error('assessment_number')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                    </label>
+
+                    <label class="space-y-2">
                         <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Academic Session / Year</span>
                         <select name="academic_session_id" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
                             <option value="">Select session</option>
@@ -58,9 +78,9 @@
                     </label>
 
                     <label class="space-y-2">
-                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Department</span>
+                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Department Scope</span>
                         <select name="department_id" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
-                            <option value="">Select department</option>
+                            <option value="" @selected($selectedDepartmentId === '' || $selectedDepartmentId === null)>All departments</option>
                             @foreach($departments as $department)
                                 <option value="{{ $department->id }}" @selected((string) $selectedDepartmentId === (string) $department->id)>
                                     {{ $department->code ? $department->code . ' - ' : '' }}{{ $department->name }}
@@ -71,12 +91,13 @@
                     </label>
 
                     <label class="space-y-2">
-                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Semester</span>
+                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Semester Scope</span>
                         <select name="semester" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
-                            @foreach($semesterOptions as $semester)
-                                <option value="{{ $semester }}" @selected((string) $selectedSemester === (string) $semester)>Semester {{ $semester }}</option>
+                            @foreach($semesterOptions as $value => $label)
+                                <option value="{{ $value }}" @selected((string) $selectedSemester === (string) $value)>{{ $label }}</option>
                             @endforeach
                         </select>
+                        <p class="text-[11px] leading-5 text-slate-500">Choose a single semester, all semesters for each selected program, or the current running semesters.</p>
                         @error('semester')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
                     </label>
 
@@ -141,11 +162,11 @@
                 <div class="mt-4 space-y-3">
                     <div class="rounded-2xl bg-slate-50 p-4">
                         <p class="text-sm font-bold text-slate-900">1. Create exam header</p>
-                        <p class="mt-1 text-sm text-slate-500">Name the exam, attach the academic session, and select the semester matrix.</p>
+                        <p class="mt-1 text-sm text-slate-500">Name the exam, attach the academic session, and select the semester scope.</p>
                     </div>
                     <div class="rounded-2xl bg-slate-50 p-4">
                         <p class="text-sm font-bold text-slate-900">2. Assign programs</p>
-                        <p class="mt-1 text-sm text-slate-500">Choose one or more programs so subjects and result sheets can be generated.</p>
+                        <p class="mt-1 text-sm text-slate-500">Choose one or more programs, then the selected semester scope is expanded into exam rows automatically.</p>
                     </div>
                     <div class="rounded-2xl bg-slate-50 p-4">
                         <p class="text-sm font-bold text-slate-900">3. Enter, verify, publish</p>

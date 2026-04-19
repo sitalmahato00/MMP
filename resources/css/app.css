@@ -43,3 +43,37 @@ html {
 }
 
 [x-cloak] { display: none !important; }
+
+/* ── Pagination ───────────────────────────────────────────── */
+.pagination-btn {
+  @apply inline-flex items-center justify-center h-8 min-w-8 px-2 rounded-lg
+         text-sm font-medium text-slate-600 bg-white border border-slate-200
+         hover:border-[#8B0000] hover:text-[#8B0000] hover:bg-red-50
+         transition-all select-none cursor-pointer;
+}
+
+.pagination-active {
+  @apply bg-[#8B0000] text-white border-[#8B0000] font-bold
+         hover:bg-[#7a0000] hover:text-white hover:border-[#7a0000] hover:bg-[#7a0000];
+}
+
+.pagination-disabled {
+  @apply text-slate-300 border-slate-100 bg-slate-50 cursor-not-allowed
+         hover:text-slate-300 hover:border-slate-100 hover:bg-slate-50;
+}
+
+/* ── Responsive table utility ─────────────────────────────── */
+.mmp-table-wrap {
+  @apply w-full overflow-x-auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mmp-table {
+  @apply min-w-full;
+}
+
+@media (max-width: 640px) {
+  .mmp-table {
+    min-width: 760px;
+  }
+}

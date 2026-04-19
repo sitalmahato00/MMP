@@ -28,10 +28,26 @@
     ];
 
     $semesterLabels = $exam->programs->pluck('pivot.semester')->filter()->unique()->sort()->map(fn ($semester) => 'Sem ' . $semester)->implode(' · ') ?: '—';
-    $programLabels = $exam->programs->map(function ($program) {
-        $semester = $program->pivot?->semester;
-        return trim(($program->code ? $program->code . ' - ' : '') . $program->name) . ($semester ? ' · Sem ' . $semester : '');
-    })->implode(' · ') ?: 'No programs assigned';
+    $programSummaries = $exam->programs
+        ->groupBy('id')
+        ->map(function ($programAssignments) {
+            $program = $programAssignments->first();
+            $semesters = $programAssignments
+                ->pluck('pivot.semester')
+                ->filter()
+                ->map(fn ($semester) => 'Sem ' . $semester)
+                ->unique()
+                ->sort()
+                ->implode(', ');
+
+            return [
+                'name' => trim(($program->code ? $program->code . ' - ' : '') . $program->name),
+                'semesters' => $semesters,
+            ];
+        })
+        ->values();
+    $departmentLabel = $exam->department?->code ? $exam->department->code . ' - ' . $exam->department->name : ($exam->department?->name ?? 'Common');
+    $uploadedMarksTotal = $uploadedMarkGroups->sum('marks_count');
 
     $statusTone = $statusClasses[$exam->status_tone] ?? $statusClasses['slate'];
 @endphp
@@ -109,29 +125,7 @@
         @endforeach
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-end justify-between gap-3">
-                <div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Performance</p>
-                    <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Result analytics</h2>
-                </div>
-                <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">Subject, grade, and trend charts</span>
-            </div>
-            <div class="mt-5 grid gap-5 xl:grid-cols-3">
-                <div class="h-[260px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                    <canvas id="examSubjectPerformance"></canvas>
-                </div>
-                <div class="h-[260px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                    <canvas id="examGradeDistribution"></canvas>
-                </div>
-                <div class="h-[260px] rounded-[1.5rem] bg-slate-50/80 p-4 ring-1 ring-slate-200/80">
-                    <canvas id="examYearTrend"></canvas>
-                </div>
-            </div>
-        </article>
-
-        <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+    <section class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex items-end justify-between gap-3">
                 <div>
                     <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Workflow</p>
@@ -160,14 +154,14 @@
                         Marks open: <span class="font-bold text-slate-900">{{ $exam->marks_open ? 'Yes' : 'No' }}</span> · Published: <span class="font-bold text-slate-900">{{ $published ? 'Yes' : 'No' }}</span>
                     </p>
                     @if($exam->published_at)
-                        <p class="mt-1 text-sm leading-6 text-slate-600">Published at {{ bsDate($exam->published_at, 'Y, F d h:i A') ?: '—' }}</p>
+                        <p class="mt-1 text-sm leading-6 text-slate-600">Published at {{ bsDateTime($exam->published_at, 'Y, F d', 'h:i A') ?: '—' }}</p>
                     @endif
                 </div>
             </div>
-        </article>
+        </div>
     </section>
 
-    <section class="rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+    <section class="rounded-[2rem] border border-slate-200 bg-white shadow-sm" x-data="{ tab: @js(request('tab', 'overview')) }">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
             <div class="flex flex-wrap items-center gap-2">
                 <button type="button" @click="tab = 'overview'"
@@ -176,9 +170,9 @@
                 <button type="button" @click="tab = 'subjects'"
                         :class="tab === 'subjects' ? 'bg-[#8B0000] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
                         class="rounded-xl px-4 py-2.5 text-sm font-bold transition">Subjects</button>
-                <button type="button" @click="tab = 'students'"
-                        :class="tab === 'students' ? 'bg-[#8B0000] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-                        class="rounded-xl px-4 py-2.5 text-sm font-bold transition">Students</button>
+                <button type="button" @click="tab = 'marks'"
+                    :class="tab === 'marks' ? 'bg-[#8B0000] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                    class="rounded-xl px-4 py-2.5 text-sm font-bold transition">Uploaded Marks</button>
                 <button type="button" @click="tab = 'verification'"
                         :class="tab === 'verification' ? 'bg-[#8B0000] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
                         class="rounded-xl px-4 py-2.5 text-sm font-bold transition">Verification</button>
@@ -186,7 +180,7 @@
                         :class="tab === 'publish' ? 'bg-[#8B0000] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
                         class="rounded-xl px-4 py-2.5 text-sm font-bold transition">Publish</button>
             </div>
-            <div class="text-xs font-semibold text-slate-400">{{ $studentRows->count() }} student results · {{ $subjectRows->count() }} subject rows</div>
+            <div class="text-xs font-semibold text-slate-400">{{ $subjectRows->total() }} subject rows · {{ $uploadedMarksTotal }} uploaded marks</div>
         </div>
 
         <div x-show="tab === 'overview'" x-cloak class="p-5">
@@ -197,7 +191,7 @@
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Exam Snapshot</p>
                             <h3 class="mt-1 text-xl font-black tracking-tight text-slate-950">Configuration summary</h3>
                         </div>
-                        <span class="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold text-[#8B0000]">{{ $exam->programs->count() }} programs</span>
+                        <span class="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold text-[#8B0000]">{{ $exam->programs->unique('id')->count() }} programs</span>
                     </div>
 
                     <div class="mt-4 grid gap-3 md:grid-cols-2">
@@ -207,11 +201,19 @@
                         </div>
                         <div class="rounded-2xl bg-slate-50 p-4">
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Department</p>
-                            <p class="mt-1 font-semibold text-slate-900">{{ $exam->department?->code ? $exam->department->code . ' - ' . $exam->department->name : ($exam->department?->name ?? 'Common') }}</p>
+                            <p class="mt-1 font-semibold text-slate-900">{{ $departmentLabel }}</p>
                         </div>
-                        <div class="rounded-2xl bg-slate-50 p-4">
+                        <div class="rounded-2xl bg-slate-50 p-4 md:col-span-2">
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Programs</p>
-                            <p class="mt-1 text-sm leading-6 text-slate-600">{{ $programLabels }}</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @forelse($programSummaries as $programSummary)
+                                    <span class="inline-flex items-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                                        {{ $programSummary['name'] }}@if($programSummary['semesters'])<span class="ml-1 text-slate-400">· {{ $programSummary['semesters'] }}</span>@endif
+                                    </span>
+                                @empty
+                                    <span class="text-sm text-slate-400">No programs assigned</span>
+                                @endforelse
+                            </div>
                         </div>
                         <div class="rounded-2xl bg-slate-50 p-4">
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Schedule</p>
@@ -269,7 +271,7 @@
                     <table class="min-w-full divide-y divide-slate-100 text-sm">
                         <thead class="bg-slate-50/95 backdrop-blur sticky top-0">
                             <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                                <th class="px-4 py-3 text-left">Program / Subject</th>
+                                <th class="px-4 py-3 text-left">Department / Program / Subject</th>
                                 <th class="px-4 py-3 text-left">Teacher</th>
                                 <th class="px-4 py-3 text-left">Students</th>
                                 <th class="px-4 py-3 text-left">Entered</th>
@@ -283,7 +285,8 @@
                                 @php $rowTone = $statusClasses[$row['status_tone']] ?? $statusClasses['slate']; @endphp
                                 <tr class="transition hover:bg-slate-50/70">
                                     <td class="px-4 py-3.5">
-                                        <p class="font-semibold text-slate-950">{{ $row['program_code'] ? $row['program_code'] . ' - ' : '' }}{{ $row['program_name'] }}</p>
+                                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{{ $row['department_code'] ? $row['department_code'] . ' - ' : '' }}{{ $row['department_name'] ?? 'All departments' }}</p>
+                                        <p class="mt-1 font-semibold text-slate-950">{{ $row['program_code'] ? $row['program_code'] . ' - ' : '' }}{{ $row['program_name'] }}</p>
                                         <p class="mt-1 text-[11px] text-slate-400">Sem {{ $row['semester'] }} · {{ $row['subject_code'] ? $row['subject_code'] . ' - ' : '' }}{{ $row['subject_name'] }} · {{ $row['subject_type'] }}</p>
                                     </td>
                                     <td class="px-4 py-3.5">
@@ -301,7 +304,8 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3.5">
-                                        <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $rowTone }}">{{ $row['status_label'] }}</span>
+                                        <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $row['upload_state_tone'] ?? $rowTone }}">{{ $row['upload_state_label'] ?? $row['status_label'] }}</span>
+                                        <p class="mt-1 text-[11px] text-slate-400">{{ (int) ($row['missing_count'] ?? 0) === 0 ? 'All uploaded' : ($row['marks_count'] . ' uploaded · ' . $row['missing_count'] . ' pending') }}</p>
                                     </td>
                                     <td class="px-4 py-3.5 text-slate-600">{{ $row['last_updated'] }}</td>
                                     <td class="px-4 py-3.5 text-slate-600">{{ $row['remarks'] ?: '—' }}</td>
@@ -316,73 +320,248 @@
                         </tbody>
                     </table>
                 </div>
+                @if($subjectRows->hasPages())
+                    <div class="border-t border-slate-100 px-4 py-3">
+                        {{ $subjectRows->onEachSide(1)->links() }}
+                    </div>
+                @endif
             </div>
         </div>
 
-        <div x-show="tab === 'students'" x-cloak class="p-5">
-            <div class="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-100 text-sm">
-                        <thead class="bg-slate-50/95 backdrop-blur sticky top-0">
-                            <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                                <th class="px-4 py-3 text-left">Student</th>
-                                <th class="px-4 py-3 text-left">Program</th>
-                                <th class="px-4 py-3 text-left">Result</th>
-                                <th class="px-4 py-3 text-left">Score</th>
-                                <th class="px-4 py-3 text-left">GPA</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                                <th class="px-4 py-3 text-right">Sheet</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50">
-                            @forelse($studentRows as $row)
-                                <tr class="transition hover:bg-slate-50/70">
-                                    <td class="px-4 py-3.5">
-                                        <div class="flex items-center gap-3">
-                                            @if($row['avatar'])
-                                                <img src="{{ asset('storage/' . $row['avatar']) }}" alt="" class="h-10 w-10 rounded-xl object-cover ring-2 ring-white">
-                                            @else
-                                                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#8B0000] to-rose-700 text-xs font-black text-white">{{ strtoupper(substr($row['name'], 0, 1)) }}</div>
-                                            @endif
-                                            <div>
-                                                <p class="font-semibold text-slate-950">{{ $row['name'] }}</p>
-                                                <p class="mt-1 text-[11px] text-slate-400">{{ $row['roll_number'] ?? $row['symbol_no'] ?? 'No roll number' }}</p>
+        <div x-show="tab === 'marks'" x-cloak class="p-5 space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Uploaded marks</p>
+                    <h3 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Department -> semester -> subject</h3>
+                    <p class="mt-1 text-sm text-slate-500">Expand a department to drill down into semesters and subjects, similar to the sidebar tree.</p>
+                </div>
+                <div class="flex flex-wrap gap-2 text-xs font-bold text-slate-700">
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5">All {{ $allMarksCount ?? 0 }}</span>
+                    <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">Filled {{ $filledMarksCount ?? 0 }}</span>
+                    <span class="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700">Unfilled {{ $unfilledMarksCount ?? 0 }}</span>
+                    <span class="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700">Delayed {{ $delayedMarksCount ?? 0 }}</span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5">{{ $uploadedMarkGroups->count() }} departments</span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5">{{ $uploadedMarksTotal }} mark records</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                @forelse($uploadedMarkGroups as $departmentGroup)
+                    <details name="uploaded-marks-departments" class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+                        <summary class="cursor-pointer list-none px-5 py-4">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-[#8B0000] ring-1 ring-rose-200">
+                                        <i class="fas fa-layer-group text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Department</p>
+                                        <h4 class="mt-1 text-xl font-black tracking-tight text-slate-950">
+                                            {{ $departmentGroup['department_code'] ? $departmentGroup['department_code'] . ' - ' : '' }}{{ $departmentGroup['department_name'] }}
+                                        </h4>
+                                        <p class="mt-1 text-sm text-slate-500">{{ $departmentGroup['marks_count'] }} uploaded marks · {{ $departmentGroup['subjects_count'] }} unique subjects</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700">
+                                    <span class="rounded-full bg-slate-100 px-3 py-1.5">{{ $departmentGroup['semesters']->count() }} semesters</span>
+                                    <span class="rounded-full bg-rose-50 px-3 py-1.5 text-[#8B0000]">{{ $departmentGroup['marks_count'] }} records</span>
+                                </div>
+                            </div>
+                        </summary>
+
+                        <div class="border-t border-slate-100 bg-slate-50/60 px-4 py-4 sm:px-5">
+                            <div class="space-y-3 border-l-2 border-slate-200 pl-4 sm:pl-5">
+                                @foreach($departmentGroup['semesters'] as $semesterGroup)
+                                    <details name="department-{{ $loop->parent->index }}-semesters" class="overflow-hidden rounded-[1.4rem] border border-slate-200 bg-white shadow-sm">
+                                        <summary class="cursor-pointer list-none px-4 py-3.5">
+                                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                                <div class="flex items-start gap-3">
+                                                    <div class="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-200">
+                                                        <i class="fas fa-graduation-cap text-xs"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Semester</p>
+                                                        <h5 class="mt-1 text-lg font-black tracking-tight text-slate-950">Semester {{ $semesterGroup['semester'] }}</h5>
+                                                        <p class="mt-1 text-sm text-slate-500">{{ $semesterGroup['marks_count'] }} marks · {{ $semesterGroup['subjects_count'] }} subjects</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700">
+                                                    <span class="rounded-full bg-slate-100 px-3 py-1.5">{{ $semesterGroup['subjects_count'] }} subjects</span>
+                                                    <span class="rounded-full bg-white px-3 py-1.5 shadow-sm ring-1 ring-slate-200">{{ $semesterGroup['marks_count'] }} records</span>
+                                                </div>
+                                            </div>
+                                        </summary>
+
+                                        <div class="border-t border-slate-100 bg-slate-50/60 px-4 py-4">
+                                            <div class="space-y-3 border-l-2 border-slate-200 pl-4">
+                                                @foreach($semesterGroup['subjects'] as $subjectGroup)
+                                                    <details name="department-{{ $loop->parent->parent->index }}-semester-{{ $loop->parent->index }}-subjects" class="overflow-hidden rounded-[1.25rem] border border-slate-200 bg-white shadow-sm">
+                                                        <summary class="cursor-pointer list-none px-4 py-3">
+                                                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                                                <div class="flex min-w-0 items-start gap-3">
+                                                                    <div class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-[10px] font-black text-[#8B0000] ring-1 ring-rose-200">
+                                                                        {{ strtoupper(substr($subjectGroup['subject_code'] ?: $subjectGroup['subject_name'], 0, 2)) }}
+                                                                    </div>
+                                                                    <div class="min-w-0">
+                                                                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Subject</p>
+                                                                        <h6 class="mt-1 text-base font-bold text-slate-950">{{ $subjectGroup['subject_code'] ? $subjectGroup['subject_code'] . ' - ' : '' }}{{ $subjectGroup['subject_name'] }}</h6>
+                                                                        <p class="mt-1 text-xs text-slate-400">{{ $subjectGroup['marks_count'] }} uploaded marks · Avg {{ number_format($subjectGroup['average_score'], 1) }}%</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex flex-wrap items-center gap-2">
+                                                                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">{{ $subjectGroup['subject_type'] }}</span>
+                                                                    <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">{{ $subjectGroup['passed_count'] }} passed</span>
+                                                                </div>
+                                                            </div>
+                                                        </summary>
+
+                                                        <div class="border-t border-slate-100 bg-white">
+                                                            @php
+                                                                $criteria = $subjectGroup['criteria'] ?? [
+                                                                    'full_internal_theory' => 0,
+                                                                    'pass_internal_theory' => 0,
+                                                                    'full_external_theory' => 0,
+                                                                    'pass_external_theory' => 0,
+                                                                    'full_internal_practical' => 0,
+                                                                    'pass_internal_practical' => 0,
+                                                                    'full_external_practical' => 0,
+                                                                    'pass_external_practical' => 0,
+                                                                ];
+                                                            @endphp
+                                                            <div class="flex flex-wrap items-center justify-end gap-2 border-b border-slate-100 px-4 py-3 text-xs font-bold text-slate-700">
+                                                                <a href="{{ route('admin.exams.marks.export', [$exam, 'pdf']) }}?subject_id={{ $subjectGroup['subject_id'] }}" class="rounded-full bg-white px-3 py-1.5 text-[#8B0000] ring-1 ring-rose-200 transition hover:bg-rose-50">Export PDF</a>
+                                                                <a href="{{ route('admin.exams.marks.export', [$exam, 'excel']) }}?subject_id={{ $subjectGroup['subject_id'] }}" class="rounded-full bg-white px-3 py-1.5 text-sky-700 ring-1 ring-sky-200 transition hover:bg-sky-50">Export Excel</a>
+                                                            </div>
+                                                            @if(($exam->category ?? 'ctevt_final') !== 'monthly_assessment')
+                                                                <form method="POST" action="{{ route('admin.exams.subjects.marking-scheme.update', [$exam, $subjectGroup['subject_id']]) }}" class="border-b border-slate-100 bg-slate-50/70 px-4 py-3">
+                                                                    @csrf
+                                                                    @method('PATCH')
+                                                                    <div class="grid gap-2 text-[11px] text-slate-600 sm:grid-cols-2 lg:grid-cols-4">
+                                                                        <label class="space-y-1">
+                                                                            <span class="font-bold uppercase tracking-[0.12em] text-slate-500">Int theory (pass/full)</span>
+                                                                            <div class="flex items-center gap-2">
+                                                                                <input type="number" name="pass_marks_internal_theory" min="0" step="0.01" value="{{ old('pass_marks_internal_theory', $criteria['pass_internal_theory']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                                <input type="number" name="full_marks_internal_theory" min="0" step="0.01" value="{{ old('full_marks_internal_theory', $criteria['full_internal_theory']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                            </div>
+                                                                        </label>
+                                                                        <label class="space-y-1">
+                                                                            <span class="font-bold uppercase tracking-[0.12em] text-slate-500">Ext theory (pass/full)</span>
+                                                                            <div class="flex items-center gap-2">
+                                                                                <input type="number" name="pass_marks_external_theory" min="0" step="0.01" value="{{ old('pass_marks_external_theory', $criteria['pass_external_theory']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                                <input type="number" name="full_marks_external_theory" min="0" step="0.01" value="{{ old('full_marks_external_theory', $criteria['full_external_theory']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                            </div>
+                                                                        </label>
+                                                                        <label class="space-y-1">
+                                                                            <span class="font-bold uppercase tracking-[0.12em] text-slate-500">Int practical (pass/full)</span>
+                                                                            <div class="flex items-center gap-2">
+                                                                                <input type="number" name="pass_marks_internal_practical" min="0" step="0.01" value="{{ old('pass_marks_internal_practical', $criteria['pass_internal_practical']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                                <input type="number" name="full_marks_internal_practical" min="0" step="0.01" value="{{ old('full_marks_internal_practical', $criteria['full_internal_practical']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                            </div>
+                                                                        </label>
+                                                                        <label class="space-y-1">
+                                                                            <span class="font-bold uppercase tracking-[0.12em] text-slate-500">Ext practical (pass/full)</span>
+                                                                            <div class="flex items-center gap-2">
+                                                                                <input type="number" name="pass_marks_external_practical" min="0" step="0.01" value="{{ old('pass_marks_external_practical', $criteria['pass_external_practical']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                                <input type="number" name="full_marks_external_practical" min="0" step="0.01" value="{{ old('full_marks_external_practical', $criteria['full_external_practical']) }}" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900">
+                                                                            </div>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="mt-3 flex items-center justify-between gap-3">
+                                                                        <p class="text-[11px] font-medium text-slate-500">Set pass and full marks for this subject, then save.</p>
+                                                                        <button type="submit" class="rounded-full bg-[#8B0000] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#760000]">Save Criteria</button>
+                                                                    </div>
+                                                                </form>
+                                                            @endif
+                                                            <div class="overflow-x-auto">
+                                                                <table class="min-w-full divide-y divide-slate-100 text-sm">
+                                                                    <thead class="bg-slate-50/95 backdrop-blur sticky top-0">
+                                                                        <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                                                                            <th class="px-4 py-3 text-left">Student</th>
+                                                                            <th class="px-4 py-3 text-left">
+                                                                                <div class="space-y-1">
+                                                                                    <p>Mark breakdown</p>
+                                                                                    @if(($exam->category ?? 'ctevt_final') === 'monthly_assessment')
+                                                                                        <p class="normal-case tracking-normal text-[10px] font-semibold text-slate-500">Attendance, pass marks, full marks, and obtained marks for this assessment</p>
+                                                                                    @else
+                                                                                        <p class="normal-case tracking-normal text-[10px] font-semibold text-slate-500">IT {{ $criteria['pass_internal_theory'] }}/{{ $criteria['full_internal_theory'] }} · ET {{ $criteria['pass_external_theory'] }}/{{ $criteria['full_external_theory'] }} · IP {{ $criteria['pass_internal_practical'] }}/{{ $criteria['full_internal_practical'] }} · EP {{ $criteria['pass_external_practical'] }}/{{ $criteria['full_external_practical'] }}</p>
+                                                                                    @endif
+                                                                                </div>
+                                                                            </th>
+                                                                            <th class="px-4 py-3 text-left">Total</th>
+                                                                            <th class="px-4 py-3 text-left">Result</th>
+                                                                            <th class="px-4 py-3 text-left">Teacher</th>
+                                                                            <th class="px-4 py-3 text-left">Updated</th>
+                                                                            <th class="px-4 py-3 text-right">Actions</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody class="divide-y divide-slate-50">
+                                                                        @foreach($subjectGroup['marks'] as $mark)
+                                                                            @php
+                                                                                $resultLabel = $mark['result_remark'] ?? 'Pending';
+                                                                                $resultTone = match ($resultLabel) {
+                                                                                    'Pass' => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+                                                                                    'Absent' => 'bg-amber-50 text-amber-700 ring-amber-200',
+                                                                                    'Delayed' => 'bg-violet-50 text-violet-700 ring-violet-200',
+                                                                                    'Withheld' => 'bg-slate-100 text-slate-700 ring-slate-200',
+                                                                                    'Fail' => 'bg-rose-50 text-[#8B0000] ring-rose-200',
+                                                                                    default => 'bg-slate-100 text-slate-700 ring-slate-200',
+                                                                                };
+                                                                            @endphp
+                                                                            <tr class="transition hover:bg-slate-50/70">
+                                                                                <td class="px-4 py-3.5">
+                                                                                    <p class="font-semibold text-slate-950">{{ $mark['student_name'] }}</p>
+                                                                                    <p class="mt-1 text-[11px] text-slate-400">{{ $mark['program_name'] }} · Roll {{ $mark['roll_number'] }} · Student {{ $mark['student_no'] }}</p>
+                                                                                </td>
+                                                                                <td class="px-4 py-3.5 text-slate-600">
+                                                                                    <div class="grid gap-1 text-[11px] sm:grid-cols-2 xl:grid-cols-4">
+                                                                                        @if(($exam->category ?? 'ctevt_final') === 'monthly_assessment')
+                                                                                            <span>Attendance: <strong class="text-slate-900">{{ $mark['assessment_attendance_percent'] !== null ? number_format((float) $mark['assessment_attendance_percent'], 1) . '%' : '—' }}</strong></span>
+                                                                                            <span>Pass / Full: <strong class="text-slate-900">{{ $mark['assessment_pass_marks'] ?? '—' }} / {{ $mark['assessment_full_marks'] ?? '—' }}</strong></span>
+                                                                                            <span>Obtained: <strong class="text-slate-900">{{ $mark['assessment_obtained_marks'] ?? '—' }}</strong></span>
+                                                                                        @else
+                                                                                            <span>Internal theory: <strong class="text-slate-900">{{ $mark['internal_theory'] ?? '—' }}</strong></span>
+                                                                                            <span>External theory: <strong class="text-slate-900">{{ $mark['external_theory'] ?? '—' }}</strong></span>
+                                                                                            <span>Internal practical: <strong class="text-slate-900">{{ $mark['internal_practical'] ?? '—' }}</strong></span>
+                                                                                            <span>External practical: <strong class="text-slate-900">{{ $mark['external_practical'] ?? '—' }}</strong></span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td class="px-4 py-3.5">
+                                                                                    <p class="font-bold text-slate-950">{{ number_format((float) $mark['total_marks'], 2) }}</p>
+                                                                                    <p class="mt-1 text-[11px] text-slate-400">{{ isset($mark['percentage']) && $mark['percentage'] !== null ? number_format((float) $mark['percentage'], 1) . '%' : 'No percentage' }}</p>
+                                                                                </td>
+                                                                                <td class="px-4 py-3.5">
+                                                                                    <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $resultTone }}">{{ $resultLabel }}</span>
+                                                                                    <p class="mt-1 text-[11px] text-slate-400">{{ $mark['is_absent'] ? 'Absent' : ($mark['is_withheld'] ? 'Withheld' : ($mark['is_delayed'] ? ('Delayed' . (!empty($mark['delay_reason']) ? ': ' . $mark['delay_reason'] : '')) : ($mark['status'] ?? '—'))) }}</p>
+                                                                                </td>
+                                                                                <td class="px-4 py-3.5 text-slate-600">
+                                                                                    <p class="font-semibold text-slate-900">{{ $mark['teacher_name'] }}</p>
+                                                                                    <p class="mt-1 text-[11px] text-slate-400">{{ $mark['remarks'] ?: 'No remarks' }}</p>
+                                                                                </td>
+                                                                                <td class="px-4 py-3.5 text-slate-600">{{ $mark['updated_at_label'] }}</td>
+                                                                                <td class="px-4 py-3.5 text-right">
+                                                                                    <a href="{{ route('admin.exams.marks.edit', [$exam, $mark['mark_id']]) }}" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition hover:border-[#8B0000] hover:text-[#8B0000]">
+                                                                                        Edit
+                                                                                    </a>
+                                                                                </td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </details>
+                                                @endforeach
                                             </div>
                                         </div>
-                                    </td>
-                                    <td class="px-4 py-3.5">
-                                        <p class="font-semibold text-slate-900">{{ $row['program'] ?? '—' }}</p>
-                                        <p class="mt-1 text-[11px] text-slate-400">{{ $row['department'] ?? '—' }} · Sem {{ $row['semester'] }}</p>
-                                    </td>
-                                    <td class="px-4 py-3.5">
-                                        <p class="font-semibold text-slate-900">{{ $row['subject_count'] }} subjects</p>
-                                        <p class="mt-1 text-[11px] text-slate-400">{{ $row['obtained'] }} / {{ $row['full_marks'] }}</p>
-                                    </td>
-                                    <td class="px-4 py-3.5 font-bold text-slate-950">{{ number_format($row['percentage'], 1) }}%</td>
-                                    <td class="px-4 py-3.5 font-bold text-slate-950">{{ number_format($row['gpa'], 2) }}</td>
-                                    <td class="px-4 py-3.5">
-                                        @php $gradeTone = $gradeColors[$row['grade_band']] ?? $gradeColors['Fail']; @endphp
-                                        <div class="space-y-1">
-                                            <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $gradeTone }}">{{ $row['result_status'] }}</span>
-                                            <p class="text-[11px] text-slate-400">{{ $row['grade_band'] }} band · Absent {{ $row['absent_count'] }} · Withheld {{ $row['withheld_count'] }}</p>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3.5 text-right">
-                                        <a href="{{ route('admin.exams.result-sheet', [$exam, $row['student']]) }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-[#8B0000]/30 hover:text-[#8B0000]">
-                                            Open sheet
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7">
-                                        <x-empty-state title="No student results" message="Publish marks to generate student result sheets and comparative analytics."/>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                    </details>
+                                @endforeach
+                            </div>
+                        </div>
+                    </details>
+                @empty
+                    <x-empty-state title="No uploaded marks" message="Marks entered for this exam will appear here, grouped by department, semester, and subject."/>
+                @endforelse
             </div>
         </div>
 
@@ -426,6 +605,11 @@
                                 </tbody>
                             </table>
                         </div>
+                        @if($verificationRows->hasPages())
+                            <div class="border-t border-slate-100 px-4 py-3">
+                                {{ $verificationRows->onEachSide(1)->links() }}
+                            </div>
+                        @endif
                     </div>
                 </article>
 
@@ -445,7 +629,7 @@
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                             <p class="text-sm font-bold text-slate-900">Student access</p>
-                            <p class="mt-1 text-sm leading-6 text-slate-600">Individual result sheets open from the student tab. Use them to review subject totals and grades.</p>
+                               <p class="mt-1 text-sm leading-6 text-slate-600">Individual result sheets open from the overview cards and top performer links. Use them to review subject totals and grades.</p>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                             <p class="text-sm font-bold text-slate-900">Audit trail</p>
@@ -475,7 +659,7 @@
                                 <p>Marks entry opened for teachers.</p>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="mt-0.5 h-5 w-5 rounded-full {{ $verificationRows->count() > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500' }} flex items-center justify-center text-[10px] font-black">2</span>
+                                <span class="mt-0.5 h-5 w-5 rounded-full {{ $verificationRows->total() > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500' }} flex items-center justify-center text-[10px] font-black">2</span>
                                 <p>HOD verifies submitted marks and resolves exceptions.</p>
                             </div>
                             <div class="flex items-start gap-3">
@@ -509,7 +693,7 @@
                         </div>
                         <div class="rounded-2xl bg-slate-50 p-4">
                             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Publish state</p>
-                            <p class="mt-1 font-semibold text-slate-900">{{ $published ? 'Published at ' . (bsDate($exam->published_at, 'Y, F d h:i A') ?: '—') : 'Awaiting release' }}</p>
+                            <p class="mt-1 font-semibold text-slate-900">{{ $published ? 'Published at ' . (bsDateTime($exam->published_at, 'Y, F d', 'h:i A') ?: '—') : 'Awaiting release' }}</p>
                         </div>
                     </div>
 
@@ -529,105 +713,3 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (!window.Chart) {
-        return;
-    }
-
-    const subjectData = @json($charts['subjectPerformance'] ?? ['labels' => [], 'values' => []]);
-    const gradeData = @json($charts['gradeDistribution'] ?? ['labels' => [], 'values' => []]);
-    const trendData = @json($charts['yearTrend'] ?? ['labels' => [], 'values' => []]);
-
-    const subjectCanvas = document.getElementById('examSubjectPerformance');
-    if (subjectCanvas) {
-        new Chart(subjectCanvas, {
-            type: 'bar',
-            data: {
-                labels: subjectData.labels,
-                datasets: [{
-                    label: 'Subject score %',
-                    data: subjectData.values,
-                    borderRadius: 10,
-                    borderSkipped: false,
-                    backgroundColor: 'rgba(139, 0, 0, 0.85)',
-                    maxBarThickness: 24,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, suggestedMax: 100, ticks: { callback: value => value + '%' } },
-                },
-            },
-        });
-    }
-
-    const gradeCanvas = document.getElementById('examGradeDistribution');
-    if (gradeCanvas) {
-        new Chart(gradeCanvas, {
-            type: 'doughnut',
-            data: {
-                labels: gradeData.labels,
-                datasets: [{
-                    data: gradeData.values,
-                    backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(59, 130, 246, 0.85)', 'rgba(245, 158, 11, 0.85)', 'rgba(139, 0, 0, 0.85)'],
-                    borderWidth: 0,
-                    hoverOffset: 6,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '68%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                },
-            },
-        });
-    }
-
-    const trendCanvas = document.getElementById('examYearTrend');
-    if (trendCanvas) {
-        const ctx = trendCanvas.getContext('2d');
-        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.22)');
-        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.03)');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: trendData.labels,
-                datasets: [{
-                    label: 'Pass rate',
-                    data: trendData.values,
-                    borderColor: '#8B0000',
-                    backgroundColor: gradient,
-                    fill: true,
-                    borderWidth: 3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#8B0000',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    tension: 0.38,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, suggestedMax: 100, ticks: { callback: value => value + '%' } },
-                },
-            },
-        });
-    }
-});
-</script>
-@endpush

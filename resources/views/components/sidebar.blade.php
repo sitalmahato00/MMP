@@ -48,9 +48,6 @@
     $unreadNotifications = $isAdmin && $currentUserId && $hasNotificationsTable
            ? \Illuminate\Support\Facades\Cache::remember("sidebar:notifications:{$currentUserId}", 180, fn () => $user->unreadNotifications()->count())
         : 0;
-    $unreadMessages = $isAdmin && $currentUserId
-           ? \Illuminate\Support\Facades\Cache::remember("sidebar:messages:{$currentUserId}", 180, fn () => \App\Models\Communication::where('receiver_id', $currentUserId)->unread()->count())
-        : 0;
 
     $adminGroups = [
         [
@@ -88,14 +85,12 @@
             'label' => 'Applications',
             'items' => [
                 ['label' => 'Applications', 'iconName' => 'doc-text', 'href' => route('admin.applications.index'), 'isActive' => $active('admin.applications.*') && request('status') !== 'pending', 'badge' => $pendingApplications],
-                ['label' => 'Funnel', 'iconName' => 'funnel', 'href' => route('admin.applications.index', ['status' => 'pending']), 'isActive' => $active('admin.applications.*') && request('status') === 'pending'],
             ],
         ],
         [
             'label' => 'Communication',
             'items' => [
                 ['label' => 'Notifications', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
-                ['label' => 'Messages', 'iconName' => 'messages', 'href' => route('admin.messages.index'), 'isActive' => $active('admin.messages.*'), 'badge' => $unreadMessages],
             ],
         ],
         [

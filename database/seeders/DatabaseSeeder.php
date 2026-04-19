@@ -14,6 +14,16 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             SiteSettingSeeder::class,
             AcademicSeeder::class,
+            CollegeDepartmentSeeder::class,
+            CollegeProgramSeeder::class,
+            CollegeTeacherSeeder::class,
+            CollegeSubjectSeeder::class,
+            CollegeStudentSeeder::class,
+            CollegeParentSeeder::class,
+            AlumniSeeder::class,
+            CollegeExamSeeder::class,
+            CollegeAttendanceSeeder::class,
+            CollegeMarkSeeder::class,
             SiteSettingFilesSeeder::class,
             ExecutiveSeeder::class,
             FacilitySeeder::class,
@@ -26,7 +36,6 @@ class DatabaseSeeder extends Seeder
             CommunicationSeeder::class,
             OperationsSeeder::class,
             ApplicationSeeder::class,
-            // DemoDataSeeder::class,  // Uncomment for full demo data (DEMO ONLY - password: "password")
         ]);
 
         PublicDataService::invalidate('*');

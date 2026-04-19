@@ -25,3 +25,29 @@ if (!function_exists('adDate')) {
         return NepaliDateHelper::toAD($bsDate);
     }
 }
+
+if (!function_exists('bsDateTime')) {
+    /**
+     * Format an AD datetime as BS date plus time.
+     *
+     * Example output: 2083, Baisakh 06 06:14 PM
+     */
+    function bsDateTime($date, string $dateFormat = 'Y, F d', string $timeFormat = 'h:i A'): string
+    {
+        if (! $date) {
+            return '';
+        }
+
+        $bsPart = bsDate($date, $dateFormat);
+
+        try {
+            $timePart = $date instanceof \DateTimeInterface
+                ? $date->format($timeFormat)
+                : \Carbon\Carbon::parse((string) $date)->format($timeFormat);
+        } catch (\Throwable) {
+            $timePart = '';
+        }
+
+        return trim($bsPart . ' ' . $timePart);
+    }
+}

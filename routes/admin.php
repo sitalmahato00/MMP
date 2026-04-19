@@ -19,7 +19,6 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Admin\BannerController;
-use App\Http\Controllers\Admin\CommunicationController;
 use App\Http\Controllers\Admin\WebControlController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\ExecutiveController;
@@ -86,7 +85,11 @@ Route::delete('staff/{staff}/documents/{document}', [StaffController::class, 'de
 // ── Examinations & Results ─────────────────────────────────
 Route::get('exams/analytics', [ExamController::class, 'analytics'])->name('exams.analytics');
 Route::get('exams/export/{format}', [ExamController::class, 'export'])->name('exams.export');
+Route::get('exams/{exam}/marks/export/{format}', [ExamController::class, 'exportSubjectMarks'])->name('exams.marks.export');
+Route::patch('exams/{exam}/subjects/{subject}/marking-scheme', [ExamController::class, 'updateSubjectMarkingScheme'])->name('exams.subjects.marking-scheme.update');
 Route::resource('exams', ExamController::class);
+Route::get('exams/{exam}/marks/{mark}/edit', [ExamController::class, 'editMark'])->name('exams.marks.edit');
+Route::put('exams/{exam}/marks/{mark}', [ExamController::class, 'updateMark'])->name('exams.marks.update');
 Route::get('exams/{exam}/students/{student}/sheet', [ExamController::class, 'resultSheet'])->name('exams.result-sheet');
 Route::patch('exams/{exam}/publish', [ExamController::class, 'publish'])->name('exams.publish');
 
@@ -98,7 +101,6 @@ Route::resource('media', MediaController::class);
 Route::resource('downloads', DownloadController::class);
 Route::get('downloads/{download}/file', [DownloadController::class, 'file'])->name('downloads.file');
 Route::resource('banners', BannerController::class);
-Route::get('messages', [CommunicationController::class, 'index'])->name('messages.index');
 Route::get('roles-permissions', [RolePermissionController::class, 'index'])->name('roles-permissions.index');
 
 // ── Resources (alias for Downloads with resource category) ─
@@ -112,6 +114,7 @@ Route::delete('web-control/file/{key}', [WebControlController::class, 'clearFile
 // ── Applications ───────────────────────────────────────────
 Route::get('applications', [ApplicationController::class, 'index'])->name('applications.index');
 Route::get('applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
+Route::patch('applications/bulk/status', [ApplicationController::class, 'bulkUpdateStatus'])->name('applications.bulk-update-status');
 Route::patch('applications/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applications.update-status');
 Route::delete('applications/{application}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
 

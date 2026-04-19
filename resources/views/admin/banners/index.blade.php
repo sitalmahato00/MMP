@@ -51,4 +51,10 @@
                        actionLabel="Add Banner"/>
     @endforelse
 </div>
+
+@if($banners->hasPages())
+<div class="mt-4">
+    {{ $banners->onEachSide(1)->links() }}
+</div>
+@endif
 @endsection

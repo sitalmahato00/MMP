@@ -234,8 +234,8 @@
             </div>
         @else
         @php $allIds = $students->pluck('id')->toJson(); @endphp
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+        <div class="mmp-table-wrap">
+            <table class="mmp-table w-full text-sm">
                 <thead>
                     <tr class="bg-slate-50/70 border-b border-slate-100">
                         <th class="w-10 px-5 py-3 text-left">
@@ -249,7 +249,7 @@
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Session</th>
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</th>
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Enrolled</th>
-                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden xl:table-cell">Parent</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden xl:table-cell">Guardian</th>
                         <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500">Actions</th>
                     </tr>
                 </thead>
@@ -257,7 +257,6 @@
                     @foreach($students as $student)
                     @php
                         $st   = $statusMap[$student->status] ?? ['label'=>ucfirst($student->status),'cls'=>'bg-slate-100 text-slate-600'];
-                        $grd  = $student->parents->first();
                         $initials = strtoupper(substr($student->user?->name ?? 'S', 0, 1));
                         $gradients = ['from-blue-500 to-indigo-600','from-violet-500 to-purple-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-rose-500 to-pink-600','from-cyan-500 to-sky-600'];
                         $grad = $gradients[$student->id % 6];
@@ -306,9 +305,9 @@
                             {{ bsDate($student->created_at, 'Y, F d') }}
                         </td>
                         <td class="px-5 py-3.5 text-xs hidden xl:table-cell">
-                            @if($grd)
-                                <p class="font-medium text-slate-700">{{ $grd->user?->name }}</p>
-                                <p class="text-slate-400">{{ ucfirst($grd->relation_to_student ?? 'Parent') }}</p>
+                            @if($student->guardian_name)
+                                <p class="font-medium text-slate-700">{{ $student->guardian_name }}</p>
+                                <p class="text-slate-400">{{ $student->guardian_phone ?: 'Guardian contact' }}</p>
                             @else
                                 <span class="text-slate-300 text-xs">Not linked</span>
                             @endif

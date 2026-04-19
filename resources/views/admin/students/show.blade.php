@@ -17,7 +17,6 @@
     $gradients = ['from-blue-500 to-indigo-600','from-violet-500 to-purple-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-rose-500 to-pink-600','from-cyan-500 to-sky-600'];
     $grad = $gradients[$student->id % 6];
 
-    $allMarks = $student->marks->where('status', 'published');
     $absentCount = $attendanceTotal - $attendancePresent;
     $attendancePctColor = $attendancePct === null ? 'text-slate-500' : ($attendancePct >= 75 ? 'text-emerald-600' : ($attendancePct >= 50 ? 'text-amber-600' : 'text-red-600'));
 @endphp
@@ -91,7 +90,7 @@
                 <p class="mt-0.5 text-[11px] text-slate-400">Attendance</p>
             </div>
             <div class="rounded-xl bg-white/10 p-3 text-center">
-                <p class="text-2xl font-black text-white">{{ $allMarks->count() }}</p>
+                <p class="text-2xl font-black text-white">{{ $marksTotal }}</p>
                 <p class="mt-0.5 text-[11px] text-slate-400">Exam records</p>
             </div>
             <div class="rounded-xl bg-white/10 p-3 text-center">
@@ -319,6 +318,18 @@
      TAB: MARKS / EXAMS
 ══════════════════════════════════════════════════════════ --}}
 <div x-show="tab === 'marks'" class="space-y-5">
+    {{-- Semester navigation --}}
+    @if($allSemesters->count() > 1)
+    <div class="flex flex-wrap gap-2">
+        @foreach($allSemesters as $sem)
+        <a href="{{ request()->fullUrlWithQuery(['mark_sem' => $sem, 'tab' => 'marks']) }}"
+           class="rounded-lg px-4 py-2 text-sm font-semibold transition {{ $sem == $activeSem ? 'bg-violet-600 text-white shadow' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+            Semester {{ $sem }}
+        </a>
+        @endforeach
+    </div>
+    @endif
+
     @if($marksBySemester->isEmpty())
     <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white py-16 text-slate-400 shadow-sm">
         <svg class="w-12 h-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
