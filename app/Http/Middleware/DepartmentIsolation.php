@@ -30,7 +30,16 @@ class DepartmentIsolation
             $departmentId = $dept?->id;
         }
 
+        // Allow HODs to access dashboard even without department (they'll see a helpful message)
+        // For other routes, enforce department requirement
         if (!$departmentId && !$user->hasRole('principal')) {
+            // Allow HOD to access their dashboard to see the "no department" message
+            if ($user->hasRole('hod') && $request->routeIs('hod.dashboard')) {
+                $request->merge(['department_id' => null]);
+                view()->share('userDepartmentId', null);
+                return $next($request);
+            }
+            
             abort(403, 'You are not assigned to any department.');
         }
 
