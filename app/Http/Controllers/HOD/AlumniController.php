@@ -22,32 +22,52 @@ class AlumniController extends HodController
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
 
-        // Get graduating students (final semester students)
-        $graduatingStudents = Student::where('department_id', $deptId)
+        // Get graduating students (final semester students) with pagination
+        $graduatingStudentsQuery = Student::where('department_id', $deptId)
             ->where('is_active', true)
             ->with(['user:id,name,email,phone', 'program:id,name,duration'])
-            ->get()
-            ->filter(function ($student) {
-                // Check if student is in final semester based on program duration
-                $programDuration = $student->program->duration ?? 4; // Default 4 semesters
-                return $student->semester >= $programDuration;
+            ->when($request->search, function ($q) use ($request) {
+                $term = trim((string) $request->search);
+                $q->whereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%"));
+            })
+            ->when($request->program_id, fn ($q) => $q->where('program_id', $request->program_id));
+
+        $graduatingStudents = $graduatingStudentsQuery
+            ->latest('updated_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        // Get already prepared alumni with pagination
+        $preparedAlumniQuery = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))
+            ->with(['student.user:id,name,email', 'student.program:id,name'])
+            ->when($request->search, function ($q) use ($request) {
+                $term = trim((string) $request->search);
+                $q->whereHas('student.user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%"));
             });
 
-        // Get already prepared alumni
-        $preparedAlumni = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))
-            ->with(['student.user:id,name,email', 'student.program:id,name'])
+        $preparedAlumni = $preparedAlumniQuery
             ->latest('created_at')
-            ->limit(10)
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         // Stats
-        $totalGraduating = $graduatingStudents->count();
+        $totalGraduating = Student::where('department_id', $deptId)
+            ->where('is_active', true)
+            ->count();
         $totalPrepared = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))->count();
         $pendingPreparation = $totalGraduating - $totalPrepared;
 
+        // Programs for filter
+        $programs = Program::where('department_id', $deptId)
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
         return view('hod.alumni.index', compact(
             'department', 'graduatingStudents', 'preparedAlumni',
-            'totalGraduating', 'totalPrepared', 'pendingPreparation'
+            'totalGraduating', 'totalPrepared', 'pendingPreparation', 'programs'
         ));
     }
 

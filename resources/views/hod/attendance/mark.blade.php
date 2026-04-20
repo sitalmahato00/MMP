@@ -61,10 +61,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Section (Optional)</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Section</label>
                 <input type="text" name="section" value="{{ request('section') }}" 
-                       placeholder="e.g., A, B, C"
+                       placeholder="e.g., A, B, C (leave empty for all)"
                        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                <p class="mt-1 text-xs text-slate-500">For lab sessions, specify section to filter students</p>
             </div>
 
             <div class="flex items-end">
@@ -120,9 +121,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Date *</label>
-                        <input type="date" name="date" value="{{ date('Y-m-d') }}" required
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Date (BS) *</label>
+                        <x-bs-date-picker name="date" :value="bsDate(today(), 'Y-m-d')" :required="true"
+                                          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"/>
                     </div>
 
                     <div>
@@ -133,19 +134,36 @@
                 </div>
 
                 {{-- Attendance Type --}}
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Attendance Type *</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center">
+                <div class="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <label class="block text-sm font-medium text-slate-700 mb-3">Attendance Category *</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-white transition-colors" 
+                               :class="attendanceType === 'class' ? 'bg-blue-50 border-blue-300' : 'bg-white'">
                             <input type="radio" name="attendance_type" value="class" x-model="attendanceType" required
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300">
-                            <span class="ml-2 text-sm text-slate-700">Class/Theory</span>
+                                   class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300">
+                            <div>
+                                <span class="text-sm font-medium text-slate-900">Class/Theory Session</span>
+                                <p class="text-xs text-slate-500 mt-1">Regular classroom lectures and theory sessions</p>
+                            </div>
                         </label>
-                        <label class="flex items-center" x-show="canMarkLab">
+                        <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-white transition-colors" 
+                               :class="attendanceType === 'lab' ? 'bg-blue-50 border-blue-300' : 'bg-white'"
+                               x-show="canMarkLab">
                             <input type="radio" name="attendance_type" value="lab" x-model="attendanceType"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300">
-                            <span class="ml-2 text-sm text-slate-700">Lab/Practical</span>
+                                   class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300">
+                            <div>
+                                <span class="text-sm font-medium text-slate-900">Lab/Practical Session</span>
+                                <p class="text-xs text-slate-500 mt-1">Laboratory work and practical sessions (may require section filtering)</p>
+                            </div>
                         </label>
+                    </div>
+                    <div x-show="!canMarkLab && selectedSubject" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p class="text-xs text-amber-700">
+                            <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            This subject does not have lab/practical sessions. Only class attendance is available.
+                        </p>
                     </div>
                 </div>
 
@@ -172,6 +190,7 @@
                             <tr>
                                 <th class="px-4 py-3 text-left">Roll No.</th>
                                 <th class="px-4 py-3 text-left">Student Name</th>
+                                <th class="px-4 py-3 text-center">Section</th>
                                 <th class="px-4 py-3 text-center">Present</th>
                                 <th class="px-4 py-3 text-center">Absent</th>
                                 <th class="px-4 py-3 text-center">Late</th>
@@ -194,6 +213,11 @@
                                                 <div class="text-xs text-slate-500">{{ $student->user->email }}</div>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                                            {{ $student->section ?: '—' }}
+                                        </span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <input type="radio" name="attendances[{{ $student->id }}]" value="present" 

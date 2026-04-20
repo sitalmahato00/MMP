@@ -82,9 +82,9 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Date *</label>
-                    <input type="date" name="date" value="{{ $attendanceSession->date->format('Y-m-d') }}" required
-                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Date (BS) *</label>
+                    <x-bs-date-picker name="date" :value="bsDate($attendanceSession->date, 'Y-m-d')" :required="true"
+                                      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"/>
                 </div>
 
                 <div>
@@ -138,6 +138,7 @@
                         <tr>
                             <th class="px-4 py-3 text-left">Roll No.</th>
                             <th class="px-4 py-3 text-left">Student Name</th>
+                            <th class="px-4 py-3 text-center">Section</th>
                             <th class="px-4 py-3 text-center">Present</th>
                             <th class="px-4 py-3 text-center">Absent</th>
                             <th class="px-4 py-3 text-center">Late</th>
@@ -165,6 +166,11 @@
                                             <div class="text-xs text-slate-500">{{ $student->user->email }}</div>
                                         </div>
                                     </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                                        {{ $student->section ?: '—' }}
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <input type="radio" name="attendances[{{ $student->id }}]" value="present" 

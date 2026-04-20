@@ -43,8 +43,18 @@ class AttendanceController extends HodController
                   ->orWhereHas('teacher.user', fn ($tq) => $tq->where('name', 'like', "%{$term}%"));
             })
             ->when($request->subject_id, fn ($q) => $q->where('subject_id', $request->subject_id))
-            ->when($request->date_from, fn ($q) => $q->where('date', '>=', $request->date_from))
-            ->when($request->date_to, fn ($q) => $q->where('date', '<=', $request->date_to));
+            ->when($request->date_from, function ($q) use ($request) {
+                $adDate = \App\Helpers\NepaliDateHelper::toAD($request->date_from);
+                if ($adDate) {
+                    $q->where('date', '>=', $adDate->format('Y-m-d'));
+                }
+            })
+            ->when($request->date_to, function ($q) use ($request) {
+                $adDate = \App\Helpers\NepaliDateHelper::toAD($request->date_to);
+                if ($adDate) {
+                    $q->where('date', '<=', $adDate->format('Y-m-d'));
+                }
+            });
 
         $sessions = (clone $query)
             ->latest('date')
@@ -227,7 +237,7 @@ class AttendanceController extends HodController
             'teacher_id' => 'required|exists:teachers,id',
             'semester' => 'required|integer|min:1|max:8',
             'section' => 'nullable|string|max:10',
-            'date' => 'required|date',
+            'date' => 'required|string|max:10', // BS date format
             'period' => 'required|string|max:50',
             'attendance_type' => 'required|in:class,lab',
             'attendances' => 'required|array',
@@ -235,6 +245,15 @@ class AttendanceController extends HodController
             'remarks' => 'nullable|array',
             'remarks.*' => 'nullable|string|max:255',
         ]);
+
+        // Convert BS date to AD date
+        $adDate = \App\Helpers\NepaliDateHelper::toAD($data['date']);
+        if (!$adDate) {
+            return redirect()->back()
+                ->withErrors(['date' => 'Invalid BS date format. Please use YYYY-MM-DD format.'])
+                ->withInput();
+        }
+        $data['date'] = $adDate->format('Y-m-d');
 
         // Verify program belongs to department
         $program = Program::where('id', $data['program_id'])
@@ -371,7 +390,7 @@ class AttendanceController extends HodController
 
         $data = $request->validate([
             'teacher_id' => 'required|exists:teachers,id',
-            'date' => 'required|date',
+            'date' => 'required|string|max:10', // BS date format
             'period' => 'required|string|max:50',
             'attendance_type' => 'required|in:class,lab',
             'attendances' => 'required|array',
@@ -379,6 +398,15 @@ class AttendanceController extends HodController
             'remarks' => 'nullable|array',
             'remarks.*' => 'nullable|string|max:255',
         ]);
+
+        // Convert BS date to AD date
+        $adDate = \App\Helpers\NepaliDateHelper::toAD($data['date']);
+        if (!$adDate) {
+            return redirect()->back()
+                ->withErrors(['date' => 'Invalid BS date format. Please use YYYY-MM-DD format.'])
+                ->withInput();
+        }
+        $data['date'] = $adDate->format('Y-m-d');
 
         // Verify teacher belongs to department
         $teacher = Teacher::where('id', $data['teacher_id'])

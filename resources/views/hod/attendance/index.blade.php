@@ -118,15 +118,15 @@
             </div>
 
             <div class="min-w-[120px]">
-                <label class="block text-xs font-medium text-slate-700 mb-1">From Date</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                <label class="block text-xs font-medium text-slate-700 mb-1">From Date (BS)</label>
+                <x-bs-date-picker name="date_from" :value="request('date_from')" placeholder="YYYY-MM-DD"
+                                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"/>
             </div>
 
             <div class="min-w-[120px]">
-                <label class="block text-xs font-medium text-slate-700 mb-1">To Date</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                <label class="block text-xs font-medium text-slate-700 mb-1">To Date (BS)</label>
+                <x-bs-date-picker name="date_to" :value="request('date_to')" placeholder="YYYY-MM-DD"
+                                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"/>
             </div>
 
             <div class="flex gap-2">
@@ -168,8 +168,8 @@
                         @endphp
                         <tr class="hover:bg-slate-50">
                             <td class="px-5 py-4">
-                                <div class="text-sm font-medium text-slate-900">{{ bsDate($session->date, 'M d, Y') }}</div>
-                                <div class="text-xs text-slate-500">{{ $session->period ?? 'Period not specified' }}</div>
+                                <div class="text-sm font-medium text-slate-900">{{ bsDate($session->date, 'F d, Y') }}</div>
+                                <div class="text-xs text-slate-500">{{ bsDate($session->date, 'l') }} • {{ $session->period ?? 'Period not specified' }}</div>
                             </td>
                             <td class="px-5 py-4">
                                 <div class="text-sm font-medium text-slate-900">{{ $session->subject->name }}</div>

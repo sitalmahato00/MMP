@@ -109,7 +109,7 @@
                             </td>
                             <td class="px-5 py-4">
                                 <div class="text-sm text-slate-900">{{ bsDate($page->updated_at, 'M d, Y') }}</div>
-                                <div class="text-xs text-slate-500">{{ $page->updated_at->format('h:i A') }}</div>
+                                <div class="text-xs text-slate-500">{{ bsDateTime($page->updated_at, '', 'h:i A') }}</div>
                             </td>
                             <td class="px-5 py-4">
                                 @if($page->is_published)

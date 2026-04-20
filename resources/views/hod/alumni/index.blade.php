@@ -84,6 +84,39 @@
         </div>
     </section>
 
+    {{-- Filters --}}
+    <section class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <form method="GET" class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-xs font-medium text-slate-700 mb-1">Search Student</label>
+                <input type="text" name="search" value="{{ request('search') }}" 
+                       placeholder="Search by name or email..."
+                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            
+            <div class="min-w-[150px]">
+                <label class="block text-xs font-medium text-slate-700 mb-1">Program</label>
+                <select name="program_id" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="">All Programs</option>
+                    @foreach($programs as $program)
+                        <option value="{{ $program->id }}" {{ request('program_id') == $program->id ? 'selected' : '' }}>
+                            {{ $program->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    Filter
+                </button>
+                <a href="{{ route('hod.alumni.index') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </section>
+
     {{-- Graduating Students --}}
     <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
         <div class="border-b border-slate-100 px-5 py-4">
@@ -168,6 +201,12 @@
                 </tbody>
             </table>
         </div>
+
+        @if($graduatingStudents->hasPages())
+            <div class="border-t border-slate-100 px-5 py-4">
+                {{ $graduatingStudents->links() }}
+            </div>
+        @endif
     </section>
 
     {{-- Recently Prepared Alumni --}}
@@ -197,6 +236,12 @@
                     @endforeach
                 </div>
             </div>
+
+            @if($preparedAlumni->hasPages())
+                <div class="border-t border-slate-100 px-5 py-4">
+                    {{ $preparedAlumni->links() }}
+                </div>
+            @endif
         </section>
     @endif
 </div>

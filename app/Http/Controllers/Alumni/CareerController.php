@@ -24,11 +24,39 @@ class CareerController extends Controller
             'job_title' => 'required|string|max:255',
             'company_name' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'nullable|string|max:10', // BS date format
+            'end_date' => 'nullable|string|max:10', // BS date format
             'is_current' => 'boolean',
             'description' => 'nullable|string|max:1000',
         ]);
+
+        // Convert BS dates to AD dates
+        if (!empty($validated['start_date'])) {
+            $adStartDate = \App\Helpers\NepaliDateHelper::toAD($validated['start_date']);
+            if (!$adStartDate) {
+                return redirect()->back()
+                    ->withErrors(['start_date' => 'Invalid BS date format. Please use YYYY-MM-DD format.'])
+                    ->withInput();
+            }
+            $validated['start_date'] = $adStartDate->format('Y-m-d');
+        }
+
+        if (!empty($validated['end_date'])) {
+            $adEndDate = \App\Helpers\NepaliDateHelper::toAD($validated['end_date']);
+            if (!$adEndDate) {
+                return redirect()->back()
+                    ->withErrors(['end_date' => 'Invalid BS date format. Please use YYYY-MM-DD format.'])
+                    ->withInput();
+            }
+            $validated['end_date'] = $adEndDate->format('Y-m-d');
+            
+            // Validate end date is after start date
+            if (!empty($validated['start_date']) && $validated['end_date'] < $validated['start_date']) {
+                return redirect()->back()
+                    ->withErrors(['end_date' => 'End date must be after start date.'])
+                    ->withInput();
+            }
+        }
 
         $alumnus->employmentHistory()->create($validated);
 

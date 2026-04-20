@@ -37,7 +37,7 @@
                 ['label' => 'Phone', 'value' => $alumnus->user?->phone, 'url' => $phoneLink],
                 ['label' => 'Address', 'value' => $alumnus->user?->address],
                 ['label' => 'Gender', 'value' => $alumnus->user?->gender],
-                ['label' => 'Birth Date', 'value' => optional($alumnus->user?->dob)->format('d M Y')],
+                ['label' => 'Birth Date', 'value' => $alumnus->user?->dob ? bsDate($alumnus->user->dob, 'd M Y') : null],
             ],
         ],
         [
@@ -54,7 +54,7 @@
                 ['label' => 'Section', 'value' => $student?->section],
                 ['label' => 'Current Semester', 'value' => $student?->current_semester],
                 ['label' => 'Student Status', 'value' => $student?->status],
-                ['label' => 'Admission Date', 'value' => optional($student?->admission_date)->format('d M Y')],
+                ['label' => 'Admission Date', 'value' => $student?->admission_date ? bsDate($student->admission_date, 'd M Y') : null],
             ],
         ],
         [
@@ -117,9 +117,9 @@
                             @if(! $alumnus->current_job && ! $alumnus->company_name)
                                 Alumni
                             @endif
-                            · {{ $alumnus->department?->name }}
-                            · {{ $alumnus->program?->name }}
-                            · Batch {{ $alumnus->graduation_year }}
+                            ï¿½ {{ $alumnus->department?->name }}
+                            ï¿½ {{ $alumnus->program?->name }}
+                            ï¿½ Batch {{ $alumnus->graduation_year }}
                         </p>
                         @if($alumnus->work_location)
                             <p class="mt-1 text-sm text-slate-400">{{ $alumnus->work_location }}</p>
@@ -308,8 +308,8 @@
                                     <p class="text-sm font-bold text-slate-900">{{ $job->job_title }}</p>
                                     <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400">{{ $job->is_current ? 'Current' : 'Past' }}</p>
                                 </div>
-                                <p class="mt-1 text-xs text-slate-500">{{ $job->company_name }}@if($job->location) · {{ $job->location }}@endif</p>
-                                <p class="mt-1 text-[10px] text-slate-500">{{ $job->start_date?->format('M Y') ?? '—' }} – {{ $job->is_current ? 'Present' : ($job->end_date?->format('M Y') ?? '—') }}</p>
+                                <p class="mt-1 text-xs text-slate-500">{{ $job->company_name }}@if($job->location) ï¿½ {{ $job->location }}@endif</p>
+                                <p class="mt-1 text-[10px] text-slate-500">{{ $job->start_date ? bsDate($job->start_date, 'M Y') : 'â€”' }} â€” {{ $job->is_current ? 'Present' : ($job->end_date ? bsDate($job->end_date, 'M Y') : 'â€”') }}</p>
                                 @if($job->description)
                                     <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ $job->description }}</p>
                                 @endif
@@ -334,7 +334,7 @@
                             ['label' => 'Phone', 'value' => $alumnus->user?->phone, 'url' => $phoneLink],
                             ['label' => 'Address', 'value' => $alumnus->user?->address],
                             ['label' => 'Gender', 'value' => $alumnus->user?->gender],
-                            ['label' => 'Birth Date', 'value' => optional($alumnus->user?->dob)->format('d M Y')],
+                            ['label' => 'Birth Date', 'value' => $alumnus->user?->dob ? bsDate($alumnus->user->dob, 'd M Y') : null],
                         ] as $f)
                         @if($f['value'])
                         <div class="flex items-start justify-between gap-4 py-1.5">
@@ -367,7 +367,7 @@
                             ['label' => 'Student Batch', 'value' => $student?->batch],
                             ['label' => 'Section', 'value' => $student?->section],
                             ['label' => 'Semester', 'value' => $student?->current_semester],
-                            ['label' => 'Admission Date', 'value' => optional($student?->admission_date)->format('d M Y')],
+                            ['label' => 'Admission Date', 'value' => $student?->admission_date ? bsDate($student->admission_date, 'd M Y') : null],
                         ] as $f)
                         @if($f['value'])
                         <div class="flex justify-between gap-4 py-1.5">

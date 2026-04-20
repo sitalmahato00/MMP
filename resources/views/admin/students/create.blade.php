@@ -93,7 +93,7 @@
                 </x-select>
             </x-form-field>
             <x-form-field label="Section" name="section">
-                <x-input name="section" :value="old('section')" placeholder="e.g. A"/>
+                <x-input name="section" :value="old('section')" placeholder="e.g. A, B"/>
             </x-form-field>
             <x-form-field label="Batch / Year" name="batch">
                 <x-input name="batch" :value="old('batch')" placeholder="e.g. 2081"/>

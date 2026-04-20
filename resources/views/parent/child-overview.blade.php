@@ -145,7 +145,7 @@
                     <tbody class="divide-y divide-slate-50">
                         @foreach($student->attendances as $att)
                         <tr>
-                            <td class="py-2 text-slate-700">{{ bsDate($att->date ?? $att->created_at, 'Y-m-d') }}</td>
+                            <td class="py-2 text-slate-700">{{ bsDate($att->date ?? $att->created_at, 'M d, Y') }}</td>
                             <td class="py-2">
                                 @php
                                     $statusColors = ['present' => 'emerald', 'absent' => 'red', 'late' => 'amber', 'excused' => 'blue'];

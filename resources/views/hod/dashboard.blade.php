@@ -72,7 +72,7 @@
                         {{ $session?->name ?? 'No active session' }}
                     </span>
                     <span class="text-xs text-slate-500">
-                        Updated {{ bsDate($lastUpdated, 'F d, Y') }}, {{ $lastUpdated->format('h:i A') }}
+                        Updated {{ bsDate($lastUpdated, 'F d, Y') }}, {{ bsDateTime($lastUpdated, '', 'h:i A') }}
                     </span>
                 </div>
             </div>

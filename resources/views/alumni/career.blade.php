@@ -52,7 +52,7 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold text-slate-900">{{ $job->job_title }}</p>
                     <p class="text-xs text-slate-600">{{ $job->company_name }}@if($job->location) · {{ $job->location }}@endif</p>
-                    <p class="text-xs text-slate-400 mt-0.5">{{ $job->start_date?->format('M Y') ?? '—' }} — {{ $job->is_current ? 'Present' : ($job->end_date?->format('M Y') ?? '—') }}</p>
+                    <p class="text-xs text-slate-400 mt-0.5">{{ $job->start_date ? bsDate($job->start_date, 'M Y') : '—' }} — {{ $job->is_current ? 'Present' : ($job->end_date ? bsDate($job->end_date, 'M Y') : '—') }}</p>
                     @if($job->description)<p class="text-xs text-slate-600 mt-1">{{ $job->description }}</p>@endif
                 </div>
                 <form method="POST" action="{{ route('alumni.career.destroy-employment', $job) }}" onsubmit="return confirm('Remove this record?')">
@@ -85,11 +85,11 @@
                     <x-form-field label="Location" name="location">
                         <x-input name="location" :value="old('location')" placeholder="e.g. Kathmandu"/>
                     </x-form-field>
-                    <x-form-field label="Start Date" name="start_date">
-                        <x-input name="start_date" type="date" :value="old('start_date')"/>
+                    <x-form-field label="Start Date (BS)" name="start_date">
+                        <x-bs-date-picker name="start_date" :value="old('start_date')" placeholder="YYYY-MM-DD"/>
                     </x-form-field>
-                    <x-form-field label="End Date" name="end_date">
-                        <x-input name="end_date" type="date" :value="old('end_date')"/>
+                    <x-form-field label="End Date (BS)" name="end_date">
+                        <x-bs-date-picker name="end_date" :value="old('end_date')" placeholder="YYYY-MM-DD"/>
                     </x-form-field>
                     <x-form-field label="Currently Working" name="is_current">
                         <label class="inline-flex items-center gap-3 cursor-pointer">

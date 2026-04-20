@@ -136,7 +136,8 @@
                         <div class="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-3 md:gap-6 items-start md:items-center rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
                             <label for="dob" class="text-sm md:text-base font-semibold text-gray-700 leading-snug">Date of Birth (B.S.) :</label>
                             <div class="w-full">
-                                <input type="text" name="dob" id="dob" value="{{ $dobValue }}" placeholder="Date Format: YYYY-MM-DD" required class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000] transition-all duration-150 {{ $errors->has('dob') ? 'border-red-400 bg-red-50' : '' }}">
+                                <x-bs-date-picker name="dob" :value="$dobValue" placeholder="YYYY-MM-DD" :required="true"
+                                                  class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000] transition-all duration-150"/>
                                 @error('dob')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                             </div>
                         </div>

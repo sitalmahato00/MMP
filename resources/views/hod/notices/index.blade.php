@@ -178,7 +178,7 @@
                             </td>
                             <td class="px-5 py-4">
                                 <div class="text-sm text-slate-900">{{ bsDate($notice->created_at, 'M d, Y') }}</div>
-                                <div class="text-xs text-slate-500">{{ $notice->created_at->format('h:i A') }}</div>
+                                <div class="text-xs text-slate-500">{{ bsDateTime($notice->created_at, '', 'h:i A') }}</div>
                             </td>
                             <td class="px-5 py-4">
                                 @if($notice->is_published)

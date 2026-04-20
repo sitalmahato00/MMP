@@ -219,7 +219,7 @@
                     <p class="text-sm font-bold text-slate-900">{{ $job->job_title }}</p>
                     <p class="text-xs text-slate-600">{{ $job->company_name }}@if($job->location) · {{ $job->location }}@endif</p>
                     <p class="text-xs text-slate-400 mt-0.5">
-                        {{ $job->start_date?->format('M Y') ?? '—' }} — {{ $job->is_current ? 'Present' : ($job->end_date?->format('M Y') ?? '—') }}
+                        {{ $job->start_date ? bsDate($job->start_date, 'M Y') : '—' }} — {{ $job->is_current ? 'Present' : ($job->end_date ? bsDate($job->end_date, 'M Y') : '—') }}
                     </p>
                     @if($job->description)
                         <p class="text-xs text-slate-600 mt-1">{{ $job->description }}</p>

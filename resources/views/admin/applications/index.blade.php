@@ -199,12 +199,14 @@
                 </div>
             </div>
             <div class="mt-3 grid gap-3 lg:grid-cols-8">
-                <div class="lg:col-span-3 text-xs text-slate-500 self-center">Applied between</div>
+                <div class="lg:col-span-3 text-xs text-slate-500 self-center">Applied between (BS)</div>
                 <div class="lg:col-span-2">
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                    <x-bs-date-picker name="date_from" :value="request('date_from')" placeholder="From Date"
+                                      class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100"/>
                 </div>
                 <div class="lg:col-span-2">
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                    <x-bs-date-picker name="date_to" :value="request('date_to')" placeholder="To Date"
+                                      class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100"/>
                 </div>
                 <div class="lg:col-span-1 text-xs text-slate-500 self-center">BS shown in list</div>
             </div>
@@ -562,8 +564,10 @@
                     <option value="other" @selected(request('gender') === 'other')>Other</option>
                 </select>
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                    <x-bs-date-picker name="date_from" :value="request('date_from')" placeholder="From Date"
+                                      class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100"/>
+                    <x-bs-date-picker name="date_to" :value="request('date_to')" placeholder="To Date"
+                                      class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100"/>
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-2">
                     <button type="submit" class="rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white">Search</button>

@@ -13,8 +13,18 @@ class ApplicationController extends Controller
     public function index(Request $request)
     {
         $search = trim((string) $request->search);
-        $dateFrom = $request->filled('date_from') ? Carbon::parse((string) $request->date_from)->startOfDay() : null;
-        $dateTo = $request->filled('date_to') ? Carbon::parse((string) $request->date_to)->endOfDay() : null;
+        $dateFrom = null;
+        $dateTo = null;
+        
+        if ($request->filled('date_from')) {
+            $adDate = \App\Helpers\NepaliDateHelper::toAD($request->date_from);
+            $dateFrom = $adDate ? $adDate->startOfDay() : null;
+        }
+        
+        if ($request->filled('date_to')) {
+            $adDate = \App\Helpers\NepaliDateHelper::toAD($request->date_to);
+            $dateTo = $adDate ? $adDate->endOfDay() : null;
+        }
 
         $applications = Application::query()
             ->with('department:id,name')
