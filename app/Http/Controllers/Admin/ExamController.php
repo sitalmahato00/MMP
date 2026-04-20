@@ -197,12 +197,17 @@ class ExamController extends Controller
             'assessment_full_marks' => ['nullable', 'numeric', 'min:0'],
             'assessment_pass_marks' => ['nullable', 'numeric', 'min:0'],
             'assessment_obtained_marks' => ['nullable', 'numeric', 'min:0'],
+            // Attendance tracking
+            'exam_attendance_date' => ['nullable', 'date'],
+            'was_present_on_exam_date' => ['nullable', 'boolean'],
+            'attendance_remarks' => ['nullable', 'string', 'max:500'],
             'is_delayed' => ['nullable', 'boolean'],
             'delay_reason' => ['nullable', 'string', 'max:500'],
             'result_state' => ['required', Rule::in(['normal', 'absent', 'withheld'])],
             'remarks' => ['nullable', 'string', 'max:500'],
         ]);
 
+        // Validate assessment marks
         if (isset($data['assessment_full_marks'], $data['assessment_pass_marks'])
             && $data['assessment_full_marks'] !== null
             && $data['assessment_pass_marks'] !== null
@@ -221,6 +226,10 @@ class ExamController extends Controller
             'assessment_full_marks' => $data['assessment_full_marks'] ?? $mark->assessment_full_marks,
             'assessment_pass_marks' => $data['assessment_pass_marks'] ?? $mark->assessment_pass_marks,
             'assessment_obtained_marks' => $data['assessment_obtained_marks'] ?? $mark->assessment_obtained_marks,
+            // Attendance tracking
+            'exam_attendance_date' => $data['exam_attendance_date'] ?? $mark->exam_attendance_date,
+            'was_present_on_exam_date' => $data['was_present_on_exam_date'] ?? $mark->was_present_on_exam_date,
+            'attendance_remarks' => $data['attendance_remarks'] ?? $mark->attendance_remarks,
             'is_absent' => $data['result_state'] === 'absent',
             'is_withheld' => $data['result_state'] === 'withheld',
             'is_delayed' => $request->boolean('is_delayed'),
@@ -575,6 +584,8 @@ class ExamController extends Controller
             'type' => ['required', 'in:regular,back,internal,practical'],
             'category' => ['required', Rule::in(['ctevt_final', 'monthly_assessment'])],
             'assessment_number' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'assessment_full_marks' => ['nullable', 'numeric', 'min:0'],
+            'assessment_pass_marks' => ['nullable', 'numeric', 'min:0'],
             'academic_session_id' => ['required', 'exists:academic_sessions,id'],
             'department_id' => ['nullable', 'exists:departments,id'],
             'semester' => ['required', 'string', Rule::in(array_merge(['all', 'running'], array_map('strval', range(1, 8))))],
@@ -1610,20 +1621,35 @@ class ExamController extends Controller
             return $this->markIsPassedCache[$id] = (float) $obtained >= $pass;
         }
 
+        // For CTEVT exams, ALWAYS use the single source of truth: exam scheme or subject defaults
         $scheme = $this->markingSchemeForMark($mark);
-        $attrs  = $mark->getAttributes();
+        $attrs = $mark->getAttributes();
 
-        $theoryPass = ((float) ($attrs['internal_theory_marks'] ?? 0)) >= (float) $scheme['pass_internal_theory']
-            && ((float) ($attrs['external_theory_marks'] ?? 0)) >= (float) $scheme['pass_external_theory'];
+        $passInternalTheory = (float) $scheme['pass_internal_theory'];
+        $passExternalTheory = (float) $scheme['pass_external_theory'];
+        $passInternalPractical = (float) $scheme['pass_internal_practical'];
+        $passExternalPractical = (float) $scheme['pass_external_practical'];
+        $fullInternalPractical = (float) $scheme['full_internal_practical'];
+        $fullExternalPractical = (float) $scheme['full_external_practical'];
+        
+        // Theory validation - BOTH internal and external must pass
+        $theoryPass = ((float) ($attrs['internal_theory_marks'] ?? 0)) >= $passInternalTheory
+            && ((float) ($attrs['external_theory_marks'] ?? 0)) >= $passExternalTheory;
 
         if (! $theoryPass) {
             return $this->markIsPassedCache[$id] = false;
         }
 
+        // Practical validation - BOTH internal and external must pass (if practical exists)
         $practicalPass = true;
-        if ($this->practicalThresholdApplies($scheme)) {
-            $practicalPass = ((float) ($attrs['internal_practical_marks'] ?? 0)) >= (float) $scheme['pass_internal_practical']
-                && ((float) ($attrs['external_practical_marks'] ?? 0)) >= (float) $scheme['pass_external_practical'];
+        $practicalThresholdApplies = $fullInternalPractical > 0
+            || $fullExternalPractical > 0
+            || $passInternalPractical > 0
+            || $passExternalPractical > 0;
+
+        if ($practicalThresholdApplies) {
+            $practicalPass = ((float) ($attrs['internal_practical_marks'] ?? 0)) >= $passInternalPractical
+                && ((float) ($attrs['external_practical_marks'] ?? 0)) >= $passExternalPractical;
         }
 
         return $this->markIsPassedCache[$id] = $theoryPass && $practicalPass;

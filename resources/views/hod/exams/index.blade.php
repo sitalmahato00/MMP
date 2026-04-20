@@ -16,6 +16,15 @@
                     </h1>
                     <p class="mt-1 text-sm text-slate-600">Monitor exam schedules and student performance</p>
                 </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('hod.exams.create') }}" 
+                       class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span>Create Assessment Exam</span>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -137,13 +146,59 @@
                                 </span>
                             </td>
                             <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    @if($exam->status === 'completed' || $exam->is_published)
-                                        <a href="{{ route('hod.exams.marks', ['exam_id' => $exam->id]) }}" 
-                                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            View Marks
+                                <div class="flex items-center gap-1 flex-wrap">
+                                    {{-- View Marks Button --}}
+                                    <a href="{{ route('hod.exams.marks', ['exam_id' => $exam->id]) }}" 
+                                       class="inline-flex items-center gap-1 rounded-md bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700 hover:bg-violet-100 transition-colors"
+                                       title="View Marks">
+                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        View
+                                    </a>
+
+                                    {{-- Edit Button --}}
+                                    @if($exam->category === 'monthly_assessment')
+                                        <a href="{{ route('hod.exams.edit', $exam) }}" 
+                                           class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                           title="Edit Assessment Exam">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                            Edit
+                                        </a>
+                                    @else
+                                        <a href="{{ route('hod.exams.fill-marks', ['exam_id' => $exam->id]) }}" 
+                                           class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                           title="Fill CTEVT Marks">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                            </svg>
+                                            Fill Marks
                                         </a>
                                     @endif
+
+                                    {{-- Fill Marks Button --}}
+                                    <a href="{{ route('hod.exams.fill-marks', ['exam_id' => $exam->id]) }}" 
+                                       class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+                                       title="Fill/Override Marks">
+                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                        Fill
+                                    </a>
+
+                                    {{-- Delete Button --}}
+                                    <button type="button" 
+                                            onclick="confirmDelete({{ $exam->id }}, '{{ $exam->name }}')"
+                                            class="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
+                                            title="Delete Exam">
+                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                        Delete
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -219,4 +274,42 @@
         </a>
     </section>
 </div>
+
+{{-- Hidden Delete Forms --}}
+@foreach($exams as $exam)
+    <form id="deleteForm{{ $exam->id }}" method="POST" action="{{ route('hod.exams.destroy', $exam) }}" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+    <form id="forceDeleteForm{{ $exam->id }}" method="POST" action="{{ route('hod.exams.force-destroy', $exam) }}" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+@endforeach
+
+@push('scripts')
+<script>
+function confirmDelete(examId, examName) {
+    // First confirmation
+    if (!confirm(`⚠️ WARNING: Are you sure you want to delete "${examName}"?\n\nThis action cannot be undone!`)) {
+        return;
+    }
+    
+    // Second confirmation with more details
+    if (!confirm(`🚨 FINAL CONFIRMATION 🚨\n\nYou are about to permanently delete:\n"${examName}"\n\nThis will also delete:\n• All student marks for this exam\n• All related data\n\nType "DELETE" in the next prompt to confirm.`)) {
+        return;
+    }
+    
+    // Third confirmation requiring typing
+    const confirmation = prompt('Type "DELETE" (in capital letters) to confirm deletion:');
+    if (confirmation !== 'DELETE') {
+        alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+        return;
+    }
+    
+    // Submit the delete form
+    document.getElementById('deleteForm' + examId).submit();
+}
+</script>
+@endpush
 @endsection

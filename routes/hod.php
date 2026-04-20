@@ -7,6 +7,7 @@ Route::get('/dashboard', [\App\Http\Controllers\HOD\DashboardController::class, 
 // Student Management (department only)
 Route::resource('students', \App\Http\Controllers\HOD\StudentController::class);
 Route::get('students/{student}/drawer', [\App\Http\Controllers\HOD\StudentController::class, 'drawer'])->name('students.drawer');
+Route::get('students-export', [\App\Http\Controllers\HOD\StudentController::class, 'export'])->name('students.export');
 
 // Teacher Management (department only)
 Route::resource('teachers', \App\Http\Controllers\HOD\TeacherController::class);
@@ -26,7 +27,19 @@ Route::prefix('attendance')->name('attendance.')->group(function () {
 // Exam & Marks Management
 Route::prefix('exams')->name('exams.')->group(function () {
     Route::get('/', [\App\Http\Controllers\HOD\ExamController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\HOD\ExamController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\HOD\ExamController::class, 'store'])->name('store');
+    Route::get('/{exam}/edit', [\App\Http\Controllers\HOD\ExamController::class, 'edit'])->name('edit');
+    Route::put('/{exam}', [\App\Http\Controllers\HOD\ExamController::class, 'update'])->name('update');
+    Route::delete('/{exam}', [\App\Http\Controllers\HOD\ExamController::class, 'destroy'])->name('destroy');
+    Route::delete('/{exam}/force', [\App\Http\Controllers\HOD\ExamController::class, 'forceDestroy'])->name('force-destroy');
     Route::get('/marks', [\App\Http\Controllers\HOD\ExamController::class, 'marks'])->name('marks');
+    Route::get('/fill-marks', [\App\Http\Controllers\HOD\ExamController::class, 'fillMarks'])->name('fill-marks');
+    Route::post('/save-marks', [\App\Http\Controllers\HOD\ExamController::class, 'saveMarks'])->name('save-marks');
+    Route::post('/verify-marks', [\App\Http\Controllers\HOD\ExamController::class, 'verifyMarks'])->name('verify-marks');
+    Route::get('/{exam}/edit-marking-scheme', [\App\Http\Controllers\HOD\ExamController::class, 'editMarkingScheme'])->name('edit-marking-scheme');
+    Route::put('/{exam}/update-marking-scheme', [\App\Http\Controllers\HOD\ExamController::class, 'updateMarkingScheme'])->name('update-marking-scheme');
+    Route::get('/export-marks', [\App\Http\Controllers\HOD\ExamController::class, 'exportMarks'])->name('export-marks');
     Route::get('/results', [\App\Http\Controllers\HOD\ExamController::class, 'results'])->name('results');
     Route::get('/analytics', [\App\Http\Controllers\HOD\ExamController::class, 'analytics'])->name('analytics');
 });

@@ -48,6 +48,11 @@ class Subject extends Model
         return $this->hasMany(Assignment::class);
     }
 
+    public function markingScheme()
+    {
+        return $this->hasOne(ExamSubjectMarkingScheme::class);
+    }
+
     // ─── Helpers ───────────────────────────────────────────
 
     /** Total theory marks (Int + Ext) */

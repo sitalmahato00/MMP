@@ -64,6 +64,26 @@
                         @error('assessment_number')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
                     </label>
 
+                    {{-- Assessment Marks Fields (for monthly assessments) --}}
+                    <div class="md:col-span-2 rounded-2xl border border-blue-200 bg-blue-50/70 p-4" x-show="$el.closest('form').querySelector('[name=category]').value === 'monthly_assessment'" x-cloak>
+                        <h4 class="text-sm font-semibold text-blue-900 mb-3">Assessment Marks Configuration</h4>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <label class="space-y-2">
+                                <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">Full Marks</span>
+                                <input name="assessment_full_marks" type="number" step="0.01" min="0" value="{{ old('assessment_full_marks', $exam?->assessment_full_marks ?? 100) }}" placeholder="100"
+                                       class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                @error('assessment_full_marks')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                            </label>
+                            <label class="space-y-2">
+                                <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">Pass Marks</span>
+                                <input name="assessment_pass_marks" type="number" step="0.01" min="0" value="{{ old('assessment_pass_marks', $exam?->assessment_pass_marks ?? 40) }}" placeholder="40"
+                                       class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                @error('assessment_pass_marks')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                            </label>
+                        </div>
+                        <p class="text-[11px] leading-5 text-blue-600 mt-2">These marks will be used for pass/fail validation in monthly assessment exams.</p>
+                    </div>
+
                     <label class="space-y-2">
                         <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Academic Session / Year</span>
                         <select name="academic_session_id" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">

@@ -100,6 +100,55 @@
                                 This subject has no practical component.
                             </div>
                         @endif
+
+                        {{-- CTEVT Validation Fields --}}
+                        <div class="md:col-span-2 rounded-2xl border border-blue-200 bg-blue-50/70 p-4">
+                            <h4 class="text-sm font-semibold text-blue-900 mb-3">CTEVT Validation Marks (for pass/fail calculation)</h4>
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <label class="space-y-2">
+                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">Internal Theory Full</span>
+                                    <input type="number" name="ctevt_full_marks_internal_theory" step="0.01" min="0" value="{{ old('ctevt_full_marks_internal_theory', $mark->ctevt_full_marks_internal_theory) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                    @error('ctevt_full_marks_internal_theory')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                </label>
+                                <label class="space-y-2">
+                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">Internal Theory Pass</span>
+                                    <input type="number" name="ctevt_pass_marks_internal_theory" step="0.01" min="0" value="{{ old('ctevt_pass_marks_internal_theory', $mark->ctevt_pass_marks_internal_theory) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                    @error('ctevt_pass_marks_internal_theory')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                </label>
+                                <label class="space-y-2">
+                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">External Theory Full</span>
+                                    <input type="number" name="ctevt_full_marks_external_theory" step="0.01" min="0" value="{{ old('ctevt_full_marks_external_theory', $mark->ctevt_full_marks_external_theory) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                    @error('ctevt_full_marks_external_theory')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                </label>
+                                <label class="space-y-2">
+                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">External Theory Pass</span>
+                                    <input type="number" name="ctevt_pass_marks_external_theory" step="0.01" min="0" value="{{ old('ctevt_pass_marks_external_theory', $mark->ctevt_pass_marks_external_theory) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                    @error('ctevt_pass_marks_external_theory')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                </label>
+                                @if($hasPractical)
+                                    <label class="space-y-2">
+                                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">Internal Practical Full</span>
+                                        <input type="number" name="ctevt_full_marks_internal_practical" step="0.01" min="0" value="{{ old('ctevt_full_marks_internal_practical', $mark->ctevt_full_marks_internal_practical) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                        @error('ctevt_full_marks_internal_practical')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                    </label>
+                                    <label class="space-y-2">
+                                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">Internal Practical Pass</span>
+                                        <input type="number" name="ctevt_pass_marks_internal_practical" step="0.01" min="0" value="{{ old('ctevt_pass_marks_internal_practical', $mark->ctevt_pass_marks_internal_practical) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                        @error('ctevt_pass_marks_internal_practical')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                    </label>
+                                    <label class="space-y-2">
+                                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">External Practical Full</span>
+                                        <input type="number" name="ctevt_full_marks_external_practical" step="0.01" min="0" value="{{ old('ctevt_full_marks_external_practical', $mark->ctevt_full_marks_external_practical) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                        @error('ctevt_full_marks_external_practical')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                    </label>
+                                    <label class="space-y-2">
+                                        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600">External Practical Pass</span>
+                                        <input type="number" name="ctevt_pass_marks_external_practical" step="0.01" min="0" value="{{ old('ctevt_pass_marks_external_practical', $mark->ctevt_pass_marks_external_practical) }}" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                        @error('ctevt_pass_marks_external_practical')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                    </label>
+                                @endif
+                            </div>
+                        </div>
                     @endif
 
                     <label class="md:col-span-2 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
@@ -137,6 +186,27 @@
                             <input type="number" name="assessment_obtained_marks" step="0.01" min="0" value="{{ old('assessment_obtained_marks', $mark->assessment_obtained_marks) }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
                             @error('assessment_obtained_marks')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
                         </label>
+
+                        {{-- Attendance Tracking --}}
+                        <div class="md:col-span-2 rounded-2xl border border-green-200 bg-green-50/70 p-4">
+                            <h4 class="text-sm font-semibold text-green-900 mb-3">Exam Attendance Tracking</h4>
+                            <div class="grid gap-4 md:grid-cols-3">
+                                <label class="space-y-2">
+                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-green-600">Exam Date</span>
+                                    <input type="date" name="exam_attendance_date" value="{{ old('exam_attendance_date', $mark->exam_attendance_date?->format('Y-m-d')) }}" class="w-full rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900 outline-none transition focus:border-green-400 focus:bg-white focus:ring-2 focus:ring-green-100">
+                                    @error('exam_attendance_date')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                </label>
+                                <label class="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-3">
+                                    <input type="checkbox" name="was_present_on_exam_date" value="1" @checked(old('was_present_on_exam_date', $mark->was_present_on_exam_date)) class="h-4 w-4 rounded border-green-300 text-green-600 focus:ring-green-200">
+                                    <span class="text-sm font-medium text-green-900">Present on Exam Date</span>
+                                </label>
+                                <label class="space-y-2">
+                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-green-600">Attendance Remarks</span>
+                                    <input type="text" name="attendance_remarks" value="{{ old('attendance_remarks', $mark->attendance_remarks) }}" placeholder="Optional..." class="w-full rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900 outline-none transition focus:border-green-400 focus:bg-white focus:ring-2 focus:ring-green-100">
+                                    @error('attendance_remarks')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
+                                </label>
+                            </div>
+                        </div>
                     @endif
 
                     <label class="space-y-2 md:col-span-2">

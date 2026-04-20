@@ -8,6 +8,7 @@ use App\Models\ParentModel;
 use App\Models\Program;
 use App\Models\Student;
 use App\Models\User;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -24,6 +25,7 @@ use Illuminate\Validation\Rule;
  */
 class StudentController extends HodController
 {
+    use ExportableTrait;
     // ── Index ──────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
@@ -436,5 +438,37 @@ class StudentController extends HodController
         return redirect()
             ->route('hod.students.index')
             ->with('success', 'Student deleted.');
+    }
+
+    // ── Export Students ────────────────────────────────────────────────────
+    public function export(Request $request)
+    {
+        $department = $this->currentDepartment($request);
+        $deptId = $department->id;
+        $format = $request->get('format', 'csv');
+
+        // Get students with same filters as index
+        $students = Student::where('department_id', $deptId)
+            ->with([
+                'user:id,name,email,avatar',
+                'program:id,name',
+                'academicSession:id,name',
+            ])
+            ->when($request->search, function ($q) use ($request) {
+                $term = trim((string) $request->search);
+                $q->where(function ($inner) use ($term) {
+                    $inner->where('student_no', 'like', "%{$term}%")
+                        ->orWhere('roll_number', 'like', "%{$term}%")
+                        ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
+                            ->orWhere('email', 'like', "%{$term}%"));
+                });
+            })
+            ->when($request->program_id, fn ($q) => $q->where('program_id', $request->program_id))
+            ->when($request->semester, fn ($q) => $q->where('current_semester', $request->semester))
+            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->orderBy('roll_number')
+            ->get();
+
+        return $this->exportStudentsData($students, $department, $format);
     }
 }

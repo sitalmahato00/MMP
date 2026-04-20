@@ -12,6 +12,7 @@ class Exam extends Model
 
     protected $fillable = [
         'academic_session_id', 'department_id', 'name', 'type', 'category', 'assessment_number',
+        'assessment_full_marks', 'assessment_pass_marks',
         'start_date', 'end_date', 'status',
         'marks_open', 'is_published', 'published_at',
     ];
