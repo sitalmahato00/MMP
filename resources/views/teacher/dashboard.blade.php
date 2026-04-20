@@ -1,15 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Student Dashboard')
+@section('title', 'Teacher Dashboard')
 
 @section('content')
 @php
     $kpiCards = [
         [
-            'title' => 'Attendance Rate',
-            'value' => number_format($data['attendance_rate'], 1),
-            'suffix' => '%',
-            'note' => 'Last 30 days',
+            'title' => 'My Subjects',
+            'value' => number_format($data['subjects_count']),
+            'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+            'tone' => 'violet',
+        ],
+        [
+            'title' => 'Sessions This Month',
+            'value' => number_format($data['sessions_this_month']),
             'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
             'tone' => 'emerald',
         ],
@@ -18,12 +22,6 @@
             'value' => number_format($data['pending_assignments']),
             'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
             'tone' => 'amber',
-        ],
-        [
-            'title' => 'Published Results',
-            'value' => number_format($data['published_results']),
-            'icon' => 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
-            'tone' => 'violet',
         ],
         [
             'title' => 'Today\'s Classes',
@@ -46,18 +44,16 @@
          1. TOP HEADER
     ═══════════════════════════════════════════════════════════ --}}
     <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-violet-50/40"></div>
         <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Student Dashboard</p>
+                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Teacher Dashboard</p>
                     <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
                         {{ $greeting }}, {{ auth()->user()->name }}
                     </h1>
-                    @if($student)
-                        <p class="mt-1 text-sm text-slate-600">
-                            {{ $student->program->name ?? 'N/A' }} · Semester {{ $student->current_semester ?? 'N/A' }}
-                        </p>
+                    @if($teacher && $teacher->department)
+                        <p class="mt-1 text-sm text-slate-600">Department of {{ $teacher->department->name }}</p>
                     @endif
                 </div>
 
@@ -91,26 +87,20 @@
                 <div class="mt-3">
                     <div class="flex items-baseline gap-1">
                         <span class="text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
-                        @if(!empty($card['suffix']))
-                            <span class="text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
-                        @endif
                     </div>
                     <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
                 </div>
-                @if(!empty($card['note']))
-                    <p class="mt-2 text-[11px] text-slate-500">{{ $card['note'] }}</p>
-                @endif
                 <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
             </div>
         @endforeach
     </section>
 
     {{-- ═══════════════════════════════════════════════════════════
-         3. TODAY'S CLASSES
+         3. TODAY'S SCHEDULE
     ═══════════════════════════════════════════════════════════ --}}
     <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
         <div class="border-b border-slate-100 px-5 py-4">
-            <h2 class="text-sm font-semibold text-slate-900">Today's Classes</h2>
+            <h2 class="text-sm font-semibold text-slate-900">Today's Schedule</h2>
             <p class="text-xs text-slate-500">{{ bsDate(now(), 'l, F d, Y') }}</p>
         </div>
         <div class="p-5">
@@ -132,9 +122,7 @@
                             </div>
                             <div class="flex-1">
                                 <h3 class="font-semibold text-slate-900">{{ $slot->subject->name ?? 'Subject' }}</h3>
-                                <p class="text-xs text-slate-500">
-                                    {{ $slot->teacher->user->name ?? 'Teacher TBA' }} · {{ $slot->room ?? 'Room TBA' }}
-                                </p>
+                                <p class="text-xs text-slate-500">{{ $slot->timetable->program->name ?? 'Program' }} - {{ $slot->room ?? 'Room TBA' }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -144,38 +132,40 @@
     </section>
 
     {{-- ═══════════════════════════════════════════════════════════
-         4. ASSIGNMENTS & NOTICES
+         4. SUBJECTS & NOTICES
     ═══════════════════════════════════════════════════════════ --}}
     <section class="grid gap-5 lg:grid-cols-2">
-        {{-- Upcoming Assignments --}}
+        {{-- My Subjects --}}
         <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
             <div class="border-b border-slate-100 px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Upcoming Assignments</h2>
-                <p class="text-xs text-slate-500">Due soon</p>
+                <h2 class="text-sm font-semibold text-slate-900">My Subjects</h2>
+                <p class="text-xs text-slate-500">Current academic session</p>
             </div>
-            <div class="divide-y divide-slate-100">
-                @forelse($upcomingAssignments as $assignment)
-                    <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
-                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($assignment->due_date, 'Y') }}</span>
-                            <span class="text-sm font-bold leading-none">{{ bsDate($assignment->due_date, 'd') }}</span>
-                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($assignment->due_date, 'F') }}</span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-slate-900">{{ $assignment->title }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">
-                                {{ $assignment->subject->name ?? 'N/A' }} · Due {{ bsDate($assignment->due_date, 'F d, Y') }}
-                            </p>
-                        </div>
-                    </div>
-                @empty
-                    <div class="py-12 text-center">
+            <div class="p-5">
+                @if($subjects->isEmpty())
+                    <div class="py-8 text-center">
                         <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
-                        <p class="mt-2 text-xs text-slate-400">No upcoming assignments</p>
+                        <p class="mt-2 text-sm text-slate-400">No subjects assigned</p>
                     </div>
-                @endforelse
+                @else
+                    <div class="space-y-2">
+                        @foreach($subjects as $subject)
+                            <div class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition hover:bg-slate-50">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-slate-900">{{ $subject->name }}</p>
+                                    <p class="text-xs text-slate-500">{{ $subject->code }} · {{ $subject->program->name ?? 'N/A' }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 

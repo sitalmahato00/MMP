@@ -113,9 +113,9 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'address'         => 'nullable|string|max:500',
             'avatar'          => 'nullable|image|max:2048',
             'password'        => 'required|string|min:8|confirmed',
-            'department_id'   => 'required|exists:departments,id',
+            'department_id'   => 'nullable|exists:departments,id',
             'employee_id'     => 'nullable|string|max:50|unique:teachers,employee_id',
-            'designation'     => 'nullable|in:Teacher,HOD,Coordinator',
+            'designation'     => 'nullable|in:Teacher,HOD',
             'qualification'   => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
             'join_date'       => 'nullable|string|max:12',
@@ -138,13 +138,20 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
                 'password'  => Hash::make($data['password']),
                 'is_active' => true,
             ]);
-            $user->assignRole('teacher');
+            
+            // Assign role based on designation
+            $designation = $data['designation'] ?? 'Teacher';
+            if ($designation === 'HOD') {
+                $user->assignRole('hod');
+            } else {
+                $user->assignRole('teacher');
+            }
 
             Teacher::create([
                 'user_id'         => $user->id,
-                'department_id'   => $data['department_id'],
+                'department_id'   => $designation === 'HOD' ? null : $data['department_id'],
                 'employee_id'     => $data['employee_id'] ?? null,
-                'designation'     => $data['designation'] ?? 'Teacher',
+                'designation'     => $designation,
                 'qualification'   => $data['qualification'] ?? null,
                 'specialization'  => $data['specialization'] ?? null,
                 'join_date'       => NepaliDateHelper::toAD($data['join_date'] ?? null),
@@ -184,9 +191,9 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'dob'             => 'nullable|string|max:12',
             'address'         => 'nullable|string|max:500',
             'avatar'          => 'nullable|image|max:2048',
-            'department_id'   => 'required|exists:departments,id',
+            'department_id'   => 'nullable|exists:departments,id',
             'employee_id'     => ['nullable', 'string', 'max:50', Rule::unique('teachers', 'employee_id')->ignore($teacher->id)],
-            'designation'     => 'nullable|in:Teacher,HOD,Coordinator',
+            'designation'     => 'nullable|in:Teacher,HOD',
             'qualification'   => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
             'join_date'       => 'nullable|string|max:12',
@@ -217,16 +224,25 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'gender'  => $data['gender'] ?? null,
         ]);
 
+        $designation = $data['designation'] ?? 'Teacher';
         $teacher->update([
-            'department_id'   => $data['department_id'],
+            'department_id'   => $designation === 'HOD' ? null : $data['department_id'],
             'employee_id'     => $data['employee_id'] ?? null,
-            'designation'     => $data['designation'] ?? 'Teacher',
+            'designation'     => $designation,
             'qualification'   => $data['qualification'] ?? null,
             'specialization'  => $data['specialization'] ?? null,
             'join_date'       => NepaliDateHelper::toAD($data['join_date'] ?? null),
             'employment_type' => $data['employment_type'] ?? 'permanent',
             'is_active'       => $request->boolean('is_active', true),
         ]);
+
+        // Update role based on designation
+        $teacher->user->syncRoles([]); // Remove all roles first
+        if ($designation === 'HOD') {
+            $teacher->user->assignRole('hod');
+        } else {
+            $teacher->user->assignRole('teacher');
+        }
 
         AuditLog::log('teacher.updated', $teacher);
 
@@ -259,7 +275,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
         $request->validate([
             'ids'    => ['required', 'array', 'min:1', 'max:200'],
             'ids.*'  => ['integer', 'exists:teachers,id'],
-            'action' => ['required', 'in:activate,deactivate,set_hod,set_coordinator,set_teacher'],
+            'action' => ['required', 'in:activate,deactivate,set_hod,set_teacher'],
         ]);
 
         $count = 0;
@@ -270,7 +286,6 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
                     'activate'        => $teacher->update(['is_active' => true]),
                     'deactivate'      => $teacher->update(['is_active' => false]),
                     'set_hod'         => $teacher->update(['designation' => 'HOD']),
-                    'set_coordinator' => $teacher->update(['designation' => 'Coordinator']),
                     'set_teacher'     => $teacher->update(['designation' => 'Teacher']),
                 };
                 AuditLog::log('teacher.bulk_' . $request->action, $teacher);

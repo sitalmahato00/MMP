@@ -1,212 +1,220 @@
 @extends('layouts.app')
+
 @section('title', 'Alumni Dashboard')
 
 @section('content')
 @php
-    $user = auth()->user();
-    $gradients = ['from-blue-500 to-indigo-600','from-violet-500 to-purple-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-rose-500 to-pink-600','from-cyan-500 to-sky-600'];
-    $grad = $gradients[($alumnus->id ?? 0) % 6];
+    $kpiCards = [
+        [
+            'title' => 'Profile Completion',
+            'value' => number_format($profileCompletion),
+            'suffix' => '%',
+            'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+            'tone' => 'blue',
+        ],
+        [
+            'title' => 'Projects Shared',
+            'value' => number_format($data['projects_count']),
+            'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+            'tone' => 'violet',
+        ],
+        [
+            'title' => 'Achievements',
+            'value' => number_format($data['achievements_count']),
+            'icon' => 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
+            'tone' => 'amber',
+        ],
+        [
+            'title' => 'Employment Records',
+            'value' => number_format($data['employment_count']),
+            'icon' => 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+            'tone' => 'emerald',
+        ],
+    ];
+
+    $toneMap = [
+        'blue'    => ['bg' => 'bg-blue-50', 'text' => 'text-blue-600', 'ring' => 'ring-blue-100', 'bar' => 'bg-blue-500'],
+        'emerald' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'ring' => 'ring-emerald-100', 'bar' => 'bg-emerald-500'],
+        'violet'  => ['bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'ring' => 'ring-violet-100', 'bar' => 'bg-violet-500'],
+        'amber'   => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'ring' => 'ring-amber-100', 'bar' => 'bg-amber-500'],
+    ];
 @endphp
 
-{{-- Welcome Header --}}
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ $user->name }}</h1>
-    <p class="text-sm text-gray-500 mt-1">
-        {{ $alumnus?->department?->name ?? 'Alumni' }} · Batch {{ $alumnus?->graduation_year ?? '—' }}
-        @if($alumnus?->current_job) · {{ $alumnus->current_job }}@if($alumnus->company_name) at {{ $alumnus->company_name }}@endif @endif
-    </p>
-</div>
-
-{{-- Profile Completion --}}
-@if($profileCompletion < 100)
-<div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50/50 p-5">
-    <div class="flex items-start gap-4">
-        <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100">
-            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
-        <div class="flex-1">
-            <p class="text-sm font-bold text-amber-800">Complete Your Profile</p>
-            <p class="text-xs text-amber-700 mt-0.5">Your profile is {{ $profileCompletion }}% complete. Add more details to increase visibility.</p>
-            <div class="mt-2 h-2 w-full rounded-full bg-amber-200">
-                <div class="h-2 rounded-full bg-amber-500 transition-all" style="width: {{ $profileCompletion }}%"></div>
-            </div>
-        </div>
-        <a href="{{ route('alumni.profile.index') }}" class="flex-shrink-0 rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700 transition">Complete Profile</a>
-    </div>
-</div>
-@endif
-
-{{-- KPI Cards --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $profileCompletion }}%</p>
-                <p class="text-xs text-slate-500">Profile</p>
-            </div>
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
-                <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $alumnus?->projects?->count() ?? 0 }}</p>
-                <p class="text-xs text-slate-500">Projects</p>
-            </div>
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $alumnus?->achievementRecords?->count() ?? 0 }}</p>
-                <p class="text-xs text-slate-500">Achievements</p>
-            </div>
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
-                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $alumnus?->employmentHistory?->count() ?? 0 }}</p>
-                <p class="text-xs text-slate-500">Positions</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    {{-- Quick Links --}}
-    <div class="lg:col-span-2 space-y-6">
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-5 py-4">
-                <h3 class="font-bold text-slate-900">Quick Actions</h3>
-            </div>
-            <div class="grid grid-cols-2 gap-3 p-5">
-                <a href="{{ route('alumni.profile.index') }}" class="flex items-center gap-3 rounded-xl border border-slate-100 p-4 hover:bg-slate-50 transition group">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100 transition">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-900">Edit Profile</p>
-                        <p class="text-xs text-slate-500">Update your information</p>
-                    </div>
-                </a>
-                <a href="{{ route('alumni.career.index') }}" class="flex items-center gap-3 rounded-xl border border-slate-100 p-4 hover:bg-slate-50 transition group">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 group-hover:bg-emerald-100 transition">
-                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-900">Career History</p>
-                        <p class="text-xs text-slate-500">Manage employment records</p>
-                    </div>
-                </a>
-                <a href="{{ route('alumni.projects.index') }}" class="flex items-center gap-3 rounded-xl border border-slate-100 p-4 hover:bg-slate-50 transition group">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 group-hover:bg-violet-100 transition">
-                        <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-900">My Projects</p>
-                        <p class="text-xs text-slate-500">Upload minor & major projects</p>
-                    </div>
-                </a>
-                <a href="{{ route('alumni.achievements.index') }}" class="flex items-center gap-3 rounded-xl border border-slate-100 p-4 hover:bg-slate-50 transition group">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 group-hover:bg-amber-100 transition">
-                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-900">Achievements</p>
-                        <p class="text-xs text-slate-500">Add awards & certificates</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        {{-- Projects Summary --}}
-        @if($alumnus?->projects?->count())
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-5 py-4 flex items-center justify-between">
-                <h3 class="font-bold text-slate-900">My Projects</h3>
-                <a href="{{ route('alumni.projects.index') }}" class="text-xs font-semibold text-[#8B0000] hover:underline">View All →</a>
-            </div>
-            <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @foreach($alumnus->projects as $project)
-                <div class="rounded-xl border {{ $project->type === 'minor' ? 'border-cyan-100 bg-cyan-50/30' : 'border-violet-100 bg-violet-50/30' }} p-4">
-                    <span class="inline-block rounded-lg {{ $project->type === 'minor' ? 'bg-cyan-100 text-cyan-700' : 'bg-violet-100 text-violet-700' }} px-2 py-0.5 text-[10px] font-bold uppercase mb-2">{{ $project->type }}</span>
-                    <h4 class="text-sm font-bold text-slate-900">{{ $project->title }}</h4>
-                    @if($project->technologies && count($project->technologies))
-                        <div class="flex flex-wrap gap-1 mt-2">
-                            @foreach(array_slice($project->technologies, 0, 3) as $tech)
-                                <span class="rounded bg-white/80 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">{{ $tech }}</span>
-                            @endforeach
-                        </div>
+<div class="space-y-6">
+    {{-- ═══════════════════════════════════════════════════════════
+         1. TOP HEADER
+    ═══════════════════════════════════════════════════════════ --}}
+    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-amber-50/40"></div>
+        <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+            <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Alumni Dashboard</p>
+                    <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
+                        {{ $greeting }}, {{ auth()->user()->name }}
+                    </h1>
+                    @if($alumnus)
+                        <p class="mt-1 text-sm text-slate-600">
+                            {{ $alumnus->program->name ?? 'N/A' }} · Graduated {{ $alumnus->graduation_year ?? 'N/A' }}
+                        </p>
                     @endif
                 </div>
-                @endforeach
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs text-slate-500">
+                        Updated {{ bsDate($lastUpdated, 'F d, Y') }}, {{ $lastUpdated->format('h:i A') }}
+                    </span>
+                </div>
             </div>
         </div>
-        @endif
-    </div>
+    </section>
 
-    {{-- Right Column --}}
-    <div class="space-y-6">
-        {{-- Notices --}}
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-5 py-4 flex items-center justify-between">
-                <h3 class="font-bold text-slate-900">Recent Notices</h3>
-                <a href="{{ route('alumni.notices.index') }}" class="text-xs font-semibold text-[#8B0000] hover:underline">All →</a>
+    {{-- ═══════════════════════════════════════════════════════════
+         2. KPI METRICS
+    ═══════════════════════════════════════════════════════════ --}}
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        @foreach($kpiCards as $card)
+            @php $t = $toneMap[$card['tone']] ?? $toneMap['blue']; @endphp
+            <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
+                        <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
+                        @if(!empty($card['suffix']))
+                            <span class="text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
+                        @endif
+                    </div>
+                    <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
             </div>
-            <div class="divide-y divide-slate-50">
+        @endforeach
+    </section>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         3. PROFILE COMPLETION ALERT
+    ═══════════════════════════════════════════════════════════ --}}
+    @if($profileCompletion < 100)
+        <section class="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+            <div class="flex items-start gap-4">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-amber-900">Complete Your Profile</h3>
+                    <p class="mt-1 text-xs text-amber-700">
+                        Your profile is {{ $profileCompletion }}% complete. Add more information to help us stay connected and showcase your achievements.
+                    </p>
+                    <div class="mt-3">
+                        <div class="h-2 w-full overflow-hidden rounded-full bg-amber-200">
+                            <div class="h-full bg-amber-500 transition-all duration-500" style="width: {{ $profileCompletion }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- ═══════════════════════════════════════════════════════════
+         4. QUICK ACTIONS & NOTICES
+    ═══════════════════════════════════════════════════════════ --}}
+    <section class="grid gap-5 lg:grid-cols-2">
+        {{-- Quick Actions --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-5 py-4">
+                <h2 class="text-sm font-semibold text-slate-900">Quick Actions</h2>
+                <p class="text-xs text-slate-500">Manage your alumni profile</p>
+            </div>
+            <div class="p-5">
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <a href="{{ route('alumni.profile.edit') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-900">Edit Profile</p>
+                            <p class="text-xs text-slate-500">Update your information</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('alumni.projects.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-violet-300 hover:bg-violet-50/50">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-900">My Projects</p>
+                            <p class="text-xs text-slate-500">View and add projects</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('alumni.achievements.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-amber-300 hover:bg-amber-50/50">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-900">Achievements</p>
+                            <p class="text-xs text-slate-500">Share your success</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('alumni.career.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-900">Career</p>
+                            <p class="text-xs text-slate-500">Update employment</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- Recent Notices --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-5 py-4">
+                <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
+                <p class="text-xs text-slate-500">Latest announcements</p>
+            </div>
+            <div class="divide-y divide-slate-100">
                 @forelse($recentNotices as $notice)
-                <div class="px-5 py-3">
-                    <p class="text-sm font-semibold text-slate-900 line-clamp-1">{{ $notice->title }}</p>
-                    <p class="text-xs text-slate-500 mt-0.5">{{ bsDate($notice->published_at ?? $notice->created_at) }}</p>
-                </div>
+                    <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
+                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
+                            <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
+                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}</p>
+                        </div>
+                    </div>
                 @empty
-                <div class="px-5 py-6 text-center">
-                    <p class="text-sm text-slate-500 italic">No recent notices.</p>
-                </div>
+                    <div class="py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p class="mt-2 text-xs text-slate-400">No recent notices</p>
+                    </div>
                 @endforelse
             </div>
         </div>
-
-        {{-- Profile Card --}}
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-5 text-center">
-                @if($user->avatar)
-                    <img src="{{ asset('storage/'.$user->avatar) }}" class="mx-auto h-16 w-16 rounded-2xl object-cover ring-4 ring-white/20"/>
-                @else
-                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br {{ $grad }} text-2xl font-black text-white ring-4 ring-white/10">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
-                @endif
-                <p class="mt-3 text-sm font-bold text-white">{{ $user->name }}</p>
-                <p class="text-xs text-slate-400">{{ $alumnus?->department?->name }}</p>
-            </div>
-            <div class="p-4 space-y-2">
-                @if($alumnus?->linkedin_url)
-                <a href="{{ $alumnus->linkedin_url }}" target="_blank" rel="noopener" class="flex items-center gap-2 text-xs text-slate-600 hover:text-blue-600">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                    LinkedIn
-                </a>
-                @endif
-                @if($alumnus?->github_url)
-                <a href="{{ $alumnus->github_url }}" target="_blank" rel="noopener" class="flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                    GitHub
-                </a>
-                @endif
-            </div>
-        </div>
-    </div>
+    </section>
 </div>
 @endsection

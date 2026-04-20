@@ -39,7 +39,7 @@ class DepartmentController extends Controller
 
     public function create()
     {
-        $teachers = User::role('teacher')->orderBy('name')->get();
+        $teachers = User::role('hod')->orderBy('name')->get();
         return view('admin.departments.create', compact('teachers'));
     }
 
@@ -73,7 +73,7 @@ class DepartmentController extends Controller
 
     public function edit(Department $department)
     {
-        $teachers = User::role('teacher')->orderBy('name')->get();
+        $teachers = User::role('hod')->orderBy('name')->get();
         return view('admin.departments.edit', compact('department', 'teachers'));
     }
 

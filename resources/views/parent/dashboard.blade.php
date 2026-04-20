@@ -1,159 +1,193 @@
 @extends('layouts.app')
+
 @section('title', 'Parent Dashboard')
 
 @section('content')
-@php
-    $gradients = ['from-blue-500 to-indigo-600','from-violet-500 to-purple-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-rose-500 to-pink-600','from-cyan-500 to-sky-600'];
-@endphp
-
-{{-- Welcome Header --}}
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ auth()->user()->name }}</h1>
-    <p class="text-sm text-gray-500 mt-1">
-        {{ ucfirst($parent?->relation_to_student ?? 'Parent') }} · {{ $children->count() }} {{ Str::plural('child', $children->count()) }} linked
-        @if($session)
-            · {{ $session->name }}
-        @endif
-    </p>
-</div>
-
-{{-- KPI Cards --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $children->count() }}</p>
-                <p class="text-xs text-slate-500">Children</p>
-            </div>
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            @php $avgAtt = $childrenSummaries->avg('attendancePct'); @endphp
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl {{ $avgAtt !== null && $avgAtt >= 75 ? 'bg-emerald-50' : ($avgAtt !== null && $avgAtt >= 50 ? 'bg-amber-50' : 'bg-red-50') }}">
-                <svg class="w-5 h-5 {{ $avgAtt !== null && $avgAtt >= 75 ? 'text-emerald-600' : ($avgAtt !== null && $avgAtt >= 50 ? 'text-amber-600' : 'text-red-600') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $avgAtt !== null ? round($avgAtt).'%' : '—' }}</p>
-                <p class="text-xs text-slate-500">Avg Attendance</p>
-            </div>
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            @php $avgMarks = $childrenSummaries->avg('avgMarks'); @endphp
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
-                <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $avgMarks !== null ? round($avgMarks, 1) : '—' }}</p>
-                <p class="text-xs text-slate-500">Avg Marks</p>
-            </div>
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-            @php $totalPending = $childrenSummaries->sum('pendingAssignments'); @endphp
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-slate-900">{{ $totalPending }}</p>
-                <p class="text-xs text-slate-500">Pending Work</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Children Cards --}}
-<div class="mb-6">
-    <h2 class="text-lg font-bold text-slate-900 mb-4">Your Children</h2>
-    @if($childrenSummaries->count())
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        @foreach($childrenSummaries as $i => $childData)
-        @php
-            $s = $childData['student'];
-            $attPct = $childData['attendancePct'];
-            $attColor = $attPct === null ? 'slate' : ($attPct >= 75 ? 'emerald' : ($attPct >= 50 ? 'amber' : 'red'));
-            $grad = $gradients[$i % 6];
-        @endphp
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div class="p-5">
-                <div class="flex items-start gap-4">
-                    @if($s->user?->avatar)
-                        <img src="{{ asset('storage/'.$s->user->avatar) }}" class="h-12 w-12 rounded-xl object-cover ring-2 ring-slate-100"/>
-                    @else
-                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br {{ $grad }} text-lg font-bold text-white">
-                            {{ strtoupper(substr($s->user?->name ?? 'S', 0, 1)) }}
-                        </div>
-                    @endif
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-base font-bold text-slate-900">{{ $s->user?->name }}</h3>
-                        <p class="text-xs text-slate-500">{{ $s->department?->name }} · {{ $s->program?->name }} · Sem {{ $s->current_semester }}</p>
-                    </div>
-                    <a href="{{ route('parent.child.show', $s) }}"
-                       class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
-                        View
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
+<div class="space-y-6">
+    {{-- ═══════════════════════════════════════════════════════════
+         1. TOP HEADER
+    ═══════════════════════════════════════════════════════════ --}}
+    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-emerald-50/40"></div>
+        <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+            <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Parent Dashboard</p>
+                    <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
+                        {{ $greeting }}, {{ auth()->user()->name }}
+                    </h1>
+                    <p class="mt-1 text-sm text-slate-600">Monitor your children's academic progress</p>
                 </div>
 
-                <div class="mt-4 grid grid-cols-4 gap-2">
-                    <div class="rounded-xl bg-{{ $attColor }}-50 p-2.5 text-center">
-                        <p class="text-lg font-black text-{{ $attColor }}-700">{{ $attPct !== null ? $attPct.'%' : '—' }}</p>
-                        <p class="text-[10px] text-slate-500">Attendance</p>
-                    </div>
-                    <div class="rounded-xl bg-blue-50 p-2.5 text-center">
-                        <p class="text-lg font-black text-blue-700">{{ $childData['avgMarks'] ?? '—' }}</p>
-                        <p class="text-[10px] text-slate-500">Avg Marks</p>
-                    </div>
-                    <div class="rounded-xl bg-violet-50 p-2.5 text-center">
-                        <p class="text-lg font-black text-violet-700">{{ $childData['totalExams'] }}</p>
-                        <p class="text-[10px] text-slate-500">Exams</p>
-                    </div>
-                    <div class="rounded-xl bg-amber-50 p-2.5 text-center">
-                        <p class="text-lg font-black text-amber-700">{{ $childData['pendingAssignments'] }}</p>
-                        <p class="text-[10px] text-slate-500">Pending</p>
-                    </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        {{ $session?->name ?? 'No active session' }}
+                    </span>
+                    <span class="text-xs text-slate-500">
+                        Updated {{ bsDate($lastUpdated, 'F d, Y') }}, {{ $lastUpdated->format('h:i A') }}
+                    </span>
                 </div>
             </div>
         </div>
-        @endforeach
-    </div>
+    </section>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         2. CHILDREN OVERVIEW
+    ═══════════════════════════════════════════════════════════ --}}
+    @if($children->isEmpty())
+        <section class="rounded-xl border border-slate-200/80 bg-white p-12 text-center shadow-sm">
+            <svg class="mx-auto h-16 w-16 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <p class="mt-4 text-sm text-slate-500">No children linked to your account</p>
+        </section>
     @else
-    <div class="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm">
-        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
-            <svg class="w-7 h-7 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        </div>
-        <h3 class="mt-3 font-bold text-slate-900">No children linked</h3>
-        <p class="mt-1 text-sm text-slate-500">Contact the administration to link your children to this account.</p>
-    </div>
-    @endif
-</div>
+        <section class="space-y-4">
+            @foreach($childrenSummaries as $summary)
+                @php
+                    $student = $summary['student'];
+                    $attPct = $summary['attendancePct'];
+                    $avgMarks = $summary['avgMarks'];
+                    $totalExams = $summary['totalExams'];
+                    $pendingAssignments = $summary['pendingAssignments'];
+                    
+                    $attColor = $attPct >= 75 ? 'emerald' : ($attPct >= 60 ? 'amber' : 'red');
+                @endphp
+                
+                <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+                    {{-- Student Header --}}
+                    <div class="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                                @if($student->user->avatar)
+                                    <img src="{{ Storage::url($student->user->avatar) }}" alt="{{ $student->user->name }}" class="h-12 w-12 rounded-full object-cover">
+                                @else
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                @endif
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-slate-900">{{ $student->user->name }}</h3>
+                                <p class="text-xs text-slate-500">
+                                    {{ $student->program->name ?? 'N/A' }} · Semester {{ $student->current_semester ?? 'N/A' }} · {{ $student->department->name ?? 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-{{-- Recent Notices --}}
-<div>
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-bold text-slate-900">Recent Notices</h2>
-        <a href="{{ route('parent.notices.index') }}" class="text-xs font-semibold text-[#8B0000] hover:underline">View All →</a>
-    </div>
-    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        @forelse($recentNotices as $notice)
-        <div class="flex items-start gap-3 px-5 py-4 {{ !$loop->last ? 'border-b border-slate-100' : '' }}">
-            <div class="mt-1.5 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-            <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-slate-900">{{ $notice->title }}</p>
-                <p class="text-xs text-slate-500 mt-0.5">{{ bsDate($notice->created_at, 'Y, F d') }}</p>
-            </div>
+                    {{-- Student Stats --}}
+                    <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+                        {{-- Attendance --}}
+                        <div class="rounded-lg border border-slate-200 p-4">
+                            <div class="flex items-center gap-2">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-{{ $attColor }}-50 text-{{ $attColor }}-600">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-medium text-slate-500">Attendance</p>
+                                    <p class="text-lg font-bold text-slate-900">
+                                        {{ $attPct !== null ? $attPct . '%' : 'N/A' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-[10px] text-slate-400">Last 30 days</p>
+                        </div>
+
+                        {{-- Average Marks --}}
+                        <div class="rounded-lg border border-slate-200 p-4">
+                            <div class="flex items-center gap-2">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-medium text-slate-500">Avg Marks</p>
+                                    <p class="text-lg font-bold text-slate-900">
+                                        {{ $avgMarks !== null ? number_format($avgMarks, 1) : 'N/A' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-[10px] text-slate-400">{{ $totalExams }} exams</p>
+                        </div>
+
+                        {{-- Pending Assignments --}}
+                        <div class="rounded-lg border border-slate-200 p-4">
+                            <div class="flex items-center gap-2">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-medium text-slate-500">Pending</p>
+                                    <p class="text-lg font-bold text-slate-900">{{ $pendingAssignments }}</p>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-[10px] text-slate-400">Assignments</p>
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="rounded-lg border border-slate-200 p-4">
+                            <div class="flex items-center gap-2">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-medium text-slate-500">Status</p>
+                                    <p class="text-lg font-bold text-slate-900">
+                                        @if($student->status === 'active')
+                                            <span class="text-emerald-600">Active</span>
+                                        @else
+                                            <span class="text-slate-400">{{ ucfirst($student->status) }}</span>
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-[10px] text-slate-400">Current status</p>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </section>
+    @endif
+
+    {{-- ═══════════════════════════════════════════════════════════
+         3. RECENT NOTICES
+    ═══════════════════════════════════════════════════════════ --}}
+    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-5 py-4">
+            <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
+            <p class="text-xs text-slate-500">Latest announcements from the college</p>
         </div>
-        @empty
-        <div class="px-5 py-8 text-center">
-            <p class="text-sm text-slate-500">No notices yet.</p>
+        <div class="divide-y divide-slate-100">
+            @forelse($recentNotices as $notice)
+                <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
+                    <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                        <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
+                        <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
+                        <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
+                        <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}</p>
+                    </div>
+                </div>
+            @empty
+                <div class="py-12 text-center">
+                    <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="mt-2 text-xs text-slate-400">No recent notices</p>
+                </div>
+            @endforelse
         </div>
-        @endforelse
-    </div>
+    </section>
 </div>
 @endsection
