@@ -114,16 +114,26 @@
 
     $hodGroups = [
         ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('hod.dashboard'), 'isActive' => $active('hod.dashboard')]]],
-        ['label' => 'Curriculum', 'items' => [
-            ['label' => 'Programs', 'iconName' => 'academic-cap', 'href' => $portalRoute('hod.programs.index', 'hod.dashboard'), 'isActive' => $active('hod.programs.*')],
-            ['label' => 'Subjects', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.subjects.index', 'hod.dashboard'), 'isActive' => $active('hod.subjects.*')],
+        ['label' => 'Department', 'items' => [
+            ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('hod.students.index', 'hod.dashboard'), 'isActive' => $active('hod.students.*')],
+            ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => $portalRoute('hod.teachers.index', 'hod.dashboard'), 'isActive' => $active('hod.teachers.*')],
+        ]],
+        ['label' => 'Academic', 'items' => [
+            ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('hod.attendance.index', 'hod.dashboard'), 'isActive' => $active('hod.attendance.*')],
+            ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('hod.exams.index', 'hod.dashboard'), 'isActive' => $active('hod.exams.*')],
             ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('hod.timetable.index', 'hod.dashboard'), 'isActive' => $active('hod.timetable.*')],
         ]],
-        ['label' => 'Department', 'items' => [
-            ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => $portalRoute('hod.teachers.index', 'hod.dashboard'), 'isActive' => $active('hod.teachers.*')],
-            ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('hod.students.index', 'hod.dashboard'), 'isActive' => $active('hod.students.*')],
+        ['label' => 'Communication', 'items' => [
+            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('hod.notices.index', 'hod.dashboard'), 'isActive' => $active('hod.notices.*')],
+            ['label' => 'Department Content', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.content.index', 'hod.dashboard'), 'isActive' => $active('hod.content.*')],
         ]],
-        ['label' => 'Analytics', 'items' => [['label' => 'Reports', 'iconName' => 'chart-bar', 'href' => $portalRoute('hod.reports.index', 'hod.dashboard'), 'isActive' => $active('hod.reports.*')]]],
+        ['label' => 'Resources', 'items' => [
+            ['label' => 'Media', 'iconName' => 'photo', 'href' => $portalRoute('hod.media.index', 'hod.dashboard'), 'isActive' => $active('hod.media.*')],
+            ['label' => 'Reports', 'iconName' => 'chart-pie', 'href' => $portalRoute('hod.reports.index', 'hod.dashboard'), 'isActive' => $active('hod.reports.*')],
+        ]],
+        ['label' => 'Alumni', 'items' => [
+            ['label' => 'Alumni Preparation', 'iconName' => 'graduation-cap', 'href' => $portalRoute('hod.alumni.index', 'hod.dashboard'), 'isActive' => $active('hod.alumni.*')],
+        ]],
     ];
 
     $teacherGroups = [

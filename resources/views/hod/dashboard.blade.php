@@ -202,7 +202,7 @@
                 <p class="text-xs text-slate-500">Common department tasks</p>
             </div>
             <div class="p-5">
-                <div class="grid gap-3 sm:grid-cols-2">
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @if($department)
                         <a href="{{ route('hod.students.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -211,7 +211,7 @@
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">View Students</p>
+                                <p class="text-sm font-semibold text-slate-900">Students</p>
                                 <p class="text-xs text-slate-500">Manage department students</p>
                             </div>
                         </a>
@@ -228,7 +228,7 @@
                             </div>
                         </a>
 
-                        <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50">
+                        <a href="{{ route('hod.attendance.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -240,19 +240,19 @@
                             </div>
                         </a>
 
-                        <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-violet-300 hover:bg-violet-50/50">
+                        <a href="{{ route('hod.exams.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-violet-300 hover:bg-violet-50/50">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Exam Results</p>
-                                <p class="text-xs text-slate-500">View and manage marks</p>
+                                <p class="text-sm font-semibold text-slate-900">Exams & Marks</p>
+                                <p class="text-xs text-slate-500">Manage exams and results</p>
                             </div>
                         </a>
 
-                        <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-amber-300 hover:bg-amber-50/50">
+                        <a href="{{ route('hod.timetable.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-amber-300 hover:bg-amber-50/50">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -260,7 +260,67 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-slate-900">Timetable</p>
-                                <p class="text-xs text-slate-500">View class schedules</p>
+                                <p class="text-xs text-slate-500">Manage class schedules</p>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('hod.notices.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-cyan-300 hover:bg-cyan-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM11 19H6a2 2 0 01-2-2V7a2 2 0 012-2h5m5 0v5"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Notices</p>
+                                <p class="text-xs text-slate-500">Department announcements</p>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('hod.content.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-rose-300 hover:bg-rose-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Department Content</p>
+                                <p class="text-xs text-slate-500">Manage department pages</p>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('hod.media.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-purple-300 hover:bg-purple-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Media</p>
+                                <p class="text-xs text-slate-500">Manage photos & files</p>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('hod.reports.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-teal-300 hover:bg-teal-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Reports</p>
+                                <p class="text-xs text-slate-500">Analytics & insights</p>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('hod.alumni.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-orange-300 hover:bg-orange-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Alumni Preparation</p>
+                                <p class="text-xs text-slate-500">Graduating students</p>
                             </div>
                         </a>
                     @else

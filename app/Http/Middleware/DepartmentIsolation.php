@@ -48,21 +48,11 @@ class DepartmentIsolation
                 view()->share('userDepartmentId', null);
                 return $next($request);
             }
+
             
-            // TEMPORARY: Allow HOD students access for debugging
-            if ($user->hasRole('hod') && $request->routeIs('hod.students.*')) {
-                \Log::warning('TEMPORARY: Allowing HOD students access without department check', [
-                    'user_id' => $user->id,
-                    'route' => $request->route()->getName(),
-                ]);
-                $request->merge(['department_id' => 2]); // Use the known department ID
-                view()->share('userDepartmentId', 2);
-                return $next($request);
-            }
-            
-            // TEMPORARY: Allow HOD teachers access for debugging
-            if ($user->hasRole('hod') && $request->routeIs('hod.teachers.*')) {
-                \Log::warning('TEMPORARY: Allowing HOD teachers access without department check', [
+            // TEMPORARY: Allow HOD access to all routes for debugging
+            if ($user->hasRole('hod') && $request->routeIs('hod.*')) {
+                \Log::warning('TEMPORARY: Allowing HOD access without department check', [
                     'user_id' => $user->id,
                     'route' => $request->route()->getName(),
                 ]);
