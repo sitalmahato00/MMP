@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Dashboard')
 
@@ -50,7 +50,7 @@
     ];
 
     $sessionName = $selectedSession?->name ?? $activeSession?->name ?? 'Current session';
-$rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' â€" ' . bsDate($rangeEnd, 'Y, F d') : null;
+$rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' �" ' . bsDate($rangeEnd, 'Y, F d') : null;
     $semesters = $runningSemesters ?? [];
     $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
     $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
@@ -66,55 +66,55 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     data-dashboard-endpoint="{{ route('admin.dashboard') }}"
     data-dashboard-state="{{ $dashboardStateEncoded }}">
 
-    {{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-         1. TOP HEADER â€“ Smart Control Bar
-    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
-    <section class="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+    {{-- ═══════════════════════════════════════════════════════════
+         1. TOP HEADER – Smart Control Bar
+    ═══════════════════════════════════════════════════════════ --}}
+    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40"></div>
-        <div class="relative px-6 py-5 sm:px-8">
+        <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             {{-- Row 1: Greeting + Quick Actions --}}
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Principal Dashboard</p>
-                    <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                    <p class="text-\[10px\] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Principal Dashboard</p>
+                    <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
                         {{ $greeting }}, {{ auth()->user()->name ?? 'Principal' }}
                     </h1>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="{{ route('admin.students.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800">
-                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <a href="{{ route('admin.students.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 sm:px-3.5 py-1.5 sm:py-2 text-\[11px\] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                        <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         Add Student
                     </a>
-                    <a href="{{ route('admin.notices.create') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+                    <a href="{{ route('admin.notices.create') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-\[11px\] sm:text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
                         Create Notice
                     </a>
-                    <a href="{{ route('admin.applications.index') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+                    <a href="{{ route('admin.applications.index') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-\[11px\] sm:text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
                         Manage Admissions
                     </a>
-                    <a href="{{ route('admin.attendance.index') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
-                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    <a href="{{ route('admin.attendance.index') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 sm:px-3.5 py-1.5 sm:py-2 text-\[11px\] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                        <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         Attendance Overview
                     </a>
                 </div>
             </div>
 
             {{-- Row 2: Session + Semester Chips + Date Range --}}
-            <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
-                <div class="flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+            <div class="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 sm:gap-3 border-t border-slate-100 pt-4">
+                <div class="flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 sm:px-3 py-1 sm:py-1.5 text-\[11px\] sm:text-xs font-medium text-slate-600">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                     <span data-dashboard-session-display>{{ $sessionName }}</span>
                 </div>
 
                 @foreach($semesters as $sem)
                     @php $semColor = $semesterStatusColors[$sem['status']] ?? $semesterStatusColors['running']; @endphp
-                    <span class="inline-flex items-center gap-1.5 rounded-lg {{ $semColor['bg'] }} px-2.5 py-1 text-[11px] font-semibold {{ $semColor['text'] }}">
+                    <span class="inline-flex items-center gap-1.5 rounded-lg {{ $semColor['bg'] }} px-2 sm:px-2.5 py-0.5 sm:py-1 text-\[10px\] sm:text-\[11px\] font-semibold {{ $semColor['text'] }}">
                         <span class="h-1.5 w-1.5 rounded-full {{ $semColor['dot'] }}"></span>
                         Sem {{ $sem['number'] }}
                     </span>
                 @endforeach
 
-                <div class="ml-auto flex items-center gap-2 text-xs text-slate-500">
+                <div class="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-\[11px\] sm:text-xs text-slate-500">
                     @if($rangeLabel)
                         <span data-dashboard-range-display>{{ $rangeLabel }}</span>
                         <span class="text-slate-300">|</span>
@@ -125,9 +125,9 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         </div>
     </section>
 
-    {{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-         2. KPI METRICS â€“ 6 Smart Cards
-    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+    {{-- ═══════════════════════════════════════════════════════════
+         2. KPI METRICS – 6 Smart Cards
+    ═══════════════════════════════════════════════════════════ --}}
     <section id="dashboard-kpis" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         @foreach($kpiCards as $card)
             @php $t = $toneMap[$card['tone']] ?? $toneMap['blue']; @endphp
@@ -163,94 +163,182 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         @endforeach
     </section>
 
-    {{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-         3. MAIN ANALYTICS â€“ Charts + Semester Status Panel
-    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
-    <section id="main-insights" class="grid gap-5 xl:grid-cols-[1fr_340px]">
+    {{-- ═══════════════════════════════════════════════════════════
+         3. MAIN ANALYTICS – Charts + Notices Panel
+    ═══════════════════════════════════════════════════════════ --}}
+    <section id="main-insights" class="grid gap-5 lg:grid-cols-[1fr_320px]">
         {{-- LEFT: Charts --}}
         <div class="space-y-5">
-            {{-- Enrollment Trend --}}
+            {{-- Attendance Curve Chart --}}
             <div class="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h2 class="text-sm font-semibold text-slate-900">Enrollment & Admissions Trend</h2>
-                        <p class="text-xs text-slate-500">Monthly admissions momentum</p>
+                        <h2 class="text-sm font-semibold text-slate-900">Attendance Trend</h2>
+                        <p class="text-xs text-slate-500">Daily attendance percentage over time</p>
                     </div>
-                    <span class="rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600">{{ $periodLabel }}</span>
+                    <div class="flex items-center gap-2">
+                        <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md bg-blue-50 text-blue-600" data-period="7">7 Days</button>
+                        <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-50" data-period="30">30 Days</button>
+                        <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-50" data-period="session">Session</button>
+                    </div>
                 </div>
-                <div class="mt-4 h-[200px]">
-                    <canvas id="principal-enrollment-chart" data-principal-chart="enrollment"></canvas>
+                <div class="h-[250px]">
+                    <canvas id="attendance-curve-chart"></canvas>
                 </div>
             </div>
 
-            {{-- Department Performance (Horizontal Bar) --}}
+            {{-- Grade Distribution Donut Chart --}}
             <div class="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h2 class="text-sm font-semibold text-slate-900">Department Performance</h2>
-                        <p class="text-xs text-slate-500">Composite score: 45% attendance + 55% pass rate</p>
+                        <h2 class="text-sm font-semibold text-slate-900">Grade Distribution</h2>
+                        <p class="text-xs text-slate-500">Student performance breakdown by grade</p>
                     </div>
-                    @if($highlight)
-                        <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">Top: {{ $highlight['label'] }}</span>
-                    @endif
                 </div>
-                <div class="mt-4 h-[200px]">
-                    <canvas id="principal-department-chart" data-principal-chart="department"></canvas>
+                <div class="h-[250px] flex items-center justify-center">
+                    <canvas id="grade-donut-chart"></canvas>
                 </div>
             </div>
         </div>
 
-        {{-- RIGHT: Semester Status Panel --}}
+        {{-- RIGHT: Notices Panel --}}
         <div class="space-y-5">
+            {{-- Notices & CTEVT Notices Tabbed Card --}}
+            <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeNoticeTab: 'internal' }">
+                <div class="border-b border-slate-100 px-4 py-3">
+                    <h2 class="text-sm font-semibold text-slate-900">Notices & Updates</h2>
+                </div>
+
+                {{-- Tabs --}}
+                <div class="flex border-b border-slate-100 bg-slate-50">
+                    <button @click="activeNoticeTab = 'internal'" :class="activeNoticeTab === 'internal' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-600 hover:text-slate-900'" class="flex-1 px-3 py-2.5 text-xs font-semibold transition">
+                        Internal
+                    </button>
+                    <button @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-600 hover:text-slate-900'" class="flex-1 px-3 py-2.5 text-xs font-semibold transition">
+                        CTEVT
+                    </button>
+                </div>
+
+                {{-- Internal Notices Tab --}}
+                <div x-show="activeNoticeTab === 'internal'" class="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
+                    @forelse($recentNotices as $notice)
+                        <a href="{{ route('admin.notices.edit', $notice) }}" class="flex items-start gap-2.5 px-4 py-3 transition hover:bg-slate-50">
+                            <div class="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                                <span class="text-[7px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
+                                <span class="text-xs font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
+                                <span class="text-[6px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-xs font-medium text-slate-900">{{ $notice->title }}</p>
+                                <p class="mt-0.5 text-[10px] text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }}</p>
+                            </div>
+                        </a>
+                    @empty
+                        <div class="py-8 text-center">
+                            <p class="text-xs text-slate-400">No recent notices.</p>
+                        </div>
+                    @endforelse
+                    @if($recentNotices->isNotEmpty())
+                        <div class="px-4 py-2.5 bg-slate-50">
+                            <a href="{{ route('admin.notices.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View all →</a>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- CTEVT Notices Tab --}}
+                <div x-show="activeNoticeTab === 'ctevt'" x-cloak x-data="{ ctevtSubTab: 'general' }">
+                    <div class="flex gap-1 bg-slate-50 p-2">
+                        <button @click="ctevtSubTab = 'general'" :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
+                            General ({{ $ctevtGeneralItems->count() }})
+                        </button>
+                        <button @click="ctevtSubTab = 'result'" :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
+                            Results ({{ $ctevtResultItems->count() }})
+                        </button>
+                    </div>
+
+                    <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[450px] overflow-y-auto">
+                        @forelse($ctevtGeneralItems as $notice)
+                            <a href="{{ $notice['url'] ?? $ctevtGeneralPageUrl }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
+                                <div class="flex items-center gap-2">
+                                    <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-red-600">CTEVT</span>
+                                    <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Notice' }}</span>
+                                </div>
+                                @if(!empty($notice['updated_date']))
+                                    <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
+                                @endif
+                            </a>
+                        @empty
+                            <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
+                        @endforelse
+                    </div>
+
+                    <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[450px] overflow-y-auto">
+                        @forelse($ctevtResultItems as $notice)
+                            <a href="{{ $notice['url'] ?? $ctevtResultPageUrl }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
+                                <div class="flex items-center gap-2">
+                                    <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600">CTEVT</span>
+                                    <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Result' }}</span>
+                                </div>
+                                @if(!empty($notice['updated_date']))
+                                    <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
+                                @endif
+                            </a>
+                        @empty
+                            <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
             {{-- Active Academic Flow Card --}}
             <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-                <div class="border-b border-slate-100 px-5 py-4">
+                <div class="border-b border-slate-100 px-4 py-3">
                     <div class="flex items-center gap-2">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50">
-                            <svg class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
+                            <svg class="h-3.5 w-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
                         <div>
-                            <h2 class="text-sm font-semibold text-slate-900">Active Academic Flow</h2>
-                            <p class="text-[11px] text-slate-500">Session: {{ $sessionName }}</p>
+                            <h2 class="text-xs font-semibold text-slate-900">Active Academic Flow</h2>
+                            <p class="text-[10px] text-slate-500">Session: {{ $sessionName }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="divide-y divide-slate-100 px-5">
+                <div class="divide-y divide-slate-100 px-4">
                     @forelse($semesters as $sem)
                         @php $sc = $semesterStatusColors[$sem['status']] ?? $semesterStatusColors['running']; @endphp
-                        <div class="py-3.5">
+                        <div class="py-3">
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <span class="h-2 w-2 rounded-full {{ $sc['dot'] }}"></span>
-                                    <span class="text-sm font-semibold text-slate-900">{{ $sem['label'] }}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="h-1.5 w-1.5 rounded-full {{ $sc['dot'] }}"></span>
+                                    <span class="text-xs font-semibold text-slate-900">{{ $sem['label'] }}</span>
                                 </div>
-                                <span class="rounded-md {{ $sc['bg'] }} px-2 py-0.5 text-[10px] font-semibold {{ $sc['text'] }}">
+                                <span class="rounded-md {{ $sc['bg'] }} px-1.5 py-0.5 text-[9px] font-semibold {{ $sc['text'] }}">
                                     {{ $sem['statusLabel'] }}
                                 </span>
                             </div>
                             @if($sem['delayReason'])
-                                <p class="mt-1 text-[11px] text-amber-600">{{ $sem['delayReason'] }}</p>
+                                <p class="mt-1 text-[10px] text-amber-600">{{ $sem['delayReason'] }}</p>
                             @endif
                             <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
                                 <div class="h-full rounded-full {{ $sc['bar'] }} transition-all duration-500" style="width: {{ $sem['progress'] }}%"></div>
                             </div>
-                            <div class="mt-1 flex justify-between text-[10px] text-slate-400">
-                                <span>{{ $sem['startDate'] ?? 'â€”' }}</span>
+                            <div class="mt-1 flex justify-between text-[9px] text-slate-400">
+                                <span>{{ $sem['startDate'] ?? '—' }}</span>
                                 <span>{{ $sem['progress'] }}%</span>
                             </div>
                         </div>
                     @empty
-                        <div class="py-8 text-center">
-                            <p class="text-xs text-slate-400">No semesters configured for this session.</p>
+                        <div class="py-6 text-center">
+                            <p class="text-[11px] text-slate-400">No semesters configured.</p>
                         </div>
                     @endforelse
                 </div>
 
                 @if(count($semesters) > 0)
-                    <div class="border-t border-slate-100 px-5 py-3">
-                        <a href="{{ route('admin.academic-sessions.index') }}" class="text-xs font-semibold text-blue-600 transition hover:text-blue-700">
-                            View Details â†’
+                    <div class="border-t border-slate-100 px-4 py-2.5">
+                        <a href="{{ route('admin.academic-sessions.index') }}" class="text-[11px] font-semibold text-blue-600 transition hover:text-blue-700">
+                            View Details →
                         </a>
                     </div>
                 @endif
@@ -258,28 +346,28 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
 
             {{-- Quick Stats --}}
             <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Community</p>
-                <div class="mt-3 grid grid-cols-3 gap-3">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Community</p>
+                <div class="mt-3 grid grid-cols-3 gap-2">
                     <div class="text-center">
-                        <p class="text-lg font-bold text-slate-900">{{ number_format($totalTeachers ?? 0) }}</p>
-                        <p class="text-[10px] text-slate-500">Teachers</p>
+                        <p class="text-base font-bold text-slate-900">{{ number_format($totalTeachers ?? 0) }}</p>
+                        <p class="text-[9px] text-slate-500">Teachers</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-lg font-bold text-slate-900">{{ number_format($totalParents ?? 0) }}</p>
-                        <p class="text-[10px] text-slate-500">Parents</p>
+                        <p class="text-base font-bold text-slate-900">{{ number_format($totalParents ?? 0) }}</p>
+                        <p class="text-[9px] text-slate-500">Parents</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-lg font-bold text-slate-900">{{ number_format($totalAlumni ?? 0) }}</p>
-                        <p class="text-[10px] text-slate-500">Alumni</p>
+                        <p class="text-base font-bold text-slate-900">{{ number_format($totalAlumni ?? 0) }}</p>
+                        <p class="text-[9px] text-slate-500">Alumni</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    {{-- ═══════════════════════════════════════════════════════════
          4. ALERTS & INSIGHTS + HIGHLIGHTS
-    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+    ═══════════════════════════════════════════════════════════ --}}
     <section class="grid gap-5 xl:grid-cols-[1fr_340px]">
         {{-- Alerts --}}
         <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
@@ -299,7 +387,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                             <p class="mt-0.5 text-xs text-slate-500">{{ $alert['message'] }}</p>
                         </div>
                         @if(!empty($alert['actionHref']))
-                            <a href="{{ $alert['actionHref'] }}" class="shrink-0 rounded-md border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
+                            <a href="{{ $alert['actionHref'] }}" class="shrink-0 rounded-md border border-slate-200 px-2 sm:px-2.5 py-0.5 sm:py-1 text-\[10px\] sm:text-\[11px\] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
                                 {{ $alert['actionLabel'] ?? 'View' }}
                             </a>
                         @endif
@@ -359,126 +447,155 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         </div>
     </section>
 
-    {{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-         5. BOTTOM â€“ Notices + Applications
-    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
-    <section class="grid gap-5 xl:grid-cols-2">
-        {{-- Recent Notices --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                <a href="{{ route('admin.notices.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View all</a>
-            </div>
-            <div data-dashboard-notice-list class="divide-y divide-slate-100">
-                @forelse($recentNotices as $notice)
-                    <a href="{{ route('admin.notices.edit', $notice) }}" class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
-                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
-                            <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
-                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'Y, F d') }} Â· {{ $notice->author->name ?? 'System' }}</p>
-                        </div>
-                        <span class="shrink-0 self-center rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">{{ $notice->type }}</span>
-                    </a>
-                @empty
-                    <div class="py-8 text-center">
-                        <p class="text-xs text-slate-400">No recent notices.</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
 
-        {{-- Recent Applications --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Recent Applications</h2>
-                <a href="{{ route('admin.applications.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View all</a>
-            </div>
-            <div data-dashboard-application-list class="divide-y divide-slate-100">
-                @forelse($recentApplications as $application)
-                    @php $appStatus = $application->status ?? 'pending'; @endphp
-                    <a href="{{ route('admin.applications.show', $application) }}" class="flex items-center gap-3 px-5 py-3.5 transition hover:bg-slate-50">
-                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-slate-900">{{ $application->full_name }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ $application->department->name ?? 'General' }} Â· {{ bsDate($application->created_at, 'Y, F d') }}</p>
-                        </div>
-                        <span class="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold {{ $statusColors[$appStatus] ?? $statusColors['pending'] }}">
-                            {{ ucfirst($appStatus) }}
-                        </span>
-                    </a>
-                @empty
-                    <div class="py-8 text-center">
-                        <p class="text-xs text-slate-400">No applications yet.</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-    </section>
-
-    {{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-         6. CTEVT Notices â€“ Collapsible Tabbed
-    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
-    <section x-data="{ ctevtOpen: false, activeTab: 'general' }" class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <button type="button" @click="ctevtOpen = !ctevtOpen" class="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-slate-50">
-            <div>
-                <h2 class="text-sm font-semibold text-slate-900">CTEVT Notices</h2>
-                <p class="text-xs text-slate-500">Live notices and published results from CTEVT</p>
-            </div>
-            <svg :class="ctevtOpen && 'rotate-180'" class="h-4 w-4 text-slate-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-
-        <div x-show="ctevtOpen" x-cloak x-transition class="border-t border-slate-100 px-5 pb-4 pt-3">
-            {{-- Tabs --}}
-            <div class="flex gap-1 rounded-lg bg-slate-100 p-0.5">
-                <button @click="activeTab = 'general'" :class="activeTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'" class="flex-1 rounded-md px-3 py-1.5 text-xs font-semibold transition">
-                    General <span class="ml-1 text-[10px] text-slate-400">{{ $ctevtGeneralItems->count() }}</span>
-                </button>
-                <button @click="activeTab = 'result'" :class="activeTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'" class="flex-1 rounded-md px-3 py-1.5 text-xs font-semibold transition">
-                    Results <span class="ml-1 text-[10px] text-slate-400">{{ $ctevtResultItems->count() }}</span>
-                </button>
-            </div>
-
-            {{-- General notices --}}
-            <div x-show="activeTab === 'general'" class="mt-3 space-y-2">
-                @forelse($ctevtGeneralItems as $notice)
-                    <a href="{{ $notice['url'] ?? $ctevtGeneralPageUrl }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-lg border border-slate-100 px-3 py-2.5 transition hover:border-slate-200 hover:bg-slate-50">
-                        <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[9px] font-bold text-red-600">CTEVT</span>
-                        <span class="min-w-0 flex-1 truncate text-xs font-medium text-slate-700">{{ $notice['title'] ?? 'Notice' }}</span>
-                        @if(!empty($notice['updated_date']))
-                            <span class="shrink-0 text-[10px] text-slate-400">{{ $notice['updated_date'] }}</span>
-                        @endif
-                    </a>
-                @empty
-                    <p class="py-4 text-center text-xs text-slate-400">No general notices available.</p>
-                @endforelse
-            </div>
-
-            {{-- Result notices --}}
-            <div x-show="activeTab === 'result'" x-cloak class="mt-3 space-y-2">
-                @forelse($ctevtResultItems as $notice)
-                    <a href="{{ $notice['url'] ?? $ctevtResultPageUrl }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-lg border border-slate-100 px-3 py-2.5 transition hover:border-slate-200 hover:bg-slate-50">
-                        <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600">CTEVT</span>
-                        <span class="min-w-0 flex-1 truncate text-xs font-medium text-slate-700">{{ $notice['title'] ?? 'Result' }}</span>
-                        @if(!empty($notice['updated_date']))
-                            <span class="shrink-0 text-[10px] text-slate-400">{{ $notice['updated_date'] }}</span>
-                        @endif
-                    </a>
-                @empty
-                    <p class="py-4 text-center text-xs text-slate-400">No result notices available.</p>
-                @endforelse
-            </div>
-
-            <div class="mt-3 flex justify-end gap-3 text-[11px] font-semibold">
-                <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="text-blue-600 hover:text-blue-700">View General</a>
-                <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="text-blue-600 hover:text-blue-700">View Results</a>
-            </div>
-        </div>
-    </section>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get real Nepali dates from backend
+    const attendanceChartData = @json($attendanceChartData ?? []);
+    
+    // Sample data - replace with actual data from backend
+    const attendanceData = {
+        '7': {
+            labels: attendanceChartData['7']?.labels || ['बै 1', 'बै 2', 'बै 3', 'बै 4', 'बै 5', 'बै 6', 'बै 7'],
+            data: attendanceChartData['7']?.data || [85, 88, 82, 90, 87, 89, 91]
+        },
+        '30': {
+            labels: attendanceChartData['30']?.labels || Array.from({length: 30}, (_, i) => `बै ${i + 1}`),
+            data: attendanceChartData['30']?.data || Array.from({length: 30}, () => Math.floor(Math.random() * 20) + 75)
+        },
+        'session': {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+            data: [82, 85, 87, 86, 88, 90, 89, 91]
+        }
+    };
+
+    // Attendance Curve Chart
+    const attendanceCtx = document.getElementById('attendance-curve-chart');
+    let attendanceChart = new Chart(attendanceCtx, {
+        type: 'line',
+        data: {
+            labels: attendanceData['7'].labels,
+            datasets: [{
+                label: 'Attendance %',
+                data: attendanceData['7'].data,
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Attendance: ' + context.parsed.y + '%';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 70,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Filter buttons for attendance chart
+    document.querySelectorAll('.attendance-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const period = this.dataset.period;
+            
+            // Update button styles
+            document.querySelectorAll('.attendance-filter-btn').forEach(b => {
+                b.classList.remove('bg-blue-50', 'text-blue-600');
+                b.classList.add('text-slate-600', 'hover:bg-slate-50');
+            });
+            this.classList.add('bg-blue-50', 'text-blue-600');
+            this.classList.remove('text-slate-600', 'hover:bg-slate-50');
+            
+            // Update chart data
+            attendanceChart.data.labels = attendanceData[period].labels;
+            attendanceChart.data.datasets[0].data = attendanceData[period].data;
+            attendanceChart.update();
+        });
+    });
+
+    // Grade Distribution Donut Chart
+    const gradeCtx = document.getElementById('grade-donut-chart');
+    new Chart(gradeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'],
+            datasets: [{
+                data: [15, 25, 30, 20, 8, 2],
+                backgroundColor: [
+                    'rgb(34, 197, 94)',   // Green for A+
+                    'rgb(59, 130, 246)',  // Blue for A
+                    'rgb(168, 85, 247)',  // Purple for B+
+                    'rgb(251, 146, 60)',  // Orange for B
+                    'rgb(251, 191, 36)',  // Yellow for C
+                    'rgb(239, 68, 68)'    // Red for F
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 11
+                        },
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            return data.labels.map((label, i) => ({
+                                text: label + ' (' + data.datasets[0].data[i] + '%)',
+                                fillStyle: data.datasets[0].backgroundColor[i],
+                                hidden: false,
+                                index: i
+                            }));
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+@endpush
+
+
+

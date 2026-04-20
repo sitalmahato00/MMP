@@ -98,6 +98,9 @@ class DashboardController extends Controller
             $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
             $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
 
+            // Attendance chart data with real Nepali dates
+            $attendanceChartData = $this->buildAttendanceChartData();
+
             $alerts = $this->buildAlerts(
                 $departmentPerformance['rows'],
                 $attendanceSummary,
@@ -204,6 +207,7 @@ class DashboardController extends Controller
                 'recentApplications' => $recentApplications,
                 'ctevtGeneralNotices' => $ctevtGeneralNotices,
                 'ctevtResultNotices' => $ctevtResultNotices,
+                'attendanceChartData' => $attendanceChartData,
                 'currentStudents' => $currentStudents,
                 'totalTeachers' => $totalTeachers,
                 'totalParents' => $totalParents,
@@ -799,5 +803,45 @@ class DashboardController extends Controller
     {
         $hour = Carbon::now()->hour;
         return match (true) { $hour < 12 => 'Good morning', $hour < 17 => 'Good afternoon', default => 'Good evening' };
+    }
+
+    private function buildAttendanceChartData(): array
+    {
+        $today = Carbon::now();
+        
+        // 7 days data - last 7 days
+        $sevenDaysLabels = [];
+        $sevenDaysData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = $today->copy()->subDays($i);
+            $sevenDaysLabels[] = bsDate($date, 'F d'); // e.g., "Baisakh 15"
+            // Sample data - replace with actual attendance query
+            $sevenDaysData[] = rand(75, 95);
+        }
+        
+        // 30 days data - full current Nepali month (1 to 30)
+        $thirtyDaysLabels = [];
+        $thirtyDaysData = [];
+        
+        // Get the first day of current Nepali month
+        $firstDayOfMonth = $today->copy()->startOfMonth();
+        
+        // Generate labels for days 1-30 of current month
+        for ($day = 1; $day <= 30; $day++) {
+            $thirtyDaysLabels[] = (string) $day; // Just day number: "1", "2", "3", etc.
+            // Sample data - replace with actual attendance query
+            $thirtyDaysData[] = rand(75, 95);
+        }
+        
+        return [
+            '7' => [
+                'labels' => $sevenDaysLabels,
+                'data' => $sevenDaysData,
+            ],
+            '30' => [
+                'labels' => $thirtyDaysLabels,
+                'data' => $thirtyDaysData,
+            ],
+        ];
     }
 }

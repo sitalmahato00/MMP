@@ -105,13 +105,6 @@
                     <div class="sm:hidden text-[10px] font-normal text-gray-500">mmp.edu.np</div>
                 </div>
             </a>
-
-            <button type="button" id="mobile-install-trigger" class="inline-flex md:hidden shrink-0 items-center gap-1.5 rounded-full border border-[#8B0000]/15 bg-[#8B0000]/5 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-[#8B0000] shadow-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download
-            </button>
         </div>
     </div>
     @endunless
@@ -233,10 +226,16 @@
                     <div class="text-[11px] font-bold text-white tracking-widest leading-tight hover:opacity-100 transition-opacity cursor-pointer">021-590697</div>
                 </div>
 
-                {{-- Mobile Toggle --}}
+                {{-- Mobile: Hamburger Menu (Left) --}}
                 <button @click="mobileOpen = !mobileOpen" class="xl:hidden text-white p-3 hover:bg-white/10 transition-colors h-14 flex items-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
+
+                {{-- Mobile: Login Button (Right) --}}
+                <a href="{{ route('login') }}" class="xl:hidden ml-auto inline-flex items-center gap-1.5 rounded-md bg-yellow-500 hover:bg-yellow-400 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-gray-900 shadow-sm transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                    Login
+                </a>
             </div>
         </div>
 
@@ -431,6 +430,38 @@
         </div>
     </div>
 
+    {{-- Install App Modal (Shows on first visit to home page) --}}
+    @if(request()->routeIs('home'))
+    <div id="install-modal" x-data="{ show: false }" x-show="show" x-cloak class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;">
+        <div @click.away="show = false" x-show="show" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B0000] to-[#5B0000] flex items-center justify-center shadow-lg">
+                        <svg class="w-7 h-7 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Install MMP App</h3>
+                        <p class="text-xs text-gray-500">Manmohan Memorial Polytechnic</p>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                    Add the system to your home screen for a faster, app-like experience and offline access to recent pages.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button @click="show = false; installApp()" class="flex-1 bg-[#8B0000] hover:bg-[#6B0000] text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg">
+                        Install
+                    </button>
+                    <button @click="show = false; dismissInstall()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors">
+                        Not now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @stack('scripts')
 
     <script>
@@ -438,7 +469,7 @@
             const banner = document.getElementById('pwa-install-banner');
             const installButton = document.getElementById('pwa-install-trigger');
             const dismissButton = document.getElementById('pwa-install-dismiss');
-            const mobileInstallButton = document.getElementById('mobile-install-trigger');
+            const installModal = document.getElementById('install-modal');
 
             if (!banner || !installButton || !dismissButton) {
                 return;
@@ -458,6 +489,12 @@
                 }
             };
 
+            const showModal = function () {
+                if (installModal && installModal.__x) {
+                    installModal.__x.$data.show = true;
+                }
+            };
+
             const triggerInstall = async function () {
                 if (!deferredPrompt) {
                     revealBanner();
@@ -473,39 +510,49 @@
                 }
 
                 deferredPrompt = null;
+                if (installModal && installModal.__x) {
+                    installModal.__x.$data.show = false;
+                }
                 banner.classList.add('hidden');
                 localStorage.setItem(storageKey, '1');
             };
 
-            if (mobileInstallButton) {
-                mobileInstallButton.addEventListener('click', triggerInstall);
-            }
+            // Make functions globally available for Alpine
+            window.installApp = triggerInstall;
+            window.dismissInstall = function() {
+                localStorage.setItem(storageKey, '1');
+            };
 
             window.addEventListener('beforeinstallprompt', function (event) {
                 event.preventDefault();
                 deferredPrompt = event;
 
-                if (!isStandalone && !wasDismissed) {
-                    revealBanner();
+                if (!isStandalone && !wasDismissed && installModal) {
+                    // Show modal after 2 seconds on first visit
+                    setTimeout(showModal, 2000);
                 }
             });
 
             window.addEventListener('appinstalled', function () {
                 deferredPrompt = null;
+                if (installModal && installModal.__x) {
+                    installModal.__x.$data.show = false;
+                }
                 banner.classList.add('hidden');
                 localStorage.setItem(storageKey, '1');
             });
 
             installButton.addEventListener('click', triggerInstall);
 
-            if (isMobileViewport && !isStandalone && !wasDismissed) {
-                revealBanner();
-            }
-
             dismissButton.addEventListener('click', function () {
                 banner.classList.add('hidden');
                 localStorage.setItem(storageKey, '1');
             });
+
+            // Show modal on first visit for mobile users (even without beforeinstallprompt)
+            if (isMobileViewport && !isStandalone && !wasDismissed && installModal) {
+                setTimeout(showModal, 2000);
+            }
         })();
     </script>
 

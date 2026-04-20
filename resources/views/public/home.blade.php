@@ -37,7 +37,7 @@
             ];
         });
 @endphp
-<section class="relative w-full h-[420px] overflow-hidden bg-gray-900"
+<section class="relative w-full h-[300px] sm:h-[350px] md:h-[420px] overflow-hidden bg-gray-900"
     x-data="{
         current: 0,
         total: {{ $hasSlides ? $bannerSlides->count() : 1 }},
@@ -66,40 +66,40 @@
                 <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
                 <div class="absolute inset-0 flex flex-col justify-center">
                     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
-                        <div class="max-w-3xl pl-4 md:pl-10">
+                        <div class="max-w-3xl pl-2 sm:pl-4 md:pl-10">
                             {{-- College identity always visible --}}
-                            <div class="flex items-center gap-2 mb-4">
-                                <span style="color:#facc15;font-size:0.85rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,0.6);">Best Technical College in Nepal</span>
-                                <span style="color:rgba(255,255,255,0.4);font-size:0.85rem;">·</span>
-                                <span style="color:rgba(255,255,255,0.85);font-size:0.85rem;font-weight:500;">Est. 2054 B.S.</span>
+                            <div class="flex flex-wrap items-center gap-1 sm:gap-2 mb-2 sm:mb-4">
+                                <span class="text-yellow-400 text-[10px] sm:text-xs md:text-[0.85rem] font-bold sm:font-extrabold uppercase tracking-wider drop-shadow-lg">Best Technical College in Nepal</span>
+                                <span class="text-white/40 text-[10px] sm:text-xs md:text-[0.85rem]">·</span>
+                                <span class="text-white/85 text-[10px] sm:text-xs md:text-[0.85rem] font-medium">Est. 2054 B.S.</span>
                             </div>
                             @if($banner->subtitle)
-                                <span style="background:#e74c3c;font-size:0.7rem;font-weight:700;padding:0.35rem 0.9rem;margin-bottom:1rem;display:inline-block;text-transform:uppercase;color:white;letter-spacing:0.12em;">{{ $banner->subtitle }}</span>
+                                <span class="bg-[#e74c3c] text-[9px] sm:text-[10px] md:text-[0.7rem] font-bold px-2 sm:px-3 py-1 sm:py-1.5 mb-2 sm:mb-4 inline-block uppercase text-white tracking-wider">{{ $banner->subtitle }}</span>
                             @endif
-                            <h2 style="font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.08;text-transform:uppercase;letter-spacing:-0.01em;color:white;text-shadow:0 4px 20px rgba(0,0,0,0.7);margin-bottom:1.25rem;">
+                            <h2 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-[3.8rem] font-black leading-tight uppercase text-white drop-shadow-2xl mb-2 sm:mb-4 md:mb-5">
                                 {{ $banner->title }}
                             </h2>
                             {{-- Department program list --}}
-                            <div style="font-size:0.95rem;font-weight:600;color:white;text-shadow:0 1px 6px rgba(0,0,0,0.6);display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;margin-bottom:1.75rem;letter-spacing:0.03em;">
+                            <div class="text-[11px] sm:text-xs md:text-sm lg:text-[0.95rem] font-semibold text-white drop-shadow-lg flex flex-wrap items-center gap-1 sm:gap-2 mb-3 sm:mb-5 md:mb-7">
                                 @php $deptNames = ($departments ?? collect())->pluck('name'); @endphp
                                 @if($deptNames->count())
                                     @foreach($deptNames as $dn)
-                                        <span>{{ $dn }}</span>@if(!$loop->last)<span style="color:#facc15;">|</span>@endif
+                                        <span>{{ $dn }}</span>@if(!$loop->last)<span class="text-yellow-400">|</span>@endif
                                     @endforeach
                                 @else
-                                    <span>Information Technology</span> <span style="color:#facc15;">|</span>
-                                    <span>Civil</span> <span style="color:#facc15;">|</span>
-                                    <span>Electrical</span> <span style="color:#facc15;">|</span>
-                                    <span>Mechanical</span> <span style="color:#facc15;">|</span>
+                                    <span>Information Technology</span> <span class="text-yellow-400">|</span>
+                                    <span>Civil</span> <span class="text-yellow-400">|</span>
+                                    <span>Electrical</span> <span class="text-yellow-400">|</span>
+                                    <span>Mechanical</span> <span class="text-yellow-400">|</span>
                                     <span>Electronics Engineering</span>
                                 @endif
                             </div>
-                            <div class="flex flex-wrap gap-3">
-                                <a href="{{ route('public.apply') }}" style="background:#d35400;color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:inline-flex;align-items:center;gap:0.5rem;transition:background 0.15s;" onmouseover="this.style.background='#e67e22'" onmouseout="this.style.background='#d35400'">
-                                    Apply Now <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            <div class="flex flex-wrap gap-2 sm:gap-3">
+                                <a href="{{ route('public.apply') }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-[11px] sm:text-xs md:text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-1 sm:gap-2 rounded-sm">
+                                    Apply Now <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                 </a>
-                                <a href="{{ route('public.page', 'what-is-mmp') }}" style="border:2px solid rgba(255,255,255,0.65);color:white;padding:0.7rem 1.4rem;font-size:0.875rem;font-weight:700;display:inline-flex;align-items:center;gap:0.5rem;backdrop-filter:blur(4px);transition:border-color 0.15s;" onmouseover="this.style.borderColor='white'" onmouseout="this.style.borderColor='rgba(255,255,255,0.65)'">
-                                    Learn More <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                <a href="{{ route('public.page', 'what-is-mmp') }}" class="border-2 border-white/65 hover:border-white text-white px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-[11px] sm:text-xs md:text-sm font-bold inline-flex items-center gap-1 sm:gap-2 rounded-sm backdrop-blur-sm transition-colors">
+                                    Learn More <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                 </a>
                             </div>
                         </div>
@@ -716,36 +716,55 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 bg-[#f9f9f9] shadow-md rounded-lg overflow-hidden">
         <div class="lg:col-span-2 h-[350px] relative">
-            <iframe class="w-full h-full" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Manmohan%20Memorial%20Polytechnic+(Manmohan%20Memorial%20Polytechnic)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" loading="lazy"></iframe>
+            @php
+                $googleMapsIframe = optional($siteSettings->get('google_maps_iframe'))->value;
+            @endphp
+            @if($googleMapsIframe && str_contains($googleMapsIframe, 'iframe'))
+                <div class="w-full h-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-0">
+                    {!! $googleMapsIframe !!}
+                </div>
+            @else
+                <iframe class="w-full h-full" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Manmohan%20Memorial%20Polytechnic+(Manmohan%20Memorial%20Polytechnic)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" loading="lazy"></iframe>
+            @endif
         </div>
         <div class="lg:col-span-1 p-6 md:p-8 bg-[#f9f9f9]">
             <h3 class="font-semibold text-[#8B0000] text-[15px] mb-5 border-b border-red-200 pb-2">Contact Information</h3>
             <ul class="space-y-4 text-[13px] text-gray-700 font-medium">
+                @if($contactAddress = optional($siteSettings->get('contact_address'))->value)
                 <li class="flex gap-3">
                     <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    <div>Budhiganga-4, Morang, Koshi Province, Nepal</div>
+                    <div>{{ $contactAddress }}</div>
                 </li>
+                @endif
+                @if($contactPhone = optional($siteSettings->get('contact_phone'))->value)
                 <li class="flex gap-3">
                     <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                    <div>+977 21 590696, +977 21 590697</div>
+                    <div>{{ $contactPhone }}</div>
                 </li>
+                @endif
+                @if($contactEmail = optional($siteSettings->get('contact_email'))->value)
                 <li class="flex gap-3">
                     <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    <div>info@mmp.edu.np</div>
+                    <div>{{ $contactEmail }}</div>
                 </li>
+                @endif
+                @if($website = optional($siteSettings->get('website_url'))->value)
                 <li class="flex gap-3">
                     <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                    <div>www.mmp.edu.np</div>
+                    <div>{{ $website }}</div>
                 </li>
+                @endif
             </ul>
 
+            @if($affiliation = optional($siteSettings->get('affiliation_text'))->value)
             <h3 class="font-semibold text-[#8B0000] text-[15px] mt-8 mb-5 border-b border-red-200 pb-2">Affiliated Under</h3>
             <ul class="space-y-3 text-[13px] text-gray-700 font-medium">
                 <li class="flex gap-3">
                     <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    <div>Manmohan Technical University (MTU)<br><span class="text-gray-400 text-xs">Budhiganga-4, Morang</span></div>
+                    <div>{!! nl2br(e($affiliation)) !!}</div>
                 </li>
             </ul>
+            @endif
         </div>
     </div>
 </div>

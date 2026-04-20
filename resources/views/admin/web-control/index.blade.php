@@ -224,11 +224,13 @@
                     <h3 class="font-bold text-gray-700 text-sm uppercase tracking-wide border-b border-gray-100 pb-2">Google Maps Embed</h3>
                     @php $mapSetting = $allSettings->get('google_maps_iframe'); @endphp
                     <x-card>
-                        <x-form-field label="Maps Embed Code" name="google_maps_iframe" span="full"
-                            hint="Paste the full &lt;iframe&gt; code from Google Maps → Share → Embed a map.">
-                            <x-textarea name="google_maps_iframe" rows="5"
-                                placeholder="&lt;iframe src=&quot;https://www.google.com/maps/embed?...&quot;&gt;&lt;/iframe&gt;">{{ $mapSetting?->value }}</x-textarea>
-                        </x-form-field>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Maps Embed Code</label>
+                            <p class="text-xs text-gray-500">Paste the full &lt;iframe&gt; code from Google Maps → Share → Embed a map.</p>
+                            <textarea name="google_maps_iframe" rows="5" 
+                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm font-mono"
+                                placeholder="<iframe src=&quot;https://www.google.com/maps/embed?...&quot;></iframe>">{{ $mapSetting?->value }}</textarea>
+                        </div>
                     </x-card>
                     @if($mapSetting?->value && str_contains($mapSetting->value, 'iframe'))
                     <x-card>

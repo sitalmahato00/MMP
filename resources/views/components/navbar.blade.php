@@ -48,8 +48,8 @@
                     <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
                 </div>
                 
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">My Profile</a>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">Settings</a>
+                <a href="{{ route('admin.settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">My Profile</a>
+                <a href="{{ route('admin.settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">Settings</a>
                 
                 <div class="border-t border-gray-100 my-1"></div>
                 
