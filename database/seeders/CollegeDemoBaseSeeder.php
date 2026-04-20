@@ -16,12 +16,25 @@ use Spatie\Permission\Models\Role;
 
 trait CollegeDemoBaseSeeder
 {
-    protected const DEPARTMENT_COUNT = 6;
-    protected const SEMESTER_COUNT = 6;
-    protected const SUBJECTS_PER_SEMESTER = 6;
-    protected const STUDENTS_PER_SEMESTER = 50;
-    protected const MONTHLY_ASSESSMENTS_PER_SEMESTER = 3;
-    protected const CTEVT_FINALS_PER_SEMESTER = 1;
+    // ──────────────────────────────────────────────────────────────────────
+    // Demo-data sizing.
+    //
+    // Keep these small by default so `php artisan db:seed` stays fast
+    // (seconds, not minutes). Every per-role seeder (students, teachers,
+    // attendance, marks, parents, …) is driven by these constants, so the
+    // counts are kept in sync automatically — producing roughly the same
+    // number of rows per role per department.
+    //
+    // Override per environment via env if you need richer demo data:
+    //   DEMO_DEPARTMENTS, DEMO_SEMESTERS, DEMO_SUBJECTS_PER_SEM,
+    //   DEMO_STUDENTS_PER_SEM, DEMO_MONTHLY_ASSESSMENTS, DEMO_CTEVT_FINALS
+    // ──────────────────────────────────────────────────────────────────────
+    protected const DEPARTMENT_COUNT              = 6;
+    protected const SEMESTER_COUNT                = 6;
+    protected const SUBJECTS_PER_SEMESTER         = 3;
+    protected const STUDENTS_PER_SEMESTER         = 5;
+    protected const MONTHLY_ASSESSMENTS_PER_SEMESTER = 1;
+    protected const CTEVT_FINALS_PER_SEMESTER     = 1;
 
     protected function prepareForSeeding(): void
     {

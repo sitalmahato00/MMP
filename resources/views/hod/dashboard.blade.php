@@ -54,7 +54,16 @@
                     <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
                         {{ $greeting }}, {{ auth()->user()->name }}
                     </h1>
-                    <p class="mt-1 text-sm text-slate-600">Department of {{ $department->name ?? 'Unknown' }}</p>
+                    @if($department)
+                        <p class="mt-1 text-sm text-slate-600">Department of {{ $department->name }}</p>
+                    @else
+                        <p class="mt-1 text-sm text-amber-600">
+                            <svg class="inline h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            No department assigned yet. Please contact the Principal.
+                        </p>
+                    @endif
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
@@ -76,34 +85,80 @@
     <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         @foreach($kpiCards as $card)
             @php $t = $toneMap[$card['tone']] ?? $toneMap['blue']; @endphp
-            <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div class="flex items-start justify-between">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
-                        <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
-                        </svg>
+            @if($department && $card['title'] === 'Total Students')
+                <a href="{{ route('hod.students.index') }}" class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
+                            <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-3">
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
-                        @if(!empty($card['suffix']))
-                            <span class="text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
-                        @endif
+                    <div class="mt-3">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
+                            @if(!empty($card['suffix']))
+                                <span class="text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
+                            @endif
+                        </div>
+                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
                     </div>
-                    <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
+                    @if(!empty($card['note']))
+                        <p class="mt-2 text-[11px] text-slate-500">{{ $card['note'] }}</p>
+                    @endif
+                    <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
+                </a>
+            @else
+                <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
+                            <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
+                            @if(!empty($card['suffix']))
+                                <span class="text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
+                            @endif
+                        </div>
+                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
+                    </div>
+                    @if(!empty($card['note']))
+                        <p class="mt-2 text-[11px] text-slate-500">{{ $card['note'] }}</p>
+                    @endif
+                    <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
                 </div>
-                @if(!empty($card['note']))
-                    <p class="mt-2 text-[11px] text-slate-500">{{ $card['note'] }}</p>
-                @endif
-                <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
-            </div>
+            @endif
         @endforeach
     </section>
 
     {{-- ═══════════════════════════════════════════════════════════
          3. MAIN CONTENT – Notices & Quick Actions
     ═══════════════════════════════════════════════════════════ --}}
+    
+    @if(!$department)
+        {{-- No Department Warning --}}
+        <section class="rounded-xl border-2 border-amber-200 bg-amber-50 p-6">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                    <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-amber-900">No Department Assigned</h3>
+                    <p class="mt-1 text-sm text-amber-700">
+                        You have been assigned the HOD role, but no department has been linked to your account yet. 
+                        Please contact the Principal to assign you to a department. Once assigned, you will have full access to department management features.
+                    </p>
+                </div>
+            </div>
+        </section>
+    @endif
+    
     <section class="grid gap-5 lg:grid-cols-2">
         {{-- Recent Notices --}}
         <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
@@ -125,7 +180,7 @@
                             <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
                             <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}</p>
                         </div>
-                        @if($notice->department_id == $department->id)
+                        @if($department && $notice->department_id == $department->id)
                             <span class="shrink-0 self-center rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">Dept</span>
                         @endif
                     </div>
@@ -148,53 +203,115 @@
             </div>
             <div class="p-5">
                 <div class="grid gap-3 sm:grid-cols-2">
-                    <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-900">View Students</p>
-                            <p class="text-xs text-slate-500">Manage department students</p>
-                        </div>
-                    </a>
+                    @if($department)
+                        <a href="{{ route('hod.students.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">View Students</p>
+                                <p class="text-xs text-slate-500">Manage department students</p>
+                            </div>
+                        </a>
 
-                    <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-900">Attendance</p>
-                            <p class="text-xs text-slate-500">View attendance records</p>
-                        </div>
-                    </a>
+                        <a href="{{ route('hod.teachers.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-indigo-300 hover:bg-indigo-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Teachers</p>
+                                <p class="text-xs text-slate-500">Manage department teachers</p>
+                            </div>
+                        </a>
 
-                    <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-violet-300 hover:bg-violet-50/50">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-900">Exam Results</p>
-                            <p class="text-xs text-slate-500">View and manage marks</p>
-                        </div>
-                    </a>
+                        <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Attendance</p>
+                                <p class="text-xs text-slate-500">View attendance records</p>
+                            </div>
+                        </a>
 
-                    <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-amber-300 hover:bg-amber-50/50">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
+                        <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-violet-300 hover:bg-violet-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Exam Results</p>
+                                <p class="text-xs text-slate-500">View and manage marks</p>
+                            </div>
+                        </a>
+
+                        <a href="#" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-amber-300 hover:bg-amber-50/50">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-900">Timetable</p>
+                                <p class="text-xs text-slate-500">View class schedules</p>
+                            </div>
+                        </a>
+                    @else
+                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-400">View Students</p>
+                                <p class="text-xs text-slate-400">Requires department assignment</p>
+                            </div>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-900">Timetable</p>
-                            <p class="text-xs text-slate-500">View class schedules</p>
+
+                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-400">Attendance</p>
+                                <p class="text-xs text-slate-400">Requires department assignment</p>
+                            </div>
                         </div>
-                    </a>
+
+                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-400">Exam Results</p>
+                                <p class="text-xs text-slate-400">Requires department assignment</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-400">Timetable</p>
+                                <p class="text-xs text-slate-400">Requires department assignment</p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

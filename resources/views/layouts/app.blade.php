@@ -51,7 +51,22 @@
                     @endif
 
                     @if (session('error'))
-                        <x-alert type="error" :message="session('error')" class="mb-6" />
+                        {{-- Only show error if it's relevant to current state --}}
+                        @php
+                            $showError = true;
+                            // Don't show "no department" error if user actually has a department now
+                            if (str_contains(session('error'), 'department is assigned') && 
+                                auth()->check() && 
+                                auth()->user()->hasRole('hod')) {
+                                $dept = \App\Models\Department::where('hod_id', auth()->id())->first();
+                                if ($dept) {
+                                    $showError = false;
+                                }
+                            }
+                        @endphp
+                        @if($showError)
+                            <x-alert type="error" :message="session('error')" class="mb-6" />
+                        @endif
                     @endif
 
                     @yield('content')

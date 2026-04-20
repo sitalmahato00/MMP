@@ -244,6 +244,12 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             $teacher->user->assignRole('teacher');
         }
 
+        // If the current logged-in user is updating their own role, refresh their session
+        if (auth()->id() === $teacher->user_id) {
+            auth()->logout();
+            return redirect()->route('login')->with('success', 'Your role has been updated. Please login again.');
+        }
+
         AuditLog::log('teacher.updated', $teacher);
 
         return redirect()->route('admin.teachers.show', $teacher)->with('success', 'Teacher updated successfully.');

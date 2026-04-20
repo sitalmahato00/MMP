@@ -12,7 +12,9 @@ return new class extends Migration
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('coordinator_id')->nullable()->constrained('teachers')->nullOnDelete();
+            // FK to teachers is added later in 2026_04_14_000005_add_programs_coordinator_fk
+            // (teachers table is created by migration 000005, after this one)
+            $table->unsignedBigInteger('coordinator_id')->nullable();
             $table->string('name');                         // e.g. "Diploma in Information Technology"
             $table->string('code')->unique();               // e.g. "DIT"
             $table->string('ctevt_code', 50)->nullable();

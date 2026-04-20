@@ -17,15 +17,39 @@ class DashboardController extends Controller
         // Find department where this user is HOD
         $department = Department::where('hod_id', $user->id)->first();
         
-        if (!$department) {
-            return view('hod.no-department', [
-                'userName' => $user->name,
-                'userEmail' => $user->email,
-            ]);
-        }
-
-        $deptId = $department->id;
+        // Get department ID (null if not assigned)
+        $deptId = $department?->id;
         $session = AcademicSession::current();
+
+        // If no department assigned, show dashboard with empty/zero data
+        if (!$deptId) {
+            $data = [
+                'student_count' => 0,
+                'teacher_count' => 0,
+                'program_count' => 0,
+                'attendance_rate' => 0,
+                'total_marks' => 0,
+            ];
+            
+            $recentNotices = Notice::published()
+                ->whereNull('department_id')
+                ->with(['author'])
+                ->latest()
+                ->take(5)
+                ->get();
+            
+            $greeting = $this->greeting();
+            $lastUpdated = now();
+            
+            return view('hod.dashboard', compact(
+                'data',
+                'department',
+                'session',
+                'recentNotices',
+                'greeting',
+                'lastUpdated'
+            ));
+        }
 
         $cacheKey = "hod_dashboard_{$deptId}_v2";
         $data = Cache::remember($cacheKey, 300, function () use ($deptId, $session) {
