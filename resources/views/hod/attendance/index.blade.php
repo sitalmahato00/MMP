@@ -16,6 +16,15 @@
                     </h1>
                     <p class="mt-1 text-sm text-slate-600">Monitor and track student attendance sessions</p>
                 </div>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('hod.attendance.mark') }}" 
+                       class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Mark Attendance
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -160,7 +169,7 @@
                         <tr class="hover:bg-slate-50">
                             <td class="px-5 py-4">
                                 <div class="text-sm font-medium text-slate-900">{{ bsDate($session->date, 'M d, Y') }}</div>
-                                <div class="text-xs text-slate-500">{{ $session->start_time }} - {{ $session->end_time }}</div>
+                                <div class="text-xs text-slate-500">{{ $session->period ?? 'Period not specified' }}</div>
                             </td>
                             <td class="px-5 py-4">
                                 <div class="text-sm font-medium text-slate-900">{{ $session->subject->name }}</div>
@@ -182,10 +191,16 @@
                                 <div class="text-xs text-slate-500">{{ $presentCount }}/{{ $totalCount }} present</div>
                             </td>
                             <td class="px-5 py-4">
-                                <a href="{{ route('hod.attendance.sessions', ['session_id' => $session->id]) }}" 
-                                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                    View Details
-                                </a>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('hod.attendance.sessions', ['session_id' => $session->id]) }}" 
+                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                        View Details
+                                    </a>
+                                    <a href="{{ route('hod.attendance.edit', $session) }}" 
+                                       class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">
+                                        Edit
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty

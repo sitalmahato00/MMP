@@ -39,7 +39,7 @@ class AttendanceSession extends Model
         return $this->belongsTo(Program::class);
     }
 
-    public function records()
+    public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }

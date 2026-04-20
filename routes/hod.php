@@ -15,8 +15,12 @@ Route::get('teachers/{teacher}/drawer', [\App\Http\Controllers\HOD\TeacherContro
 // Attendance Management
 Route::prefix('attendance')->name('attendance.')->group(function () {
     Route::get('/', [\App\Http\Controllers\HOD\AttendanceController::class, 'index'])->name('index');
+    Route::get('/mark', [\App\Http\Controllers\HOD\AttendanceController::class, 'mark'])->name('mark');
+    Route::post('/store', [\App\Http\Controllers\HOD\AttendanceController::class, 'store'])->name('store');
     Route::get('/sessions', [\App\Http\Controllers\HOD\AttendanceController::class, 'sessions'])->name('sessions');
     Route::get('/reports', [\App\Http\Controllers\HOD\AttendanceController::class, 'reports'])->name('reports');
+    Route::get('/{attendanceSession}/edit', [\App\Http\Controllers\HOD\AttendanceController::class, 'edit'])->name('edit');
+    Route::put('/{attendanceSession}', [\App\Http\Controllers\HOD\AttendanceController::class, 'update'])->name('update');
 });
 
 // Exam & Marks Management
