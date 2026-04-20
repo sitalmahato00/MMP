@@ -12,7 +12,7 @@
                 <span class="text-red-200 text-xs">{{ $downloads->count() }} papers</span>
             </div>
 
-            <div class="bg-white border border-gray-200 border-t-0">
+            <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                 @forelse($downloads as $download)
                     <div class="flex items-center gap-4 px-5 py-4 border-b border-gray-100 last:border-0 hover:bg-red-50 transition-colors group">
                         <div class="flex-shrink-0 w-12 h-12 bg-yellow-50 text-yellow-700 rounded flex items-center justify-center border border-yellow-200">
@@ -46,7 +46,7 @@
         <div class="space-y-6">
             <div>
                 <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
-                <div class="bg-white border border-gray-200 border-t-0">
+                <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     @foreach([
                         ['label' => 'Downloads & Forms', 'href' => route('public.downloads')],
                         ['label' => 'Notice Board', 'href' => route('public.notices')],

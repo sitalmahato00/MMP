@@ -1,4 +1,4 @@
-﻿@extends('layouts.guest')
+@extends('layouts.guest')
 @section('title', 'Alumni Directory')
 
 @section('content')
@@ -16,7 +16,7 @@
             <div class="flex flex-wrap items-end gap-3">
                 <div class="flex-1 min-w-[200px]">
                     <label class="mb-1.5 block text-xs font-semibold text-slate-600">Search</label>
-                    <input name="search" value="{{ request('search') }}" type="text" placeholder="Search alumni by name…"
+                    <input name="search" value="{{ request('search') }}" type="text" placeholder="Search alumni by name�"
                            class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-[#8B0000] focus:ring-[#8B0000]/20"/>
                 </div>
                 <div class="min-w-[180px]">
@@ -55,27 +55,30 @@
             @endphp
             <a href="{{ route('public.alumni.profile', $a->id) }}"
                class="group rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden hover:shadow-md hover:border-slate-300 transition">
-                <div class="h-20 bg-gradient-to-br {{ $grad }} relative">
+                <div class="px-4 pt-6 pb-4 relative text-center">
                     @if($a->is_featured)
-                        <span class="absolute top-2 right-2 rounded-lg bg-white/90 px-2 py-0.5 text-[10px] font-bold text-amber-700">★ Featured</span>
+                        <span class="absolute top-2 right-2 rounded-lg bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700">? Featured</span>
                     @endif
-                </div>
-                <div class="px-4 pb-4 -mt-8 relative">
-                    @if($a->user?->avatar)
-                        <img src="{{ asset('storage/'.$a->user->avatar) }}" alt="" class="h-14 w-14 rounded-xl object-cover ring-4 ring-white shadow-sm"/>
-                    @else
-                        <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br {{ $grad }} text-xl font-black text-white ring-4 ring-white shadow-sm">
-                            {{ strtoupper(substr($a->user?->name ?? 'A', 0, 1)) }}
-                        </div>
-                    @endif
-                    <h3 class="mt-2 text-sm font-bold text-slate-900 group-hover:text-[#8B0000] transition truncate">{{ $a->user?->name }}</h3>
+                    
+                    {{-- Centered Profile Picture --}}
+                    <div class="flex justify-center mb-3">
+                        @if($a->user?->avatar)
+                            <img src="{{ asset('storage/'.$a->user->avatar) }}" alt="" class="h-20 w-20 rounded-full object-cover ring-4 ring-slate-100 shadow-md"/>
+                        @else
+                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br {{ $grad }} text-2xl font-black text-white ring-4 ring-slate-100 shadow-md">
+                                {{ strtoupper(substr($a->user?->name ?? 'A', 0, 1)) }}
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-[#8B0000] transition truncate">{{ $a->user?->name }}</h3>
                     @if($a->current_job)
-                        <p class="text-xs text-slate-500 truncate">{{ $a->current_job }}@if($a->company_name) · {{ $a->company_name }}@endif</p>
+                        <p class="text-xs text-slate-500 truncate">{{ $a->current_job }}@if($a->company_name) � {{ $a->company_name }}@endif</p>
                     @endif
                     @if($a->work_location)
                         <p class="text-[11px] text-slate-400 truncate">{{ $a->work_location }}</p>
                     @endif
-                    <div class="mt-2 flex flex-wrap gap-1">
+                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
                         <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">{{ $a->department?->code }}</span>
                         <span class="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">Batch {{ $a->graduation_year }}</span>
                         @if($a->is_verified)

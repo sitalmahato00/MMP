@@ -1,4 +1,4 @@
-ï»¿@extends('layouts.guest')
+@extends('layouts.guest')
 @section('title', $alumnus->user?->name ?? 'Alumni Profile')
 
 @section('content')
@@ -117,9 +117,9 @@
                             @if(! $alumnus->current_job && ! $alumnus->company_name)
                                 Alumni
                             @endif
-                            Â· {{ $alumnus->department?->name }}
-                            Â· {{ $alumnus->program?->name }}
-                            Â· Batch {{ $alumnus->graduation_year }}
+                            · {{ $alumnus->department?->name }}
+                            · {{ $alumnus->program?->name }}
+                            · Batch {{ $alumnus->graduation_year }}
                         </p>
                         @if($alumnus->work_location)
                             <p class="mt-1 text-sm text-slate-400">{{ $alumnus->work_location }}</p>
@@ -308,8 +308,8 @@
                                     <p class="text-sm font-bold text-slate-900">{{ $job->job_title }}</p>
                                     <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400">{{ $job->is_current ? 'Current' : 'Past' }}</p>
                                 </div>
-                                <p class="mt-1 text-xs text-slate-500">{{ $job->company_name }}@if($job->location) Â· {{ $job->location }}@endif</p>
-                                <p class="mt-1 text-[10px] text-slate-500">{{ $job->start_date?->format('M Y') ?? 'â€”' }} â€“ {{ $job->is_current ? 'Present' : ($job->end_date?->format('M Y') ?? 'â€”') }}</p>
+                                <p class="mt-1 text-xs text-slate-500">{{ $job->company_name }}@if($job->location) · {{ $job->location }}@endif</p>
+                                <p class="mt-1 text-[10px] text-slate-500">{{ $job->start_date?->format('M Y') ?? '—' }} – {{ $job->is_current ? 'Present' : ($job->end_date?->format('M Y') ?? '—') }}</p>
                                 @if($job->description)
                                     <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ $job->description }}</p>
                                 @endif

@@ -13,7 +13,7 @@
         </div>
         <div>
             <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
-            <div class="bg-white border border-gray-200 border-t-0">
+            <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                 <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notices</a>
                 <a href="{{ route('public.departments') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Our Programs</a>
                 <a href="{{ route('public.downloads') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Downloads</a>

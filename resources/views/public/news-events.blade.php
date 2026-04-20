@@ -12,7 +12,7 @@
                 <span class="text-red-200 text-xs">{{ $notices->total() }} articles</span>
             </div>
 
-            <div class="bg-white border border-gray-200 border-t-0">
+            <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                 @forelse($notices as $notice)
                     @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
                     <div class="group border-b border-gray-100 last:border-0 hover:bg-red-50/50 transition-colors">
@@ -66,7 +66,7 @@
         <div class="space-y-6">
             <div>
                 <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
-                <div class="bg-white border border-gray-200 border-t-0">
+                <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     @foreach([
                         ['label' => 'Notice Board', 'href' => route('public.notices')],
                         ['label' => 'Exam Schedules & Results', 'href' => route('public.notices', ['type' => 'exam'])],

@@ -145,7 +145,7 @@
         <div class="space-y-6">
             <div>
                 <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
-                <div class="bg-white border border-gray-200 border-t-0">
+                <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     @foreach([
                         ['label' => 'Notice Board', 'href' => route('public.notices', ['type' => 'general'])],
                         ['label' => 'Exam Schedules & Results', 'href' => route('public.notices', ['type' => 'exam'])],

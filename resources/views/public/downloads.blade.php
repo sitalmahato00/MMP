@@ -19,7 +19,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2">
             <div class="section-header" style="background-color: #8B0000;">📥 Downloads & Resources</div>
-            <div class="bg-white border border-gray-200 border-t-0">
+            <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                 <div class="p-4 border-b border-gray-100 flex flex-wrap gap-2">
                     @foreach($resourceFilters as $filter)
                         @php $isActive = $activeResourceCategory === (string) ($filter['category'] ?? ''); @endphp
@@ -65,7 +65,7 @@
 
         <div>
             <div class="section-header" style="background-color: #8B0000;">⚡ Quick Links</div>
-            <div class="bg-white border border-gray-200 border-t-0">
+            <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                 <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notice Board</a>
                     <a href="{{ route('public.downloads', ['category' => 'syllabus']) }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Syllabus</a>
                     <a href="{{ route('public.downloads', ['category' => 'notes']) }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notes</a>

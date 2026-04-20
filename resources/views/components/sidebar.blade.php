@@ -105,7 +105,7 @@
         [
             'label' => 'System',
             'items' => [
-                ['label' => 'Settings', 'iconName' => 'cog', 'href' => route('admin.web-control.index', ['tab' => 0]), 'isActive' => $active('admin.web-control.*') && (int) request('tab', 0) === 0],
+                ['label' => 'Account Settings', 'iconName' => 'user-circle', 'href' => route('admin.settings.index'), 'isActive' => $active('admin.settings.*')],
                 ['label' => 'Roles & Permissions', 'iconName' => 'shield', 'href' => route('admin.roles-permissions.index'), 'isActive' => $active('admin.roles-permissions.*')],
                 ['label' => 'Audit Logs', 'iconName' => 'doc-report', 'href' => route('admin.audit-logs.index'), 'isActive' => $active('admin.audit-logs.*')],
             ],

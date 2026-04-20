@@ -193,8 +193,8 @@
         {{-- LEFT COLUMN (Quick Links & Officials) --}}
         <div class="order-2 lg:order-none lg:col-span-3 space-y-6">
             {{-- Quick Links Card --}}
-            <div class="bg-white border text-sm shadow-sm">
-                <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-[#8B0000] text-white font-semibold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                     Quick Links
                 </div>
@@ -215,8 +215,8 @@
             </div>
 
             {{-- People/Officials (Dynamic) --}}
-            <div class="bg-white border text-sm shadow-sm">
-                <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm">
+                <div class="bg-[#8B0000] text-white font-semibold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Managements
                 </div>
@@ -261,7 +261,7 @@
                         ->values();
                 @endphp
                 <div class="relative z-10">
-                    <h2 class="font-serif text-2xl font-bold mb-3">Welcome to MMP</h2>
+                    <h2 class="font-serif text-2xl font-semibold mb-3">Welcome to MMP</h2>
                     <div class="mx-auto max-w-3xl px-4">
                         <div class="max-h-[180px] md:max-h-[220px] overflow-y-auto pr-2 text-left">
                             <div class="space-y-3 text-[13px] leading-relaxed text-gray-100">
@@ -284,17 +284,17 @@
                 $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
                 $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
             @endphp
-            <div class="bg-white border shadow-sm flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
                 <div class="flex">
-                    <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
+                    <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                         Notice Board
                     </button>
-                    <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
+                    <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Exam Results
                     </button>
-                    <button type="button" @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
+                    <button type="button" @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
                         CTEVT Notices
                     </button>
@@ -418,8 +418,8 @@
 
         {{-- RIGHT COLUMN (News & Events - Dynamic) --}}
         <div class="order-3 lg:order-none lg:col-span-3 space-y-6 flex flex-col">
-            <div class="bg-white border shadow-sm flex-1 flex flex-col">
-                <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden flex-1 flex flex-col">
+                <div class="bg-[#8B0000] text-white font-semibold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     News & Events
                 </div>
@@ -570,12 +570,12 @@
         @endphp
 
         @foreach($programData as $prog)
-            <a href="{{ route('public.department.show', $prog->slug) }}" class="group border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] rounded-sm p-6 text-center flex flex-col items-center hover:bg-[#8B0000] hover:text-white transition-all duration-200 h-full hover:shadow-lg hover:-translate-y-0.5">
+            <a href="{{ route('public.department.show', $prog->slug) }}" class="group rounded-lg shadow-md p-6 text-center flex flex-col items-center hover:bg-[#8B0000] hover:text-white transition-all duration-200 h-full hover:shadow-lg hover:-translate-y-0.5 bg-white">
                 <div class="w-14 h-14 bg-red-50 border border-red-100 rounded-full shadow-sm flex items-center justify-center text-[#8B0000] group-hover:text-[#8B0000] mb-4 group-hover:bg-white transition-colors">
                     {!! $programIcons[$prog->name] ?? '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' !!}
                 </div>
-                <h3 class="font-bold text-[13px] leading-snug mb-1.5 text-gray-900 group-hover:text-white transition-colors">Diploma in<br>{{ str_replace('Diploma in ', '', $prog->name) }}</h3>
-                <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wide group-hover:text-red-200 mb-3">3 Years / 6 Semesters</p>
+                <h3 class="font-semibold text-[13px] leading-snug mb-1.5 text-gray-900 group-hover:text-white transition-colors">Diploma in<br>{{ str_replace('Diploma in ', '', $prog->name) }}</h3>
+                <p class="text-[11px] text-gray-400 font-normal group-hover:text-red-200 mb-3">3 Years / 6 Semesters</p>
             </a>
         @endforeach
     </div>
@@ -618,8 +618,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {{-- Downloads & Publications (Dynamic) --}}
-        <div class="bg-white border text-sm shadow-sm flex flex-col">
-            <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm flex flex-col">
+            <div class="bg-[#8B0000] text-white font-semibold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 Downloads & Publications
             </div>
@@ -647,8 +647,8 @@
         </div>
 
         {{-- Important Links --}}
-        <div class="bg-white border text-sm shadow-sm flex flex-col">
-            <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm flex flex-col">
+            <div class="bg-[#8B0000] text-white font-semibold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                 Important Links
             </div>
@@ -671,8 +671,8 @@
         </div>
 
         {{-- Why Choose MMP? --}}
-        <div class="bg-white border text-sm shadow-sm flex flex-col">
-            <div class="bg-[#8B0000] text-white font-bold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm flex flex-col">
+            <div class="bg-[#8B0000] text-white font-semibold p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                 Why Choose MMP?
             </div>
@@ -714,12 +714,12 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 border bg-[#f9f9f9] shadow-sm rounded-sm">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 bg-[#f9f9f9] shadow-md rounded-lg overflow-hidden">
         <div class="lg:col-span-2 h-[350px] relative">
-            <iframe class="w-full h-full border-r" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Manmohan%20Memorial%20Polytechnic+(Manmohan%20Memorial%20Polytechnic)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" loading="lazy"></iframe>
+            <iframe class="w-full h-full" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Manmohan%20Memorial%20Polytechnic+(Manmohan%20Memorial%20Polytechnic)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" loading="lazy"></iframe>
         </div>
         <div class="lg:col-span-1 p-6 md:p-8 bg-[#f9f9f9]">
-            <h3 class="font-bold text-[#8B0000] text-[15px] mb-5 border-b border-red-200 pb-2">Contact Information</h3>
+            <h3 class="font-semibold text-[#8B0000] text-[15px] mb-5 border-b border-red-200 pb-2">Contact Information</h3>
             <ul class="space-y-4 text-[13px] text-gray-700 font-medium">
                 <li class="flex gap-3">
                     <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -739,7 +739,7 @@
                 </li>
             </ul>
 
-            <h3 class="font-bold text-[#8B0000] text-[15px] mt-8 mb-5 border-b border-red-200 pb-2">Affiliated Under</h3>
+            <h3 class="font-semibold text-[#8B0000] text-[15px] mt-8 mb-5 border-b border-red-200 pb-2">Affiliated Under</h3>
             <ul class="space-y-3 text-[13px] text-gray-700 font-medium">
                 <li class="flex gap-3">
                     <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>

@@ -7,7 +7,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 space-y-6">
             {{-- Program Hero --}}
-            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
                 <div class="h-2" style="background-color: #8B0000;"></div>
                 <div class="p-8">
                     <div class="flex items-center gap-2 mb-3">
@@ -15,17 +15,13 @@
                         <span class="text-gray-300">/</span>
                         <span class="text-xs text-gray-500">{{ $program->name }}</span>
                     </div>
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-3 mb-6">
                         <h1 class="text-2xl font-black font-serif text-gray-900">{{ $program->name }}</h1>
                         <span class="rounded-md bg-red-50 border border-red-100 px-2 py-0.5 text-xs font-bold text-red-800 uppercase">{{ $program->code }}</span>
                         @if($program->is_active)
                             <span class="rounded-md bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Active</span>
                         @endif
                     </div>
-
-                    @if($program->description)
-                        <p class="text-gray-600 leading-relaxed mb-6">{{ $program->description }}</p>
-                    @endif
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-red-50 border border-red-100 rounded-lg p-4 text-center">
@@ -49,7 +45,7 @@
             </div>
 
             {{-- Program Details --}}
-            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
                 <div class="section-header" style="background-color: #8B0000;">📋 Program Details</div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -90,7 +86,7 @@
                                 <span class="text-lg">👨‍🏫</span>
                                 <div>
                                     <div class="text-[10px] font-bold text-gray-400 uppercase">Coordinator</div>
-                                    <div class="text-sm font-bold text-gray-900">{{ $program->coordinator->name }}</div>
+                                    <div class="text-sm font-bold text-gray-900">{{ $program->coordinator->user->name ?? $program->coordinator->full_name }}</div>
                                 </div>
                             </div>
                         @endif
@@ -107,7 +103,7 @@
 
             {{-- Eligibility --}}
             @if($program->eligibility)
-                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
                     <div class="section-header" style="background-color: #8B0000;">✅ Eligibility Criteria</div>
                     <div class="p-6">
                         <p class="text-gray-700 leading-relaxed">{{ $program->eligibility }}</p>
@@ -117,7 +113,7 @@
 
             {{-- Syllabus --}}
             @if($program->syllabus_url)
-                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
                     <div class="section-header" style="background-color: #8B0000;">📖 Syllabus</div>
                     <div class="p-6">
                         <a href="{{ $program->syllabus_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 rounded-lg border-2 border-[#8B0000] bg-white px-6 py-3 text-sm font-bold text-[#8B0000] transition-colors hover:bg-[#8B0000] hover:text-white">
@@ -128,77 +124,30 @@
                 </div>
             @endif
 
-            {{-- Semester-wise Subjects --}}
-            @if($program->subjects->count())
-                <div class="section-header" style="background-color: #8B0000;">📚 Semester-wise Subjects</div>
-
-                @for($sem = 1; $sem <= $program->total_semesters; $sem++)
-                    @php $semSubjects = $program->subjects->where('semester', $sem); @endphp
-                    @if($semSubjects->count())
-                        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                            <div class="px-6 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold text-white" style="background-color: #8B0000;">{{ $sem }}</span>
-                                    <span class="text-sm font-bold text-gray-800">Semester {{ $sem }}</span>
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {{ $semSubjects->count() }} subjects · {{ $semSubjects->sum('credit_hours') }} credit hrs
-                                </div>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full text-sm">
-                                    <thead>
-                                        <tr class="bg-gray-50/50 text-gray-500 text-xs">
-                                            <th class="px-4 py-2.5 text-left font-semibold">#</th>
-                                            <th class="px-4 py-2.5 text-left font-semibold">Subject</th>
-                                            <th class="px-4 py-2.5 text-left font-semibold">Code</th>
-                                            <th class="px-4 py-2.5 text-center font-semibold">Type</th>
-                                            <th class="px-4 py-2.5 text-center font-semibold">Full Marks</th>
-                                            <th class="px-4 py-2.5 text-center font-semibold">Pass Marks</th>
-                                            <th class="px-4 py-2.5 text-center font-semibold">Credit Hrs</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-50">
-                                        @foreach($semSubjects as $subject)
-                                            <tr class="hover:bg-red-50/30">
-                                                <td class="px-4 py-2.5 text-gray-400 text-xs">{{ $loop->iteration }}</td>
-                                                <td class="px-4 py-2.5 font-medium text-gray-900">{{ $subject->name }}</td>
-                                                <td class="px-4 py-2.5 text-gray-500 font-mono text-xs">{{ $subject->code }}</td>
-                                                <td class="px-4 py-2.5 text-center">
-                                                    <span class="rounded px-1.5 py-0.5 text-[10px] font-bold {{ $subject->type === 'practical' ? 'bg-blue-50 text-blue-700' : ($subject->type === 'theory' ? 'bg-amber-50 text-amber-700' : 'bg-purple-50 text-purple-700') }}">
-                                                        {{ ucfirst($subject->type ?? 'Theory') }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-4 py-2.5 text-center text-gray-600">
-                                                    {{ ($subject->full_marks_theory ?? 0) + ($subject->full_marks_practical ?? 0) ?: '—' }}
-                                                </td>
-                                                <td class="px-4 py-2.5 text-center text-gray-600">
-                                                    {{ ($subject->pass_marks_theory ?? 0) + ($subject->pass_marks_practical ?? 0) ?: '—' }}
-                                                </td>
-                                                <td class="px-4 py-2.5 text-center text-gray-600">{{ $subject->credit_hours ?? '—' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="bg-gray-50 font-bold text-xs text-gray-700">
-                                            <td class="px-4 py-2" colspan="4">Total</td>
-                                            <td class="px-4 py-2 text-center">{{ $semSubjects->sum(fn($s) => ($s->full_marks_theory ?? 0) + ($s->full_marks_practical ?? 0)) ?: '—' }}</td>
-                                            <td class="px-4 py-2 text-center">{{ $semSubjects->sum(fn($s) => ($s->pass_marks_theory ?? 0) + ($s->pass_marks_practical ?? 0)) ?: '—' }}</td>
-                                            <td class="px-4 py-2 text-center">{{ $semSubjects->sum('credit_hours') ?: '—' }}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+            {{-- About This Program --}}
+            @if($program->description)
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
+                    <div class="section-header" style="background-color: #8B0000;">📝 About This Program</div>
+                    <div class="p-6">
+                        <div class="text-gray-700 leading-relaxed space-y-4">
+                            @foreach(preg_split('/\n\s*\n/', trim($program->description)) as $paragraph)
+                                @php
+                                    $cleanParagraph = trim($paragraph);
+                                    // Skip if paragraph is "Curriculum Structure" or similar headings
+                                    if (stripos($cleanParagraph, 'curriculum structure') !== false && strlen($cleanParagraph) < 30) {
+                                        continue;
+                                    }
+                                @endphp
+                                @if($cleanParagraph)
+                                    <p>{{ $cleanParagraph }}</p>
+                                @endif
+                            @endforeach
                         </div>
-                    @endif
-                @endfor
-            @else
-                <div class="bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
-                    <div class="text-4xl mb-3">📚</div>
-                    <p class="font-semibold text-gray-700">Subject details not yet available.</p>
-                    <p class="text-sm text-gray-500 mt-1">Subject information will appear here once published.</p>
+                    </div>
                 </div>
             @endif
+
+
         </div>
 
         {{-- Sidebar --}}
@@ -206,7 +155,7 @@
             {{-- Department Info --}}
             <div>
                 <div class="section-header" style="background-color: #8B0000;">🏢 Department</div>
-                <div class="bg-white border border-gray-200 border-t-0 p-5">
+                <div class="bg-white border border-gray-200 border-t-0 p-5 rounded-b-lg shadow-md">
                     <h3 class="font-bold text-gray-900">{{ $department->name }}</h3>
                     <p class="text-xs text-gray-500 mt-1">Code: {{ $department->code }}</p>
                     <a href="{{ route('public.department.show', $department->slug) }}" class="inline-flex items-center gap-1.5 mt-3 text-sm font-bold text-red-800 hover:underline">
@@ -218,11 +167,11 @@
             @if($program->coordinator)
                 <div>
                     <div class="section-header" style="background-color: #8B0000;">👨‍🏫 Program Coordinator</div>
-                    <div class="bg-white border border-gray-200 border-t-0 p-5">
+                    <div class="bg-white border border-gray-200 border-t-0 p-5 rounded-b-lg shadow-md">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-full bg-red-50 border-2 flex items-center justify-center text-2xl flex-shrink-0" style="border-color: #8B0000;">👨‍💼</div>
                             <div>
-                                <div class="font-bold text-gray-900">{{ $program->coordinator->name }}</div>
+                                <div class="font-bold text-gray-900">{{ $program->coordinator->user->name ?? $program->coordinator->full_name }}</div>
                                 <div class="text-xs text-red-700">Program Coordinator</div>
                             </div>
                         </div>
@@ -233,7 +182,7 @@
             {{-- Program Summary --}}
             <div>
                 <div class="section-header" style="background-color: #8B0000;">📊 Summary</div>
-                <div class="bg-white border border-gray-200 border-t-0">
+                <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     <div class="px-4 py-3 border-b border-gray-100 flex justify-between">
                         <span class="text-xs text-gray-500">Duration</span>
                         <span class="text-xs font-bold text-gray-900">{{ $program->duration_years }} Years</span>
@@ -268,7 +217,7 @@
             {{-- Quick Links --}}
             <div>
                 <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
-                <div class="bg-white border border-gray-200 border-t-0">
+                <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     <a href="{{ route('public.department.show', $department->slug) }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm font-bold text-red-800 hover:bg-red-50 transition-colors"><span class="text-red-600">›</span> {{ $department->name }}</a>
                     <a href="{{ route('public.departments') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> All Departments</a>
                     <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notices</a>

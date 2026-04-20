@@ -181,7 +181,7 @@
         <div class="space-y-6">
             <div>
                 <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
-                <div class="bg-white border border-gray-200 border-t-0">
+                <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     @foreach([
                         ['label' => 'Administrative Staff', 'href' => route('public.staff')],
                         ['label' => 'Presidents & Principals', 'href' => route('public.leadership')],
@@ -199,7 +199,7 @@
             @if($departments->count() > 0)
                 <div>
                     <div class="section-header" style="background-color: #8B0000;">🏛️ Departments</div>
-                    <div class="bg-white border border-gray-200 border-t-0">
+                    <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                         @foreach($departmentOptions as $department)
                             <a href="{{ route('public.department.show', $department->slug) }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors">
                                 <span class="text-red-600">›</span>{{ $department->name }}

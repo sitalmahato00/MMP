@@ -86,6 +86,41 @@ class PublicDataService
         });
     }
 
+    public function getProgramBySlug(string $departmentSlug, string $programSlug): array
+    {
+        return Cache::remember("public:program:{$departmentSlug}:{$programSlug}", self::CACHE_TTL, function () use ($departmentSlug, $programSlug) {
+            $department = Department::where('slug', $departmentSlug)
+                ->active()
+                ->firstOrFail(['id', 'name', 'code', 'slug']);
+
+            // Try to find program by slug first, then fallback to generating slug from name
+            $program = Program::where('department_id', $department->id)
+                ->active()
+                ->where(function ($query) use ($programSlug) {
+                    $query->where('slug', $programSlug)
+                        ->orWhereRaw('LOWER(REPLACE(REPLACE(name, " ", "-"), "/", "-")) = ?', [strtolower($programSlug)]);
+                })
+                ->with([
+                    'department:id,name,code,slug',
+                    'coordinator:id,user_id',
+                    'coordinator.user:id,name,email,phone,avatar',
+                    'subjects' => function ($query) {
+                        $query->orderBy('semester')->orderBy('code');
+                    }
+                ])
+                ->firstOrFail([
+                    'id', 'department_id', 'coordinator_id', 'name', 'code', 'slug',
+                    'ctevt_code', 'affiliation_type', 'total_semesters', 'duration_years',
+                    'description', 'eligibility', 'syllabus', 'is_active'
+                ]);
+
+            return [
+                'program' => $program,
+                'department' => $department,
+            ];
+        });
+    }
+
     public function getFeaturedAlumni(int $limit = 8): \Illuminate\Support\Collection
     {
         return Cache::remember("public:alumni:featured:{$limit}", self::CACHE_TTL, function () use ($limit) {

@@ -30,7 +30,7 @@
     $svgPath = $icons[$iconName] ?? $icons['doc-text'];
     $badgeValue = isset($badge) && $badge !== null && (int) $badge > 0 ? (int) $badge : null;
     $displayBadge = $badgeValue !== null ? ($badgeValue > 99 ? '99+' : (string) $badgeValue) : null;
-    $baseClass = 'group relative flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.18)] focus:outline-none focus:ring-2 focus:ring-white/10';
+    $baseClass = 'group relative flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-normal transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.18)] focus:outline-none focus:ring-2 focus:ring-white/10';
 @endphp
 
 <a href="{{ $href }}"
