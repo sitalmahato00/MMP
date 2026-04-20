@@ -18,7 +18,10 @@ class DashboardController extends Controller
         $department = Department::where('hod_id', $user->id)->first();
         
         if (!$department) {
-            abort(403, 'You are not assigned as HOD of any department');
+            return view('hod.no-department', [
+                'userName' => $user->name,
+                'userEmail' => $user->email,
+            ]);
         }
 
         $deptId = $department->id;

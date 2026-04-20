@@ -166,12 +166,12 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     {{-- ═══════════════════════════════════════════════════════════
          3. MAIN ANALYTICS – Charts + Notices Panel
     ═══════════════════════════════════════════════════════════ --}}
-    <section id="main-insights" class="grid gap-5 lg:grid-cols-[1fr_320px]">
+    <section id="main-insights" class="grid gap-5 grid-cols-1 lg:grid-cols-[1fr_320px]">
         {{-- LEFT: Charts --}}
         <div class="space-y-5">
             {{-- Attendance Curve Chart --}}
-            <div class="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
+            <div class="rounded-xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                     <div>
                         <h2 class="text-sm font-semibold text-slate-900">Attendance Trend</h2>
                         <p class="text-xs text-slate-500">Daily attendance percentage over time</p>
@@ -182,20 +182,20 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                         <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-50" data-period="session">Session</button>
                     </div>
                 </div>
-                <div class="h-[250px]">
+                <div class="h-[200px] sm:h-[250px]">
                     <canvas id="attendance-curve-chart"></canvas>
                 </div>
             </div>
 
             {{-- Grade Distribution Donut Chart --}}
-            <div class="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div class="rounded-xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h2 class="text-sm font-semibold text-slate-900">Grade Distribution</h2>
                         <p class="text-xs text-slate-500">Student performance breakdown by grade</p>
                     </div>
                 </div>
-                <div class="h-[250px] flex items-center justify-center">
+                <div class="h-[200px] sm:h-[250px] flex items-center justify-center">
                     <canvas id="grade-donut-chart"></canvas>
                 </div>
             </div>
@@ -220,7 +220,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                 </div>
 
                 {{-- Internal Notices Tab --}}
-                <div x-show="activeNoticeTab === 'internal'" class="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
+                <div x-show="activeNoticeTab === 'internal'" class="divide-y divide-slate-100 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                     @forelse($recentNotices as $notice)
                         <a href="{{ route('admin.notices.edit', $notice) }}" class="flex items-start gap-2.5 px-4 py-3 transition hover:bg-slate-50">
                             <div class="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -229,7 +229,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                                 <span class="text-[6px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="truncate text-xs font-medium text-slate-900">{{ $notice->title }}</p>
+                                <p class="line-clamp-2 text-xs font-medium text-slate-900">{{ $notice->title }}</p>
                                 <p class="mt-0.5 text-[10px] text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }}</p>
                             </div>
                         </a>
@@ -256,7 +256,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                         </button>
                     </div>
 
-                    <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[450px] overflow-y-auto">
+                    <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
                         @forelse($ctevtGeneralItems as $notice)
                             <a href="{{ $notice['url'] ?? $ctevtGeneralPageUrl }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
                                 <div class="flex items-center gap-2">
@@ -272,7 +272,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                         @endforelse
                     </div>
 
-                    <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[450px] overflow-y-auto">
+                    <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
                         @forelse($ctevtResultItems as $notice)
                             <a href="{{ $notice['url'] ?? $ctevtResultPageUrl }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
                                 <div class="flex items-center gap-2">
