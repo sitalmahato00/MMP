@@ -13,15 +13,21 @@ class ExportService
 
     public function __construct()
     {
-        $this->collegeName = config('app.college_name', 'Technical College');
-        $this->collegeAddress = config('app.college_address', 'Nepal');
-        $this->collegeLogo = config('app.college_logo', null);
+        $this->collegeName = config('app.name', 'Technical College');
+        
+        // Get college address from site settings
+        $addressSetting = \App\Models\SiteSetting::where('key', 'contact_address')->first();
+        $this->collegeAddress = $addressSetting?->value ?? 'Nepal';
+        
+        // Get college logo from site settings
+        $logoSetting = \App\Models\SiteSetting::where('key', 'site_logo')->first();
+        $this->collegeLogo = $logoSetting?->value ? asset('storage/' . $logoSetting->value) : null;
     }
 
     /**
      * Export data in the specified format
      */
-    public function export(array $config): Response
+    public function export(array $config)
     {
         $format = $config['format'] ?? 'csv';
         
@@ -38,7 +44,7 @@ class ExportService
     /**
      * Export as CSV
      */
-    protected function exportCSV(array $config): Response
+    protected function exportCSV(array $config)
     {
         $filename = $this->generateFilename($config['title'], 'csv');
         
@@ -70,13 +76,16 @@ class ExportService
     /**
      * Export as Excel (proper Excel format with formatting)
      */
-    protected function exportExcel(array $config): Response
+    protected function exportExcel(array $config)
     {
-        $filename = $this->generateFilename($config['title'], 'xlsx');
+        $filename = $this->generateFilename($config['title'], 'xls');
         
         $headers = [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
         ];
 
         $callback = function() use ($config) {
@@ -301,6 +310,7 @@ class ExportService
         $widthMap = [
             'student.user.name' => 150,
             'name' => 150,
+            'student.roll_number' => 80,
             'student.program.name' => 120,
             'program.name' => 120,
             'subject.name' => 120,
@@ -310,16 +320,26 @@ class ExportService
             'phone' => 100,
             'assessment_attendance_percent' => 80,
             'assessment_obtained_marks' => 80,
+            'assessment_full_marks' => 70,
+            'assessment_pass_marks' => 70,
             'internal_theory_marks' => 80,
             'external_theory_marks' => 80,
             'internal_practical_marks' => 80,
             'external_practical_marks' => 80,
+            'ctevt_full_marks_internal_theory' => 60,
+            'ctevt_pass_marks_internal_theory' => 60,
+            'ctevt_full_marks_external_theory' => 60,
+            'ctevt_pass_marks_external_theory' => 60,
+            'ctevt_full_marks_internal_practical' => 60,
+            'ctevt_pass_marks_internal_practical' => 60,
+            'ctevt_full_marks_external_practical' => 60,
+            'ctevt_pass_marks_external_practical' => 60,
             'total_marks' => 80,
             'result_remark' => 80,
             'status' => 80,
             'remarks' => 200,
             'current_semester' => 80,
-            'semester' => 80,
+            'semester' => 60,
             'section' => 60,
         ];
 
@@ -332,8 +352,13 @@ class ExportService
     protected function getExcelDataType(string $key, $value): string
     {
         if (in_array($key, [
-            'assessment_obtained_marks', 'internal_theory_marks', 'external_theory_marks',
+            'assessment_obtained_marks', 'assessment_full_marks', 'assessment_pass_marks',
+            'internal_theory_marks', 'external_theory_marks',
             'internal_practical_marks', 'external_practical_marks', 'total_marks',
+            'ctevt_full_marks_internal_theory', 'ctevt_pass_marks_internal_theory',
+            'ctevt_full_marks_external_theory', 'ctevt_pass_marks_external_theory',
+            'ctevt_full_marks_internal_practical', 'ctevt_pass_marks_internal_practical',
+            'ctevt_full_marks_external_practical', 'ctevt_pass_marks_external_practical',
             'assessment_attendance_percent', 'current_semester', 'semester'
         ])) {
             return 'Number';
@@ -361,7 +386,7 @@ class ExportService
     /**
      * Export as PDF
      */
-    protected function exportPDF(array $config): Response
+    protected function exportPDF(array $config)
     {
         $filename = $this->generateFilename($config['title'], 'pdf');
         
@@ -489,14 +514,31 @@ class ExportService
      */
     public static function createMarksExportConfig($exam, $marks, $department = null): array
     {
+        // Get semester information from exam programs
+        $semesters = $exam->programs->pluck('pivot.semester')->filter()->unique()->sort()->values();
+        $semesterText = $semesters->count() > 0 
+            ? ($semesters->count() === 1 ? 'Semester ' . $semesters->first() : 'Semesters ' . $semesters->implode(', '))
+            : 'All Semesters';
+        
+        // Get program names
+        $programNames = $exam->programs->pluck('name')->unique()->implode(', ');
+        
         $config = [
             'title' => $exam->name . ' - Marks Report',
-            'subtitle' => $exam->category_label . ' • ' . bsDate($exam->start_date, 'F d, Y'),
+            'subtitle' => $exam->category_label . ' • ' . $semesterText . ' • ' . bsDate($exam->start_date, 'F d, Y'),
             'department' => $department ? $department->name : ($exam->department->name ?? 'N/A'),
             'metadata' => [
+                'Exam Name' => $exam->name,
                 'Academic Session' => $exam->academicSession->name ?? 'N/A',
-                'Exam Type' => $exam->category_label,
+                'Department' => $department ? $department->name : ($exam->department->name ?? 'N/A'),
+                'Exam Type' => $exam->type ? ucfirst($exam->type) : 'N/A',
+                'Exam Category' => $exam->category_label,
+                'Programs' => $programNames ?: 'N/A',
+                'Semester(s)' => $semesterText,
+                'Start Date' => bsDate($exam->start_date, 'Y-m-d'),
+                'End Date' => bsDate($exam->end_date, 'Y-m-d'),
                 'Total Students' => $marks->count(),
+                'Status' => $exam->status_label ?? 'N/A',
             ],
             'data' => $marks,
         ];
@@ -504,30 +546,43 @@ class ExportService
         if ($exam->category === 'monthly_assessment') {
             $config['columns'] = [
                 'student.user.name' => 'Student Name',
+                'student.roll_number' => 'Roll No',
                 'student.program.name' => 'Program',
+                'semester' => 'Semester',
                 'subject.name' => 'Subject',
                 'subject.code' => 'Subject Code',
                 'assessment_attendance_percent' => 'Attendance %',
                 'assessment_obtained_marks' => 'Obtained Marks',
                 'assessment_full_marks' => 'Full Marks',
+                'assessment_pass_marks' => 'Pass Marks',
                 'was_present_on_exam_date' => 'Exam Attendance',
                 'result_remark' => 'Result',
                 'status' => 'Status',
                 'remarks' => 'Remarks',
             ];
             
-            $config['metadata']['Full Marks'] = $exam->assessment_full_marks ?? 100;
-            $config['metadata']['Pass Marks'] = $exam->assessment_pass_marks ?? 40;
+            $config['metadata']['Assessment Full Marks'] = $exam->assessment_full_marks ?? 100;
+            $config['metadata']['Assessment Pass Marks'] = $exam->assessment_pass_marks ?? 40;
         } else {
             $config['columns'] = [
                 'student.user.name' => 'Student Name',
+                'student.roll_number' => 'Roll No',
                 'student.program.name' => 'Program',
+                'semester' => 'Semester',
                 'subject.name' => 'Subject',
                 'subject.code' => 'Subject Code',
                 'internal_theory_marks' => 'Internal Theory',
+                'ctevt_full_marks_internal_theory' => 'IT Full',
+                'ctevt_pass_marks_internal_theory' => 'IT Pass',
                 'external_theory_marks' => 'External Theory',
+                'ctevt_full_marks_external_theory' => 'ET Full',
+                'ctevt_pass_marks_external_theory' => 'ET Pass',
                 'internal_practical_marks' => 'Internal Practical',
+                'ctevt_full_marks_internal_practical' => 'IP Full',
+                'ctevt_pass_marks_internal_practical' => 'IP Pass',
                 'external_practical_marks' => 'External Practical',
+                'ctevt_full_marks_external_practical' => 'EP Full',
+                'ctevt_pass_marks_external_practical' => 'EP Pass',
                 'total_marks' => 'Total Marks',
                 'result_remark' => 'Result',
                 'status' => 'Status',

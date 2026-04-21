@@ -27,6 +27,11 @@ return new class extends Migration
             $table->decimal('assessment_full_marks', 6, 2)->nullable();
             $table->decimal('assessment_pass_marks', 6, 2)->nullable();
             $table->decimal('assessment_obtained_marks', 6, 2)->nullable();
+            
+            // Computed fields for easier queries
+            $table->decimal('marks_obtained', 6, 2)->nullable(); // Total obtained marks
+            $table->decimal('total_marks', 6, 2)->nullable(); // Total possible marks
+            $table->decimal('pass_marks', 6, 2)->nullable(); // Total pass marks required
 
             // CTEVT validation marks (stored per mark for historical accuracy)
             $table->decimal('ctevt_full_marks_internal_theory', 6, 2)->nullable();

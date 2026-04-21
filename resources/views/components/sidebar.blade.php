@@ -119,6 +119,7 @@
             ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => $portalRoute('hod.teachers.index', 'hod.dashboard'), 'isActive' => $active('hod.teachers.*')],
         ]],
         ['label' => 'Academic', 'items' => [
+            ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('hod.subjects.index', 'hod.dashboard'), 'isActive' => $active('hod.subjects.*')],
             ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('hod.attendance.index', 'hod.dashboard'), 'isActive' => $active('hod.attendance.*')],
             ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('hod.exams.index', 'hod.dashboard'), 'isActive' => $active('hod.exams.*')],
             ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('hod.timetable.index', 'hod.dashboard'), 'isActive' => $active('hod.timetable.*')],

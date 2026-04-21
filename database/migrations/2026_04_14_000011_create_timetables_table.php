@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('room_number')->nullable();
             $table->enum('type', ['theory', 'practical', 'lab', 'library', 'break'])->default('theory');
             $table->string('group')->nullable();
+            $table->unsignedTinyInteger('duration')->default(1); // Duration in periods
             $table->timestamps();
 
             // Performance index

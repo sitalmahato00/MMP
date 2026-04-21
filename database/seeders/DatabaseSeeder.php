@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             CollegeExamSeeder::class,
             CollegeAttendanceSeeder::class,
             CollegeMarkSeeder::class,
+            ComprehensiveTimetableSeeder::class, // Added comprehensive timetable seeder
             SiteSettingFilesSeeder::class,
             ExecutiveSeeder::class,
             FacilitySeeder::class,

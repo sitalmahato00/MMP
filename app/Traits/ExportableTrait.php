@@ -25,7 +25,7 @@ trait ExportableTrait
     /**
      * Handle generic export request
      */
-    protected function handleExport(Request $request, array $config): Response
+    protected function handleExport(Request $request, array $config)
     {
         $format = $request->get('format', 'csv');
         $config['format'] = $format;
@@ -38,7 +38,7 @@ trait ExportableTrait
     /**
      * Export marks data
      */
-    protected function exportMarksData($exam, $marks, $department = null, $format = 'csv'): Response
+    protected function exportMarksData($exam, $marks, $department = null, $format = 'csv')
     {
         $config = ExportService::createMarksExportConfig($exam, $marks, $department);
         $config['format'] = $format;
@@ -51,7 +51,7 @@ trait ExportableTrait
     /**
      * Export students data
      */
-    protected function exportStudentsData($students, $department = null, $format = 'csv'): Response
+    protected function exportStudentsData($students, $department = null, $format = 'csv')
     {
         $config = ExportService::createStudentsExportConfig($students, $department);
         $config['format'] = $format;
@@ -64,7 +64,7 @@ trait ExportableTrait
     /**
      * Export attendance data
      */
-    protected function exportAttendanceData($attendanceData, $session = null, $department = null, $format = 'csv'): Response
+    protected function exportAttendanceData($attendanceData, $session = null, $department = null, $format = 'csv')
     {
         $config = ExportService::createAttendanceExportConfig($attendanceData, $session, $department);
         $config['format'] = $format;

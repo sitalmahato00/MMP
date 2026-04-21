@@ -146,7 +146,7 @@
 <body>
     <div class="header">
         @if($collegeLogo)
-            <img src="{{ $collegeLogo }}" alt="College Logo" style="height: 60px; margin-bottom: 10px;">
+            <img src="{{ $collegeLogo }}" alt="College Logo" style="height: 60px; margin-bottom: 10px; max-width: 200px; object-fit: contain;">
         @endif
         <div class="college-name">{{ $collegeName }}</div>
         <div class="college-address">{{ $collegeAddress }}</div>
@@ -216,9 +216,9 @@
                             
                             // Format specific values
                             if (in_array($key, ['assessment_attendance_percent'])) {
-                                $value = number_format($value ?? 0, 1) . '%';
+                                $value = number_format((float)($value ?? 0), 1) . '%';
                             } elseif (in_array($key, ['assessment_obtained_marks', 'internal_theory_marks', 'external_theory_marks', 'internal_practical_marks', 'external_practical_marks', 'total_marks'])) {
-                                $value = number_format($value ?? 0, 1);
+                                $value = number_format((float)($value ?? 0), 1);
                             } elseif ($key === 'was_present_on_exam_date') {
                                 $value = $value ? 'Present' : 'Absent';
                             } elseif ($key === 'is_present') {

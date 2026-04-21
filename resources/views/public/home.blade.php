@@ -22,6 +22,8 @@
             $typeLabel = $type === 'exam' ? 'Exam' : ucfirst($type);
             $badgeClass = match ($type) {
                 'exam' => 'bg-red-400/15 text-red-300 border border-red-300/20',
+                'department' => 'bg-blue-400/15 text-blue-300 border border-blue-300/20',
+                'program' => 'bg-green-400/15 text-green-300 border border-green-300/20',
                 'news' => 'bg-violet-400/15 text-violet-300 border border-violet-300/20',
                 'event' => 'bg-cyan-400/15 text-cyan-300 border border-cyan-300/20',
                 default => 'bg-white/10 text-gray-200',
@@ -310,7 +312,25 @@
                                     <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                     <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
                                 </div>
-                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                    @if($notice->type !== 'general' || $notice->department || $notice->program || $notice->semester)
+                                        <div class="flex items-center gap-1 mt-1 flex-wrap">
+                                            @if($notice->type !== 'general')
+                                                <span class="text-[9px] font-bold text-red-700 bg-red-50 px-1.5 py-0.5 rounded uppercase">{{ $notice->type }}</span>
+                                            @endif
+                                            @if($notice->department)
+                                                <span class="text-[9px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{{ $notice->department->name }}</span>
+                                            @endif
+                                            @if($notice->program)
+                                                <span class="text-[9px] font-medium text-green-700 bg-green-50 px-1.5 py-0.5 rounded">{{ $notice->program->name }}</span>
+                                            @endif
+                                            @if($notice->semester)
+                                                <span class="text-[9px] font-medium text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Sem {{ $notice->semester }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                                 <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                             </a>
                         </li>
@@ -406,7 +426,7 @@
                     </div>
                 </div>
                 <div class="px-4 py-2 border-t bg-white">
-                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices', ['type' => 'general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
+                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices', ['type' => 'all']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
                     <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices', ['type' => 'exam']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Exam Results »</a>
                     <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex items-center gap-4 flex-wrap">
                         <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT General »</a>

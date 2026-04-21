@@ -12,7 +12,7 @@ class TimetableSlot extends Model
     protected $fillable = [
         'timetable_id', 'subject_id', 'teacher_id',
         'day_of_week', 'start_time', 'end_time',
-        'room_number', 'type', 'group',
+        'room_number', 'type', 'group', 'duration',
     ];
 
     protected $casts = [

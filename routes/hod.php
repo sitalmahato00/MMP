@@ -49,8 +49,19 @@ Route::prefix('timetable')->name('timetable.')->group(function () {
     Route::get('/', [\App\Http\Controllers\HOD\TimetableController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\HOD\TimetableController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\HOD\TimetableController::class, 'store'])->name('store');
+    Route::get('/{timetable}', [\App\Http\Controllers\HOD\TimetableController::class, 'show'])->name('show');
     Route::get('/{timetable}/edit', [\App\Http\Controllers\HOD\TimetableController::class, 'edit'])->name('edit');
     Route::put('/{timetable}', [\App\Http\Controllers\HOD\TimetableController::class, 'update'])->name('update');
+    Route::delete('/{timetable}', [\App\Http\Controllers\HOD\TimetableController::class, 'destroy'])->name('destroy');
+    Route::delete('/{timetable}/slots/{slot}', [\App\Http\Controllers\HOD\TimetableController::class, 'destroySlot'])->name('slots.destroy');
+    
+    // Export functionality
+    Route::get('/{timetable}/export', [\App\Http\Controllers\HOD\TimetableController::class, 'export'])->name('export');
+    
+    // API endpoints for validations
+    Route::post('/{timetable}/check-teacher-conflicts', [\App\Http\Controllers\HOD\TimetableController::class, 'checkTeacherConflicts'])->name('check-teacher-conflicts');
+    Route::get('/{timetable}/available-groups', [\App\Http\Controllers\HOD\TimetableController::class, 'getAvailableGroups'])->name('available-groups');
+    Route::get('/{timetable}/subject-teachers', [\App\Http\Controllers\HOD\TimetableController::class, 'getSubjectTeachers'])->name('subject-teachers');
 });
 
 // Notice Management
@@ -98,4 +109,17 @@ Route::prefix('alumni')->name('alumni.')->group(function () {
     Route::get('/graduating', [\App\Http\Controllers\HOD\AlumniController::class, 'graduating'])->name('graduating');
     Route::post('/prepare/{student}', [\App\Http\Controllers\HOD\AlumniController::class, 'prepare'])->name('prepare');
     Route::get('/records', [\App\Http\Controllers\HOD\AlumniController::class, 'records'])->name('records');
+});
+
+// Subject Management (department subjects only)
+Route::prefix('subjects')->name('subjects.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\HOD\SubjectController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\HOD\SubjectController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\HOD\SubjectController::class, 'store'])->name('store');
+    Route::get('/{subject}', [\App\Http\Controllers\HOD\SubjectController::class, 'show'])->name('show');
+    Route::get('/{subject}/drawer', [\App\Http\Controllers\HOD\SubjectController::class, 'drawer'])->name('drawer');
+    Route::get('/{subject}/edit', [\App\Http\Controllers\HOD\SubjectController::class, 'edit'])->name('edit');
+    Route::put('/{subject}', [\App\Http\Controllers\HOD\SubjectController::class, 'update'])->name('update');
+    Route::post('/{subject}/assign-teacher', [\App\Http\Controllers\HOD\SubjectController::class, 'assignTeacher'])->name('assign-teacher');
+    Route::delete('/{subject}/teachers/{teacher}', [\App\Http\Controllers\HOD\SubjectController::class, 'removeTeacher'])->name('remove-teacher');
 });

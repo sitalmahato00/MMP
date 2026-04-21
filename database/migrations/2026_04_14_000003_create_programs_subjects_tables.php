@@ -12,15 +12,14 @@ return new class extends Migration
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
-            // FK to teachers is added later in 2026_04_14_000005_add_programs_coordinator_fk
-            // (teachers table is created by migration 000005, after this one)
-            $table->unsignedBigInteger('coordinator_id')->nullable();
+            $table->unsignedBigInteger('coordinator_id')->nullable(); // FK added after teachers table creation
             $table->string('name');                         // e.g. "Diploma in Information Technology"
             $table->string('code')->unique();               // e.g. "DIT"
             $table->string('ctevt_code', 50)->nullable();
             $table->string('affiliation_type', 50)->default('CTEVT');
             $table->string('slug')->unique();
             $table->unsignedTinyInteger('total_semesters')->default(6); // CTEVT: typically 6 or 8
+            $table->unsignedTinyInteger('duration')->default(3); // Duration in years (alias for duration_years)
             $table->unsignedTinyInteger('duration_years')->default(3);
             $table->text('description')->nullable();
             $table->text('eligibility')->nullable();

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('roll_number')->nullable();
             $table->string('admission_year', 4)->nullable();
             $table->string('graduation_year', 4); // Based on passing academic session
+            $table->date('graduation_date')->nullable(); // Actual graduation date
+            $table->string('current_status')->default('recent_graduate'); // recent_graduate, employed, entrepreneur, further_study, unemployed
             $table->string('current_job')->nullable();
             $table->string('company_name')->nullable();
             $table->string('employment_status')->default('unknown'); // employed, studying, unemployed, freelancing, unknown
@@ -32,6 +34,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('profile_completion')->default(0);
             $table->string('visibility')->default('public');
             $table->boolean('is_featured')->default(false);
+            $table->boolean('is_active')->default(true); // Active alumni status
             $table->boolean('is_verified')->default(true); // Auto-created are verified
             $table->timestamps();
             $table->softDeletes();
@@ -69,7 +72,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('alumni_employment_history', function (Blueprint $table) {
+        Schema::create('alumni_employments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('alumni_id')->constrained('alumni')->cascadeOnDelete();
             $table->string('job_title');
@@ -85,7 +88,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('alumni_employment_history');
+        Schema::dropIfExists('alumni_employments');
         Schema::dropIfExists('alumni_achievements');
         Schema::dropIfExists('alumni_projects');
         Schema::dropIfExists('alumni');

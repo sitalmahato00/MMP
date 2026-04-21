@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('student_no', 50)->nullable()->unique(); // Student ID assigned by admin
             $table->string('registration_number')->nullable();
             $table->unsignedTinyInteger('current_semester')->default(1);
+            $table->unsignedTinyInteger('semester')->default(1); // Alias for current_semester
             $table->string('section')->nullable();
             $table->string('batch')->nullable();
             $table->date('admission_date')->nullable();
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->string('guardian_phone', 20)->nullable();
             $table->string('blood_group', 5)->nullable();
             $table->enum('status', ['active', 'inactive', 'graduated', 'dropped', 'suspended'])->default('active');
+            $table->boolean('is_active')->default(true); // Quick active/inactive flag
             $table->boolean('is_archived')->default(false);
             $table->timestamps();
             $table->softDeletes();

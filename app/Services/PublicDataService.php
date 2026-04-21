@@ -32,10 +32,12 @@ class PublicDataService
                     ->with('department:id,name,code')
                     ->take(4)
                     ->get(['id', 'user_id', 'department_id', 'graduation_year', 'current_job', 'company_name']),
-                'notices' => Notice::published()->general()
+                'notices' => Notice::published()
+                    ->whereIn('type', ['general', 'department', 'program'])
+                    ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
-                    ->get(['id', 'title', 'slug', 'type', 'published_at', 'created_at']),
+                    ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'published_at', 'created_at']),
                 'examNotices' => Notice::published()
                     ->where('type', 'exam')
                     ->latest()
@@ -48,11 +50,15 @@ class PublicDataService
     public function getNotices(int $perPage = 15, ?string $type = 'general')
     {
         return Notice::published()
-            ->when(in_array($type, ['general', 'exam', 'news', 'event'], true), function ($query) use ($type) {
+            ->when(in_array($type, ['general', 'exam', 'news', 'event', 'department', 'program'], true), function ($query) use ($type) {
                 $query->where('type', $type);
             })
+            ->when($type === 'all', function ($query) {
+                $query->whereIn('type', ['general', 'department', 'program']);
+            })
+            ->with(['department:id,name,code', 'program:id,name,code'])
             ->latest()
-            ->paginate($perPage, ['id', 'title', 'slug', 'type', 'attachment', 'content', 'published_at', 'created_at']);
+            ->paginate($perPage, ['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'content', 'published_at', 'created_at']);
     }
 
     public function getDepartments(): \Illuminate\Support\Collection

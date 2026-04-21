@@ -107,6 +107,7 @@
                         <th class="px-5 py-3 text-left">Type</th>
                         <th class="px-5 py-3 text-left">Schedule</th>
                         <th class="px-5 py-3 text-left">Programs</th>
+                        <th class="px-5 py-3 text-center">Semester</th>
                         <th class="px-5 py-3 text-left">Status</th>
                         <th class="px-5 py-3 text-left">Actions</th>
                     </tr>
@@ -123,13 +124,23 @@
                                 <div class="text-xs text-slate-500">{{ $exam->category_label }}</div>
                             </td>
                             <td class="px-5 py-4">
-                                <div class="text-sm text-slate-900">{{ bsDate($exam->start_date, 'M d, Y') }}</div>
+                                <div class="text-sm text-slate-900">{{ bsDate($exam->start_date, 'F d, Y') }}</div>
                                 @if($exam->end_date && $exam->end_date != $exam->start_date)
-                                    <div class="text-xs text-slate-500">to {{ bsDate($exam->end_date, 'M d, Y') }}</div>
+                                    <div class="text-xs text-slate-500">to {{ bsDate($exam->end_date, 'F d, Y') }}</div>
                                 @endif
                             </td>
                             <td class="px-5 py-4">
                                 <div class="text-sm text-slate-900">{{ $exam->programs->count() }} programs</div>
+                            </td>
+                            <td class="px-5 py-4 text-center">
+                                @php
+                                    $semesters = $exam->programs->pluck('pivot.semester')->filter()->unique()->sort()->values();
+                                @endphp
+                                @if($semesters->count() > 0)
+                                    <span class="text-sm font-medium text-slate-900">{{ $semesters->implode(', ') }}</span>
+                                @else
+                                    <span class="text-sm font-medium text-slate-500">All</span>
+                                @endif
                             </td>
                             <td class="px-5 py-4">
                                 @php
@@ -158,7 +169,7 @@
                                         View
                                     </a>
 
-                                    {{-- Edit Button --}}
+                                    {{-- Edit Button (only for assessment exams) --}}
                                     @if($exam->category === 'monthly_assessment')
                                         <a href="{{ route('hod.exams.edit', $exam) }}" 
                                            class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
@@ -168,21 +179,12 @@
                                             </svg>
                                             Edit
                                         </a>
-                                    @else
-                                        <a href="{{ route('hod.exams.fill-marks', ['exam_id' => $exam->id]) }}" 
-                                           class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                                           title="Fill CTEVT Marks">
-                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                            </svg>
-                                            Fill Marks
-                                        </a>
                                     @endif
 
-                                    {{-- Fill Marks Button --}}
+                                    {{-- Fill Button --}}
                                     <a href="{{ route('hod.exams.fill-marks', ['exam_id' => $exam->id]) }}" 
                                        class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
-                                       title="Fill/Override Marks">
+                                       title="Fill Marks">
                                         <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                         </svg>
@@ -204,7 +206,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-12 text-center">
+                            <td colspan="7" class="px-5 py-12 text-center">
                                 <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
@@ -221,57 +223,6 @@
                 {{ $exams->links() }}
             </div>
         @endif
-    </section>
-
-    {{-- Quick Actions --}}
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <a href="{{ route('hod.exams.results') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-900">Student Results</p>
-                <p class="text-xs text-slate-500">View student performance</p>
-            </div>
-        </a>
-
-        <a href="{{ route('hod.exams.analytics') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-900">Analytics</p>
-                <p class="text-xs text-slate-500">Performance insights</p>
-            </div>
-        </a>
-
-        <a href="{{ route('hod.reports.performance') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-violet-300 hover:bg-violet-50/50">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-900">Export Reports</p>
-                <p class="text-xs text-slate-500">Download performance data</p>
-            </div>
-        </a>
-
-        <a href="{{ route('hod.dashboard') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-slate-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
-                </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-900">Back to Dashboard</p>
-                <p class="text-xs text-slate-500">Return to main dashboard</p>
-            </div>
-        </a>
     </section>
 </div>
 

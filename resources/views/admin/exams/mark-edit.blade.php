@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Edit Mark')
+@section('title', 'Edit')
 
 @section('content')
 @php
@@ -24,10 +24,10 @@
             <div class="max-w-3xl space-y-3">
                 <div class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-[#8B0000]">
                     <i class="fas fa-pen-to-square"></i>
-                    Mark correction
+                    Edit
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Edit mark record</h1>
+                    <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Edit</h1>
                     <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
                         Adjust the student score components for this subject only. Exam details, session, and subject assignment remain locked.
                     </p>

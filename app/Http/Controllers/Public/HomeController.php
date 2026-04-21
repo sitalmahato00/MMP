@@ -71,11 +71,11 @@ class HomeController extends Controller
 
     public function notices(Request $request)
     {
-        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'news', 'event', 'ctevt-general', 'ctevt-result'], true)
+        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'news', 'event', 'department', 'program', 'all', 'ctevt-general', 'ctevt-result'], true)
             ? $request->string('type')->toString()
-            : 'general';
+            : 'all';
 
-        $notices = in_array($activeType, ['general', 'exam', 'news', 'event'], true)
+        $notices = in_array($activeType, ['general', 'exam', 'news', 'event', 'department', 'program', 'all'], true)
             ? $this->service->getNotices(15, $activeType)
             : $this->service->getNotices(15, 'general');
         $ctevtGeneralNotices = $this->service->getCtevtGeneralNotices(10);

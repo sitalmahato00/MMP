@@ -19,13 +19,25 @@
             </div>
             <div class="bg-white border border-gray-200 border-t-0" x-data="{ activeCtevtTab: '{{ $activeCtevtTab }}' }">
                 <div class="flex border-b border-gray-200">
+                    <a href="{{ route('public.notices', ['type' => 'all']) }}"
+                       class="flex-1 text-center py-3 text-sm font-bold transition-colors {{ $activeType === 'all' ? 'bg-[#8B0000] text-white' : 'bg-white text-gray-700 hover:bg-red-50' }}">
+                        All Notices
+                    </a>
                     <a href="{{ route('public.notices', ['type' => 'general']) }}"
                        class="flex-1 text-center py-3 text-sm font-bold transition-colors {{ $activeType === 'general' ? 'bg-[#8B0000] text-white' : 'bg-white text-gray-700 hover:bg-red-50' }}">
-                        Notice Board
+                        General
+                    </a>
+                    <a href="{{ route('public.notices', ['type' => 'department']) }}"
+                       class="flex-1 text-center py-3 text-sm font-bold transition-colors {{ $activeType === 'department' ? 'bg-[#8B0000] text-white' : 'bg-white text-gray-700 hover:bg-red-50' }}">
+                        Department
+                    </a>
+                    <a href="{{ route('public.notices', ['type' => 'program']) }}"
+                       class="flex-1 text-center py-3 text-sm font-bold transition-colors {{ $activeType === 'program' ? 'bg-[#8B0000] text-white' : 'bg-white text-gray-700 hover:bg-red-50' }}">
+                        Program
                     </a>
                     <a href="{{ route('public.notices', ['type' => 'exam']) }}"
                        class="flex-1 text-center py-3 text-sm font-bold transition-colors {{ $activeType === 'exam' ? 'bg-[#8B0000] text-white' : 'bg-white text-gray-700 hover:bg-red-50' }}">
-                        Exam Schedules & Results
+                        Exam Results
                     </a>
                     <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}"
                        class="flex-1 text-center py-3 text-sm font-bold transition-colors {{ $isCtevtType ? 'bg-[#8B0000] text-white' : 'bg-white text-gray-700 hover:bg-red-50' }}">
@@ -119,6 +131,30 @@
                                 </a>
                                 <div class="flex items-center gap-2 mt-2 flex-wrap">
                                     <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-100 uppercase">{{ $notice->type }}</span>
+                                    
+                                    {{-- Show department and program details for specific notice types --}}
+                                    @if($notice->type === 'department' && $notice->department)
+                                        <span class="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                                            {{ $notice->department->name }}
+                                        </span>
+                                    @endif
+                                    
+                                    @if($notice->type === 'program' && $notice->program)
+                                        <span class="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-100">
+                                            {{ $notice->program->name }}
+                                        </span>
+                                        @if($notice->department)
+                                            <span class="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                                                {{ $notice->department->name }}
+                                            </span>
+                                        @endif
+                                        @if($notice->semester)
+                                            <span class="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-100">
+                                                Semester {{ $notice->semester }}
+                                            </span>
+                                        @endif
+                                    @endif
+                                    
                                     <span class="text-xs text-gray-400">{{ bsDate($noticeDate, 'Y, F d') }}</span>
                                     @if($notice->attachment)
                                         <a href="{{ asset('storage/'.$notice->attachment) }}" class="text-xs text-red-700 hover:underline flex items-center gap-1 font-semibold">
@@ -132,7 +168,19 @@
                     @empty
                         <div class="py-16 text-center text-gray-400">
                             <p class="text-5xl mb-4">📋</p>
-                            <p class="font-semibold text-gray-500">{{ $activeType === 'exam' ? 'No exam schedule or result notices published yet.' : 'No notices published yet.' }}</p>
+                            <p class="font-semibold text-gray-500">
+                                @if($activeType === 'exam')
+                                    No exam schedule or result notices published yet.
+                                @elseif($activeType === 'department')
+                                    No department notices published yet.
+                                @elseif($activeType === 'program')
+                                    No program notices published yet.
+                                @elseif($activeType === 'all')
+                                    No notices published yet.
+                                @else
+                                    No notices published yet.
+                                @endif
+                            </p>
                         </div>
                     @endforelse
                 </div>
@@ -147,7 +195,10 @@
                 <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
                 <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     @foreach([
-                        ['label' => 'Notice Board', 'href' => route('public.notices', ['type' => 'general'])],
+                        ['label' => 'All Notices', 'href' => route('public.notices', ['type' => 'all'])],
+                        ['label' => 'General Notices', 'href' => route('public.notices', ['type' => 'general'])],
+                        ['label' => 'Department Notices', 'href' => route('public.notices', ['type' => 'department'])],
+                        ['label' => 'Program Notices', 'href' => route('public.notices', ['type' => 'program'])],
                         ['label' => 'Exam Schedules & Results', 'href' => route('public.notices', ['type' => 'exam'])],
                         ['label' => 'Downloads & Forms', 'href' => route('public.downloads')],
                         ['label' => 'Student Portal', 'href' => route('login')],

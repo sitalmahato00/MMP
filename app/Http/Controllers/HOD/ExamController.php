@@ -36,6 +36,7 @@ class ExamController extends HodController
             ->when($request->category, fn ($q) => $q->where('category', $request->category));
 
         $exams = (clone $query)
+            ->latest('created_at')
             ->latest('start_date')
             ->paginate(20)
             ->withQueryString();

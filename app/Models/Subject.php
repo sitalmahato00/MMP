@@ -34,7 +34,7 @@ class Subject extends Model
     public function teachers()
     {
         return $this->belongsToMany(Teacher::class, 'subject_teacher')
-            ->withPivot('academic_session_id', 'section')
+            ->withPivot('academic_session_id', 'section', 'role')
             ->withTimestamps();
     }
 

@@ -35,10 +35,20 @@ return new class extends Migration
             // Performance index
             $table->index(['academic_session_id', 'teacher_id'], 'idx_subteach_session_teacher');
         });
+
+        // Add foreign key constraint for programs.coordinator_id now that teachers table exists
+        Schema::table('programs', function (Blueprint $table) {
+            $table->foreign('coordinator_id')->references('id')->on('teachers')->nullOnDelete();
+        });
     }
 
     public function down(): void
     {
+        // Remove foreign key constraint first
+        Schema::table('programs', function (Blueprint $table) {
+            $table->dropForeign(['coordinator_id']);
+        });
+        
         Schema::dropIfExists('subject_teacher');
         Schema::dropIfExists('teachers');
     }
