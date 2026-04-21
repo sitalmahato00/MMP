@@ -100,12 +100,6 @@
     <div class="flex items-center gap-3 pb-6">
         <x-btn type="submit">Update Notice</x-btn>
         <x-btn href="{{ route('hod.notices.index') }}" variant="secondary">Cancel</x-btn>
-        <form method="POST" action="{{ route('hod.notices.destroy', $notice) }}" 
-              onsubmit="return confirm('Are you sure you want to delete this notice?')" class="ml-auto">
-            @csrf
-            @method('DELETE')
-            <x-btn type="submit" variant="danger">Delete Notice</x-btn>
-        </form>
     </div>
 </form>
 @endsection
