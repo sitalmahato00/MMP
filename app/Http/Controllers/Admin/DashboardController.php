@@ -809,28 +809,49 @@ class DashboardController extends Controller
     {
         $today = Carbon::now();
         
-        // 7 days data - last 7 days
+        // 7 days data - last 7 days with real attendance
         $sevenDaysLabels = [];
         $sevenDaysData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i);
             $sevenDaysLabels[] = bsDate($date, 'F d'); // e.g., "Baisakh 15"
-            // Sample data - replace with actual attendance query
-            $sevenDaysData[] = rand(75, 95);
+            
+            // Get real attendance data for this date
+            $attendanceRow = DB::table('attendances')
+                ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+                ->where('attendance_sessions.date', $date->toDateString())
+                ->selectRaw('COUNT(*) as total')
+                ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+                ->first();
+            
+            $total = (int) ($attendanceRow->total ?? 0);
+            $present = (int) ($attendanceRow->present ?? 0);
+            $rate = $total > 0 ? round(($present / $total) * 100, 1) : 0;
+            
+            $sevenDaysData[] = $rate;
         }
         
-        // 30 days data - full current Nepali month (1 to 30)
+        // 30 days data - last 30 days with full date labels (month and day)
         $thirtyDaysLabels = [];
         $thirtyDaysData = [];
         
-        // Get the first day of current Nepali month
-        $firstDayOfMonth = $today->copy()->startOfMonth();
-        
-        // Generate labels for days 1-30 of current month
-        for ($day = 1; $day <= 30; $day++) {
-            $thirtyDaysLabels[] = (string) $day; // Just day number: "1", "2", "3", etc.
-            // Sample data - replace with actual attendance query
-            $thirtyDaysData[] = rand(75, 95);
+        for ($i = 29; $i >= 0; $i--) {
+            $date = $today->copy()->subDays($i);
+            $thirtyDaysLabels[] = bsDate($date, 'F d'); // e.g., "Baisakh 15", "Baisakh 16", etc.
+            
+            // Get real attendance data for this date
+            $attendanceRow = DB::table('attendances')
+                ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+                ->where('attendance_sessions.date', $date->toDateString())
+                ->selectRaw('COUNT(*) as total')
+                ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+                ->first();
+            
+            $total = (int) ($attendanceRow->total ?? 0);
+            $present = (int) ($attendanceRow->present ?? 0);
+            $rate = $total > 0 ? round(($present / $total) * 100, 1) : 0;
+            
+            $thirtyDaysData[] = $rate;
         }
         
         return [
