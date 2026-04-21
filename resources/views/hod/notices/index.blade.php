@@ -64,46 +64,61 @@
 </div>
 
 {{-- Filters & Actions --}}
-<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <form method="GET" class="flex flex-1 gap-3 flex-wrap">
-        <div class="relative flex-1 min-w-[200px]">
-            <input type="text" name="search" value="{{ request('search') }}" 
-                   placeholder="Search notices..." 
-                   class="w-full rounded-xl border-slate-300 pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500">
-            <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<form method="GET" action="{{ route('hod.notices.index') }}"
+      class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6">
+    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        {{-- Search --}}
+        <div class="relative lg:col-span-2">
+            <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
+            <input type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Search notices..."
+                   class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100"/>
         </div>
-        <select name="type" onchange="this.form.submit()" 
-                class="rounded-xl border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+        {{-- Type --}}
+        <select name="type" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
             <option value="">All Types</option>
             <option value="general" @selected(request('type') === 'general')>General</option>
             <option value="department" @selected(request('type') === 'department')>Department</option>
             <option value="program" @selected(request('type') === 'program')>Program</option>
         </select>
-        <select name="status" onchange="this.form.submit()" 
-                class="rounded-xl border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+        {{-- Status --}}
+        <select name="status" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
             <option value="">All Status</option>
             <option value="published" @selected(request('status') === 'published')>Published</option>
             <option value="draft" @selected(request('status') === 'draft')>Draft</option>
         </select>
-        <select name="program_id" onchange="this.form.submit()" 
-                class="rounded-xl border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+        {{-- Program --}}
+        <select name="program_id" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
             <option value="">All Programs</option>
             @foreach($programs as $program)
-                <option value="{{ $program->id }}" @selected(request('program_id') == $program->id)>
-                    {{ $program->name }}
-                </option>
+                <option value="{{ $program->id }}" @selected(request('program_id') == $program->id)>{{ $program->name }}</option>
             @endforeach
         </select>
-    </form>
+        {{-- Apply + Clear --}}
+        <div class="flex gap-2">
+            <button type="submit"
+                    class="rounded-xl bg-[#1d4ed8] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1e40af] transition whitespace-nowrap">
+                Apply
+            </button>
+            @if(request()->hasAny(['search','type','status','program_id']))
+            <a href="{{ route('hod.notices.index') }}"
+               class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition" title="Clear filters">✕</a>
+            @endif
+        </div>
+    </div>
+</form>
 
-    <x-btn href="{{ route('hod.notices.create') }}">
+{{-- Create Button --}}
+<div class="mb-6 flex justify-end">
+    <a href="{{ route('hod.notices.create') }}"
+       class="inline-flex items-center gap-2 rounded-xl bg-[#1d4ed8] px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#1e40af] transition">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
         Create Notice
-    </x-btn>
+    </a>
 </div>
 
 {{-- Notices List --}}
@@ -116,15 +131,15 @@
                         <div class="flex items-center gap-3 mb-2">
                             <h3 class="text-lg font-bold text-slate-800">{{ $notice->title }}</h3>
                             @if($notice->is_published)
-                                <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                                <span class="inline-flex rounded-lg bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
                                     Published
                                 </span>
                             @else
-                                <span class="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                                <span class="inline-flex rounded-lg bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
                                     Draft
                                 </span>
                             @endif
-                            <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                            <span class="inline-flex rounded-lg bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
                                 {{ ucfirst($notice->type) }}
                             </span>
                         </div>
@@ -144,7 +159,7 @@
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
-                                {{ $notice->created_at->format('M d, Y') }}
+                                {{ bsDate($notice->created_at, 'Y, F d') }}
                             </span>
                             @if($notice->department)
                                 <span class="flex items-center gap-1">
@@ -181,13 +196,22 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
                         </a>
-                        @if($notice->type === 'department' && $notice->created_by === auth()->id())
+                        @if($notice->created_by === auth()->id())
                             <a href="{{ route('hod.notices.edit', $notice) }}" 
                                class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-600 transition hover:bg-slate-50">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </a>
+                            <form action="{{ route('hod.notices.destroy', $notice) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this notice?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-lg border border-red-300 text-red-600 transition hover:bg-red-50">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </div>
