@@ -21,12 +21,19 @@ class NoticeController extends HodController
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
 
-        // Get notices for department (department notices + general notices)
-        $query = Notice::where(function ($q) use ($deptId) {
+        // Get program IDs for this department
+        $programIds = Program::where('department_id', $deptId)->pluck('id')->toArray();
+
+        // Get notices for department (general + department + program notices)
+        $query = Notice::where(function ($q) use ($deptId, $programIds) {
                 $q->where('type', 'general')
                   ->orWhere(function ($q2) use ($deptId) {
                       $q2->where('type', 'department')
                          ->where('department_id', $deptId);
+                  })
+                  ->orWhere(function ($q3) use ($programIds) {
+                      $q3->where('type', 'program')
+                         ->whereIn('program_id', $programIds);
                   });
             })
             ->with([
@@ -155,12 +162,23 @@ class NoticeController extends HodController
     // ── Edit ───────────────────────────────────────────────────────────────
     public function edit(Request $request, Notice $notice)
     {
-        // Verify access to notice (only department notices created by HOD)
+        // Verify access to notice (only notices created by HOD)
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
 
-        if ($notice->type !== 'department' || $notice->department_id !== $deptId || $notice->created_by !== auth()->id()) {
-            abort(403, 'You can only edit department notices you created.');
+        // Check if notice belongs to this department and was created by current user
+        if ($notice->created_by !== auth()->id()) {
+            abort(403, 'You can only edit notices you created.');
+        }
+
+        // For department notices, verify department match
+        if ($notice->type === 'department' && $notice->department_id !== $deptId) {
+            abort(403, 'You can only edit notices from your department.');
+        }
+
+        // For program notices, verify program belongs to department
+        if ($notice->type === 'program' && $notice->program && $notice->program->department_id !== $deptId) {
+            abort(403, 'You can only edit notices from your department.');
         }
 
         $programs = Program::where('department_id', $deptId)
@@ -178,8 +196,19 @@ class NoticeController extends HodController
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
 
-        if ($notice->type !== 'department' || $notice->department_id !== $deptId || $notice->created_by !== auth()->id()) {
-            abort(403, 'You can only edit department notices you created.');
+        // Check if notice was created by current user
+        if ($notice->created_by !== auth()->id()) {
+            abort(403, 'You can only edit notices you created.');
+        }
+
+        // For department notices, verify department match
+        if ($notice->type === 'department' && $notice->department_id !== $deptId) {
+            abort(403, 'You can only edit notices from your department.');
+        }
+
+        // For program notices, verify program belongs to department
+        if ($notice->type === 'program' && $notice->program && $notice->program->department_id !== $deptId) {
+            abort(403, 'You can only edit notices from your department.');
         }
 
         $data = $request->validate([
@@ -233,8 +262,19 @@ class NoticeController extends HodController
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
 
-        if ($notice->type !== 'department' || $notice->department_id !== $deptId || $notice->created_by !== auth()->id()) {
-            abort(403, 'You can only delete department notices you created.');
+        // Check if notice was created by current user
+        if ($notice->created_by !== auth()->id()) {
+            abort(403, 'You can only delete notices you created.');
+        }
+
+        // For department notices, verify department match
+        if ($notice->type === 'department' && $notice->department_id !== $deptId) {
+            abort(403, 'You can only delete notices from your department.');
+        }
+
+        // For program notices, verify program belongs to department
+        if ($notice->type === 'program' && $notice->program && $notice->program->department_id !== $deptId) {
+            abort(403, 'You can only delete notices from your department.');
         }
 
         if ($notice->attachment && Storage::disk('public')->exists($notice->attachment)) {
