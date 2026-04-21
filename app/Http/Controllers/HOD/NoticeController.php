@@ -4,6 +4,7 @@ namespace App\Http\Controllers\HOD;
 
 use App\Models\Notice;
 use App\Models\Program;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -134,6 +135,9 @@ class NoticeController extends HodController
             'published_at' => ($data['is_published'] ?? false) ? now() : null,
         ]);
 
+        // Clear public caches so changes appear immediately
+        PublicDataService::invalidate('*');
+
         return redirect()
             ->route('hod.notices.index')
             ->with('success', 'Notice created successfully.');
@@ -250,6 +254,9 @@ class NoticeController extends HodController
             'published_at' => ($data['is_published'] ?? false) && !$notice->published_at ? now() : $notice->published_at,
         ] + (isset($data['attachment']) ? ['attachment' => $data['attachment']] : []));
 
+        // Clear public caches so changes appear immediately
+        PublicDataService::invalidate('*');
+
         return redirect()
             ->route('hod.notices.index')
             ->with('success', 'Notice updated successfully.');
@@ -282,6 +289,9 @@ class NoticeController extends HodController
         }
 
         $notice->delete();
+
+        // Clear public caches so changes appear immediately
+        PublicDataService::invalidate('*');
 
         return redirect()
             ->route('hod.notices.index')
