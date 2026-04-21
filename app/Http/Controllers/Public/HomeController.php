@@ -84,6 +84,14 @@ class HomeController extends Controller
         return view('public.notices', compact('notices', 'activeType', 'ctevtGeneralNotices', 'ctevtResultNotices'));
     }
 
+    public function noticeShow(string $slug)
+    {
+        $notice = $this->service->getNoticeBySlug($slug);
+        $relatedNotices = $this->service->getNotices(5, $notice->type);
+        
+        return view('public.notice-show', compact('notice', 'relatedNotices'));
+    }
+
     public function departments()
     {
         $departments = $this->service->getDepartments();

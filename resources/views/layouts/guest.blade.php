@@ -185,6 +185,7 @@
                     @endforeach
 
                     <a href="{{ route('public.news-events') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NEWS & EVENTS</a>
+                    <a href="{{ route('public.notices') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.notices') || request()->routeIs('public.notice.show') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NOTICES</a>
                     <a href="{{ route('public.gallery') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">GALLERY</a>
                     <a href="{{ route('public.alumni') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.alumni') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">ALUMNI</a>
                     <a href="{{ route('public.result') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">RESULT</a>
@@ -294,6 +295,7 @@
                 </div>
                 
                 <a href="{{ route('public.news-events') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.news-events') ? 'border-white bg-white/10' : 'border-transparent' }}">NEWS & EVENTS</a>
+                <a href="{{ route('public.notices') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.notices') || request()->routeIs('public.notice.show') ? 'border-white bg-white/10' : 'border-transparent' }}">NOTICES</a>
                 <a href="{{ route('public.gallery') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent' }}">GALLERY</a>
                 <a href="{{ route('public.alumni') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.alumni') ? 'border-white bg-white/10' : 'border-transparent' }}">ALUMNI</a>
                 <a href="{{ route('public.result') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors border-l-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent' }}">RESULT</a>

@@ -305,7 +305,7 @@
                     <ul class="divide-y divide-gray-100" x-show="activeNoticeTab === 'general'" x-cloak>
                         @forelse(($notices ?? collect())->take(6) as $notice)
                         <li>
-                            <a href="{{ route('public.notices', ['type' => 'general']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                            <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
                                 <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
                                     <span class="text-[8px] font-bold leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
@@ -341,7 +341,7 @@
                     <ul class="divide-y divide-gray-100" x-show="activeNoticeTab === 'exam'" x-cloak>
                         @forelse(($examNotices ?? collect())->take(6) as $notice)
                         <li>
-                            <a href="{{ route('public.notices', ['type' => 'exam']) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                            <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
                                 <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
                                     <span class="text-[8px] font-bold leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
@@ -426,8 +426,8 @@
                     </div>
                 </div>
                 <div class="px-4 py-2 border-t bg-white">
-                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices', ['type' => 'all']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
-                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices', ['type' => 'exam']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Exam Results »</a>
+                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices') }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
+                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices') }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
                     <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex items-center gap-4 flex-wrap">
                         <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT General »</a>
                         <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT Results »</a>

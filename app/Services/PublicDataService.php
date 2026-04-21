@@ -61,6 +61,16 @@ class PublicDataService
             ->paginate($perPage, ['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'content', 'published_at', 'created_at']);
     }
 
+    public function getNoticeBySlug(string $slug): Notice
+    {
+        return Cache::remember("public:notice:{$slug}", self::CACHE_TTL, function () use ($slug) {
+            return Notice::published()
+                ->with(['department:id,name,code', 'program:id,name,code', 'author:id,name', 'attachments'])
+                ->where('slug', $slug)
+                ->firstOrFail();
+        });
+    }
+
     public function getDepartments(): \Illuminate\Support\Collection
     {
         return Cache::remember('public:departments', self::CACHE_TTL, function () {
