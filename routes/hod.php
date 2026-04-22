@@ -135,3 +135,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::post('/reset-dashboard', [\App\Http\Controllers\HOD\SettingsController::class, 'resetDashboard'])->name('reset-dashboard');
     Route::post('/clear-preferences', [\App\Http\Controllers\HOD\SettingsController::class, 'clearPreferences'])->name('clear-preferences');
 });
+
+// HOD Resource Management (Downloads)
+Route::resource('downloads', \App\Http\Controllers\HOD\DownloadController::class)->except(['show']);
+Route::get('downloads/{download}/file', [\App\Http\Controllers\HOD\DownloadController::class, 'file'])->name('downloads.file');

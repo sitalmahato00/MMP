@@ -8,101 +8,84 @@
     </x-slot>
 </x-page-header>
 
-{{-- Stat Cards --}}
-<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-    <x-stat-card title="Total Files" :value="$downloads->total()" color="blue" icon="heroicon-o-photograph"/>
-    <x-stat-card title="Total Size" :value="number_format($downloads->sum('file_size')/1024/1024, 2) . ' MB'" color="green" icon="heroicon-o-trash"/>
-    <x-stat-card title="Images" :value="$downloads->where('file_type', 'jpg')->count() + $downloads->where('file_type', 'jpeg')->count() + $downloads->where('file_type', 'png')->count()" color="purple" icon="heroicon-o-photograph"/>
-    <x-stat-card title="Documents" :value="$downloads->whereIn('file_type', ['pdf','doc','docx'])->count()" color="yellow" icon="heroicon-o-document-text"/>
-</div>
+{{-- Statistics Cards --}}
+<x-download-stats :downloads="$downloads" />
 
-{{-- Filters --}}
-<div class="bg-white rounded-2xl shadow p-6 mb-6">
-    <form method="GET" class="flex flex-col md:flex-row md:items-end md:space-x-4 space-y-4 md:space-y-0">
-        <div class="flex-1">
-            <label class="block text-xs font-semibold text-gray-500 mb-1">Search</label>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search files or titles..." class="form-input w-full rounded-xl" />
-        </div>
-        <div class="w-48">
-            <label class="block text-xs font-semibold text-gray-500 mb-1">Type</label>
-            <select name="category" class="form-select w-full rounded-xl">
-                <option value="">All Types</option>
-                <option value="Forms & Downloads" @selected(request('category') == 'Forms & Downloads')>Forms & Downloads</option>
-                <option value="Syllabus" @selected(request('category') == 'Syllabus')>Syllabus</option>
-                <option value="Notes" @selected(request('category') == 'Notes')>Notes</option>
-                <option value="Question Bank" @selected(request('category') == 'Question Bank')>Question Bank</option>
-                <option value="Reports & Publications" @selected(request('category') == 'Reports & Publications')>Reports & Publications</option>
-            </select>
-        </div>
-        <div class="w-48">
-            <label class="block text-xs font-semibold text-gray-500 mb-1">From Date</label>
-            <input type="text" name="from_date" placeholder="From BS date" class="form-input w-full rounded-xl" />
-        </div>
-        <div class="w-48">
-            <label class="block text-xs font-semibold text-gray-500 mb-1">To Date</label>
-            <input type="text" name="to_date" placeholder="To BS date" class="form-input w-full rounded-xl" />
-        </div>
-        <div class="flex flex-col gap-2 md:gap-0 md:flex-row md:items-end">
-            <button type="submit" class="btn btn-danger rounded-xl px-6">Filter</button>
-            <a href="?" class="btn btn-outline-danger rounded-xl px-6">Reset</a>
-        </div>
-        <div class="flex flex-row gap-2 ml-auto mt-4 md:mt-0">
-            <button type="button" class="btn btn-outline rounded-xl">Gallery View</button>
-            <button type="button" class="btn btn-danger rounded-xl">Upload Files</button>
-        </div>
-    </form>
-</div>
+{{-- Filter Form --}}
+<x-download-filters :categories="['Forms & Downloads', 'Syllabus', 'Notes', 'Question Bank', 'Reports & Publications']" />
 
-<div class="flex items-center justify-between mb-2">
-    <div class="text-sm text-gray-500 font-medium">Showing {{ $downloads->count() }} files</div>
-    <div class="flex gap-2">
-        <button type="button" class="btn btn-outline rounded-xl">Cards</button>
-        <button type="button" class="btn btn-danger rounded-xl">Table</button>
+{{-- View Toggle & Results Info --}}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="text-sm text-gray-600 font-medium">
+        Showing {{ $downloads->count() }} of {{ $downloads->total() }} files
+    </div>
+    <div class="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <button 
+            type="button" 
+            onclick="toggleView('table')"
+            id="view-table-btn"
+            class="px-4 py-2 rounded-md font-medium transition-colors text-gray-700 hover:text-gray-900"
+        >
+            <svg class="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            Table
+        </button>
+        <button 
+            type="button" 
+            onclick="toggleView('cards')"
+            id="view-cards-btn"
+            class="px-4 py-2 rounded-md font-medium transition-colors text-gray-700 hover:text-gray-900 bg-gray-900 text-white"
+        >
+            <svg class="w-4 h-4 inline mr-1.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+            </svg>
+            Cards
+        </button>
     </div>
 </div>
 
-<x-data-table :paginator="$downloads">
-    <x-slot name="head">
-        <tr>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Preview</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Type</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Size</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Uploaded</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-        </tr>
-    </x-slot>
-    @forelse($downloads as $download)
-    <tr class="hover:bg-gray-50/70 transition-colors">
-        <td class="px-5 py-3.5">
-            @if(Str::startsWith($download->file_type, 'jpg') || Str::startsWith($download->file_type, 'jpeg') || Str::startsWith($download->file_type, 'png'))
-                <img src="{{ $download->file_url }}" alt="preview" class="w-16 h-12 object-cover rounded-lg border border-gray-200" />
-            @else
-                <span class="text-xs text-gray-400">—</span>
-            @endif
-        </td>
-        <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $download->title }}</td>
-        <td class="px-5 py-3.5">{{ $download->category ?? 'General' }}</td>
-        <td class="px-5 py-3.5">{{ number_format($download->file_size/1024, 1) }} KB</td>
-        <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ bsDate($download->created_at, 'Y, F d') }}</td>
-        <td class="px-5 py-3.5">
-            @php $canEdit = $download->uploaded_by === auth()->id(); @endphp
-            <x-table-actions
-                @if($canEdit)
-                    :edit="route('hod.downloads.edit', $download)"
-                    :destroy="route('hod.downloads.destroy', $download)"
-                @endif
-                name="{{ $download->title }}"
-            />
-        </td>
-    </tr>
-    @empty
-    <tr><td colspan="6">
-        <x-empty-state title="No resources uploaded"
-            message="Upload forms, syllabi, notes, or question banks for your department."
-            action="{{ route('hod.downloads.create') }}"
-            actionLabel="Upload Resource"/>
-    </td></tr>
-    @endforelse
-</x-data-table>
+{{-- Cards View --}}
+<div id="view-cards" class="hidden">
+    <x-download-cards-grid :downloads="$downloads" />
+</div>
+
+{{-- Table View --}}
+<div id="view-table">
+    <x-download-table :downloads="$downloads" />
+</div>
+
+<script>
+    function toggleView(view) {
+        const cardsView = document.getElementById('view-cards');
+        const tableView = document.getElementById('view-table');
+        const cardsBtn = document.getElementById('view-cards-btn');
+        const tableBtn = document.getElementById('view-table-btn');
+
+        if (view === 'cards') {
+            cardsView.classList.remove('hidden');
+            tableView.classList.add('hidden');
+            cardsBtn.classList.add('bg-gray-900', 'text-white');
+            cardsBtn.classList.remove('text-gray-700', 'hover:text-gray-900');
+            tableBtn.classList.remove('bg-gray-900', 'text-white');
+            tableBtn.classList.add('text-gray-700', 'hover:text-gray-900');
+            localStorage.setItem('download_view', 'cards');
+        } else {
+            cardsView.classList.add('hidden');
+            tableView.classList.remove('hidden');
+            tableBtn.classList.add('bg-gray-900', 'text-white');
+            tableBtn.classList.remove('text-gray-700', 'hover:text-gray-900');
+            cardsBtn.classList.remove('bg-gray-900', 'text-white');
+            cardsBtn.classList.add('text-gray-700', 'hover:text-gray-900');
+            localStorage.setItem('download_view', 'table');
+        }
+    }
+
+    // Load saved view preference
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedView = localStorage.getItem('download_view') || 'cards';
+        toggleView(savedView);
+    });
+</script>
+
 @endsection

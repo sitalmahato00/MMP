@@ -98,7 +98,7 @@
             'items' => [
                 ['label' => 'Pages', 'iconName' => 'doc-text', 'href' => route('admin.web-control.index', ['tab' => 2]), 'isActive' => $active('admin.web-control.*') && (int) request('tab', 0) === 2],
                 ['label' => 'Media', 'iconName' => 'photo', 'href' => route('admin.media.index'), 'isActive' => $active('admin.media.*')],
-                ['label' => 'Downloads', 'iconName' => 'download', 'href' => route('admin.downloads.index'), 'isActive' => $active('admin.downloads.*')],
+                ['label' => 'Resources', 'iconName' => 'download', 'href' => route('admin.downloads.index'), 'isActive' => $active('admin.downloads.*')],
                 ['label' => 'Banners', 'iconName' => 'collection', 'href' => route('admin.banners.index'), 'isActive' => $active('admin.banners.*')],
             ],
         ],
@@ -129,8 +129,9 @@
             
         ]],
         ['label' => 'Resources', 'items' => [
-            ['label' => 'Facilities & Resources', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
+            ['label' => 'Facilities', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
             ['label' => 'Gallery', 'iconName' => 'photo', 'href' => $portalRoute('hod.media.index', 'hod.dashboard'), 'isActive' => $active('hod.media.*')],
+            ['label' => 'Resources', 'iconName' => 'download', 'href' => $portalRoute('hod.downloads.index', 'hod.dashboard'), 'isActive' => $active('hod.downloads.*')],
         ]],
         ['label' => 'Alumni', 'items' => [
             ['label' => 'Alumni Preparation', 'iconName' => 'graduation-cap', 'href' => $portalRoute('hod.alumni.index', 'hod.dashboard'), 'isActive' => $active('hod.alumni.*')],

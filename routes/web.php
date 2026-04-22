@@ -42,6 +42,7 @@ Route::get('/departments', [HomeController::class, 'departments'])->name('public
 Route::get('/departments/{slug}', [HomeController::class, 'departmentShow'])->name('public.department.show');
 Route::get('/departments/{departmentSlug}/{programSlug}', [HomeController::class, 'programShow'])->name('public.program.show');
 Route::get('/downloads', [HomeController::class, 'downloads'])->name('public.downloads');
+Route::get('/downloads/{download}/file', [HomeController::class, 'downloadFile'])->name('public.downloads.file');
 Route::get('/question-bank', [HomeController::class, 'questionBank'])->name('public.question-bank');
 Route::get('/gallery', [HomeController::class, 'gallery'])->name('public.gallery');
 Route::get('/result', [HomeController::class, 'result'])->middleware('throttle:result-check')->name('public.result');

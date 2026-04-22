@@ -117,8 +117,47 @@ class HomeController extends Controller
     public function downloads(Request $request)
     {
         $category = trim($request->string('category')->toString());
+        $department = trim($request->string('department')->toString());
+        $search = trim($request->string('search')->toString());
+        
         $downloads = $this->service->getDownloads($category !== '' ? $category : null);
-        return view('public.downloads', compact('downloads'));
+        
+        // Filter by department if specified
+        if ($department !== '') {
+            $downloads = $downloads->filter(function ($download) use ($department) {
+                return $download->department?->code === $department || $download->department?->name === $department;
+            })->values();
+        }
+        
+        // Filter by search term if specified
+        if ($search !== '') {
+            $downloads = $downloads->filter(function ($download) use ($search) {
+                return stripos($download->title, $search) !== false;
+            })->values();
+        }
+        
+        // Get all departments for filter dropdown
+        $departments = \App\Models\Department::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code']);
+        
+        return view('public.downloads', compact('downloads', 'departments'));
+    }
+
+    public function downloadFile(\App\Models\Download $download)
+    {
+        // Only allow downloading public files
+        abort_unless($download->is_public, 403);
+        abort_unless($download->file_path, 404);
+
+        $disk = $download->storageDisk();
+        abort_unless(\Illuminate\Support\Facades\Storage::disk($disk)->exists($download->file_path), 404);
+        
+        $filename = $download->file_name ?: basename($download->file_path);
+
+        return \Illuminate\Support\Facades\Storage::disk($disk)->response($download->file_path, $filename, [
+            'Content-Disposition' => sprintf('inline; filename="%s"', $filename),
+        ]);
     }
 
     public function page(string $slug)

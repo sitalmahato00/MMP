@@ -12,13 +12,22 @@ class DownloadController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $departmentId = $user->hodDepartment->id ?? null;
         $query = Download::query();
-        if ($departmentId) {
-            $query->where('department_id', $departmentId);
+        
+        // Get the HOD's department
+        $department = $user->hodDepartment;
+        
+        if ($department) {
+            // Show downloads for this department OR uploaded by this user
+            $query->where(function ($q) use ($department, $user) {
+                $q->where('department_id', $department->id)
+                  ->orWhere('uploaded_by', $user->id);
+            });
         } else {
-            $query->whereNull('department_id');
+            // If no department, show only files uploaded by this user
+            $query->where('uploaded_by', $user->id);
         }
+        
         // Filters
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
@@ -26,13 +35,7 @@ class DownloadController extends Controller
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
-        if ($request->filled('audience')) {
-            if ($request->audience === 'public') {
-                $query->where('is_public', true);
-            } else {
-                $query->where('audience', $request->audience);
-            }
-        }
+        
         $downloads = $query->latest()->paginate(20);
         return view('hod.downloads.index', compact('downloads'));
     }
@@ -48,7 +51,7 @@ class DownloadController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'category'    => 'required|string|max:50',
-            'audience'    => 'required|string|max:20',
+            'is_public'   => 'required|boolean',
             'file'        => 'required|file|max:20480',
         ]);
 
@@ -57,8 +60,22 @@ class DownloadController extends Controller
         $data['file_name'] = $file->getClientOriginalName();
         $data['file_type'] = $file->getClientOriginalExtension();
         $data['file_size'] = $file->getSize();
-        $data['is_public'] = $data['audience'] === 'public';
         $data['uploaded_by'] = auth()->id();
+        
+        // Get department ID - try multiple ways
+        $user = auth()->user();
+        $departmentId = null;
+        
+        // Try via hodDepartment relationship
+        if ($user->hodDepartment) {
+            $departmentId = $user->hodDepartment->id;
+        }
+        // Try via teacher relationship
+        elseif ($user->teacher && $user->teacher->department_id) {
+            $departmentId = $user->teacher->department_id;
+        }
+        
+        $data['department_id'] = $departmentId;
 
         Download::create($data);
 
@@ -76,7 +93,7 @@ class DownloadController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'category'    => 'required|string|max:50',
-            'audience'    => 'required|string|max:20',
+            'is_public'   => 'required|boolean',
             'file'        => 'nullable|file|max:20480',
         ]);
 
@@ -87,7 +104,6 @@ class DownloadController extends Controller
             $data['file_type'] = $file->getClientOriginalExtension();
             $data['file_size'] = $file->getSize();
         }
-        $data['is_public'] = $data['audience'] === 'public';
         $download->update($data);
 
         return redirect()->route('hod.downloads.index')->with('success', 'Resource updated successfully.');
@@ -97,5 +113,18 @@ class DownloadController extends Controller
     {
         $download->delete();
         return redirect()->route('hod.downloads.index')->with('success', 'Resource deleted successfully.');
+    }
+
+    public function file(Download $download)
+    {
+        abort_unless($download->file_path, 404);
+
+        $disk = $download->storageDisk();
+        abort_unless(\Illuminate\Support\Facades\Storage::disk($disk)->exists($download->file_path), 404);
+        $filename = $download->file_name ?: basename($download->file_path);
+
+        return \Illuminate\Support\Facades\Storage::disk($disk)->response($download->file_path, $filename, [
+            'Content-Disposition' => sprintf('inline; filename="%s"', $filename),
+        ]);
     }
 }

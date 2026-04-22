@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Facilities & Resources')
+@section('title', 'Facilities')
 
 @section('content')
-<x-page-header title="Facilities & Resources" subtitle="Manage classrooms, labs, workshops, and multi-resource web pages.">
+<x-page-header title="Facilities" subtitle="Manage classrooms, labs, workshops, and multi-resource web pages.">
     <x-slot name="actions">
         <x-btn href="{{ route('admin.facilities.create') }}">Add Facility</x-btn>
     </x-slot>
