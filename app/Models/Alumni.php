@@ -14,16 +14,18 @@ class Alumni extends Model
 
     protected $fillable = [
         'user_id', 'student_id', 'department_id', 'program_id',
-        'roll_number', 'admission_year', 'graduation_year',
-        'current_job', 'company_name', 'work_location', 'employment_status',
+        'roll_number', 'admission_year', 'graduation_year', 'graduation_date',
+        'current_status', 'current_job', 'company_name', 'work_location', 'employment_status',
         'achievements', 'bio', 'skills',
         'linkedin_url', 'github_url', 'portfolio_url', 'cv_path',
         'profile_completion', 'visibility',
-        'is_featured', 'is_verified',
+        'is_featured', 'is_active', 'is_verified',
     ];
 
     protected $casts = [
+        'graduation_date' => 'date',
         'is_featured' => 'boolean',
+        'is_active' => 'boolean',
         'is_verified' => 'boolean',
         'profile_completion' => 'integer',
         'skills' => 'array',

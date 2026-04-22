@@ -23,10 +23,13 @@ class AlumniController extends HodController
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
 
-        // Get graduating students (final semester students) with pagination
+        // Get graduating students (only final semester) with pagination
         $graduatingStudentsQuery = Student::where('department_id', $deptId)
             ->where('is_active', true)
-            ->with(['user:id,name,email,phone', 'program:id,name,duration'])
+            ->with(['user:id,name,email,phone,avatar', 'program:id,name,total_semesters,duration_years'])
+            ->whereHas('program', function ($q) {
+                $q->whereRaw('students.current_semester >= programs.total_semesters');
+            })
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
                 $q->whereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
@@ -41,7 +44,7 @@ class AlumniController extends HodController
 
         // Get already prepared alumni with pagination
         $preparedAlumniQuery = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))
-            ->with(['student.user:id,name,email', 'student.program:id,name'])
+            ->with(['student.user:id,name,email,avatar', 'student.program:id,name'])
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
                 $q->whereHas('student.user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
@@ -53,9 +56,12 @@ class AlumniController extends HodController
             ->paginate(10)
             ->withQueryString();
 
-        // Stats
+        // Stats - count only final semester students
         $totalGraduating = Student::where('department_id', $deptId)
             ->where('is_active', true)
+            ->whereHas('program', function ($q) {
+                $q->whereRaw('students.current_semester >= programs.total_semesters');
+            })
             ->count();
         $totalPrepared = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))->count();
         $pendingPreparation = $totalGraduating - $totalPrepared;
@@ -80,7 +86,10 @@ class AlumniController extends HodController
 
         // Get all final semester students
         $query = Student::where('department_id', $deptId)
-            ->with(['user:id,name,email,phone', 'program:id,name,duration'])
+            ->with(['user:id,name,email,phone,avatar', 'program:id,name,total_semesters,duration_years'])
+            ->whereHas('program', function ($q) {
+                $q->whereRaw('students.current_semester >= programs.total_semesters');
+            })
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
                 $q->whereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
@@ -103,10 +112,9 @@ class AlumniController extends HodController
             ->paginate(20)
             ->withQueryString();
 
-        // Filter to show only final semester students
+        // Add alumni record flag
         $students->getCollection()->transform(function ($student) {
-            $programDuration = $student->program->duration ?? 4;
-            $student->is_graduating = $student->semester >= $programDuration;
+            $student->is_graduating = true; // All are graduating since we filtered
             $student->has_alumni_record = Alumni::where('student_id', $student->id)->exists();
             return $student;
         });
@@ -133,8 +141,8 @@ class AlumniController extends HodController
         }
 
         // Check if student is in final semester
-        $programDuration = $student->program->duration ?? 4;
-        if ($student->semester < $programDuration) {
+        $programTotalSemesters = $student->program->total_semesters ?? 6;
+        if ($student->current_semester < $programTotalSemesters) {
             return redirect()->back()
                 ->with('error', 'Student is not in final semester yet.');
         }
@@ -148,11 +156,17 @@ class AlumniController extends HodController
         DB::transaction(function () use ($student) {
             // Create alumni record
             $alumni = Alumni::create([
+                'user_id' => $student->user_id,
                 'student_id' => $student->id,
+                'department_id' => $student->department_id,
+                'program_id' => $student->program_id,
+                'roll_number' => $student->roll_number ?? null,
+                'admission_year' => $student->admission_date ? date('Y', strtotime($student->admission_date)) : null,
                 'graduation_year' => now()->year,
                 'graduation_date' => now(),
                 'current_status' => 'recent_graduate',
                 'is_active' => true,
+                'is_verified' => true,
             ]);
 
             // Assign alumni role to user
@@ -177,8 +191,8 @@ class AlumniController extends HodController
             ->with([
                 'student.user:id,name,email,phone',
                 'student.program:id,name',
-                'achievements',
-                'employments',
+                'achievementRecords',
+                'employmentHistory',
                 'projects'
             ])
             ->when($request->search, function ($q) use ($request) {
@@ -199,8 +213,8 @@ class AlumniController extends HodController
 
         // Add statistics to each alumni
         $alumni->getCollection()->transform(function ($alumnus) {
-            $alumnus->achievements_count = $alumnus->achievements->count();
-            $alumnus->employments_count = $alumnus->employments->count();
+            $alumnus->achievements_count = $alumnus->achievementRecords->count();
+            $alumnus->employments_count = $alumnus->employmentHistory->count();
             $alumnus->projects_count = $alumnus->projects->count();
             return $alumnus;
         });
