@@ -27,5 +27,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/user', function (Request $request) {
             return $request->user()->load('student', 'teacher', 'parentProfile', 'alumnus');
         });
+        
+        // Subject API
+        Route::get('/subjects/{subject}/students', [\App\Http\Controllers\Api\SubjectController::class, 'students']);
     });
 });
