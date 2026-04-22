@@ -51,3 +51,30 @@ if (!function_exists('bsDateTime')) {
         return trim($bsPart . ' ' . $timePart);
     }
 }
+
+if (!function_exists('logoVersion')) {
+    /**
+     * Get a cache-busting version parameter for the site logo.
+     * Returns the last modified timestamp of the logo file.
+     *
+     * @return string
+     */
+    function logoVersion(): string
+    {
+        return \Illuminate\Support\Facades\Cache::remember('brand:logo_version', 600, function () {
+            try {
+                $logoPath = \App\Models\SiteSetting::query()
+                    ->where('key', 'site_logo')
+                    ->value('value');
+                
+                if ($logoPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath)) {
+                    return (string) \Illuminate\Support\Facades\Storage::disk('public')->lastModified($logoPath);
+                }
+            } catch (\Throwable) {
+                // Fallback to current time if there's any error
+            }
+            
+            return (string) time();
+        });
+    }
+}

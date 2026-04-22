@@ -38,7 +38,7 @@
     $portalRoute = fn (string $name, string $fallback) => \Illuminate\Support\Facades\Route::has($name)
         ? route($name)
         : route($fallback);
-    $brandLogoUrl = route('public.brand-logo');
+    $brandLogoUrl = route('public.brand-logo') . '?v=' . logoVersion();
 
     $currentUserId = $user?->id;
     $hasNotificationsTable = \Illuminate\Support\Facades\Schema::hasTable('notifications');
@@ -134,6 +134,9 @@
         ]],
         ['label' => 'Alumni', 'items' => [
             ['label' => 'Alumni Preparation', 'iconName' => 'graduation-cap', 'href' => $portalRoute('hod.alumni.index', 'hod.dashboard'), 'isActive' => $active('hod.alumni.*')],
+        ]],
+        ['label' => 'Account', 'items' => [
+            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('hod.settings.index', 'hod.dashboard'), 'isActive' => $active('hod.settings.*')],
         ]],
     ];
 

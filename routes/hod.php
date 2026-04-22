@@ -94,10 +94,10 @@ Route::prefix('media')->name('media.')->group(function () {
     Route::get('/gallery', [\App\Http\Controllers\HOD\MediaController::class, 'gallery'])->name('gallery');
 });
 
-// Reports & Analytics (Disabled)
+// Reports & Analytics
 Route::prefix('reports')->name('reports.')->group(function () {
-    Route::get('/', fn () => redirect()->route('hod.dashboard'));
-    Route::get('/attendance', fn () => redirect()->route('hod.dashboard'));
+    Route::get('/', [\App\Http\Controllers\HOD\AttendanceController::class, 'reports'])->name('index');
+    Route::get('/attendance', [\App\Http\Controllers\HOD\AttendanceController::class, 'reports'])->name('attendance');
     Route::get('/performance', fn () => redirect()->route('hod.dashboard'));
     Route::get('/department', fn () => redirect()->route('hod.dashboard'));
     Route::get('/export/{type}', fn () => redirect()->route('hod.dashboard'));
@@ -122,4 +122,16 @@ Route::prefix('subjects')->name('subjects.')->group(function () {
     Route::put('/{subject}', [\App\Http\Controllers\HOD\SubjectController::class, 'update'])->name('update');
     Route::post('/{subject}/assign-teacher', [\App\Http\Controllers\HOD\SubjectController::class, 'assignTeacher'])->name('assign-teacher');
     Route::delete('/{subject}/teachers/{teacher}', [\App\Http\Controllers\HOD\SubjectController::class, 'removeTeacher'])->name('remove-teacher');
+});
+
+// Settings & Profile Management
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\HOD\SettingsController::class, 'index'])->name('index');
+    Route::patch('/profile', [\App\Http\Controllers\HOD\SettingsController::class, 'updateProfile'])->name('profile.update');
+    Route::patch('/password', [\App\Http\Controllers\HOD\SettingsController::class, 'updatePassword'])->name('password.update');
+    Route::patch('/preferences', [\App\Http\Controllers\HOD\SettingsController::class, 'updatePreferences'])->name('preferences.update');
+    Route::patch('/notifications', [\App\Http\Controllers\HOD\SettingsController::class, 'updateNotifications'])->name('notifications.update');
+    Route::post('/logout-all', [\App\Http\Controllers\HOD\SettingsController::class, 'logoutAllDevices'])->name('logout-all');
+    Route::post('/reset-dashboard', [\App\Http\Controllers\HOD\SettingsController::class, 'resetDashboard'])->name('reset-dashboard');
+    Route::post('/clear-preferences', [\App\Http\Controllers\HOD\SettingsController::class, 'clearPreferences'])->name('clear-preferences');
 });

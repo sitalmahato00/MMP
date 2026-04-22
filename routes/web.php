@@ -24,7 +24,14 @@ Route::get('/brand-logo', function () {
         return response()->file($fallbackPath);
     }
 
-    return Storage::disk('public')->response($siteLogoPath);
+    // Get file modification time for proper cache busting
+    $lastModified = Storage::disk('public')->lastModified($siteLogoPath);
+    
+    return Storage::disk('public')
+        ->response($siteLogoPath)
+        ->setLastModified(new \DateTime('@' . $lastModified))
+        ->setMaxAge(3600)
+        ->setPublic();
 })->name('public.brand-logo');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');

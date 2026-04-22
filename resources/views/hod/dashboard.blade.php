@@ -41,7 +41,7 @@
     ];
 @endphp
 
-<div class="space-y-6">
+<div class="space-y-4 sm:space-y-6">
     {{-- ═══════════════════════════════════════════════════════════
          1. TOP HEADER – Department Overview
     ═══════════════════════════════════════════════════════════ --}}
@@ -82,52 +82,52 @@
     {{-- ═══════════════════════════════════════════════════════════
          2. KPI METRICS – 4 Cards
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section class="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         @foreach($kpiCards as $card)
             @php $t = $toneMap[$card['tone']] ?? $toneMap['blue']; @endphp
             @if($department && $card['title'] === 'Total Students')
-                <a href="{{ route('hod.students.index') }}" class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <a href="{{ route('hod.students.index') }}" class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                     <div class="flex items-start justify-between">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
-                            <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
+                            <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
                             </svg>
                         </div>
                     </div>
-                    <div class="mt-3">
+                    <div class="mt-2 sm:mt-3">
                         <div class="flex items-baseline gap-1">
-                            <span class="text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
+                            <span class="text-lg sm:text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
                             @if(!empty($card['suffix']))
-                                <span class="text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
+                                <span class="text-xs sm:text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
                             @endif
                         </div>
-                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
+                        <p class="mt-0.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
                     </div>
                     @if(!empty($card['note']))
-                        <p class="mt-2 text-[11px] text-slate-500">{{ $card['note'] }}</p>
+                        <p class="mt-1 sm:mt-2 text-[10px] sm:text-[11px] text-slate-500">{{ $card['note'] }}</p>
                     @endif
                     <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
                 </a>
             @else
-                <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                     <div class="flex items-start justify-between">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
-                            <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
+                            <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
                             </svg>
                         </div>
                     </div>
-                    <div class="mt-3">
+                    <div class="mt-2 sm:mt-3">
                         <div class="flex items-baseline gap-1">
-                            <span class="text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
+                            <span class="text-lg sm:text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
                             @if(!empty($card['suffix']))
-                                <span class="text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
+                                <span class="text-xs sm:text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
                             @endif
                         </div>
-                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
+                        <p class="mt-0.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
                     </div>
                     @if(!empty($card['note']))
-                        <p class="mt-2 text-[11px] text-slate-500">{{ $card['note'] }}</p>
+                        <p class="mt-1 sm:mt-2 text-[10px] sm:text-[11px] text-slate-500">{{ $card['note'] }}</p>
                     @endif
                     <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
                 </div>
@@ -136,7 +136,126 @@
     </section>
 
     {{-- ═══════════════════════════════════════════════════════════
-         3. MAIN CONTENT – Notices & Quick Actions
+         3. ANALYTICS CHARTS – Department Performance
+    ═══════════════════════════════════════════════════════════ --}}
+    @if($department && isset($chartData))
+    <section class="grid gap-5 lg:grid-cols-2">
+        {{-- Grade Distribution Donut Chart --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-4 sm:px-5 py-4">
+                <h2 class="text-sm font-semibold text-slate-900">Student Grade Distribution</h2>
+                <p class="text-xs text-slate-500">Active students' exam performance breakdown</p>
+            </div>
+            <div class="p-4 sm:p-5">
+                <div class="h-48 sm:h-64" id="gradeChart"></div>
+            </div>
+        </div>
+
+        {{-- Today's Classes Schedule with Attendance --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-4 sm:px-5 py-4">
+                <h2 class="text-sm font-semibold text-slate-900">Today's Classes & Attendance</h2>
+                <p class="text-xs text-slate-500">{{ bsDate(now(), 'Y F d, l') }} - Class schedule with attendance status</p>
+            </div>
+            <div class="p-4 sm:p-5">
+                @if($chartData['todayClasses']->count() > 0)
+                    <div class="space-y-3 max-h-64 sm:max-h-80 overflow-y-auto">
+                        @foreach($chartData['todayClasses'] as $class)
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                        <span class="text-sm font-semibold text-slate-900">{{ $class['subject'] }}</span>
+                                        <span class="text-xs text-slate-500">({{ $class['subject_code'] }})</span>
+                                        @if($class['type'] !== 'Theory')
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                                {{ $class['type'] }}
+                                            </span>
+                                        @endif
+                                        {{-- Attendance Status Badge --}}
+                                        @if($class['attendance_marked'])
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                                </svg>
+                                                Attendance Marked
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/>
+                                                </svg>
+                                                Pending
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs text-slate-600 mt-0.5">{{ $class['teacher'] }}</p>
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
+                                        <p class="text-xs text-slate-500">{{ $class['program'] }}</p>
+                                        @if($class['room'])
+                                            <span class="text-xs text-slate-400">• Room {{ $class['room'] }}</span>
+                                        @endif
+                                    </div>
+                                    {{-- Attendance Details --}}
+                                    @if($class['attendance_marked'])
+                                        <div class="flex items-center gap-3 mt-2 text-xs">
+                                            <span class="text-slate-600">
+                                                <span class="font-medium text-emerald-600">{{ $class['present_count'] }}</span> Present
+                                            </span>
+                                            <span class="text-slate-600">
+                                                <span class="font-medium text-red-600">{{ $class['absent_count'] }}</span> Absent
+                                            </span>
+                                            <span class="text-slate-600">
+                                                Total: <span class="font-medium">{{ $class['total_students_marked'] }}</span>
+                                            </span>
+                                            <span class="text-slate-600">
+                                                Rate: <span class="font-medium text-blue-600">{{ $class['attendance_rate'] }}%</span>
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="mt-2 sm:mt-0 sm:ml-3 flex-shrink-0">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ $class['time'] }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-8 sm:py-12">
+                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="mt-2 text-sm text-slate-400">No classes scheduled for today</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </section>
+
+    {{-- Attendance Trend Chart --}}
+    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-4 sm:px-5 py-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-900">Attendance Trend</h2>
+                    <p class="text-xs text-slate-500">Daily attendance percentage (Last 7 days)</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        Current Week
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 sm:p-5">
+            <div class="h-48 sm:h-64" id="attendanceChart"></div>
+        </div>
+    </section>
+    @endif
+
+    {{-- ═══════════════════════════════════════════════════════════
+         4. MAIN CONTENT – Notices & Quick Actions
     ═══════════════════════════════════════════════════════════ --}}
     
     @if(!$department)
@@ -160,15 +279,33 @@
     @endif
     
     <section class="grid gap-5 lg:grid-cols-2">
-        {{-- Recent Notices --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <div>
-                    <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                    <p class="text-xs text-slate-500">Department and general notices</p>
+        {{-- Recent Notices with Tabs --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeTab: 'department' }">
+            <div class="border-b border-slate-100 px-5 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
+                        <p class="text-xs text-slate-500">Department and CTEVT announcements</p>
+                    </div>
+                </div>
+                
+                {{-- Notice Tabs --}}
+                <div class="mt-3 flex space-x-1 rounded-lg bg-slate-100 p-1">
+                    <button @click="activeTab = 'department'" 
+                            :class="activeTab === 'department' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
+                        Department
+                    </button>
+                    <button @click="activeTab = 'ctevt'" 
+                            :class="activeTab === 'ctevt' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
+                        CTEVT
+                    </button>
                 </div>
             </div>
-            <div class="divide-y divide-slate-100">
+            
+            {{-- Department Notices --}}
+            <div x-show="activeTab === 'department'" class="divide-y divide-slate-100">
                 @forelse($recentNotices as $notice)
                     <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
                         <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -189,9 +326,53 @@
                         <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <p class="mt-2 text-xs text-slate-400">No recent notices</p>
+                        <p class="mt-2 text-xs text-slate-400">No department notices</p>
                     </div>
                 @endforelse
+            </div>
+            
+            {{-- CTEVT Notices Tab --}}
+            <div x-show="activeTab === 'ctevt'" class="divide-y divide-slate-100" x-cloak x-data="{ ctevtSubTab: 'general' }">
+                <div class="flex gap-1 bg-slate-50 p-2">
+                    <button @click="ctevtSubTab = 'general'" :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
+                        General ({{ collect($ctevtGeneralNotices['items'] ?? [])->count() }})
+                    </button>
+                    <button @click="ctevtSubTab = 'result'" :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
+                        Results ({{ collect($ctevtResultNotices['items'] ?? [])->count() }})
+                    </button>
+                </div>
+
+                <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
+                    @forelse(collect($ctevtGeneralNotices['items'] ?? []) as $notice)
+                        <a href="{{ $notice['url'] ?? ($ctevtGeneralNotices['page_url'] ?? '#') }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
+                            <div class="flex items-center gap-2">
+                                <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-red-600">CTEVT</span>
+                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Notice' }}</span>
+                            </div>
+                            @if(!empty($notice['updated_date']))
+                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
+                            @endif
+                        </a>
+                    @empty
+                        <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
+                    @endforelse
+                </div>
+
+                <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
+                    @forelse(collect($ctevtResultNotices['items'] ?? []) as $notice)
+                        <a href="{{ $notice['url'] ?? ($ctevtResultNotices['page_url'] ?? '#') }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
+                            <div class="flex items-center gap-2">
+                                <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600">CTEVT</span>
+                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Result' }}</span>
+                            </div>
+                            @if(!empty($notice['updated_date']))
+                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
+                            @endif
+                        </a>
+                    @empty
+                        <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
+                    @endforelse
+                </div>
             </div>
         </div>
 
@@ -353,4 +534,183 @@
         </div>
     </section>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@if($department && isset($chartData))
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart.js default configuration
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#64748b';
+    
+    // Grade Distribution Donut Chart
+    const gradeCtx = document.getElementById('gradeChart');
+    if (gradeCtx) {
+        const gradeData = {!! json_encode($chartData['grades']) !!};
+        console.log('Grade Data:', gradeData);
+        
+        const gradeLabels = ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'];
+        const gradeValues = ['A+', 'A', 'B+', 'B', 'C', 'F'].map(grade => gradeData[grade] || 0);
+        console.log('Grade Values:', gradeValues);
+        
+        const gradeColors = [
+            '#22c55e',  // Green for A+
+            '#3b82f6',  // Blue for A
+            '#8b5cf6',  // Purple for B+
+            '#f59e0b',  // Orange for B
+            '#eab308',  // Yellow for C
+            '#ef4444'   // Red for F
+        ];
+        
+        new Chart(gradeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: gradeLabels,
+                datasets: [{
+                    data: gradeValues,
+                    backgroundColor: gradeColors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: window.innerWidth < 640 ? 'bottom' : 'right',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: window.innerWidth < 640 ? 10 : 11
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => ({
+                                    text: label + ' (' + data.datasets[0].data[i] + ')',
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    hidden: false,
+                                    index: i
+                                }));
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Attendance Trend Chart (similar to admin dashboard)
+    const attendanceCtx = document.getElementById('attendanceChart');
+    if (attendanceCtx) {
+        const attendanceData = {!! json_encode($chartData['attendance']) !!};
+        console.log('Attendance Data:', attendanceData);
+        
+        new Chart(attendanceCtx, {
+            type: 'line',
+            data: {
+                labels: attendanceData.map(item => item.date_short),
+                datasets: [{
+                    label: 'Attendance %',
+                    data: attendanceData.map(item => item.rate),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const index = context[0].dataIndex;
+                                return attendanceData[index].date_bs;
+                            },
+                            label: function(context) {
+                                return 'Attendance: ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            font: {
+                                size: window.innerWidth < 640 ? 10 : 12
+                            }
+                        },
+                        grid: {
+                            color: '#f1f5f9'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: window.innerWidth < 640 ? 9 : 11
+                            },
+                            maxRotation: window.innerWidth < 640 ? 45 : 0
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Handle responsive chart updates
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            Chart.helpers.each(Chart.instances, function(instance) {
+                if (instance.chart.canvas.id === 'gradeChart') {
+                    // Update legend position for grade chart
+                    instance.options.plugins.legend.position = window.innerWidth < 640 ? 'bottom' : 'right';
+                    instance.options.plugins.legend.labels.font.size = window.innerWidth < 640 ? 10 : 11;
+                }
+                if (instance.chart.canvas.id === 'attendanceChart') {
+                    // Update font sizes for attendance chart
+                    instance.options.scales.y.ticks.font.size = window.innerWidth < 640 ? 10 : 12;
+                    instance.options.scales.x.ticks.font.size = window.innerWidth < 640 ? 9 : 11;
+                    instance.options.scales.x.ticks.maxRotation = window.innerWidth < 640 ? 45 : 0;
+                }
+                instance.update();
+            });
+        }, 250);
+    });
+});
+</script>
+@endif
+@endpush
 @endsection

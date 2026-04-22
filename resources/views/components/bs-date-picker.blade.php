@@ -58,9 +58,8 @@
         x-transition:leave="transition ease-in duration-100"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute left-0 z-[9999] mt-1 w-[320px] max-w-[calc(100vw-0.75rem)] bg-white border border-gray-200 rounded-xl shadow-2xl shadow-black/10 p-3"
-        :class="dropUp ? 'bottom-full mb-1' : 'top-full'"
-        :style="`left: ${popupLeft}px;`"
+        class="fixed z-[9999] mt-1 w-[320px] max-w-[calc(100vw-1.5rem)] bg-white border border-gray-200 rounded-xl shadow-2xl shadow-black/10 p-3"
+        :style="`top: ${popupTop}px; left: ${popupLeft}px;`"
     >
         {{-- Header: month/year nav --}}
         <div class="mb-2 flex items-center justify-between gap-1">

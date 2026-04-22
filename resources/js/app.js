@@ -23,6 +23,7 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
     open: false,
     dropUp: false,
     popupLeft: 0,
+    popupTop: 0,
     bsValue: initialValue || '',
     adValue: '',
     viewYear: 2083,
@@ -127,10 +128,13 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
             const spaceAbove = rect.top - viewportPadding;
             this.dropUp = spaceBelow < popupHeight && spaceAbove > spaceBelow;
 
+            // Calculate absolute position for fixed positioning
             const desiredLeft = rect.left;
             const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding);
-            const clampedLeft = Math.min(Math.max(desiredLeft, viewportPadding), maxLeft);
-            this.popupLeft = clampedLeft - rect.left;
+            this.popupLeft = Math.min(Math.max(desiredLeft, viewportPadding), maxLeft);
+            
+            // Calculate top position
+            this.popupTop = this.dropUp ? rect.top - popupHeight - 4 : rect.bottom + 4;
         });
     },
 

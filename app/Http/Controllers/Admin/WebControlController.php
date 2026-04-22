@@ -77,12 +77,36 @@ class WebControlController extends Controller
                 continue;
             }
 
+            // Delete old file if exists
+            $oldSetting = SiteSetting::where('key', $uploadKey)->first();
+            if ($oldSetting?->value && Storage::disk('public')->exists($oldSetting->value)) {
+                Storage::disk('public')->delete($oldSetting->value);
+            }
+
+            // Store new file
             $path = $file->store('site-settings', 'public');
+            
+            // Update database
             SiteSetting::where('key', $uploadKey)->update(['value' => $path]);
+            
+            // Clear all related caches immediately
+            if ($uploadKey === 'site_logo') {
+                Cache::forget('brand:site_logo');
+                Cache::forget('brand:logo_version');
+                // Also clear any Laravel cache tags if using Redis/Memcached
+                if (method_exists(Cache::getStore(), 'tags')) {
+                    Cache::tags(['site_settings', 'branding'])->flush();
+                }
+            }
         }
 
+        // Final cache clear
         PublicDataService::invalidate('*');
         Cache::forget('brand:site_logo');
+        Cache::forget('brand:logo_version');
+        
+        // Clear application cache to ensure fresh data
+        \Artisan::call('cache:clear');
 
         return back()->with('success', 'Web content updated successfully.');
     }
@@ -91,18 +115,23 @@ class WebControlController extends Controller
     {
         $allowed = ['site_logo', 'principal_photo', 'principal_message_media'];
         if (!in_array($key, $allowed, true)) {
-            abort(403);
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $setting = SiteSetting::where('key', $key)->first();
-        if ($setting?->value && Storage::disk('public')->exists($setting->value)) {
-            Storage::disk('public')->delete($setting->value);
+        try {
+            $setting = SiteSetting::where('key', $key)->first();
+            if ($setting?->value && Storage::disk('public')->exists($setting->value)) {
+                Storage::disk('public')->delete($setting->value);
+            }
+            SiteSetting::where('key', $key)->update(['value' => null]);
+
+            PublicDataService::invalidate('*');
+            Cache::forget('brand:site_logo');
+            Cache::forget('brand:logo_version');
+
+            return response()->json(['success' => true, 'message' => 'File removed successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Unable to remove the file: ' . $e->getMessage()], 500);
         }
-        SiteSetting::where('key', $key)->update(['value' => null]);
-
-        PublicDataService::invalidate('*');
-        Cache::forget('brand:site_logo');
-
-        return back()->with('success', 'File removed successfully.');
     }
 }

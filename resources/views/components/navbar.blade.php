@@ -22,8 +22,9 @@
             $designation = null;
             
             // Get department and designation based on user role
-            if ($user->hasRole('hod') && $user->teacher) {
-                $department = $user->teacher->department;
+            if ($user->hasRole('hod')) {
+                // HODs are linked directly to departments via hod_id
+                $department = $user->hodDepartment;
                 $designation = 'Head of Department';
             } elseif ($user->hasRole('teacher') && $user->teacher) {
                 $department = $user->teacher->department;

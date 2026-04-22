@@ -57,25 +57,59 @@
                 @php $logo = $allSettings->get('site_logo'); @endphp
                 <x-card>
                     <x-form-field label="Site Logo" name="site_logo" span="full" hint="Square PNG/WebP recommended, min 128×128px.">
-                        @if($logo?->value)
-                            <div class="mb-3 flex items-start gap-4">
-                                <img src="{{ route('public.brand-logo') }}" alt="Logo" class="w-24 h-24 rounded-xl border border-gray-200 object-contain bg-gray-50 p-1">
+                        <div x-data="{ 
+                            previewUrl: '{{ $logo?->value ? route('public.brand-logo') . '?v=' . logoVersion() : '' }}',
+                            hasLogo: {{ $logo?->value ? 'true' : 'false' }},
+                            updatePreview(event) {
+                                const file = event.target.files[0];
+                                if (file && file.type.startsWith('image/')) {
+                                    this.previewUrl = URL.createObjectURL(file);
+                                    this.hasLogo = true;
+                                }
+                            }
+                        }">
+                            <div x-show="hasLogo" x-transition class="mb-3 flex items-start gap-4">
+                                <img :src="previewUrl" alt="Logo" class="w-24 h-24 rounded-xl border border-gray-200 object-contain bg-gray-50 p-1">
                                 <div class="flex flex-col gap-2 mt-1">
-                                    <a href="{{ route('public.brand-logo') }}" target="_blank"
+                                    <a :href="previewUrl" target="_blank"
                                        class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         View
                                     </a>
+                                    @if($logo?->value)
                                     <button type="button"
                                         onclick="deleteWebControlFile('{{ route('admin.web-control.clear-file', 'site_logo') }}', 'Remove the current site logo?')"
                                         class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         Remove
                                     </button>
+                                    @endif
                                 </div>
                             </div>
-                        @endif
-                        <x-file-input name="site_logo" accept="image/*" :current="$logo?->value" label="Upload site logo (PNG/JPG/WebP, square recommended)" />
+                            
+                            <div class="space-y-2">
+                                <label for="site_logo"
+                                       class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 hover:border-[#8B0000]/40 cursor-pointer transition-all duration-200 group">
+                                    <div class="flex flex-col items-center justify-center gap-2 text-center px-4">
+                                        <svg class="w-6 h-6 text-gray-300 group-hover:text-[#8B0000]/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                        <p class="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">Upload site logo (PNG/JPG/WebP, square recommended)</p>
+                                    </div>
+                                    <input type="file" id="site_logo" name="site_logo" accept="image/*" class="hidden" @change="updatePreview($event)">
+                                </label>
+                                
+                                @if($logo?->value)
+                                <div class="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                    </svg>
+                                    <span class="truncate">Current: {{ basename($logo->value) }}</span>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
                     </x-form-field>
                 </x-card>
             </div>
@@ -654,17 +688,20 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
+                'Content-Type': 'application/json',
             },
         })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Delete request failed');
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Unable to remove the file right now.');
                 }
-
-                window.location.reload();
             })
-            .catch(() => {
-                alert('Unable to remove the file right now.');
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Unable to remove the file right now. Please try again.');
             });
     }
 </script>

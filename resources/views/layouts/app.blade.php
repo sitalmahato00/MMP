@@ -11,9 +11,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#8B0000">
-    <link rel="icon" href="{{ route('public.brand-logo') }}">
-    <link rel="shortcut icon" href="{{ route('public.brand-logo') }}">
-    <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}">
+    <link rel="icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
+    <link rel="shortcut icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
+    <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
     
     <title>@yield('title', 'MMP CMS') | {{ config('app.name') }}</title>
     

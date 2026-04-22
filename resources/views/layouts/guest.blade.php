@@ -18,9 +18,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#8B0000">
-    <link rel="icon" href="{{ route('public.brand-logo') }}">
-    <link rel="shortcut icon" href="{{ route('public.brand-logo') }}">
-    <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}">
+    <link rel="icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
+    <link rel="shortcut icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
+    <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
@@ -51,7 +51,7 @@
     @stack('styles')
 </head>
 <body class="antialiased bg-gray-100 text-gray-900 overflow-x-hidden" x-data="{ mobileOpen: false }">
-    @php $brandLogoUrl = route('public.brand-logo'); @endphp
+    @php $brandLogoUrl = route('public.brand-logo') . '?v=' . logoVersion(); @endphp
 
     @php
         $courseMenu = collect($publicCourses ?? []);

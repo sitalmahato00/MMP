@@ -97,14 +97,15 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Gender</label>
-                <select name="gender"
-                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-[#1d4ed8]/20 transition">
+                <label class="block text-xs font-bold text-slate-600 mb-1">Gender <span class="text-red-500">*</span></label>
+                <select name="gender" required
+                        class="w-full rounded-xl border {{ $errors->has('gender') ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50' }} px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-[#1d4ed8]/20 transition">
                     <option value="">Select Gender</option>
                     <option value="male"   {{ old('gender') === 'male'   ? 'selected' : '' }}>Male</option>
                     <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Female</option>
                     <option value="other"  {{ old('gender') === 'other'  ? 'selected' : '' }}>Other</option>
                 </select>
+                @error('gender')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -140,8 +141,8 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Employee ID</label>
-                <input type="text" name="employee_id" value="{{ old('employee_id') }}"
+                <label class="block text-xs font-bold text-slate-600 mb-1">Employee ID <span class="text-red-500">*</span></label>
+                <input type="text" name="employee_id" value="{{ old('employee_id') }}" required
                        class="w-full rounded-xl border {{ $errors->has('employee_id') ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50' }} px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-[#1d4ed8]/20 transition"
                        placeholder="e.g. EMP-001"/>
                 @error('employee_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
@@ -152,10 +153,10 @@
                 <select name="designation" required x-model="designation"
                         class="w-full rounded-xl border {{ $errors->has('designation') ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50' }} px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-[#1d4ed8]/20 transition">
                     <option value="">Select Designation</option>
-                    <option value="Teacher" {{ old('designation') === 'Teacher' ? 'selected' : '' }}>Teacher</option>
-                    <option value="HOD" {{ old('designation') === 'HOD' ? 'selected' : '' }}>Head of Department (HOD)</option>
+                    <option value="Teacher" {{ old('designation', 'Teacher') === 'Teacher' ? 'selected' : '' }}>Teacher</option>
                 </select>
                 @error('designation')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                <p class="mt-1 text-xs text-slate-500">Note: Only administrators can create HOD accounts</p>
             </div>
 
             <div>
@@ -211,6 +212,42 @@
                        placeholder="e.g. Machine Learning, Networking"/>
             </div>
 
+        </div>
+    </div>
+
+    {{-- ── SECTION 4: SUBJECT ASSIGNMENTS ── --}}
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div class="border-b border-slate-100 bg-slate-50/60 px-6 py-4">
+            <h2 class="text-sm font-bold text-slate-700">Subject Assignments</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Assign subjects that this teacher will handle.</p>
+        </div>
+        <div class="p-6">
+            @if($subjects->count() > 0)
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach($subjects as $subject)
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-[#1d4ed8] hover:bg-blue-50/30 cursor-pointer transition">
+                            <input type="checkbox" name="subjects[]" value="{{ $subject->id }}" 
+                                   {{ in_array($subject->id, old('subjects', [])) ? 'checked' : '' }}
+                                   class="rounded border-slate-300 text-[#1d4ed8] focus:ring-[#1d4ed8]/20">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-slate-900">{{ $subject->name }}</p>
+                                <p class="text-xs text-slate-500">{{ $subject->code }}</p>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+                <p class="mt-3 text-xs text-slate-500">Select subjects that this teacher will be responsible for teaching.</p>
+            @else
+                <div class="text-center py-8">
+                    <div class="text-slate-400 mb-2">
+                        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-slate-600">No subjects available</p>
+                    <p class="text-xs text-slate-500">Create subjects first to assign them to teachers.</p>
+                </div>
+            @endif
         </div>
     </div>
 

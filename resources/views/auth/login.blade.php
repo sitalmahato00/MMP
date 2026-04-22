@@ -11,7 +11,7 @@
         <div class="p-8">
             <div class="text-center mb-8">
                 <a href="{{ route('home') }}" class="inline-block hover:opacity-90 transition-opacity">
-                    @php $brandLogoUrl = route('public.brand-logo'); @endphp
+                    @php $brandLogoUrl = route('public.brand-logo') . '?v=' . logoVersion(); @endphp
                     <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center shadow-md mb-4 border-[3px] border-[#DAA520]" style="background: radial-gradient(circle, #8B0000, #5B0000);">
                         @if($brandLogoUrl)
                             <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="w-full h-full object-cover rounded-full">

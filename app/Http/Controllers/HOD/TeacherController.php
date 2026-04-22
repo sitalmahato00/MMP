@@ -76,7 +76,15 @@ class TeacherController extends HodController
     public function create(Request $request)
     {
         $department = $this->currentDepartment($request);
-        return view('hod.teachers.create', compact('department'));
+        
+        // Get subjects for this department through programs
+        $subjects = \App\Models\Subject::whereHas('program', function ($query) use ($department) {
+                $query->where('department_id', $department->id);
+            })
+            ->orderBy('name')
+            ->get();
+            
+        return view('hod.teachers.create', compact('department', 'subjects'));
     }
 
     public function store(Request $request)
@@ -89,19 +97,30 @@ class TeacherController extends HodController
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'phone' => 'nullable|string|max:20',
-            'gender' => 'nullable|in:male,female,other',
+            'gender' => 'required|in:male,female,other', // Made mandatory
             'dob' => 'nullable|string|max:10',
             'address' => 'nullable|string',
             'avatar' => 'nullable|image|max:2048',
             'password' => 'required|string|min:8',
             // Professional
-            'employee_id' => 'required|string|max:50|unique:teachers,employee_id',
-            'designation' => 'required|in:Teacher,HOD',
+            'employee_id' => 'required|string|max:50|unique:teachers,employee_id', // Already required
+            'designation' => 'required|in:Teacher', // HODs can only create regular teachers
             'qualification' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
             'join_date' => 'nullable|string|max:10',
             'employment_type' => 'nullable|in:permanent,contract,part-time',
             'is_active' => 'nullable|boolean',
+            // Subject assignments
+            'subjects' => 'nullable|array',
+            'subjects.*' => [
+                'exists:subjects,id',
+                function ($attribute, $value, $fail) use ($department) {
+                    $subject = \App\Models\Subject::find($value);
+                    if ($subject && $subject->program->department_id !== $department->id) {
+                        $fail('The selected subject does not belong to this department.');
+                    }
+                }
+            ],
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -113,7 +132,7 @@ class TeacherController extends HodController
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
-                'gender' => $data['gender'] ?? null,
+                'gender' => $data['gender'],
                 'dob' => NepaliDateHelper::toAD($data['dob'] ?? null),
                 'address' => $data['address'] ?? null,
                 'avatar' => $data['avatar'] ?? null,
@@ -121,18 +140,14 @@ class TeacherController extends HodController
                 'is_active' => true,
             ]);
 
-            // Assign role based on designation
-            if ($data['designation'] === 'HOD') {
-                $user->assignRole('hod');
-            } else {
-                $user->assignRole('teacher');
-            }
+            // HODs can only create regular teachers, not other HODs
+            $user->assignRole('teacher');
 
             $teacher = Teacher::create([
                 'user_id' => $user->id,
                 'department_id' => $deptId,
                 'employee_id' => $data['employee_id'],
-                'designation' => $data['designation'],
+                'designation' => 'Teacher', // Force to Teacher
                 'qualification' => $data['qualification'] ?? null,
                 'specialization' => $data['specialization'] ?? null,
                 'join_date' => NepaliDateHelper::toAD($data['join_date'] ?? null),
@@ -140,9 +155,21 @@ class TeacherController extends HodController
                 'is_active' => $data['is_active'] ?? true,
             ]);
 
-            // If creating HOD, update department
-            if ($data['designation'] === 'HOD') {
-                Department::where('id', $deptId)->update(['hod_id' => $user->id]);
+            // Assign subjects if provided
+            if (!empty($data['subjects'])) {
+                $currentSession = \App\Models\AcademicSession::current();
+                if ($currentSession) {
+                    $subjectData = [];
+                    foreach ($data['subjects'] as $subjectId) {
+                        $subjectData[$subjectId] = [
+                            'academic_session_id' => $currentSession->id,
+                            'role' => 'teacher',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    $teacher->subjects()->attach($subjectData);
+                }
             }
         });
 
@@ -218,7 +245,20 @@ class TeacherController extends HodController
         $this->authorizeDepartment($request, $teacher);
         $department = $this->currentDepartment($request);
         
-        return view('hod.teachers.edit', compact('teacher', 'department'));
+        // Get subjects for this department through programs
+        $subjects = \App\Models\Subject::whereHas('program', function ($query) use ($department) {
+                $query->where('department_id', $department->id);
+            })
+            ->orderBy('name')
+            ->get();
+            
+        // Get currently assigned subjects
+        $assignedSubjects = $teacher->subjects()
+            ->wherePivot('academic_session_id', \App\Models\AcademicSession::current()?->id)
+            ->pluck('subjects.id')
+            ->toArray();
+        
+        return view('hod.teachers.edit', compact('teacher', 'department', 'subjects', 'assignedSubjects'));
     }
 
     public function update(Request $request, Teacher $teacher)
@@ -231,17 +271,28 @@ class TeacherController extends HodController
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($teacher->user_id)],
             'phone' => 'nullable|string|max:20',
-            'gender' => 'nullable|in:male,female,other',
+            'gender' => 'required|in:male,female,other', // Made mandatory
             'dob' => 'nullable|string|max:10',
             'address' => 'nullable|string',
             'avatar' => 'nullable|image|max:2048',
-            'employee_id' => ['required', 'string', 'max:50', Rule::unique('teachers')->ignore($teacher->id)],
-            'designation' => 'required|in:Teacher,HOD',
+            'employee_id' => ['required', 'string', 'max:50', Rule::unique('teachers')->ignore($teacher->id)], // Already required
+            'designation' => 'required|in:Teacher', // HODs can only manage regular teachers
             'qualification' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
             'join_date' => 'nullable|string|max:10',
             'employment_type' => 'nullable|in:permanent,contract,part-time',
             'is_active' => 'nullable|boolean',
+            // Subject assignments
+            'subjects' => 'nullable|array',
+            'subjects.*' => [
+                'exists:subjects,id',
+                function ($attribute, $value, $fail) use ($department) {
+                    $subject = \App\Models\Subject::find($value);
+                    if ($subject && $subject->program->department_id !== $department->id) {
+                        $fail('The selected subject does not belong to this department.');
+                    }
+                }
+            ],
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -258,14 +309,14 @@ class TeacherController extends HodController
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
-                'gender' => $data['gender'] ?? null,
+                'gender' => $data['gender'],
                 'dob' => NepaliDateHelper::toAD($data['dob'] ?? null),
                 'address' => $data['address'] ?? null,
             ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));
 
             $teacher->update([
                 'employee_id' => $data['employee_id'],
-                'designation' => $data['designation'],
+                'designation' => 'Teacher', // Force to Teacher
                 'qualification' => $data['qualification'] ?? null,
                 'specialization' => $data['specialization'] ?? null,
                 'join_date' => NepaliDateHelper::toAD($data['join_date'] ?? null),
@@ -273,12 +324,28 @@ class TeacherController extends HodController
                 'is_active' => $data['is_active'] ?? $teacher->is_active,
             ]);
 
-            // Update roles
-            $teacher->user->syncRoles($data['designation'] === 'HOD' ? ['hod'] : ['teacher']);
+            // Ensure role is teacher (HODs cannot change roles)
+            $teacher->user->syncRoles(['teacher']);
 
-            // Update department HOD if needed
-            if ($data['designation'] === 'HOD') {
-                Department::where('id', $deptId)->update(['hod_id' => $teacher->user_id]);
+            // Update subject assignments
+            $currentSession = \App\Models\AcademicSession::current();
+            if ($currentSession) {
+                // Remove existing assignments for current session
+                $teacher->subjects()->wherePivot('academic_session_id', $currentSession->id)->detach();
+                
+                // Add new assignments
+                if (!empty($data['subjects'])) {
+                    $subjectData = [];
+                    foreach ($data['subjects'] as $subjectId) {
+                        $subjectData[$subjectId] = [
+                            'academic_session_id' => $currentSession->id,
+                            'role' => 'teacher',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    $teacher->subjects()->attach($subjectData);
+                }
             }
         });
 

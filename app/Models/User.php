@@ -55,6 +55,11 @@ class User extends Authenticatable
         return $this->hasOne(Alumni::class);
     }
 
+    public function hodDepartment()
+    {
+        return $this->hasOne(Department::class, 'hod_id');
+    }
+
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
