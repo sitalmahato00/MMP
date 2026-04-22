@@ -147,7 +147,7 @@
                 <p class="text-xs text-slate-500">Active students' exam performance breakdown</p>
             </div>
             <div class="p-4 sm:p-5">
-                <div class="h-48 sm:h-64" id="gradeChart"></div>
+                <canvas class="h-48 sm:h-64 w-full" id="gradeChart"></canvas>
             </div>
         </div>
 
@@ -249,7 +249,7 @@
             </div>
         </div>
         <div class="p-4 sm:p-5">
-            <div class="h-48 sm:h-64" id="attendanceChart"></div>
+            <canvas class="h-48 sm:h-64 w-full" id="attendanceChart"></canvas>
         </div>
     </section>
     @endif
@@ -624,15 +624,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Attendance %',
                     data: attendanceData.map(item => item.rate),
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37,99,235,0.08)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.4,
+                    tension: 0.38,
                     pointRadius: 4,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#3b82f6',
-                    pointBorderColor: '#ffffff',
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#fff',
                     pointBorderWidth: 2
                 }]
             },
