@@ -230,11 +230,11 @@
                 @foreach($preparedAlumni as $alumni)
                     <div class="rounded-xl border border-slate-200 p-4 hover:shadow-md transition">
                         <div class="flex items-center gap-3">
-                            <img src="{{ $alumni->student->user->avatar_url }}" alt="{{ $alumni->student->user->name }}" 
+                            <img src="{{ $alumni->user->avatar_url }}" alt="{{ $alumni->user->name }}" 
                                  class="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow">
                             <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold text-slate-900 truncate">{{ $alumni->student->user->name }}</div>
-                                <div class="text-xs text-slate-500 truncate">{{ $alumni->student->program->name }}</div>
+                                <div class="text-sm font-bold text-slate-900 truncate">{{ $alumni->user->name }}</div>
+                                <div class="text-xs text-slate-500 truncate">{{ $alumni->program->name }}</div>
                             </div>
                         </div>
                         <div class="mt-3 text-xs text-slate-500">

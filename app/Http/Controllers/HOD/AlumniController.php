@@ -43,11 +43,11 @@ class AlumniController extends HodController
             ->withQueryString();
 
         // Get already prepared alumni with pagination
-        $preparedAlumniQuery = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))
-            ->with(['student.user:id,name,email,avatar', 'student.program:id,name'])
+        $preparedAlumniQuery = Alumni::where('department_id', $deptId)
+            ->with(['user:id,name,email,avatar', 'program:id,name'])
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
-                $q->whereHas('student.user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
+                $q->whereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
                     ->orWhere('email', 'like', "%{$term}%"));
             });
 
@@ -63,8 +63,19 @@ class AlumniController extends HodController
                 $q->whereRaw('students.current_semester >= programs.total_semesters');
             })
             ->count();
-        $totalPrepared = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))->count();
-        $pendingPreparation = $totalGraduating - $totalPrepared;
+        
+        // Count alumni that were prepared from this department
+        $totalPrepared = Alumni::where('department_id', $deptId)->count();
+        
+        // Pending = graduating students who don't have alumni records yet
+        // Count students in final semester that don't have an alumnus record
+        $pendingPreparation = Student::where('department_id', $deptId)
+            ->where('is_active', true)
+            ->whereHas('program', function ($q) {
+                $q->whereRaw('students.current_semester >= programs.total_semesters');
+            })
+            ->whereDoesntHave('alumnus')
+            ->count();
 
         // Programs for filter
         $programs = Program::where('department_id', $deptId)
@@ -169,7 +180,8 @@ class AlumniController extends HodController
                 'is_verified' => true,
             ]);
 
-            // Assign alumni role to user
+            // Remove student role and assign alumni role to user
+            $student->user->removeRole('student');
             $student->user->assignRole('alumni');
 
             // Deactivate student record
@@ -187,24 +199,22 @@ class AlumniController extends HodController
         $deptId = $department->id;
 
         // Get all alumni from department
-        $query = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))
+        $query = Alumni::where('department_id', $deptId)
             ->with([
-                'student.user:id,name,email,phone',
-                'student.program:id,name',
+                'user:id,name,email,phone,avatar',
+                'program:id,name',
                 'achievementRecords',
                 'employmentHistory',
                 'projects'
             ])
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
-                $q->whereHas('student.user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
+                $q->whereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")
                     ->orWhere('email', 'like', "%{$term}%"));
             })
             ->when($request->graduation_year, fn ($q) => $q->where('graduation_year', $request->graduation_year))
             ->when($request->status, fn ($q) => $q->where('current_status', $request->status))
-            ->when($request->program_id, function ($q) use ($request) {
-                $q->whereHas('student', fn ($sq) => $sq->where('program_id', $request->program_id));
-            });
+            ->when($request->program_id, fn ($q) => $q->where('program_id', $request->program_id));
 
         $alumni = (clone $query)
             ->latest('graduation_date')
@@ -226,7 +236,7 @@ class AlumniController extends HodController
         $entrepreneurAlumni = (clone $query)->where('current_status', 'entrepreneur')->count();
 
         // Graduation years for filter
-        $graduationYears = Alumni::whereHas('student', fn ($q) => $q->where('department_id', $deptId))
+        $graduationYears = Alumni::where('department_id', $deptId)
             ->distinct()
             ->orderByDesc('graduation_year')
             ->pluck('graduation_year');

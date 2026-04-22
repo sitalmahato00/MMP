@@ -6,6 +6,7 @@ Route::get('/dashboard', [\App\Http\Controllers\Alumni\DashboardController::clas
 
 // Profile
 Route::get('/profile', [\App\Http\Controllers\Alumni\ProfileController::class, 'index'])->name('profile.index');
+Route::get('/profile/edit', [\App\Http\Controllers\Alumni\ProfileController::class, 'index'])->name('profile.edit'); // Alias for edit
 Route::put('/profile', [\App\Http\Controllers\Alumni\ProfileController::class, 'update'])->name('profile.update');
 
 // Career

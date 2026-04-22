@@ -101,11 +101,11 @@
         @forelse($alumni as $alumnus)
             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-start gap-4">
-                    <img src="{{ $alumnus->student->user->avatar_url }}" alt="{{ $alumnus->student->user->name }}" 
+                    <img src="{{ $alumnus->user->avatar_url }}" alt="{{ $alumnus->user->name }}" 
                          class="h-14 w-14 rounded-full object-cover ring-2 ring-white shadow">
                     <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-bold text-slate-900 truncate">{{ $alumnus->student->user->name }}</h3>
-                        <p class="text-xs text-slate-500 truncate">{{ $alumnus->student->program->name }}</p>
+                        <h3 class="text-sm font-bold text-slate-900 truncate">{{ $alumnus->user->name }}</h3>
+                        <p class="text-xs text-slate-500 truncate">{{ $alumnus->program->name }}</p>
                         <div class="mt-2 flex items-center gap-2">
                             <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
                                 {{ $alumnus->graduation_year }}
