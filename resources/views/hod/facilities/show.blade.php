@@ -2,8 +2,8 @@
 @section('title', $content->title)
 
 @section('content')
-<x-page-header title="Content Page" subtitle="View page information and content."
-               back="{{ route('hod.content.index') }}"/>
+<x-page-header title="Facility/Resource Page" subtitle="View page information and content."
+               back="{{ route('hod.facilities.index') }}"/>
 
 <div class="max-w-4xl space-y-6">
     {{-- Page Header --}}
@@ -25,7 +25,7 @@
             </div>
 
             <div class="flex gap-2">
-                <a href="{{ route('hod.content.edit', $content) }}" 
+                <a href="{{ route('hod.facilities.edit', $content) }}" 
                    class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>

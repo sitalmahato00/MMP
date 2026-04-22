@@ -75,15 +75,15 @@ Route::prefix('notices')->name('notices.')->group(function () {
     Route::delete('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'destroy'])->name('destroy');
 });
 
-// Department Content Management
-Route::prefix('content')->name('content.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\HOD\ContentController::class, 'index'])->name('index');
-    Route::get('/create', [\App\Http\Controllers\HOD\ContentController::class, 'create'])->name('create');
-    Route::post('/', [\App\Http\Controllers\HOD\ContentController::class, 'store'])->name('store');
-    Route::get('/{content}', [\App\Http\Controllers\HOD\ContentController::class, 'show'])->name('show');
-    Route::get('/{content}/edit', [\App\Http\Controllers\HOD\ContentController::class, 'edit'])->name('edit');
-    Route::put('/{content}', [\App\Http\Controllers\HOD\ContentController::class, 'update'])->name('update');
-    Route::delete('/{content}', [\App\Http\Controllers\HOD\ContentController::class, 'destroy'])->name('destroy');
+// Facilities & Resources Management
+Route::prefix('facilities')->name('facilities.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\HOD\FacilityController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\HOD\FacilityController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\HOD\FacilityController::class, 'store'])->name('store');
+    Route::get('/{content}', [\App\Http\Controllers\HOD\FacilityController::class, 'show'])->name('show');
+    Route::get('/{content}/edit', [\App\Http\Controllers\HOD\FacilityController::class, 'edit'])->name('edit');
+    Route::put('/{content}', [\App\Http\Controllers\HOD\FacilityController::class, 'update'])->name('update');
+    Route::delete('/{content}', [\App\Http\Controllers\HOD\FacilityController::class, 'destroy'])->name('destroy');
 });
 
 // Media Management

@@ -135,10 +135,12 @@ class HomeController extends Controller
         return view('public.leadership', $leadership);
     }
 
-    public function facilities()
+    public function facilities(Request $request)
     {
-        $facilities = $this->service->getFacilities();
-        return view('public.facilities', compact('facilities'));
+        $department = $request->query('department');
+        $facilities = $this->service->getFacilities($department);
+        $departments = $this->service->getDepartments();
+        return view('public.facilities', compact('facilities', 'departments'));
     }
 
     public function newsEvents(Request $request)

@@ -2,71 +2,56 @@
 @section('title', 'Notices')
 
 @section('content')
-<x-page-header title="Notices" subtitle="Manage department and program notices."/>
+<div x-data="{
+    view: localStorage.getItem('mmp_hod_notices_view') ?? 'table',
+    setView(v) { this.view = v; localStorage.setItem('mmp_hod_notices_view', v); }
+}" class="space-y-5">
+
+{{-- ── HEADER ─────────────────────────────────────────────── --}}
+<div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-black tracking-tight text-slate-900">Notices</h1>
+        <p class="mt-0.5 text-sm text-slate-500">
+            {{ $department->name }} — manage department and program notices
+        </p>
+    </div>
+    <a href="{{ route('hod.notices.create') }}"
+       class="inline-flex items-center gap-2 rounded-xl bg-[#1d4ed8] px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#1e40af] transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        Create Notice
+    </a>
+</div>
 
 {{-- Stats Cards --}}
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    @php
+        $kpis = [
+            ['label'=>'Total Notices',   'value'=>$totalNotices,      'icon'=>'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9', 'color'=>'blue',    'tag'=>'Total'],
+            ['label'=>'Published',       'value'=>$publishedNotices,  'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',                                                                                                                                                                                                                                                'color'=>'emerald', 'tag'=>'Live'],
+            ['label'=>'Drafts',          'value'=>$draftNotices,      'icon'=>'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',                                                                                                                                                                                   'color'=>'amber',   'tag'=>'Draft'],
+            ['label'=>'Department',      'value'=>$departmentNotices, 'icon'=>'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',                                                                                                                                                                  'color'=>'violet',  'tag'=>'Dept'],
+        ];
+    @endphp
+    @foreach($kpis as $kpi)
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-slate-500">Total Notices</p>
-                <p class="mt-1 text-2xl font-bold text-slate-800">{{ $totalNotices }}</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-{{ $kpi['color'] }}-50">
+                <svg class="w-5 h-5 text-{{ $kpi['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $kpi['icon'] }}"/>
                 </svg>
             </div>
+            <span class="rounded-full bg-{{ $kpi['color'] }}-50 px-2 py-0.5 text-[11px] font-bold text-{{ $kpi['color'] }}-700">{{ $kpi['tag'] }}</span>
         </div>
+        <p class="mt-3 text-3xl font-black text-slate-900">{{ number_format($kpi['value']) }}</p>
+        <p class="mt-0.5 text-xs text-slate-500">{{ $kpi['label'] }}</p>
     </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-slate-500">Published</p>
-                <p class="mt-1 text-2xl font-bold text-emerald-600">{{ $publishedNotices }}</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100">
-                <svg class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-slate-500">Drafts</p>
-                <p class="mt-1 text-2xl font-bold text-amber-600">{{ $draftNotices }}</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
-                <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-white p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-slate-500">Department</p>
-                <p class="mt-1 text-2xl font-bold text-violet-600">{{ $departmentNotices }}</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100">
-                <svg class="h-6 w-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-            </div>
-        </div>
-    </div>
+    @endforeach
 </div>
 
 {{-- Filters & Actions --}}
 <form method="GET" action="{{ route('hod.notices.index') }}"
-      class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6">
-    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+      class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
         {{-- Search --}}
         <div class="relative lg:col-span-2">
             <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,140 +81,236 @@
                 <option value="{{ $program->id }}" @selected(request('program_id') == $program->id)>{{ $program->name }}</option>
             @endforeach
         </select>
-        {{-- Apply + Clear --}}
-        <div class="flex gap-2">
-            <button type="submit"
-                    class="rounded-xl bg-[#1d4ed8] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1e40af] transition whitespace-nowrap">
-                Apply
-            </button>
-            @if(request()->hasAny(['search','type','status','program_id']))
-            <a href="{{ route('hod.notices.index') }}"
-               class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition" title="Clear filters">✕</a>
-            @endif
-        </div>
+    </div>
+    <div class="flex gap-2 mt-3">
+        <button type="submit"
+                class="rounded-xl bg-[#1d4ed8] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1e40af] transition whitespace-nowrap">
+            Apply Filters
+        </button>
+        @if(request()->hasAny(['search','type','status','program_id']))
+        <a href="{{ route('hod.notices.index') }}"
+           class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition" title="Clear filters">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </a>
+        @endif
     </div>
 </form>
 
-{{-- Create Button --}}
-<div class="mb-6 flex justify-end">
-    <a href="{{ route('hod.notices.create') }}"
-       class="inline-flex items-center gap-2 rounded-xl bg-[#1d4ed8] px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#1e40af] transition">
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Create Notice
-    </a>
-</div>
+@if(session('success'))
+    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+        <div class="flex items-center gap-3">
+            <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-sm font-medium text-emerald-800">{{ session('success') }}</p>
+        </div>
+    </div>
+@endif
 
-{{-- Notices List --}}
-@if($notices->count() > 0)
-    <div class="space-y-3">
-        @foreach($notices as $notice)
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-md">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <h3 class="text-lg font-bold text-slate-800">{{ $notice->title }}</h3>
+{{-- ── MAIN CONTENT PANEL ──────────────────────────────────── --}}
+<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+
+    {{-- Panel header: result count + view toggle --}}
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
+        <p class="text-sm text-slate-500">
+            @if($notices->total() > 0)
+                Showing <span class="font-semibold text-slate-700">{{ $notices->firstItem() }}–{{ $notices->lastItem() }}</span>
+                of <span class="font-semibold text-slate-700">{{ number_format($notices->total()) }}</span> notices
+            @else
+                No notices match your filters
+            @endif
+        </p>
+
+        {{-- View toggle --}}
+        <div class="flex items-center rounded-xl border border-slate-200 p-1 gap-0.5 flex-shrink-0">
+            <button type="button" @click="setView('table')"
+                    :class="view === 'table' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700'"
+                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
+                Table
+            </button>
+            <button type="button" @click="setView('cards')"
+                    :class="view === 'cards' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700'"
+                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                Cards
+            </button>
+        </div>
+    </div>
+
+    {{-- ── TABLE VIEW ─────────────────────────────────────── --}}
+    <div x-show="view === 'table'" x-cloak>
+        @if($notices->isEmpty())
+            <div class="flex flex-col items-center justify-center py-20 text-center">
+                <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 mb-4">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                </div>
+                <h3 class="text-base font-bold text-slate-800">No notices found</h3>
+                <p class="mt-1 text-sm text-slate-500 max-w-xs">Try adjusting your search or filters, or create a new notice.</p>
+                <a href="{{ route('hod.notices.create') }}" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#1d4ed8] px-4 py-2 text-sm font-bold text-white hover:bg-[#1e40af] transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Create Notice
+                </a>
+            </div>
+        @else
+        <div class="mmp-table-wrap">
+            <table class="mmp-table w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-50/70 border-b border-slate-100">
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Title</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Type</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Program</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden xl:table-cell">Author</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Date</th>
+                        <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach($notices as $notice)
+                    <tr class="group hover:bg-slate-50/60 transition-colors">
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-semibold text-slate-900 truncate text-sm">{{ $notice->title }}</p>
+                                    <p class="text-[11px] text-slate-400 truncate">{{ Str::limit(strip_tags($notice->content), 60) }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3.5">
+                            <span class="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                                {{ ucfirst($notice->type) }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-3.5 text-xs text-slate-500 hidden lg:table-cell">
+                            {{ $notice->program?->name ?? '—' }}
+                        </td>
+                        <td class="px-5 py-3.5">
                             @if($notice->is_published)
-                                <span class="inline-flex rounded-lg bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                                <span class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60"></span>
                                     Published
                                 </span>
                             @else
-                                <span class="inline-flex rounded-lg bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                                <span class="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60"></span>
                                     Draft
                                 </span>
                             @endif
-                            <span class="inline-flex rounded-lg bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
-                                {{ ucfirst($notice->type) }}
-                            </span>
-                        </div>
+                        </td>
+                        <td class="px-5 py-3.5 text-xs text-slate-500 hidden xl:table-cell">
+                            {{ $notice->author?->name ?? '—' }}
+                        </td>
+                        <td class="px-5 py-3.5 text-xs text-slate-400 hidden lg:table-cell">
+                            {{ bsDate($notice->created_at, 'Y, F d') }}
+                        </td>
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <a href="{{ route('hod.notices.show', $notice) }}"
+                                   class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition" title="View">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
+                                @if($notice->created_by === auth()->id())
+                                    <a href="{{ route('hod.notices.edit', $notice) }}"
+                                       class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition" title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    </a>
+                                    <form method="POST" action="{{ route('hod.notices.destroy', $notice) }}"
+                                          onsubmit="return confirm('Delete {{ addslashes($notice->title) }}? This cannot be undone.')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition" title="Delete">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @if($notices->hasPages())
+        <div class="border-t border-slate-100 px-5 py-4">{{ $notices->links() }}</div>
+        @endif
+        @endif
+    </div>
 
-                        <p class="text-sm text-slate-600 line-clamp-2">
-                            {{ Str::limit(strip_tags($notice->content), 150) }}
-                        </p>
-
-                        <div class="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                            <span class="flex items-center gap-1">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                {{ $notice->author?->name }}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                {{ bsDate($notice->created_at, 'Y, F d') }}
-                            </span>
-                            @if($notice->department)
-                                <span class="flex items-center gap-1">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                    </svg>
-                                    {{ $notice->department->name }}
-                                </span>
-                            @endif
-                            @if($notice->program)
-                                <span class="flex items-center gap-1">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                    {{ $notice->program->name }}
-                                </span>
-                            @endif
-                            @if($notice->attachment)
-                                <span class="flex items-center gap-1 text-blue-600">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                                    </svg>
-                                    Attachment
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <a href="{{ route('hod.notices.show', $notice) }}" 
-                           class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-600 transition hover:bg-slate-50">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </a>
-                        @if($notice->created_by === auth()->id())
-                            <a href="{{ route('hod.notices.edit', $notice) }}" 
-                               class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-600 transition hover:bg-slate-50">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </a>
-                            <form action="{{ route('hod.notices.destroy', $notice) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this notice?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-lg border border-red-300 text-red-600 transition hover:bg-red-50">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </form>
-                        @endif
-                    </div>
-                </div>
+    {{-- ── CARD VIEW ──────────────────────────────────────── --}}
+    <div x-show="view === 'cards'" x-cloak>
+        @if($notices->isEmpty())
+            <div class="flex flex-col items-center justify-center py-20 text-center">
+                <h3 class="text-base font-bold text-slate-800">No notices found</h3>
+                <p class="mt-1 text-sm text-slate-500">Try adjusting your filters or create a new notice.</p>
             </div>
-        @endforeach
+        @else
+        <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @foreach($notices as $notice)
+            <div class="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150">
+                {{-- Icon --}}
+                <div class="flex flex-col items-center text-center">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <h3 class="mt-3 text-sm font-bold text-slate-900 leading-tight text-center line-clamp-2">{{ $notice->title }}</h3>
+                    <p class="mt-1 text-[11px] text-slate-400 line-clamp-2">{{ Str::limit(strip_tags($notice->content), 80) }}</p>
+                </div>
+                {{-- Badges --}}
+                <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                    <span class="rounded-lg bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">{{ ucfirst($notice->type) }}</span>
+                    @if($notice->is_published)
+                        <span class="rounded-lg bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Published</span>
+                    @else
+                        <span class="rounded-lg bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">Draft</span>
+                    @endif
+                </div>
+                {{-- Meta info --}}
+                <div class="mt-3 space-y-0.5 text-center">
+                    @if($notice->program)
+                        <p class="text-xs text-slate-600 font-medium truncate">{{ $notice->program->name }}</p>
+                    @endif
+                    <p class="text-[11px] text-slate-400">{{ $notice->author?->name ?? '—' }}</p>
+                    <p class="text-[11px] text-slate-400">{{ bsDate($notice->created_at, 'Y, F d') }}</p>
+                </div>
+                {{-- Actions --}}
+                @if($notice->created_by === auth()->id())
+                    <div class="mt-4 grid grid-cols-3 gap-2">
+                        <a href="{{ route('hod.notices.show', $notice) }}"
+                           class="rounded-lg border border-slate-200 py-1.5 text-center text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">View</a>
+                        <a href="{{ route('hod.notices.edit', $notice) }}"
+                           class="rounded-lg bg-slate-900 py-1.5 text-center text-xs font-bold text-white hover:bg-slate-700 transition">Edit</a>
+                        <form method="POST" action="{{ route('hod.notices.destroy', $notice) }}"
+                              onsubmit="return confirm('Delete {{ addslashes($notice->title) }}? This cannot be undone.')">
+                            @csrf @method('DELETE')
+                            <button type="submit"
+                                    class="w-full rounded-lg bg-red-600 py-1.5 text-center text-xs font-bold text-white hover:bg-red-700 transition">Delete</button>
+                        </form>
+                    </div>
+                @else
+                    <div class="mt-4 grid grid-cols-2 gap-2">
+                        <a href="{{ route('hod.notices.show', $notice) }}"
+                           class="rounded-lg border border-slate-200 py-1.5 text-center text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">View</a>
+                        <span class="rounded-lg bg-slate-100 py-1.5 text-center text-xs font-semibold text-slate-400 cursor-not-allowed">Edit</span>
+                    </div>
+                @endif
+            </div>
+            @endforeach
+        </div>
+        @if($notices->hasPages())
+        <div class="border-t border-slate-100 px-5 py-4">{{ $notices->links() }}</div>
+        @endif
+        @endif
     </div>
 
-    {{-- Pagination --}}
-    <div class="mt-6">
-        {{ $notices->links() }}
-    </div>
-@else
-    <div class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-12 text-center">
-        <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-        </svg>
-        <h3 class="mt-4 text-lg font-semibold text-slate-800">No notices found</h3>
-        <p class="mt-1 text-sm text-slate-500">Create your first notice to get started.</p>
-    </div>
-@endif
+</div>{{-- /panel --}}
+
+</div>{{-- /container --}}
 @endsection

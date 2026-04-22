@@ -126,7 +126,7 @@
         ]],
         ['label' => 'Communication', 'items' => [
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('hod.notices.index', 'hod.dashboard'), 'isActive' => $active('hod.notices.*')],
-            ['label' => 'Department Content', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.content.index', 'hod.dashboard'), 'isActive' => $active('hod.content.*')],
+            ['label' => 'Facilities & Resources', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
         ]],
         ['label' => 'Resources', 'items' => [
             ['label' => 'Media', 'iconName' => 'photo', 'href' => $portalRoute('hod.media.index', 'hod.dashboard'), 'isActive' => $active('hod.media.*')],

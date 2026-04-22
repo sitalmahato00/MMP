@@ -5,9 +5,25 @@
 @section('content')
 <div class="bg-[#f9f9f9] border-t border-gray-100 min-h-screen">
     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12">
-        <div class="text-center mb-12">
+        <div class="text-center mb-8">
             <h1 class="text-3xl font-bold font-serif text-[#8B0000]">Campus Facilities & Resources</h1>
             <p class="text-gray-600 mt-2">State-of-the-art infrastructure facilitating excellence in technical education.</p>
+        </div>
+
+        {{-- Department Filter --}}
+        <div class="mb-8 flex justify-center">
+            <div class="inline-flex flex-wrap items-center gap-2 bg-white rounded-xl border border-gray-200 p-2 shadow-sm">
+                <a href="{{ route('public.facilities') }}" 
+                   class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors {{ !request('department') ? 'bg-[#8B0000] text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                    All Departments
+                </a>
+                @foreach($departments as $dept)
+                    <a href="{{ route('public.facilities', ['department' => $dept->slug]) }}" 
+                       class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors {{ request('department') === $dept->slug ? 'bg-[#8B0000] text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        {{ $dept->name }}
+                    </a>
+                @endforeach
+            </div>
         </div>
 
         @foreach($facilities->groupBy('category') as $category => $items)
@@ -84,7 +100,11 @@
         
         @if($facilities->isEmpty())
         <div class="text-center text-gray-500 py-16 bg-white border border-gray-100 rounded">
-            Check back later for updates on campus facilities.
+            @if(request('department'))
+                No facilities found for this department. Check back later for updates.
+            @else
+                Check back later for updates on campus facilities.
+            @endif
         </div>
         @endif
         

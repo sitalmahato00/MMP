@@ -18,6 +18,15 @@ return new class extends Migration
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->boolean('is_published')->default(true);
+            
+            // Facility/Resource fields
+            $table->string('category')->nullable(); // lab, library, workshop, etc.
+            $table->string('location')->nullable(); // Building, floor, room
+            $table->integer('capacity')->nullable(); // Number of seats/users
+            $table->string('availability')->nullable(); // Operating hours/schedule
+            $table->text('features')->nullable(); // Key features list
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            
             $table->timestamps();
         });
 

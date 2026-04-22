@@ -224,21 +224,21 @@
                 </div>
                 <div class="p-4 space-y-5">
                     @php
-                        $currentPrincipal = $leadership['principals']->firstWhere('is_current', true);
-                        $currentPresident = $leadership['presidents']->firstWhere('is_current', true);
+                        $currentPrincipal = isset($leadership['principals']) ? $leadership['principals']->firstWhere('is_current', true) : null;
+                        $currentPresident = isset($leadership['presidents']) ? $leadership['presidents']->firstWhere('is_current', true) : null;
                     @endphp
                     @foreach(array_filter([$currentPresident, $currentPrincipal]) as $exec)
                     <div class="flex gap-4 items-center">
                         <div class="w-14 h-16 bg-gray-200 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
-                            @if($exec->avatar_url)
+                            @if(isset($exec->avatar_url) && $exec->avatar_url)
                                 <img src="{{ $exec->avatar_url }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
-                                <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#8B0000;">{{ strtoupper(substr($exec->name,0,1)) }}</div>
+                                <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#8B0000;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
                             @endif
                         </div>
                         <div>
-                            <div class="font-bold text-[#8B0000] text-[13px]">{{ $exec->name }}</div>
-                            <div class="text-[11px] text-gray-500 mt-0.5">{{ $exec->designation ?: ucfirst($exec->type) }}</div>
+                            <div class="font-bold text-[#8B0000] text-[13px]">{{ $exec->name ?? 'N/A' }}</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">{{ $exec->designation ?? ucfirst($exec->type ?? 'N/A') }}</div>
                         </div>
                     </div>
                     @endforeach

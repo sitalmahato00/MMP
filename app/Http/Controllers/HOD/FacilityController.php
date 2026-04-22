@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * HOD content management for department pages.
+ * HOD facility management for department pages.
  * 
- * HODs can manage content pages related to their department.
+ * HODs can manage facility pages related to their department.
  */
-class ContentController extends HodController
+class FacilityController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────
     public function index(Request $request)
@@ -46,7 +46,7 @@ class ContentController extends HodController
         $publishedPages = (clone $query)->where('is_published', true)->count();
         $draftPages = (clone $query)->where('is_published', false)->count();
 
-        return view('hod.content.index', compact(
+        return view('hod.facilities.index', compact(
             'pages', 'department',
             'totalPages', 'publishedPages', 'draftPages'
         ));
@@ -56,7 +56,7 @@ class ContentController extends HodController
     public function create(Request $request)
     {
         $department = $this->currentDepartment($request);
-        return view('hod.content.create', compact('department'));
+        return view('hod.facilities.create', compact('department'));
     }
 
     // ── Store ──────────────────────────────────────────────────────────────
@@ -72,6 +72,11 @@ class ContentController extends HodController
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'is_published' => 'nullable|boolean',
+            'category' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:255',
+            'capacity' => 'nullable|integer|min:0',
+            'availability' => 'nullable|string|max:255',
+            'features' => 'nullable|string',
         ]);
 
         if ($request->hasFile('featured_image')) {
@@ -86,11 +91,20 @@ class ContentController extends HodController
             'meta_title' => $data['meta_title'] ?? $data['title'],
             'meta_description' => $data['meta_description'] ?? Str::limit(strip_tags($data['content']), 160),
             'is_published' => $data['is_published'] ?? false,
+            'category' => $data['category'] ?? null,
+            'location' => $data['location'] ?? null,
+            'capacity' => $data['capacity'] ?? null,
+            'availability' => $data['availability'] ?? null,
+            'features' => $data['features'] ?? null,
+            'created_by' => auth()->id(),
         ]);
 
+        // Invalidate public cache
+        \App\Services\PublicDataService::invalidate('*');
+
         return redirect()
-            ->route('hod.content.index')
-            ->with('success', 'Content page created successfully.');
+            ->route('hod.facilities.index')
+            ->with('success', 'Facility page created successfully.');
     }
 
     // ── Show ───────────────────────────────────────────────────────────────
@@ -104,7 +118,7 @@ class ContentController extends HodController
             abort(403, 'Unauthorized access to content page.');
         }
 
-        return view('hod.content.show', compact('content', 'department'));
+        return view('hod.facilities.show', compact('content', 'department'));
     }
 
     // ── Edit ───────────────────────────────────────────────────────────────
@@ -118,7 +132,7 @@ class ContentController extends HodController
             abort(403, 'Unauthorized access to content page.');
         }
 
-        return view('hod.content.edit', compact('content', 'department'));
+        return view('hod.facilities.edit', compact('content', 'department'));
     }
 
     // ── Update ─────────────────────────────────────────────────────────────
@@ -139,6 +153,11 @@ class ContentController extends HodController
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'is_published' => 'nullable|boolean',
+            'category' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:255',
+            'capacity' => 'nullable|integer|min:0',
+            'availability' => 'nullable|string|max:255',
+            'features' => 'nullable|string',
         ]);
 
         if ($request->hasFile('featured_image')) {
@@ -157,11 +176,19 @@ class ContentController extends HodController
             'meta_title' => $data['meta_title'] ?? $data['title'],
             'meta_description' => $data['meta_description'] ?? Str::limit(strip_tags($data['content']), 160),
             'is_published' => $data['is_published'] ?? false,
+            'category' => $data['category'] ?? null,
+            'location' => $data['location'] ?? null,
+            'capacity' => $data['capacity'] ?? null,
+            'availability' => $data['availability'] ?? null,
+            'features' => $data['features'] ?? null,
         ] + (isset($data['featured_image']) ? ['featured_image' => $data['featured_image']] : []));
 
+        // Invalidate public cache
+        \App\Services\PublicDataService::invalidate('*');
+
         return redirect()
-            ->route('hod.content.index')
-            ->with('success', 'Content page updated successfully.');
+            ->route('hod.facilities.index')
+            ->with('success', 'Facility page updated successfully.');
     }
 
     // ── Delete ─────────────────────────────────────────────────────────────
@@ -181,8 +208,11 @@ class ContentController extends HodController
 
         $content->delete();
 
+        // Invalidate public cache
+        \App\Services\PublicDataService::invalidate('*');
+
         return redirect()
-            ->route('hod.content.index')
-            ->with('success', 'Content page deleted successfully.');
+            ->route('hod.facilities.index')
+            ->with('success', 'Facility page deleted successfully.');
     }
 }

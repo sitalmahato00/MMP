@@ -399,14 +399,69 @@ class PublicDataService
         });
     }
 
-    public function getFacilities(): \Illuminate\Database\Eloquent\Collection
+    public function getFacilities(?string $departmentSlug = null): \Illuminate\Support\Collection
     {
-        return Cache::remember('public:facilities', self::CACHE_TTL, function () {
-            return Facility::where('is_published', true)
-                ->with('department:id,name,code')
-                ->with('program:id,name,code')
-                ->latest()
-                ->get();
+        $cacheKey = $departmentSlug ? "public:facilities:{$departmentSlug}" : 'public:facilities';
+        
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($departmentSlug) {
+            // Get Facility records
+            $facilitiesQuery = Facility::where('is_published', true)
+                ->with('department:id,name,code,slug')
+                ->with('program:id,name,code');
+            
+            if ($departmentSlug) {
+                $facilitiesQuery->whereHas('department', function ($q) use ($departmentSlug) {
+                    $q->where('slug', $departmentSlug);
+                });
+            }
+            
+            $facilities = $facilitiesQuery->latest()->get();
+            
+            // Get Page records (HOD content) that belong to departments
+            $pagesQuery = Page::where('is_published', true);
+            
+            if ($departmentSlug) {
+                $pagesQuery->where('slug', 'like', "{$departmentSlug}-%");
+            }
+            
+            $pages = $pagesQuery->latest()->get()->map(function ($page) {
+                // Extract department slug from page slug (format: department-slug-title-timestamp)
+                $slugParts = explode('-', $page->slug);
+                if (count($slugParts) >= 2) {
+                    $possibleDeptSlug = $slugParts[0];
+                    if (count($slugParts) >= 3 && !is_numeric($slugParts[1])) {
+                        $possibleDeptSlug = $slugParts[0] . '-' . $slugParts[1];
+                    }
+                    
+                    $dept = Department::where('slug', $possibleDeptSlug)->first();
+                    if ($dept) {
+                        $page->department = $dept;
+                        $page->category = 'resources'; // Assign a category for grouping
+                        $page->is_page = true; // Flag to identify it's a Page model
+                        
+                        // Add properties that Facility model has but Page doesn't
+                        $page->name = $page->title;
+                        $page->description = strip_tags($page->content);
+                        $page->location = null;
+                        $page->capacity = null;
+                        $page->program = null;
+                        
+                        // Handle images
+                        $page->image_urls = $page->featured_image 
+                            ? [asset('storage/' . $page->featured_image)]
+                            : [];
+                        
+                        // Handle documents (Page model doesn't have documents)
+                        $page->document_urls = [];
+                    }
+                }
+                return $page;
+            })->filter(function ($page) {
+                return isset($page->department); // Only include pages with valid department
+            });
+            
+            // Merge facilities and pages
+            return $facilities->concat($pages);
         });
     }
 
