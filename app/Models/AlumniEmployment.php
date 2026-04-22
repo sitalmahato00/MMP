@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AlumniEmployment extends Model
 {
-    protected $table = 'alumni_employment_history';
+    protected $table = 'alumni_employments';
 
     protected $fillable = [
         'alumni_id', 'job_title', 'company_name', 'location',

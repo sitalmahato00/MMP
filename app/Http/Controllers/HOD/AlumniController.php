@@ -5,6 +5,7 @@ namespace App\Http\Controllers\HOD;
 use App\Models\Student;
 use App\Models\Alumni;
 use App\Models\User;
+use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
