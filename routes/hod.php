@@ -94,13 +94,13 @@ Route::prefix('media')->name('media.')->group(function () {
     Route::get('/gallery', [\App\Http\Controllers\HOD\MediaController::class, 'gallery'])->name('gallery');
 });
 
-// Reports & Analytics
+// Reports & Analytics (Disabled)
 Route::prefix('reports')->name('reports.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\HOD\ReportController::class, 'index'])->name('index');
-    Route::get('/attendance', [\App\Http\Controllers\HOD\ReportController::class, 'attendance'])->name('attendance');
-    Route::get('/performance', [\App\Http\Controllers\HOD\ReportController::class, 'performance'])->name('performance');
-    Route::get('/department', [\App\Http\Controllers\HOD\ReportController::class, 'department'])->name('department');
-    Route::get('/export/{type}', [\App\Http\Controllers\HOD\ReportController::class, 'export'])->name('export');
+    Route::get('/', fn () => redirect()->route('hod.dashboard'));
+    Route::get('/attendance', fn () => redirect()->route('hod.dashboard'));
+    Route::get('/performance', fn () => redirect()->route('hod.dashboard'));
+    Route::get('/department', fn () => redirect()->route('hod.dashboard'));
+    Route::get('/export/{type}', fn () => redirect()->route('hod.dashboard'));
 });
 
 // Alumni Preparation

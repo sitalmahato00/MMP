@@ -1,19 +1,39 @@
 @extends('layouts.app')
-@section('title', 'Media Gallery')
+@section('title', 'Gallery')
 
 @section('content')
-<x-page-header title="Media Gallery" subtitle="Browse department images in gallery view."
+<x-page-header title="Gallery" subtitle="Browse department images in gallery view."
                back="{{ route('hod.media.index') }}"/>
 
-{{-- Search --}}
-<div class="mb-6">
-    <form method="GET" class="relative max-w-md">
-        <input type="text" name="search" value="{{ request('search') }}" 
-               placeholder="Search images..." 
-               class="w-full rounded-xl border-slate-300 pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500">
-        <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
+{{-- Filters --}}
+<div class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <form method="GET" class="flex flex-wrap items-end gap-4">
+        <div class="min-w-[18rem] flex-1">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Search</label>
+            <div class="relative">
+                <input type="text" name="search" value="{{ request('search') }}" 
+                       placeholder="Search gallery images..." 
+                       class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">
+                <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="min-w-[12rem]">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">From Date</label>
+            <x-bs-date-picker name="date_from" :value="request('date_from')" placeholder="From BS date" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10" />
+        </div>
+
+        <div class="min-w-[12rem]">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">To Date</label>
+            <x-bs-date-picker name="date_to" :value="request('date_to')" placeholder="To BS date" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10" />
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button type="submit" class="rounded-2xl bg-[#8B0000] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6d0000]">Filter</button>
+            <a href="{{ route('hod.media.gallery') }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Reset</a>
+        </div>
     </form>
 </div>
 

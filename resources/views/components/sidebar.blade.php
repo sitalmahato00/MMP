@@ -126,11 +126,11 @@
         ]],
         ['label' => 'Communication', 'items' => [
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('hod.notices.index', 'hod.dashboard'), 'isActive' => $active('hod.notices.*')],
-            ['label' => 'Facilities & Resources', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
+            
         ]],
         ['label' => 'Resources', 'items' => [
-            ['label' => 'Media', 'iconName' => 'photo', 'href' => $portalRoute('hod.media.index', 'hod.dashboard'), 'isActive' => $active('hod.media.*')],
-            ['label' => 'Reports', 'iconName' => 'chart-pie', 'href' => $portalRoute('hod.reports.index', 'hod.dashboard'), 'isActive' => $active('hod.reports.*')],
+            ['label' => 'Facilities & Resources', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
+            ['label' => 'Gallery', 'iconName' => 'photo', 'href' => $portalRoute('hod.media.index', 'hod.dashboard'), 'isActive' => $active('hod.media.*')],
         ]],
         ['label' => 'Alumni', 'items' => [
             ['label' => 'Alumni Preparation', 'iconName' => 'graduation-cap', 'href' => $portalRoute('hod.alumni.index', 'hod.dashboard'), 'isActive' => $active('hod.alumni.*')],

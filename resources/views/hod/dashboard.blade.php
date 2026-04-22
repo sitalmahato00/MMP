@@ -276,18 +276,6 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('hod.content.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-rose-300 hover:bg-rose-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Department Content</p>
-                                <p class="text-xs text-slate-500">Manage department pages</p>
-                            </div>
-                        </a>
-
                         <a href="{{ route('hod.media.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-purple-300 hover:bg-purple-50/50">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -295,20 +283,8 @@
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Media</p>
+                                <p class="text-sm font-semibold text-slate-900">Gallery</p>
                                 <p class="text-xs text-slate-500">Manage photos & files</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.reports.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-teal-300 hover:bg-teal-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Reports</p>
-                                <p class="text-xs text-slate-500">Analytics & insights</p>
                             </div>
                         </a>
 

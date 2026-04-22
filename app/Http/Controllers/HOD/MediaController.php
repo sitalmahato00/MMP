@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\HOD;
 
 use App\Models\Media;
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,6 +27,18 @@ class MediaController extends HodController
                 $term = trim((string) $request->search);
                 $q->where('title', 'like', "%{$term}%")
                   ->orWhere('file_name', 'like', "%{$term}%");
+            })
+            ->when($request->date_from, function ($q) use ($request) {
+                $from = adDate($request->date_from);
+                if ($from) {
+                    $q->whereDate('created_at', '>=', $from->toDateString());
+                }
+            })
+            ->when($request->date_to, function ($q) use ($request) {
+                $to = adDate($request->date_to);
+                if ($to) {
+                    $q->whereDate('created_at', '<=', $to->toDateString());
+                }
             })
             ->when($request->type, function ($q) use ($request) {
                 if ($request->type === 'image') {
@@ -87,6 +100,8 @@ class MediaController extends HodController
             $uploadedFiles[] = $media;
         }
 
+        PublicDataService::invalidate('gallery');
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -115,6 +130,18 @@ class MediaController extends HodController
                 $q->where('title', 'like', "%{$term}%")
                   ->orWhere('file_name', 'like', "%{$term}%");
             })
+            ->when($request->date_from, function ($q) use ($request) {
+                $from = adDate($request->date_from);
+                if ($from) {
+                    $q->whereDate('created_at', '>=', $from->toDateString());
+                }
+            })
+            ->when($request->date_to, function ($q) use ($request) {
+                $to = adDate($request->date_to);
+                if ($to) {
+                    $q->whereDate('created_at', '<=', $to->toDateString());
+                }
+            })
             ->latest('created_at')
             ->paginate(30)
             ->withQueryString();
@@ -139,6 +166,7 @@ class MediaController extends HodController
         }
 
         $media->delete();
+        PublicDataService::invalidate('gallery');
 
         if ($request->ajax()) {
             return response()->json([
