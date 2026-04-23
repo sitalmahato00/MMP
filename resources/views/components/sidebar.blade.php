@@ -166,7 +166,7 @@
             ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('student.timetable.index', 'student.dashboard'), 'isActive' => $active('student.timetable.*')],
             ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('student.attendance.index', 'student.dashboard'), 'isActive' => $active('student.attendance.*')],
             ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('student.assignments.index', 'student.dashboard'), 'isActive' => $active('student.assignments.*')],
-            ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('student.results.index', 'student.dashboard'), 'isActive' => $active('student.results.*')],
+            ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => '#', 'isActive' => false, 'disabled' => true],
         ]],
         ['label' => 'Resources', 'items' => [
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('student.notices.index', 'student.dashboard'), 'isActive' => $active('student.notices.*')],
@@ -300,6 +300,7 @@
                         'label' => $item['label'],
                         'isActive' => $item['isActive'],
                         'accent' => $accent,
+                        'disabled' => $item['disabled'] ?? false,
                     ])
                 @endforeach
                 @include('components.sidebar-items.nav-section-end')

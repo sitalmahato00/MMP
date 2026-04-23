@@ -116,22 +116,18 @@
                                 <div class="flex items-center gap-2 mt-2 flex-wrap">
                                     <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 uppercase">{{ $notice->type }}</span>
                                     
-                                    {{-- Show department and program details for specific notice types --}}
-                                    @if($notice->type === 'department' && $notice->department)
-                                        <span class="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                                    {{-- Show department name for department-specific notices --}}
+                                    @if($notice->department)
+                                        <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                                             {{ $notice->department->name }}
                                         </span>
                                     @endif
                                     
-                                    @if($notice->type === 'program' && $notice->program)
+                                    {{-- Show program details for program-specific notices --}}
+                                    @if($notice->program)
                                         <span class="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-100">
                                             {{ $notice->program->name }}
                                         </span>
-                                        @if($notice->department)
-                                            <span class="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-                                                {{ $notice->department->name }}
-                                            </span>
-                                        @endif
                                         @if($notice->semester)
                                             <span class="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-100">
                                                 Semester {{ $notice->semester }}

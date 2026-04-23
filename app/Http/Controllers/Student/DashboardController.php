@@ -32,12 +32,6 @@ class DashboardController extends Controller
         $programId = $student->program_id ?? 'none';
         $semester = $student->current_semester ?? 'none';
 
-        // Get attendance data for chart (last 7 days)
-        $attendanceChartData = $this->getAttendanceChartData($student);
-        
-        // Get grade distribution for pie chart
-        $gradeDistribution = $this->getGradeDistribution($student);
-        
         // Get KPI data
         $kpiData = $this->getKpiData($student);
 
@@ -58,35 +52,11 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Today's classes - simplified query
-        $today = strtolower(now()->format('l')); // e.g., 'thursday'
-        
-        // Get all timetable slots for today without complex filtering
-        $allSlots = TimetableSlot::with(['subject', 'teacher.user', 'timetable.program'])
-            ->where('day_of_week', $today)
-            ->whereHas('timetable', function($q) use ($student) {
-                $q->where('program_id', $student->program_id)
-                  ->where('semester', $student->current_semester);
-            })
-            ->orderBy('start_time')
-            ->get();
-        
-        // Remove duplicates manually
-        $seen = [];
-        $todaySlots = collect();
-        foreach ($allSlots as $slot) {
-            $key = $slot->subject_id . '-' . $slot->start_time . '-' . $slot->end_time;
-            if (!isset($seen[$key])) {
-                $seen[$key] = true;
-                $todaySlots->push($slot);
-            }
-        }
+        // Get chart data for dashboard
+        $chartData = $this->getChartData($student);
 
         $greeting = $this->greeting();
         $lastUpdated = now();
-
-        // Ensure todaySlots is a proper collection
-        $todaySlots = $todaySlots->values();
 
         return view('student.dashboard', compact(
             'student', 
@@ -94,67 +64,64 @@ class DashboardController extends Controller
             'notices', 
             'ctevtGeneralNotices',
             'ctevtResultNotices',
-            'todaySlots', 
             'kpiData', 
-            'attendanceChartData',
-            'gradeDistribution',
+            'chartData',
             'upcomingAssignments',
             'greeting', 
             'lastUpdated'
         ));
     }
 
+    private function getChartData($student)
+    {
+        return [
+            'attendance' => $this->getAttendanceChartData($student),
+            'grades' => $this->getGradeDistribution($student),
+        ];
+    }
+
     private function getAttendanceChartData($student)
     {
-        $days = [];
-        $bsLabels = [];
         $attendanceData = [];
         
-        // Get last 7 days
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
-            $days[] = $date->format('Y-m-d');
             
-            // Convert to BS date for label - use short month format
             try {
-                // Get BS date and extract short month name
-                $bsFullDate = bsDate($date, 'F d'); // e.g., "Baisakh 10"
-                if ($bsFullDate) {
-                    // Extract first 3 letters of month
-                    $parts = explode(' ', $bsFullDate);
-                    if (count($parts) >= 2) {
-                        $shortMonth = substr($parts[0], 0, 3); // "Bai"
-                        $bsLabels[] = $shortMonth . ' ' . $parts[1]; // "Bai 10"
-                    } else {
-                        $bsLabels[] = $bsFullDate;
-                    }
-                } else {
-                    $bsLabels[] = $date->format('M d');
-                }
-            } catch (\Exception $e) {
-                $bsLabels[] = $date->format('M d');
-            }
-            
-            // Get attendance for this day
-            $attendance = Attendance::where('student_id', $student->id)
-                ->whereHas('attendanceSession', function($q) use ($date) {
-                    $q->where('date', $date->format('Y-m-d'));
-                })
-                ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present")
-                ->selectRaw("COUNT(*) as total")
-                ->first();
-            
-            $percentage = $attendance && $attendance->total > 0 
-                ? round(($attendance->present / $attendance->total) * 100, 1) 
-                : 0;
+                // Get attendance for this day
+                $attendance = Attendance::where('student_id', $student->id)
+                    ->whereHas('attendanceSession', function($q) use ($date) {
+                        $q->where('date', $date->format('Y-m-d'));
+                    })
+                    ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present")
+                    ->selectRaw("COUNT(*) as total")
+                    ->first();
                 
-            $attendanceData[] = $percentage;
+                $percentage = 0;
+                if ($attendance && $attendance->total > 0) {
+                    $percentage = round(($attendance->present / $attendance->total) * 100, 1);
+                }
+                
+                $attendanceData[] = [
+                    'date' => $date->toDateString(),
+                    'date_bs' => bsDate($date, 'Y F d, l'), // Full BS format with day name for tooltips
+                    'date_bs_short' => bsDate($date, 'F d'), // Short BS format for chart labels
+                    'date_short' => $date->format('M j'), // English fallback
+                    'rate' => (float) $percentage
+                ];
+            } catch (\Exception $e) {
+                // Skip this day if there's an error, but provide fallback
+                $attendanceData[] = [
+                    'date' => $date->toDateString(),
+                    'date_bs' => bsDate($date, 'Y F d, l'),
+                    'date_bs_short' => bsDate($date, 'F d'),
+                    'date_short' => $date->format('M j'),
+                    'rate' => 0.0
+                ];
+            }
         }
         
-        return [
-            'labels' => $bsLabels,
-            'data' => $attendanceData
-        ];
+        return $attendanceData;
     }
 
     private function getGradeDistribution($student)
@@ -170,15 +137,22 @@ class DashboardController extends Controller
             ')
             ->first();
 
+        // Ensure all values are integers
+        $distinction = (int) ($grades->distinction ?? 0);
+        $firstDivision = (int) ($grades->first_division ?? 0);
+        $secondDivision = (int) ($grades->second_division ?? 0);
+        $thirdDivision = (int) ($grades->third_division ?? 0);
+        $fail = (int) ($grades->fail ?? 0);
+
         return [
-            'labels' => ['Distinction (80%+)', 'First Division (60-79%)', 'Second Division (45-59%)', 'Third Division (32-44%)', 'Fail (<32%)'],
-            'data' => [
-                $grades->distinction ?? 0,
-                $grades->first_division ?? 0,
-                $grades->second_division ?? 0,
-                $grades->third_division ?? 0,
-                $grades->fail ?? 0
+            'labels' => [
+                'Distinction (80%+)', 
+                'First Division (60-79%)', 
+                'Second Division (45-59%)', 
+                'Third Division (32-44%)', 
+                'Fail (<32%)'
             ],
+            'data' => [$distinction, $firstDivision, $secondDivision, $thirdDivision, $fail],
             'colors' => ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6b7280']
         ];
     }
@@ -194,8 +168,8 @@ class DashboardController extends Controller
                 ->first();
 
             $attendanceRate = $attendanceData && $attendanceData->total > 0 
-                ? round(($attendanceData->present / $attendanceData->total) * 100, 1) 
-                : 0;
+                ? (float) round(($attendanceData->present / $attendanceData->total) * 100, 1) 
+                : 0.0;
 
             // Pending assignments
             $pendingAssignments = Assignment::where('program_id', $student->program_id)
@@ -217,9 +191,9 @@ class DashboardController extends Controller
 
             return [
                 'attendance_rate' => $attendanceRate,
-                'pending_assignments' => $pendingAssignments,
-                'average_grade' => $avgGrade ? round($avgGrade, 1) : 0,
-                'total_subjects' => $totalSubjects,
+                'pending_assignments' => (int) $pendingAssignments,
+                'average_grade' => $avgGrade ? (float) round($avgGrade, 1) : 0.0,
+                'total_subjects' => (int) $totalSubjects,
             ];
         });
     }
