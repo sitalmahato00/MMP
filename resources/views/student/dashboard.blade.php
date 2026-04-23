@@ -117,7 +117,7 @@
                 <p class="mt-1 text-sm text-slate-500">Last 7 days attendance percentage</p>
             </div>
             <div class="p-6">
-                <div class="h-32 sm:h-40" id="attendanceChart">
+                <div class="h-48" id="attendanceChart">
                     <canvas id="attendanceCanvas"></canvas>
                 </div>
             </div>
@@ -130,7 +130,7 @@
                 <p class="mt-1 text-sm text-slate-500">Performance breakdown by grade</p>
             </div>
             <div class="p-6">
-                <div class="h-32 sm:h-40 flex items-center justify-center" id="gradeChart">
+                <div class="h-48 flex items-center justify-center" id="gradeChart">
                     <canvas id="gradeCanvas"></canvas>
                 </div>
             </div>
