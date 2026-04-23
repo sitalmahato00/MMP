@@ -89,6 +89,15 @@ Route::get('exams/{exam}/students/{student}/sheet', [ExamController::class, 'res
 Route::patch('exams/{exam}/publish', [ExamController::class, 'publish'])->name('exams.publish');
 
 // ── Content & Communications ───────────────────────────────
+Route::prefix('news-events')->name('news-events.')->group(function () {
+    Route::get('/', [NoticeController::class, 'newsEventsIndex'])->name('index');
+    Route::get('/create', [NoticeController::class, 'createNewsEvent'])->name('create');
+    Route::post('/', [NoticeController::class, 'storeNewsEvent'])->name('store');
+    Route::get('/{notice}', [NoticeController::class, 'showNewsEvent'])->name('show');
+    Route::get('/{notice}/edit', [NoticeController::class, 'editNewsEvent'])->name('edit');
+    Route::put('/{notice}', [NoticeController::class, 'updateNewsEvent'])->name('update');
+    Route::delete('/{notice}', [NoticeController::class, 'destroyNewsEvent'])->name('destroy');
+});
 Route::resource('notices', NoticeController::class);
 Route::resource('facilities', FacilityController::class);
 Route::resource('executives', ExecutiveController::class);

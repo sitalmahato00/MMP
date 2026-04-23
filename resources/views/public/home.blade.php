@@ -498,7 +498,7 @@
                                         {{ $eventTypeLabel }}
                                     </span>
                                 </div>
-                                <a href="{{ route('public.news-events') }}" class="font-medium text-gray-800 text-[12px] leading-tight hover:text-[#003D82] block transition-colors line-clamp-2">{{ $event->title }}</a>
+                                <a href="{{ route('public.news-events.show', $event->slug) }}" class="font-medium text-gray-800 text-[12px] leading-tight hover:text-[#003D82] block transition-colors line-clamp-2">{{ $event->title }}</a>
                             </div>
                         </div>
                     @empty

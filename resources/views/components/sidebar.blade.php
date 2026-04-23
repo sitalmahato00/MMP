@@ -88,9 +88,10 @@
             ],
         ],
         [
-            'standalone' => true,
+            'label' => 'Communication',
             'items' => [
-                ['label' => 'Notice', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
+                ['label' => 'Notices', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
+                ['label' => 'News & Events', 'iconName' => 'collection', 'href' => route('admin.news-events.index'), 'isActive' => $active('admin.news-events.*')],
             ],
         ],
         [

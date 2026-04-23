@@ -85,6 +85,7 @@ class DashboardController extends Controller
             $deptIndex = $departmentPerformance['rows']->where('has_data', true)->avg('score');
 
             $recentNotices = Notice::published()
+                ->whereIn('type', ['general', 'department', 'teachers', 'exam'])
                 ->with(['author', 'department'])
                 ->latest()
                 ->take(4)

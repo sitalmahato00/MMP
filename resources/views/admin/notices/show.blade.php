@@ -3,15 +3,17 @@
 
 @section('content')
 @php
-    $typeMeta = [
-        'general' => ['label' => 'General', 'badge' => 'bg-slate-100 text-slate-700 ring-slate-200'],
-        'exam' => ['label' => 'Exam / Result', 'badge' => 'bg-rose-50 text-rose-700 ring-rose-200'],
-        'department' => ['label' => 'Department', 'badge' => 'bg-indigo-50 text-indigo-700 ring-indigo-200'],
-        'class' => ['label' => 'Class / Section', 'badge' => 'bg-amber-50 text-amber-700 ring-amber-200'],
-        'teachers' => ['label' => 'Teachers', 'badge' => 'bg-emerald-50 text-emerald-700 ring-emerald-200'],
-        'news' => ['label' => 'News', 'badge' => 'bg-violet-50 text-violet-700 ring-violet-200'],
-        'event' => ['label' => 'Event', 'badge' => 'bg-sky-50 text-sky-700 ring-sky-200'],
-    ];
+    $typeMeta = $workspace['is_news_events']
+        ? [
+            'news' => ['label' => 'News', 'badge' => 'bg-violet-50 text-violet-700 ring-violet-200'],
+            'event' => ['label' => 'Event', 'badge' => 'bg-sky-50 text-sky-700 ring-sky-200'],
+        ]
+        : [
+            'general' => ['label' => 'General', 'badge' => 'bg-slate-100 text-slate-700 ring-slate-200'],
+            'exam' => ['label' => 'Exam / Result', 'badge' => 'bg-rose-50 text-rose-700 ring-rose-200'],
+            'department' => ['label' => 'Department', 'badge' => 'bg-indigo-50 text-indigo-700 ring-indigo-200'],
+            'teachers' => ['label' => 'Teachers', 'badge' => 'bg-emerald-50 text-emerald-700 ring-emerald-200'],
+        ];
 
     $statusKey = $payload['status'] ?? (! $notice->is_published ? 'draft' : (($notice->published_at && $notice->published_at->isFuture()) ? 'scheduled' : 'published'));
     $statusMeta = [
@@ -41,33 +43,33 @@
 
                     <div>
                         <h1 class="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{{ $notice->title }}</h1>
-                        <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
-                            Review the full notice content, publishing metadata, and all attached files from one detail page.
-                        </p>
+                        <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">{{ $workspace['show_description'] }}</p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
                         <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Author: {{ $payload['author_name'] ?? 'System' }}</span>
-                        <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Published: {{ $payload['published_bs'] ?? '—' }}</span>
-                        <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Updated: {{ $payload['updated_bs'] ?? '—' }}</span>
+                        <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Published: {{ $payload['published_bs'] ?? 'N/A' }}</span>
+                        <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Updated: {{ $payload['updated_bs'] ?? 'N/A' }}</span>
                         <span class="rounded-full bg-sky-50 px-3 py-1.5 text-sky-700">{{ $payload['attachments_count'] ?? 0 }} file(s)</span>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <a href="{{ route('admin.notices.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+                    <a href="{{ route($workspace['index_route']) }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
                         Back to list
                     </a>
-                    <a href="{{ route('admin.notices.edit', $notice) }}" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#750000]">
-                        Edit Notice
-                    </a>
-                    <form method="POST" action="{{ route('admin.notices.destroy', $notice) }}" onsubmit="return confirm('Delete {{ addslashes($notice->title) }}? This cannot be undone.')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 shadow-sm transition hover:bg-rose-100">
-                            Delete
-                        </button>
-                    </form>
+                    @if($notice->created_by === auth()->id())
+                        <a href="{{ route($workspace['route_prefix'] . '.edit', $notice) }}" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#750000]">
+                            {{ $workspace['edit_button_label'] }}
+                        </a>
+                        <form method="POST" action="{{ route($workspace['route_prefix'] . '.destroy', $notice) }}" onsubmit="return confirm('{{ $workspace['delete_confirm_label'] }}')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 shadow-sm transition hover:bg-rose-100">
+                                Delete
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
@@ -100,7 +102,7 @@
         <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex items-center justify-between gap-3">
                 <div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Notice Body</p>
+                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{{ $workspace['content_heading'] }}</p>
                     <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Published content</h2>
                 </div>
             </div>
@@ -130,7 +132,7 @@
                             <span class="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-slate-500 ring-1 ring-slate-200">{{ $file['extension'] }}</span>
                         </a>
                     @empty
-                        <x-empty-state title="No attachments" message="This notice does not have any uploaded files."/>
+                        <x-empty-state title="No attachments" :message="'This ' . $workspace['singular_label'] . ' does not have any uploaded files.'"/>
                     @endforelse
                 </div>
             </article>
@@ -140,15 +142,15 @@
                 <div class="mt-4 space-y-3 text-sm text-slate-600">
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <p class="font-bold text-slate-900">Created</p>
-                        <p class="mt-1">{{ $payload['created_bs'] ?? '—' }}</p>
+                        <p class="mt-1">{{ $payload['created_bs'] ?? 'N/A' }}</p>
                     </div>
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <p class="font-bold text-slate-900">Published</p>
-                        <p class="mt-1">{{ $payload['published_bs'] ?? '—' }}</p>
+                        <p class="mt-1">{{ $payload['published_bs'] ?? 'N/A' }}</p>
                     </div>
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <p class="font-bold text-slate-900">Updated</p>
-                        <p class="mt-1">{{ $payload['updated_bs'] ?? '—' }}</p>
+                        <p class="mt-1">{{ $payload['updated_bs'] ?? 'N/A' }}</p>
                     </div>
                 </div>
             </article>

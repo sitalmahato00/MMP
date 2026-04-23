@@ -481,11 +481,11 @@
         <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <p class="text-sm text-gray-500">News and event posts shown on the public homepage and news feed.</p>
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('admin.notices.create', ['type' => 'news']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#8B0000] hover:bg-[#5c0000] text-white text-sm font-medium rounded-lg transition-colors">
+                <a href="{{ route('admin.news-events.create', ['type' => 'news']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#8B0000] hover:bg-[#5c0000] text-white text-sm font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                     Add News
                 </a>
-                <a href="{{ route('admin.notices.create', ['type' => 'event']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors">
+                <a href="{{ route('admin.news-events.create', ['type' => 'event']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     Add Event
                 </a>
@@ -493,14 +493,14 @@
         </div>
         @php
             $ntColors = ['general'=>'bg-blue-50 text-blue-700','exam'=>'bg-red-50 text-red-700','department'=>'bg-indigo-50 text-indigo-700',
-                         'class'=>'bg-amber-50 text-amber-700','teachers'=>'bg-green-50 text-green-700','news'=>'bg-purple-50 text-purple-700','event'=>'bg-teal-50 text-teal-700'];
-            $ntLabels = ['general'=>'General','exam'=>'Exam/Results','department'=>'Department','class'=>'Class','teachers'=>'Teachers','news'=>'News','event'=>'Event'];
+                         'teachers'=>'bg-green-50 text-green-700','news'=>'bg-purple-50 text-purple-700','event'=>'bg-teal-50 text-teal-700'];
+            $ntLabels = ['general'=>'General','exam'=>'Exam/Results','department'=>'Department','teachers'=>'Teachers','news'=>'News','event'=>'Event'];
         @endphp
         @if($notices->isEmpty())
         <div class="py-16 text-center text-gray-400">
             <svg class="w-12 h-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
             <p class="font-medium">No news or events posted yet</p>
-            <a href="{{ route('admin.notices.create', ['type' => 'news']) }}" class="mt-2 inline-block text-[#8B0000] hover:underline text-sm">Add the first news post</a>
+            <a href="{{ route('admin.news-events.create', ['type' => 'news']) }}" class="mt-2 inline-block text-[#8B0000] hover:underline text-sm">Add the first news post</a>
         </div>
         @else
         <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
@@ -541,8 +541,8 @@
                         </td>
                         <td class="px-5 py-3">
                             <div class="flex items-center justify-end gap-3">
-                                <a href="{{ route('admin.notices.edit', $notice) }}" class="text-sm text-[#8B0000] hover:text-[#5c0000] font-medium">Edit</a>
-                                <form method="POST" action="{{ route('admin.notices.destroy', $notice) }}" onsubmit="return confirm('Delete this notice?')">
+                                <a href="{{ route('admin.news-events.edit', $notice) }}" class="text-sm text-[#8B0000] hover:text-[#5c0000] font-medium">Edit</a>
+                                <form method="POST" action="{{ route('admin.news-events.destroy', $notice) }}" onsubmit="return confirm('Delete this post?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-sm text-gray-300 hover:text-red-500 font-medium transition-colors">Delete</button>
                                 </form>

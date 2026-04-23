@@ -33,7 +33,7 @@ class PublicDataService
                     ->take(4)
                     ->get(['id', 'user_id', 'department_id', 'graduation_year', 'current_job', 'company_name']),
                 'notices' => Notice::published()
-                    ->whereIn('type', ['general', 'department', 'program', 'academic', 'event'])
+                    ->whereIn('type', ['general', 'department', 'program', 'academic'])
                     ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
@@ -51,19 +51,18 @@ class PublicDataService
     public function getNotices(int $perPage = 15, ?string $type = 'general')
     {
         return Notice::published()
-            ->when(in_array($type, ['general', 'exam', 'news', 'event', 'department', 'program', 'academic'], true), function ($query) use ($type) {
+            ->when(in_array($type, ['general', 'exam', 'department', 'program', 'academic'], true), function ($query) use ($type) {
                 $query->where('type', $type);
             })
             ->when($type === 'all', function ($query) {
-                // Show ALL published notices regardless of type or department
-                $query->whereIn('type', ['general', 'exam', 'department', 'program', 'academic', 'event']);
+                $query->whereIn('type', ['general', 'exam', 'department', 'program', 'academic']);
             })
             ->with(['department:id,name,code', 'program:id,name,code'])
             ->latest()
             ->paginate($perPage, ['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'content', 'published_at', 'created_at']);
     }
 
-    public function getNoticeBySlug(string $slug): Notice
+    public function getPublishedItemBySlug(string $slug): Notice
     {
         return Cache::remember("public:notice:{$slug}", self::CACHE_TTL, function () use ($slug) {
             return Notice::published()
@@ -71,6 +70,16 @@ class PublicDataService
                 ->where('slug', $slug)
                 ->firstOrFail();
         });
+    }
+
+    public function getRelatedItemsByType(string $type, int $excludeId, int $limit = 5): Collection
+    {
+        return Notice::published()
+            ->where('type', $type)
+            ->whereKeyNot($excludeId)
+            ->latest()
+            ->take($limit)
+            ->get(['id', 'title', 'slug', 'type', 'published_at', 'created_at']);
     }
 
     public function getDepartments(): \Illuminate\Support\Collection

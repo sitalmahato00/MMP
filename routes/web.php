@@ -38,6 +38,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/notices', [HomeController::class, 'notices'])->name('public.notices');
 Route::get('/notices/{slug}', [HomeController::class, 'noticeShow'])->name('public.notice.show');
 Route::get('/news-events', [HomeController::class, 'newsEvents'])->name('public.news-events');
+Route::get('/news-events/{slug}', [HomeController::class, 'newsEventShow'])->name('public.news-events.show');
 Route::get('/departments', [HomeController::class, 'departments'])->name('public.departments');
 Route::get('/departments/{slug}', [HomeController::class, 'departmentShow'])->name('public.department.show');
 Route::get('/departments/{departmentSlug}/{programSlug}', [HomeController::class, 'programShow'])->name('public.program.show');

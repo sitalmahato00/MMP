@@ -1,17 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Notices')
+@section('title', $workspace['title'])
 
 @section('content')
 @php
-    $typeMeta = [
-        'general' => ['label' => 'General', 'badge' => 'bg-slate-100 text-slate-700 ring-slate-200', 'accent' => 'border-l-slate-300'],
-        'exam' => ['label' => 'Exam / Result', 'badge' => 'bg-rose-50 text-rose-700 ring-rose-200', 'accent' => 'border-l-rose-400'],
-        'department' => ['label' => 'Department', 'badge' => 'bg-indigo-50 text-indigo-700 ring-indigo-200', 'accent' => 'border-l-indigo-400'],
-        'class' => ['label' => 'Class / Section', 'badge' => 'bg-amber-50 text-amber-700 ring-amber-200', 'accent' => 'border-l-amber-400'],
-        'teachers' => ['label' => 'Teachers', 'badge' => 'bg-emerald-50 text-emerald-700 ring-emerald-200', 'accent' => 'border-l-emerald-400'],
-        'news' => ['label' => 'News', 'badge' => 'bg-violet-50 text-violet-700 ring-violet-200', 'accent' => 'border-l-violet-400'],
-        'event' => ['label' => 'Event', 'badge' => 'bg-sky-50 text-sky-700 ring-sky-200', 'accent' => 'border-l-sky-400'],
-    ];
+    $typeMeta = $workspace['is_news_events']
+        ? [
+            'news' => ['label' => 'News', 'badge' => 'bg-violet-50 text-violet-700 ring-violet-200', 'accent' => 'border-l-violet-400'],
+            'event' => ['label' => 'Event', 'badge' => 'bg-sky-50 text-sky-700 ring-sky-200', 'accent' => 'border-l-sky-400'],
+        ]
+        : [
+            'general' => ['label' => 'General', 'badge' => 'bg-slate-100 text-slate-700 ring-slate-200', 'accent' => 'border-l-slate-300'],
+            'exam' => ['label' => 'Exam / Result', 'badge' => 'bg-rose-50 text-rose-700 ring-rose-200', 'accent' => 'border-l-rose-400'],
+            'department' => ['label' => 'Department', 'badge' => 'bg-indigo-50 text-indigo-700 ring-indigo-200', 'accent' => 'border-l-indigo-400'],
+            'teachers' => ['label' => 'Teachers', 'badge' => 'bg-emerald-50 text-emerald-700 ring-emerald-200', 'accent' => 'border-l-emerald-400'],
+        ];
 
     $statusMeta = [
         'published' => ['label' => 'Published', 'badge' => 'bg-emerald-50 text-emerald-700 ring-emerald-200'],
@@ -19,14 +21,23 @@
         'draft' => ['label' => 'Draft', 'badge' => 'bg-slate-100 text-slate-700 ring-slate-200'],
     ];
 
-    $overviewCards = [
-        ['label' => 'Total Notices', 'value' => $stats['total'], 'tone' => 'slate'],
-        ['label' => 'Published', 'value' => $stats['published'], 'tone' => 'emerald'],
-        ['label' => 'Scheduled', 'value' => $stats['scheduled'], 'tone' => 'amber'],
-        ['label' => 'Drafts', 'value' => $stats['draft'], 'tone' => 'zinc'],
-        ['label' => 'Exam Notices', 'value' => $stats['exam'], 'tone' => 'rose'],
-        ['label' => 'Files Attached', 'value' => $stats['attachments'], 'tone' => 'sky'],
-    ];
+    $overviewCards = $workspace['is_news_events']
+        ? [
+            ['label' => 'Total Posts', 'value' => $stats['total'], 'tone' => 'slate'],
+            ['label' => 'Published', 'value' => $stats['published'], 'tone' => 'emerald'],
+            ['label' => 'Scheduled', 'value' => $stats['scheduled'], 'tone' => 'amber'],
+            ['label' => 'Drafts', 'value' => $stats['draft'], 'tone' => 'zinc'],
+            ['label' => 'News Posts', 'value' => $stats['news'], 'tone' => 'violet'],
+            ['label' => 'Events', 'value' => $stats['event'], 'tone' => 'sky'],
+        ]
+        : [
+            ['label' => 'Total Notices', 'value' => $stats['total'], 'tone' => 'slate'],
+            ['label' => 'Published', 'value' => $stats['published'], 'tone' => 'emerald'],
+            ['label' => 'Scheduled', 'value' => $stats['scheduled'], 'tone' => 'amber'],
+            ['label' => 'Drafts', 'value' => $stats['draft'], 'tone' => 'zinc'],
+            ['label' => 'Exam Notices', 'value' => $stats['exam'], 'tone' => 'rose'],
+            ['label' => 'Files Attached', 'value' => $stats['attachments'], 'tone' => 'sky'],
+        ];
 
     $toneStyles = [
         'slate' => ['chip' => 'bg-slate-100 text-slate-700', 'dot' => 'bg-slate-500'],
@@ -35,6 +46,7 @@
         'amber' => ['chip' => 'bg-amber-100 text-amber-700', 'dot' => 'bg-amber-500'],
         'rose' => ['chip' => 'bg-rose-100 text-rose-700', 'dot' => 'bg-rose-500'],
         'sky' => ['chip' => 'bg-sky-100 text-sky-700', 'dot' => 'bg-sky-500'],
+        'violet' => ['chip' => 'bg-violet-100 text-violet-700', 'dot' => 'bg-violet-500'],
     ];
 @endphp
 
@@ -57,16 +69,16 @@
     <section class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-slate-950">Notice Board</h1>
-                <p class="mt-2 text-sm text-slate-500">Manage published, scheduled, and draft notices from the same admin workspace used across the rest of the portal.</p>
+                <h1 class="text-3xl font-black tracking-tight text-slate-950">{{ $workspace['title'] }}</h1>
+                <p class="mt-2 text-sm text-slate-500">{{ $workspace['subtitle'] }}</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('admin.notices.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#750000]">
+                <a href="{{ route($workspace['route_prefix'] . '.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#750000]">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
-                    Add Notice
+                    {{ $workspace['create_label'] }}
                 </a>
             </div>
         </div>
@@ -83,14 +95,14 @@
                         </span>
                     </div>
                     <p class="mt-3 text-3xl font-black text-slate-950">{{ number_format($card['value']) }}</p>
-                    <p class="mt-1 text-xs text-slate-500">Current notice board snapshot</p>
+                    <p class="mt-1 text-xs text-slate-500">Current {{ $workspace['list_label'] }} snapshot</p>
                 </article>
             @endforeach
         </div>
     </section>
 
     <section class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <form method="GET" action="{{ route('admin.notices.index') }}" class="grid gap-3 lg:grid-cols-12">
+        <form method="GET" action="{{ route($workspace['index_route']) }}" class="grid gap-3 lg:grid-cols-12">
             <div class="lg:col-span-3">
                 <input
                     type="search"
@@ -119,23 +131,25 @@
                 </select>
             </div>
 
-            <div class="lg:col-span-2">
-                <select name="department_id" class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
-                    <option value="">All Departments</option>
-                    @foreach($departments as $department)
-                        @php
-                            $departmentLabel = $department->code
-                                ? $department->code . ' - ' . $department->name
-                                : $department->name;
-                        @endphp
-                        <option value="{{ $department->id }}" @selected((string) request('department_id') === (string) $department->id)>{{ $departmentLabel }}</option>
-                    @endforeach
-                </select>
-            </div>
+            @if(! $workspace['is_news_events'])
+                <div class="lg:col-span-2">
+                    <select name="department_id" class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                        <option value="">All Departments</option>
+                        @foreach($departments as $department)
+                            @php
+                                $departmentLabel = $department->code
+                                    ? $department->code . ' - ' . $department->name
+                                    : $department->name;
+                            @endphp
+                            <option value="{{ $department->id }}" @selected((string) request('department_id') === (string) $department->id)>{{ $departmentLabel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
 
             <div class="lg:col-span-3 flex gap-2">
                 <button type="submit" class="w-full rounded-full bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#750000]">Search</button>
-                <a href="{{ route('admin.notices.index') }}" class="w-full rounded-full border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-bold text-slate-600 transition hover:bg-slate-50">Reset</a>
+                <a href="{{ route($workspace['index_route']) }}" class="w-full rounded-full border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-bold text-slate-600 transition hover:bg-slate-50">Reset</a>
             </div>
 
             <div class="lg:col-span-2">
@@ -147,7 +161,7 @@
             </div>
 
             <div class="lg:col-span-8 flex items-center text-xs text-slate-500">
-                Filter by published date in BS. Draft notices without a publish date use their created date.
+                Filter by published date in BS. Draft {{ $workspace['list_label'] }} without a publish date use their created date.
             </div>
         </form>
     </section>
@@ -156,7 +170,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
             <p class="text-sm text-slate-500">
                 Showing <span class="font-semibold text-slate-700">{{ $notices->firstItem() ?? 0 }}-{{ $notices->lastItem() ?? 0 }}</span>
-                of <span class="font-semibold text-slate-700">{{ number_format($notices->total()) }}</span> notices
+                of <span class="font-semibold text-slate-700">{{ number_format($notices->total()) }}</span> {{ $workspace['list_label'] }}
             </p>
 
             <div class="flex flex-wrap items-center gap-2 text-xs">
@@ -170,7 +184,7 @@
                 <table class="mmp-table divide-y divide-slate-100 text-sm">
                     <thead class="bg-slate-50/80">
                         <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                            <th class="px-4 py-3 text-left">Notice</th>
+                            <th class="px-4 py-3 text-left">{{ $workspace['is_news_events'] ? 'Post' : 'Notice' }}</th>
                             <th class="px-4 py-3 text-left">Audience</th>
                             <th class="px-4 py-3 text-left">Department</th>
                             <th class="px-4 py-3 text-left">Status</th>
@@ -208,12 +222,12 @@
                                 <td class="px-4 py-3.5">
                                     <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $status['badge'] }}">{{ $status['label'] }}</span>
                                 </td>
-                                <td class="px-4 py-3.5 text-xs text-slate-500">{{ $publishedLabel ?: '—' }}</td>
+                                <td class="px-4 py-3.5 text-xs text-slate-500">{{ $publishedLabel ?: 'N/A' }}</td>
                                 <td class="px-4 py-3.5 text-center">
                                     @if(($notice->attachments_count ?? 0) > 0)
                                         <span class="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-sky-700 ring-1 ring-sky-200">{{ $notice->attachments_count }}</span>
                                     @else
-                                        <span class="text-xs text-slate-300">—</span>
+                                        <span class="text-xs text-slate-300">N/A</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3.5">
@@ -224,19 +238,19 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
                                         </button>
-                                        <a href="{{ route('admin.notices.show', $notice) }}" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600" title="Open Page">
+                                        <a href="{{ route($workspace['route_prefix'] . '.show', $notice) }}" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600" title="Open Page">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3h7m0 0v7m0-7L10 14"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5h5M5 5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-5"/>
                                             </svg>
                                         </a>
                                         @if($notice->created_by === auth()->id())
-                                            <a href="{{ route('admin.notices.edit', $notice) }}" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600" title="Edit">
+                                            <a href="{{ route($workspace['route_prefix'] . '.edit', $notice) }}" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600" title="Edit">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                 </svg>
                                             </a>
-                                            <form method="POST" action="{{ route('admin.notices.destroy', $notice) }}" onsubmit="return confirm('Delete {{ addslashes($notice->title) }}? This cannot be undone.')">
+                                            <form method="POST" action="{{ route($workspace['route_prefix'] . '.destroy', $notice) }}" onsubmit="return confirm('Delete {{ addslashes($notice->title) }}? This cannot be undone.')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600" title="Delete">
@@ -252,7 +266,7 @@
                         @empty
                             <tr>
                                 <td colspan="7">
-                                    <x-empty-state title="No notices found" message="Adjust your filters or create a new notice to populate the board." action="{{ route('admin.notices.create') }}" actionLabel="Add Notice"/>
+                                    <x-empty-state :title="$workspace['empty_title']" :message="$workspace['empty_message']" :action="route($workspace['route_prefix'] . '.create')" :actionLabel="$workspace['create_label']"/>
                                 </td>
                             </tr>
                         @endforelse
@@ -275,7 +289,7 @@
                         <div>
                             <h3 class="font-semibold text-slate-900">{{ $notice->title }}</h3>
                             <p class="mt-1 text-xs text-slate-500">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $notice->content)), 120) }}</p>
-                            <p class="mt-2 text-[11px] text-slate-400">{{ $notice->author?->name ?? 'System' }} · {{ bsDateTime($notice->published_at ?? $notice->created_at, 'Y, F d', 'h:i A') }}</p>
+                            <p class="mt-2 text-[11px] text-slate-400">{{ $notice->author?->name ?? 'System' }} | {{ bsDateTime($notice->published_at ?? $notice->created_at, 'Y, F d', 'h:i A') }}</p>
                         </div>
                         <div class="text-right">
                             <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $status['badge'] }}">{{ $status['label'] }}</span>
@@ -291,15 +305,15 @@
 
                     <div class="mt-3 flex items-center justify-end gap-2">
                         <button type="button" @click="openDrawer({{ $notice->id }})" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Preview</button>
-                        <a href="{{ route('admin.notices.show', $notice) }}" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">View</a>
+                        <a href="{{ route($workspace['route_prefix'] . '.show', $notice) }}" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">View</a>
                         @if($notice->created_by === auth()->id())
-                            <a href="{{ route('admin.notices.edit', $notice) }}" class="rounded-xl bg-[#8B0000] px-3 py-1.5 text-xs font-bold text-white">Edit</a>
+                            <a href="{{ route($workspace['route_prefix'] . '.edit', $notice) }}" class="rounded-xl bg-[#8B0000] px-3 py-1.5 text-xs font-bold text-white">Edit</a>
                         @endif
                     </div>
                 </article>
             @empty
                 <div class="rounded-xl border border-slate-200 bg-slate-50">
-                    <x-empty-state title="No notices found" message="Adjust your filters or create a new notice to populate the board." action="{{ route('admin.notices.create') }}" actionLabel="Add Notice"/>
+                    <x-empty-state :title="$workspace['empty_title']" :message="$workspace['empty_message']" :action="route($workspace['route_prefix'] . '.create')" :actionLabel="$workspace['create_label']"/>
                 </div>
             @endforelse
         </div>
@@ -318,7 +332,7 @@
             <div class="sticky top-0 z-10 border-b border-slate-100 bg-white px-5 py-4">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Notice Preview</p>
+                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{{ $workspace['drawer_title'] }}</p>
                         <h3 class="mt-1 text-xl font-black text-slate-900" x-text="selectedNotice?.title"></h3>
                     </div>
                     <button type="button" @click="closeDrawer()" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600">Close</button>
@@ -328,15 +342,15 @@
             <div class="space-y-5 p-5" x-show="selectedNotice">
                 <section class="grid gap-4 md:grid-cols-2">
                     <article class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <h4 class="text-sm font-black text-slate-900">Notice Details</h4>
+                        <h4 class="text-sm font-black text-slate-900">{{ $workspace['detail_heading'] }}</h4>
                         <dl class="mt-3 space-y-2 text-sm">
                             <div class="flex justify-between gap-2">
                                 <dt class="text-slate-500">Type</dt>
-                                <dd class="font-semibold text-slate-900" x-text="selectedNotice?.type_label || '—'"></dd>
+                                <dd class="font-semibold text-slate-900" x-text="selectedNotice?.type_label || 'N/A'"></dd>
                             </div>
                             <div class="flex justify-between gap-2">
                                 <dt class="text-slate-500">Status</dt>
-                                <dd class="font-semibold text-slate-900" x-text="selectedNotice?.status_label || '—'"></dd>
+                                <dd class="font-semibold text-slate-900" x-text="selectedNotice?.status_label || 'N/A'"></dd>
                             </div>
                             <div class="flex justify-between gap-2">
                                 <dt class="text-slate-500">Department</dt>
@@ -354,11 +368,11 @@
                             </div>
                             <div class="flex justify-between gap-2">
                                 <dt class="text-slate-500">Published</dt>
-                                <dd class="font-semibold text-slate-900 text-right" x-text="selectedNotice?.published_bs || '—'"></dd>
+                                <dd class="font-semibold text-slate-900 text-right" x-text="selectedNotice?.published_bs || 'N/A'"></dd>
                             </div>
                             <div class="flex justify-between gap-2">
                                 <dt class="text-slate-500">Updated</dt>
-                                <dd class="font-semibold text-slate-900 text-right" x-text="selectedNotice?.updated_bs || '—'"></dd>
+                                <dd class="font-semibold text-slate-900 text-right" x-text="selectedNotice?.updated_bs || 'N/A'"></dd>
                             </div>
                         </dl>
                     </article>
@@ -387,17 +401,17 @@
                         </template>
                     </div>
 
-                    <p class="mt-3 text-sm text-slate-500" x-show="!selectedNotice?.attachments?.length">No files attached to this notice.</p>
+                    <p class="mt-3 text-sm text-slate-500" x-show="!selectedNotice?.attachments?.length">No files attached to this {{ $workspace['singular_label'] }}.</p>
                 </section>
 
                 <section class="rounded-2xl border border-slate-200 p-4">
                     <div class="grid gap-2 sm:grid-cols-3">
                         <a :href="selectedNotice?.show_url || '#'" class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Open Page</a>
                         <template x-if="selectedNotice && selectedNotice.created_by === {{ auth()->id() }}">
-                            <a :href="selectedNotice?.edit_url || '#'" class="inline-flex items-center justify-center rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#750000]">Edit Notice</a>
+                        <a :href="selectedNotice?.edit_url || '#'" class="inline-flex items-center justify-center rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#750000]">{{ $workspace['edit_button_label'] }}</a>
                         </template>
                         <template x-if="selectedNotice && selectedNotice.created_by === {{ auth()->id() }}">
-                            <form method="POST" :action="selectedNotice?.delete_url || '#'" onsubmit="return confirm('Delete this notice? This cannot be undone.')">
+                            <form method="POST" :action="selectedNotice?.delete_url || '#'" onsubmit="return confirm('{{ $workspace['delete_confirm_label'] }}')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 transition hover:bg-rose-100">Delete</button>

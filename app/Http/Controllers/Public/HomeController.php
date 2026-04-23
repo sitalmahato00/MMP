@@ -75,11 +75,11 @@ class HomeController extends Controller
 
     public function notices(Request $request)
     {
-        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'news', 'event', 'department', 'program', 'all', 'ctevt-general', 'ctevt-result'], true)
+        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'department', 'program', 'academic', 'all', 'ctevt-general', 'ctevt-result'], true)
             ? $request->string('type')->toString()
             : 'all';
 
-        $notices = in_array($activeType, ['general', 'exam', 'news', 'event', 'department', 'program', 'all'], true)
+        $notices = in_array($activeType, ['general', 'exam', 'department', 'program', 'academic', 'all'], true)
             ? $this->service->getNotices(15, $activeType)
             : $this->service->getNotices(15, 'general');
         $ctevtGeneralNotices = $this->service->getCtevtGeneralNotices(10);
@@ -90,10 +90,28 @@ class HomeController extends Controller
 
     public function noticeShow(string $slug)
     {
-        $notice = $this->service->getNoticeBySlug($slug);
-        $relatedNotices = $this->service->getNotices(5, $notice->type);
-        
+        $notice = $this->service->getPublishedItemBySlug($slug);
+
+        if (in_array($notice->type, ['news', 'event'], true)) {
+            return redirect()->route('public.news-events.show', $notice->slug);
+        }
+
+        $relatedNotices = $this->service->getRelatedItemsByType($notice->type, $notice->id, 5);
+
         return view('public.notice-show', compact('notice', 'relatedNotices'));
+    }
+
+    public function newsEventShow(string $slug)
+    {
+        $notice = $this->service->getPublishedItemBySlug($slug);
+
+        if (! in_array($notice->type, ['news', 'event'], true)) {
+            return redirect()->route('public.notice.show', $notice->slug);
+        }
+
+        $relatedNotices = $this->service->getRelatedItemsByType($notice->type, $notice->id, 5);
+
+        return view('public.news-event-show', compact('notice', 'relatedNotices'));
     }
 
     public function departments()
@@ -184,8 +202,9 @@ class HomeController extends Controller
 
     public function newsEvents(Request $request)
     {
-        $notices = $this->service->getNewsEvents(12);
-        return view('public.news-events', compact('notices'));
+        $items = $this->service->getNewsEvents(12);
+
+        return view('public.news-events', compact('items'));
     }
 
     public function gallery()
