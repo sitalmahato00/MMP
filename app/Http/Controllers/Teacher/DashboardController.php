@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\{AcademicSession, Teacher, TimetableSlot, Notice, AttendanceSession, Assignment};
+use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    protected PublicDataService $publicDataService;
+
+    public function __construct(PublicDataService $publicDataService)
+    {
+        $this->publicDataService = $publicDataService;
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -70,10 +78,14 @@ class DashboardController extends Controller
                 ->get();
         });
 
+        // CTEVT notices (from official CTEVT website)
+        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
+        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
+
         $greeting = $this->greeting();
         $lastUpdated = now();
 
-        return view('teacher.dashboard', compact('teacher', 'session', 'todaySlots', 'subjects', 'recentNotices', 'data', 'greeting', 'lastUpdated'));
+        return view('teacher.dashboard', compact('teacher', 'session', 'todaySlots', 'subjects', 'recentNotices', 'ctevtGeneralNotices', 'ctevtResultNotices', 'data', 'greeting', 'lastUpdated'));
     }
 
     private function greeting(): string

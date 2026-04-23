@@ -169,13 +169,33 @@
             </div>
         </div>
 
-        {{-- Recent Notices --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        {{-- Recent Notices with Tabs --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeTab: 'department' }">
             <div class="border-b border-slate-100 px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                <p class="text-xs text-slate-500">Department and general notices</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
+                        <p class="text-xs text-slate-500">Department and CTEVT announcements</p>
+                    </div>
+                </div>
+                
+                {{-- Notice Tabs --}}
+                <div class="mt-3 flex space-x-1 rounded-lg bg-slate-100 p-1">
+                    <button @click="activeTab = 'department'" 
+                            :class="activeTab === 'department' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
+                        Department
+                    </button>
+                    <button @click="activeTab = 'ctevt'" 
+                            :class="activeTab === 'ctevt' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
+                        CTEVT
+                    </button>
+                </div>
             </div>
-            <div class="divide-y divide-slate-100">
+            
+            {{-- Department Notices --}}
+            <div x-show="activeTab === 'department'" class="divide-y divide-slate-100">
                 @forelse($recentNotices as $notice)
                     <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
                         <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -193,9 +213,53 @@
                         <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <p class="mt-2 text-xs text-slate-400">No recent notices</p>
+                        <p class="mt-2 text-xs text-slate-400">No department notices</p>
                     </div>
                 @endforelse
+            </div>
+            
+            {{-- CTEVT Notices Tab --}}
+            <div x-show="activeTab === 'ctevt'" class="divide-y divide-slate-100" x-cloak x-data="{ ctevtSubTab: 'general' }">
+                <div class="flex gap-1 bg-slate-50 p-2">
+                    <button @click="ctevtSubTab = 'general'" :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
+                        General ({{ collect($ctevtGeneralNotices['items'] ?? [])->count() }})
+                    </button>
+                    <button @click="ctevtSubTab = 'result'" :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
+                        Results ({{ collect($ctevtResultNotices['items'] ?? [])->count() }})
+                    </button>
+                </div>
+
+                <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
+                    @forelse(collect($ctevtGeneralNotices['items'] ?? []) as $notice)
+                        <a href="{{ $notice['url'] ?? ($ctevtGeneralNotices['page_url'] ?? '#') }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
+                            <div class="flex items-center gap-2">
+                                <span class="shrink-0 rounded bg-blue-50 px-1.5 py-0.5 text-[8px] font-bold text-blue-600">CTEVT</span>
+                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Notice' }}</span>
+                            </div>
+                            @if(!empty($notice['updated_date']))
+                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
+                            @endif
+                        </a>
+                    @empty
+                        <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
+                    @endforelse
+                </div>
+
+                <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
+                    @forelse(collect($ctevtResultNotices['items'] ?? []) as $notice)
+                        <a href="{{ $notice['url'] ?? ($ctevtResultNotices['page_url'] ?? '#') }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
+                            <div class="flex items-center gap-2">
+                                <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600">CTEVT</span>
+                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Result' }}</span>
+                            </div>
+                            @if(!empty($notice['updated_date']))
+                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
+                            @endif
+                        </a>
+                    @empty
+                        <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
+                    @endforelse
+                </div>
             </div>
         </div>
     </section>
