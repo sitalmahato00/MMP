@@ -34,3 +34,15 @@ Route::get('profile/edit', [\App\Http\Controllers\Teacher\ProfileController::cla
 Route::put('profile', [\App\Http\Controllers\Teacher\ProfileController::class, 'update'])->name('profile.update');
 Route::get('profile/change-password', [\App\Http\Controllers\Teacher\ProfileController::class, 'changePassword'])->name('profile.change-password');
 Route::post('profile/change-password', [\App\Http\Controllers\Teacher\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+
+// Settings & Account Management
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Teacher\SettingsController::class, 'index'])->name('index');
+    Route::patch('/profile', [\App\Http\Controllers\Teacher\SettingsController::class, 'updateProfile'])->name('profile.update');
+    Route::patch('/password', [\App\Http\Controllers\Teacher\SettingsController::class, 'updatePassword'])->name('password.update');
+    Route::patch('/preferences', [\App\Http\Controllers\Teacher\SettingsController::class, 'updatePreferences'])->name('preferences.update');
+    Route::patch('/notifications', [\App\Http\Controllers\Teacher\SettingsController::class, 'updateNotifications'])->name('notifications.update');
+    Route::post('/logout-all', [\App\Http\Controllers\Teacher\SettingsController::class, 'logoutAllDevices'])->name('logout-all');
+    Route::post('/reset-dashboard', [\App\Http\Controllers\Teacher\SettingsController::class, 'resetDashboard'])->name('reset-dashboard');
+    Route::post('/clear-preferences', [\App\Http\Controllers\Teacher\SettingsController::class, 'clearPreferences'])->name('clear-preferences');
+});
