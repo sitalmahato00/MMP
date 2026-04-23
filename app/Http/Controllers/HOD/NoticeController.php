@@ -25,18 +25,14 @@ class NoticeController extends HodController
         // Get program IDs for this department
         $programIds = Program::where('department_id', $deptId)->pluck('id')->toArray();
 
-        // Get notices for department (general + department + program notices)
+        // Get notices - ALL notices + department-specific notices (both general and exam types)
         $query = Notice::where(function ($q) use ($deptId, $programIds) {
-                $q->where('type', 'general')
-                  ->orWhere(function ($q2) use ($deptId) {
-                      $q2->where('type', 'department')
-                         ->where('department_id', $deptId);
-                  })
-                  ->orWhere(function ($q3) use ($programIds) {
-                      $q3->where('type', 'program')
-                         ->whereIn('program_id', $programIds);
-                  });
+                // Show ALL notices OR department/program-specific notices
+                $q->whereNull('department_id')  // All general notices
+                  ->orWhere('department_id', $deptId)  // Department-specific notices
+                  ->orWhereIn('program_id', $programIds);  // Program-specific notices for this department
             })
+            ->whereIn('type', ['general', 'exam', 'department', 'program', 'academic', 'event'])  // Include both general and exam types
             ->with([
                 'author:id,name',
                 'department:id,name',

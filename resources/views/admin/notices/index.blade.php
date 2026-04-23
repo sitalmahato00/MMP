@@ -230,20 +230,22 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5h5M5 5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-5"/>
                                             </svg>
                                         </a>
-                                        <a href="{{ route('admin.notices.edit', $notice) }}" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600" title="Edit">
-                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                            </svg>
-                                        </a>
-                                        <form method="POST" action="{{ route('admin.notices.destroy', $notice) }}" onsubmit="return confirm('Delete {{ addslashes($notice->title) }}? This cannot be undone.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600" title="Delete">
+                                        @if($notice->created_by === auth()->id())
+                                            <a href="{{ route('admin.notices.edit', $notice) }}" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600" title="Edit">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                 </svg>
-                                            </button>
-                                        </form>
+                                            </a>
+                                            <form method="POST" action="{{ route('admin.notices.destroy', $notice) }}" onsubmit="return confirm('Delete {{ addslashes($notice->title) }}? This cannot be undone.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600" title="Delete">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -290,7 +292,9 @@
                     <div class="mt-3 flex items-center justify-end gap-2">
                         <button type="button" @click="openDrawer({{ $notice->id }})" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Preview</button>
                         <a href="{{ route('admin.notices.show', $notice) }}" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">View</a>
-                        <a href="{{ route('admin.notices.edit', $notice) }}" class="rounded-xl bg-[#8B0000] px-3 py-1.5 text-xs font-bold text-white">Edit</a>
+                        @if($notice->created_by === auth()->id())
+                            <a href="{{ route('admin.notices.edit', $notice) }}" class="rounded-xl bg-[#8B0000] px-3 py-1.5 text-xs font-bold text-white">Edit</a>
+                        @endif
                     </div>
                 </article>
             @empty
@@ -389,12 +393,16 @@
                 <section class="rounded-2xl border border-slate-200 p-4">
                     <div class="grid gap-2 sm:grid-cols-3">
                         <a :href="selectedNotice?.show_url || '#'" class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Open Page</a>
-                        <a :href="selectedNotice?.edit_url || '#'" class="inline-flex items-center justify-center rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#750000]">Edit Notice</a>
-                        <form method="POST" :action="selectedNotice?.delete_url || '#'" onsubmit="return confirm('Delete this notice? This cannot be undone.')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 transition hover:bg-rose-100">Delete</button>
-                        </form>
+                        <template x-if="selectedNotice && selectedNotice.created_by === {{ auth()->id() }}">
+                            <a :href="selectedNotice?.edit_url || '#'" class="inline-flex items-center justify-center rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#750000]">Edit Notice</a>
+                        </template>
+                        <template x-if="selectedNotice && selectedNotice.created_by === {{ auth()->id() }}">
+                            <form method="POST" :action="selectedNotice?.delete_url || '#'" onsubmit="return confirm('Delete this notice? This cannot be undone.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-700 transition hover:bg-rose-100">Delete</button>
+                            </form>
+                        </template>
                     </div>
                 </section>
             </div>

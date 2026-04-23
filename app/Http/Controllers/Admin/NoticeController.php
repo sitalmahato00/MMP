@@ -146,12 +146,22 @@ class NoticeController extends Controller
 
     public function edit(Notice $notice)
     {
+        // Check if user can edit this notice (only their own notices)
+        if ($notice->created_by !== auth()->id()) {
+            abort(403, 'You can only edit notices you created.');
+        }
+
         $notice->load('attachments');
         return view('admin.notices.edit', compact('notice'));
     }
 
     public function update(Request $request, Notice $notice)
     {
+        // Check if user can update this notice (only their own notices)
+        if ($notice->created_by !== auth()->id()) {
+            abort(403, 'You can only edit notices you created.');
+        }
+
         $data = $request->validate([
             'title'          => 'required|string|max:255',
             'content'        => 'required|string',
@@ -200,6 +210,11 @@ class NoticeController extends Controller
 
     public function destroy(Notice $notice)
     {
+        // Check if user can delete this notice (only their own notices)
+        if ($notice->created_by !== auth()->id()) {
+            abort(403, 'You can only delete notices you created.');
+        }
+
         // Delete all attachment files
         foreach ($notice->attachments as $att) {
             if (Storage::disk('public')->exists($att->file_path)) {
@@ -241,6 +256,7 @@ class NoticeController extends Controller
             'created_bs' => $notice->created_at ? bsDateTime($notice->created_at, 'Y, F d', 'h:i A') : null,
             'updated_bs' => $notice->updated_at ? bsDateTime($notice->updated_at, 'Y, F d', 'h:i A') : null,
             'attachments_count' => $notice->attachments_count ?? $notice->attachments->count(),
+            'created_by' => $notice->created_by, // Add this for ownership checking
             'attachments' => $notice->attachments->map(fn (NoticeAttachment $attachment) => [
                 'id' => $attachment->id,
                 'name' => $attachment->file_name,

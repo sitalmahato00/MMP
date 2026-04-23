@@ -65,8 +65,11 @@
         <select name="type" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
             <option value="">All Types</option>
             <option value="general" @selected(request('type') === 'general')>General</option>
+            <option value="exam" @selected(request('type') === 'exam')>Exam</option>
             <option value="department" @selected(request('type') === 'department')>Department</option>
             <option value="program" @selected(request('type') === 'program')>Program</option>
+            <option value="academic" @selected(request('type') === 'academic')>Academic</option>
+            <option value="event" @selected(request('type') === 'event')>Event</option>
         </select>
         {{-- Status --}}
         <select name="status" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">

@@ -19,24 +19,25 @@ class NoticesController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        // Get notices - both general and department-specific
+        // Get notices - ALL published notices + department-specific notices (both general and exam types)
         $query = Notice::query()
+            ->where('is_published', true)  // Only show published notices to teachers
             ->where(function ($q) use ($teacher) {
-                $q->whereNull('department_id')
-                  ->orWhere('department_id', $teacher->department_id);
+                // Show ALL published notices OR department-specific notices
+                $q->whereNull('department_id')  // All general notices
+                  ->orWhere('department_id', $teacher->department_id);  // Department-specific notices
             })
+            ->whereIn('type', ['general', 'exam', 'department', 'program', 'academic', 'event'])  // Include both general and exam types
             ->with(['author', 'attachments'])
             ->when($request->search, fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'))
             ->when($request->type, fn ($q) => $q->where('type', $request->type));
 
-        $notices = $query->latest('created_at')->paginate(20);
+        $notices = $query->latest('created_at')->paginate(20)->withQueryString();
 
         // Stats
         $totalNotices = (clone $query)->count();
-        $publishedNotices = (clone $query)->where('status', 'published')->count();
-        $draftNotices = (clone $query)->where('status', 'draft')->count();
 
-        return view('teacher.notices.index', compact('notices', 'totalNotices', 'publishedNotices', 'draftNotices', 'session'));
+        return view('teacher.notices.index', compact('notices', 'totalNotices', 'session'));
     }
 
     public function show(Notice $notice)
@@ -44,7 +45,12 @@ class NoticesController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify access
+        // Verify access - only published notices
+        if (!$notice->is_published) {
+            abort(404, 'Notice not found');
+        }
+
+        // Verify department access
         if ($notice->department_id && $notice->department_id !== $teacher->department_id) {
             abort(403, 'Unauthorized');
         }
