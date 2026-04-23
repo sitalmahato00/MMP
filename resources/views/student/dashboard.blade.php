@@ -7,21 +7,22 @@
     $kpiCards = [
         [
             'title' => 'Attendance Rate',
-            'value' => number_format($data['attendance_rate'], 1),
+            'value' => number_format($kpiData['attendance_rate'], 1),
             'suffix' => '%',
-            'note' => 'Last 30 days',
+            'note' => 'Overall attendance',
             'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
             'tone' => 'emerald',
         ],
         [
             'title' => 'Pending Assignments',
-            'value' => number_format($data['pending_assignments']),
+            'value' => number_format($kpiData['pending_assignments']),
             'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
             'tone' => 'amber',
         ],
         [
-            'title' => 'Published Results',
-            'value' => number_format($data['published_results']),
+            'title' => 'Average Grade',
+            'value' => number_format($kpiData['average_grade'], 1),
+            'suffix' => '%',
             'icon' => 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
             'tone' => 'violet',
         ],
@@ -106,40 +107,33 @@
     </section>
 
     {{-- ═══════════════════════════════════════════════════════════
-         3. TODAY'S CLASSES
+         3. CHARTS SECTION
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-5 py-4">
-            <h2 class="text-sm font-semibold text-slate-900">Today's Classes</h2>
-            <p class="text-xs text-slate-500">{{ bsDate(now(), 'l, F d, Y') }}</p>
+    <section class="grid gap-6 lg:grid-cols-2">
+        {{-- Attendance Chart --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-6 py-4">
+                <h2 class="text-base font-semibold text-slate-900">Attendance Trend</h2>
+                <p class="mt-1 text-sm text-slate-500">Last 7 days attendance percentage</p>
+            </div>
+            <div class="p-6">
+                <div class="h-32 sm:h-40" id="attendanceChart">
+                    <canvas id="attendanceCanvas"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="p-5">
-            @if($todaySlots->isEmpty())
-                <div class="py-12 text-center">
-                    <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p class="mt-2 text-sm text-slate-500">No classes scheduled for today</p>
+
+        {{-- Grade Distribution Chart --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-6 py-4">
+                <h2 class="text-base font-semibold text-slate-900">Grade Distribution</h2>
+                <p class="mt-1 text-sm text-slate-500">Performance breakdown by grade</p>
+            </div>
+            <div class="p-6">
+                <div class="h-32 sm:h-40 flex items-center justify-center" id="gradeChart">
+                    <canvas id="gradeCanvas"></canvas>
                 </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($todaySlots as $slot)
-                        <div class="flex items-center gap-4 rounded-lg border border-slate-200 p-4 transition hover:bg-slate-50">
-                            <div class="flex flex-col items-center justify-center rounded-lg bg-blue-50 px-3 py-2">
-                                <span class="text-xs font-semibold text-blue-600">{{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}</span>
-                                <span class="text-[10px] text-blue-500">to</span>
-                                <span class="text-xs font-semibold text-blue-600">{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}</span>
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="font-semibold text-slate-900">{{ $slot->subject->name ?? 'Subject' }}</h3>
-                                <p class="text-xs text-slate-500">
-                                    {{ $slot->teacher->user->name ?? 'Teacher TBA' }} · {{ $slot->room ?? 'Room TBA' }}
-                                </p>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+            </div>
         </div>
     </section>
 
