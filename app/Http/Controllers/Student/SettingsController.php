@@ -4,145 +4,160 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class SettingsController extends Controller
 {
     public function index()
     {
-        $student = auth()->user()->student;
+        $user = Auth::user()->load(['roles', 'student.department', 'student.program', 'student.academicSession']);
         
-        if (!$student) {
-            abort(403, 'Student profile not found');
-        }
-
-        return view('student.settings.index', compact('student'));
+        // Get user preferences (stored in JSON or separate table)
+        $preferences = $this->getUserPreferences($user);
+        
+        // Get active sessions (mock data for now - implement with session tracking)
+        $activeSessions = $this->getActiveSessions($user);
+        
+        return view('student.settings.index', compact('user', 'preferences', 'activeSessions'));
     }
 
     public function updateProfile(Request $request)
     {
-        $student = auth()->user()->student;
-        $user = auth()->user();
+        $user = Auth::user();
         
-        if (!$student) {
-            abort(403, 'Student profile not found');
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'avatar' => ['nullable', 'image', 'max:2048'],
+            'gender' => ['nullable', 'in:male,female,other'],
+            'dob' => ['nullable', 'date'],
+            'address' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-        ]);
+        $user->update($validated);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
-
-        return back()->with('success', 'Profile updated successfully');
+        return back()->with('success', 'Profile updated successfully.');
     }
 
     public function updatePassword(Request $request)
     {
-        $user = auth()->user();
-
-        $request->validate([
-            'current_password' => 'required|current_password',
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $user->update([
-            'password' => Hash::make($request->password),
+        Auth::user()->update([
+            'password' => Hash::make($validated['password']),
         ]);
 
-        return back()->with('success', 'Password updated successfully');
+        return back()->with('success', 'Password changed successfully.');
     }
 
     public function updatePreferences(Request $request)
     {
-        $student = auth()->user()->student;
+        $user = Auth::user();
         
-        if (!$student) {
-            abort(403, 'Student profile not found');
-        }
-
-        $request->validate([
-            'language' => 'nullable|string|in:en,ne',
-            'timezone' => 'nullable|string',
-            'date_format' => 'nullable|string|in:bs,ad',
+        $validated = $request->validate([
+            'theme' => ['required', 'in:light,dark,auto'],
+            'language' => ['required', 'in:en,ne'],
+            'date_format' => ['required', 'in:bs,ad'],
+            'nepali_numbers' => ['required', 'boolean'],
+            'dashboard_layout' => ['required', 'in:compact,comfortable'],
+            'default_page' => ['required', 'string'],
+            'table_density' => ['required', 'in:normal,compact'],
+            'pagination_size' => ['required', 'in:10,25,50'],
         ]);
 
-        // Store preferences in user preferences (you might want to create a preferences table)
-        $preferences = [
-            'language' => $request->language ?? 'en',
-            'timezone' => $request->timezone ?? 'Asia/Kathmandu',
-            'date_format' => $request->date_format ?? 'bs',
-        ];
+        // Store preferences in user meta or separate table
+        // For now, we'll use a JSON column or session
+        session(['user_preferences' => $validated]);
 
-        $student->update(['preferences' => json_encode($preferences)]);
-
-        return back()->with('success', 'Preferences updated successfully');
+        return back()->with('success', 'Preferences updated successfully.');
     }
 
     public function updateNotifications(Request $request)
     {
-        $student = auth()->user()->student;
-        
-        if (!$student) {
-            abort(403, 'Student profile not found');
-        }
+        $validated = $request->validate([
+            'email_assignment_alerts' => ['required', 'boolean'],
+            'email_exam_alerts' => ['required', 'boolean'],
+            'email_grade_alerts' => ['required', 'boolean'],
+            'email_attendance_alerts' => ['required', 'boolean'],
+            'email_notice_alerts' => ['required', 'boolean'],
+            'inapp_notices' => ['required', 'boolean'],
+            'inapp_assignments' => ['required', 'boolean'],
+            'inapp_grades' => ['required', 'boolean'],
+            'inapp_updates' => ['required', 'boolean'],
+            'sms_important_alerts' => ['required', 'boolean'],
+        ]);
 
-        $notifications = [
-            'email_notices' => $request->boolean('email_notices'),
-            'email_assignments' => $request->boolean('email_assignments'),
-            'email_marks' => $request->boolean('email_marks'),
-            'email_attendance' => $request->boolean('email_attendance'),
-        ];
+        // Store notification preferences
+        session(['notification_preferences' => $validated]);
 
-        $student->update(['notification_preferences' => json_encode($notifications)]);
-
-        return back()->with('success', 'Notification preferences updated successfully');
+        return back()->with('success', 'Notification preferences updated successfully.');
     }
 
     public function logoutAllDevices(Request $request)
     {
-        $user = auth()->user();
-        
-        // Invalidate all sessions except current
-        $user->tokens()->delete(); // If using Sanctum
-        
-        return back()->with('success', 'Logged out from all devices successfully');
-    }
-
-    public function resetDashboard(Request $request)
-    {
-        $student = auth()->user()->student;
-        
-        if (!$student) {
-            abort(403, 'Student profile not found');
-        }
-
-        // Reset dashboard preferences
-        $student->update(['dashboard_preferences' => null]);
-
-        return back()->with('success', 'Dashboard reset successfully');
-    }
-
-    public function clearPreferences(Request $request)
-    {
-        $student = auth()->user()->student;
-        
-        if (!$student) {
-            abort(403, 'Student profile not found');
-        }
-
-        // Clear all preferences
-        $student->update([
-            'preferences' => null,
-            'notification_preferences' => null,
-            'dashboard_preferences' => null,
+        $request->validate([
+            'password' => ['required', 'current_password'],
         ]);
 
-        return back()->with('success', 'All preferences cleared successfully');
+        Auth::logoutOtherDevices($request->password);
+
+        return back()->with('success', 'Logged out from all other devices successfully.');
+    }
+
+    public function resetDashboard()
+    {
+        session()->forget(['dashboard_widgets', 'dashboard_layout']);
+        
+        return back()->with('success', 'Dashboard reset successfully.');
+    }
+
+    public function clearPreferences()
+    {
+        session()->forget(['user_preferences', 'notification_preferences']);
+        
+        return back()->with('success', 'Preferences cleared successfully.');
+    }
+
+    private function getUserPreferences($user)
+    {
+        return session('user_preferences', [
+            'theme' => 'light',
+            'language' => 'en',
+            'date_format' => 'bs',
+            'nepali_numbers' => true,
+            'dashboard_layout' => 'comfortable',
+            'default_page' => 'dashboard',
+            'table_density' => 'normal',
+            'pagination_size' => '25',
+        ]);
+    }
+
+    private function getActiveSessions($user)
+    {
+        // Mock data - implement actual session tracking
+        return [
+            [
+                'id' => session()->getId(),
+                'device' => 'Chrome on Windows',
+                'ip' => request()->ip(),
+                'last_active' => now(),
+                'is_current' => true,
+            ],
+        ];
     }
 }

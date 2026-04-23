@@ -175,6 +175,9 @@
             ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('student.news-events.index', 'student.dashboard'), 'isActive' => $active('student.news-events.*')],
             ['label' => 'Downloads', 'iconName' => 'download', 'href' => $portalRoute('student.downloads.index', 'student.dashboard'), 'isActive' => $active('student.downloads.*')],
         ]],
+        ['label' => 'Account', 'items' => [
+            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('student.settings.index', 'student.dashboard'), 'isActive' => $active('student.settings.*')],
+        ]],
     ];
 
     $parentGroups = [
