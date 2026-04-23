@@ -47,13 +47,55 @@
         </div>
     </div>
 
-    @if($newsEvent->attachment)
+    @if($newsEvent->attachment || $newsEvent->attachments->count() > 0)
         <div class="rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Attachment</h2>
-            <a href="{{ asset('storage/' . $newsEvent->attachment) }}" target="_blank"
-               class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
-                Download
-            </a>
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Attachments</h2>
+            <div class="space-y-3">
+                @if($newsEvent->attachment)
+                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-900">Main Attachment</p>
+                            <p class="text-xs text-slate-500">Click to download</p>
+                        </div>
+                        <a href="{{ asset('storage/'.$newsEvent->attachment) }}" 
+                           class="flex-shrink-0 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                           target="_blank">
+                            Download
+                        </a>
+                    </div>
+                @endif
+                
+                @foreach($newsEvent->attachments as $attachment)
+                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-900">{{ $attachment->file_name }}</p>
+                            <p class="text-xs text-slate-500">
+                                @if($attachment->file_size)
+                                    {{ number_format($attachment->file_size / 1024, 1) }} KB
+                                @endif
+                                @if($attachment->file_type)
+                                    • {{ strtoupper($attachment->file_type) }}
+                                @endif
+                            </p>
+                        </div>
+                        <a href="{{ asset('storage/'.$attachment->file_path) }}" 
+                           class="flex-shrink-0 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                           target="_blank">
+                            Download
+                        </a>
+                    </div>
+                @endforeach
+            </div>
         </div>
     @endif
 </div>
