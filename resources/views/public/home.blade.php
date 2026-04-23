@@ -21,7 +21,7 @@
             $type = $notice->type ?? 'general';
             $typeLabel = $type === 'exam' ? 'Exam' : ucfirst($type);
             $badgeClass = match ($type) {
-                'exam' => 'bg-red-400/15 text-red-300 border border-red-300/20',
+                'exam' => 'bg-blue-400/15 text-blue-300 border border-blue-300/20',
                 'department' => 'bg-blue-400/15 text-blue-300 border border-blue-300/20',
                 'program' => 'bg-green-400/15 text-green-300 border border-green-300/20',
                 'news' => 'bg-violet-400/15 text-violet-300 border border-violet-300/20',
@@ -123,10 +123,10 @@
                         ADMISSION OPEN FOR DIPLOMA<br>COURSES
                     </h1>
                     <div class="text-sm md:text-[15px] mb-8 text-gray-200 drop-shadow flex flex-wrap items-center gap-1 md:gap-2 tracking-wide font-light">
-                        <span>Information Technology</span> <span class="text-red-400">|</span>
-                        <span>Civil</span> <span class="text-red-400">|</span>
-                        <span>Electrical</span> <span class="text-red-400">|</span>
-                        <span>Mechanical</span> <span class="text-red-400">|</span>
+                        <span>Information Technology</span> <span class="text-blue-400">|</span>
+                        <span>Civil</span> <span class="text-blue-400">|</span>
+                        <span>Electrical</span> <span class="text-blue-400">|</span>
+                        <span>Mechanical</span> <span class="text-blue-400">|</span>
                         <span>Electronics Engineering</span>
                     </div>
                     <div class="flex flex-wrap gap-3">
@@ -164,10 +164,10 @@
 @if($publicTickerItems->count() > 0)
 <div class="bg-[#2c2c2c] text-white overflow-hidden border-b-2 border-yellow-500" data-notice-banner>
     <div class="w-full flex items-center">
-        <div class="bg-[#8B0000] flex-shrink-0 flex items-center gap-2 px-4 py-2.5 font-bold text-sm z-10 shadow-md relative">
+        <div class="bg-[#003D82] flex-shrink-0 flex items-center gap-2 px-4 py-2.5 font-bold text-sm z-10 shadow-md relative">
             <svg class="w-4 h-4 text-yellow-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
             Unread Notices
-            <div class="absolute right-0 top-0 h-full w-4 bg-gradient-to-r from-[#8B0000] to-transparent translate-x-full"></div>
+            <div class="absolute right-0 top-0 h-full w-4 bg-gradient-to-r from-[#003D82] to-transparent translate-x-full"></div>
         </div>
         <div class="flex-1 overflow-hidden" data-notice-ticker>
             <div class="flex animate-ticker whitespace-nowrap py-2.5">
@@ -196,7 +196,7 @@
         <div class="order-2 lg:order-none lg:col-span-3 space-y-6">
             {{-- Quick Links Card --}}
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="bg-[#8B0000] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+                <div class="bg-[#003D82] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                     Quick Links
                 </div>
@@ -211,14 +211,14 @@
                         ['label' => 'Scholarship Schemes', 'href' => route('public.page', 'scholarship-schemes')],
                         ['label' => 'Internships & Placements', 'href' => route('public.page', 'internships')],
                     ] as $link)
-                    <li><a href="{{ $link['href'] }}" class="block px-4 py-2.5 text-gray-700 hover:text-[#8B0000] hover:bg-red-50 text-[13px] transition-colors"><span class="text-red-500 font-bold mr-2">›</span> {{ $link['label'] }}</a></li>
+                    <li><a href="{{ $link['href'] }}" class="block px-4 py-2.5 text-gray-700 hover:text-[#003D82] hover:bg-blue-50 text-[13px] transition-colors"><span class="text-blue-500 font-bold mr-2">›</span> {{ $link['label'] }}</a></li>
                     @endforeach
                 </ul>
             </div>
 
             {{-- People/Officials (Dynamic) --}}
             <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm">
-                <div class="bg-[#8B0000] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+                <div class="bg-[#003D82] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Managements
                 </div>
@@ -233,11 +233,11 @@
                             @if(isset($exec->avatar_url) && $exec->avatar_url)
                                 <img src="{{ $exec->avatar_url }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
-                                <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#8B0000;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
+                                <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
                             @endif
                         </div>
                         <div>
-                            <div class="font-bold text-[#8B0000] text-[13px]">{{ $exec->name ?? 'N/A' }}</div>
+                            <div class="font-bold text-[#003D82] text-[13px]">{{ $exec->name ?? 'N/A' }}</div>
                             <div class="text-[11px] text-gray-500 mt-0.5">{{ $exec->designation ?? ucfirst($exec->type ?? 'N/A') }}</div>
                         </div>
                     </div>
@@ -246,14 +246,14 @@
                         <p class="text-xs text-gray-400 text-center py-2">Management details coming soon.</p>
                     @endif
                 </div>
-                <a href="{{ route('public.leadership') }}" class="block p-2.5 bg-gray-50 border-t text-xs font-bold text-[#8B0000] hover:underline text-center">View All Presidents & Principals »</a>
+                <a href="{{ route('public.leadership') }}" class="block p-2.5 bg-gray-50 border-t text-xs font-bold text-[#003D82] hover:underline text-center">View All Presidents & Principals »</a>
             </div>
         </div>
 
         {{-- CENTER COLUMN (Welcome & Notice Tabs) --}}
         <div class="order-1 lg:order-none lg:col-span-6 space-y-6">
             {{-- Welcome Box --}}
-            <div class="bg-[#8B0000] text-white p-8 text-center rounded-sm relative overflow-hidden shadow-sm">
+            <div class="bg-[#003D82] text-white p-8 text-center rounded-sm relative overflow-hidden shadow-sm">
                 <div class="absolute inset-0 opacity-10 bg-gradient-to-tr from-black to-transparent"></div>
                 @php
                     $welcomeMessage = trim((string) optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.');
@@ -275,7 +275,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="{{ route('public.page', 'what-is-mmp') }}" class="inline-block border border-white text-white px-6 py-2 text-xs font-bold hover:bg-white hover:text-[#8B0000] transition-colors uppercase tracking-wide">
+                    <a href="{{ route('public.page', 'what-is-mmp') }}" class="inline-block border border-white text-white px-6 py-2 text-xs font-bold hover:bg-white hover:text-[#003D82] transition-colors uppercase tracking-wide">
                         About MMP
                     </a>
                 </div>
@@ -288,15 +288,15 @@
             @endphp
             <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-[400px]" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
                 <div class="flex">
-                    <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
+                    <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                         Notice Board
                     </button>
-                    <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
+                    <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Exam Results
                     </button>
-                    <button type="button" @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'bg-[#8B0000] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
+                    <button type="button" @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] text-gray-700 border-transparent hover:bg-[#e9e9e9]'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
                         CTEVT Notices
                     </button>
@@ -305,19 +305,19 @@
                     <ul class="divide-y divide-gray-100" x-show="activeNoticeTab === 'general'" x-cloak>
                         @forelse(($notices ?? collect())->take(6) as $notice)
                         <li>
-                            <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                            <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-blue-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
-                                <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
                                     <span class="text-[8px] font-bold leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
                                     <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                     <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <div class="text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                    <div class="text-[13px] text-gray-700 group-hover:text-[#003D82] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
                                     @if($notice->type !== 'general' || $notice->department || $notice->program || $notice->semester)
                                         <div class="flex items-center gap-1 mt-1 flex-wrap">
                                             @if($notice->type !== 'general')
-                                                <span class="text-[9px] font-bold text-red-700 bg-red-50 px-1.5 py-0.5 rounded uppercase">{{ $notice->type }}</span>
+                                                <span class="text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded uppercase">{{ $notice->type }}</span>
                                             @endif
                                             @if($notice->department)
                                                 <span class="text-[9px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{{ $notice->department->name }}</span>
@@ -331,7 +331,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+                                <div class="text-gray-300 group-hover:text-[#003D82]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                             </a>
                         </li>
                         @empty
@@ -341,15 +341,15 @@
                     <ul class="divide-y divide-gray-100" x-show="activeNoticeTab === 'exam'" x-cloak>
                         @forelse(($examNotices ?? collect())->take(6) as $notice)
                         <li>
-                            <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
+                            <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-4 px-4 py-3 hover:bg-blue-50 group transition-colors">
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
-                                <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
                                     <span class="text-[8px] font-bold leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
                                     <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                     <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
                                 </div>
-                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
-                                <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#003D82] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                <div class="text-gray-300 group-hover:text-[#003D82]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                             </a>
                         </li>
                         @empty
@@ -358,10 +358,10 @@
                     </ul>
                     <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex flex-col h-full">
                         <div class="flex border-b border-gray-200 bg-gray-50">
-                            <button type="button" @click="activeCtevtTab = 'general'" :class="activeCtevtTab === 'general' ? 'bg-[#8B0000] text-white' : 'bg-transparent text-gray-700 hover:bg-red-50'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
+                            <button type="button" @click="activeCtevtTab = 'general'" :class="activeCtevtTab === 'general' ? 'bg-[#003D82] text-white' : 'bg-transparent text-gray-700 hover:bg-blue-50'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
                                 General Notices
                             </button>
-                            <button type="button" @click="activeCtevtTab = 'result'" :class="activeCtevtTab === 'result' ? 'bg-[#8B0000] text-white' : 'bg-transparent text-gray-700 hover:bg-red-50'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
+                            <button type="button" @click="activeCtevtTab = 'result'" :class="activeCtevtTab === 'result' ? 'bg-[#003D82] text-white' : 'bg-transparent text-gray-700 hover:bg-blue-50'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
                                 Published Result
                             </button>
                         </div>
@@ -369,11 +369,11 @@
                         <ul class="divide-y divide-gray-100 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'general'" x-cloak>
                             @forelse($ctevtGeneralItems as $notice)
                                 <li>
-                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'general']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
-                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'general']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-blue-50 group transition-colors">
+                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
                                             <span class="text-[8px] font-bold uppercase leading-none">CTEVT</span>
                                         </div>
-                                        <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">
+                                        <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#003D82] font-medium leading-snug pt-0.5">
                                             {{ $notice['title'] ?? 'Notice' }}
                                             <div class="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-normal text-gray-400">
                                                 @if(!empty($notice['updated_date']))
@@ -387,7 +387,7 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+                                        <div class="text-gray-300 group-hover:text-[#003D82]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                                     </a>
                                 </li>
                             @empty
@@ -398,11 +398,11 @@
                         <ul class="divide-y divide-gray-100 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'result'" x-cloak>
                             @forelse($ctevtResultItems as $notice)
                                 <li>
-                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'exam']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-red-50 group transition-colors">
-                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #8B0000;">
+                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'exam']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-blue-50 group transition-colors">
+                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
                                             <span class="text-[8px] font-bold uppercase leading-none">CTEVT</span>
                                         </div>
-                                        <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#8B0000] font-medium leading-snug pt-0.5">
+                                        <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#003D82] font-medium leading-snug pt-0.5">
                                             {{ $notice['title'] ?? 'Result Notice' }}
                                             <div class="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-normal text-gray-400">
                                                 @if(!empty($notice['updated_date']))
@@ -416,7 +416,7 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="text-gray-300 group-hover:text-[#8B0000]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+                                        <div class="text-gray-300 group-hover:text-[#003D82]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                                     </a>
                                 </li>
                             @empty
@@ -426,11 +426,11 @@
                     </div>
                 </div>
                 <div class="px-4 py-2 border-t bg-white">
-                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices') }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
-                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices') }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
+                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices') }}" class="text-[#003D82] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
+                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices') }}" class="text-[#003D82] text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
                     <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex items-center gap-4 flex-wrap">
-                        <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT General »</a>
-                        <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="text-[#8B0000] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT Results »</a>
+                        <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="text-[#003D82] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT General »</a>
+                        <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="text-[#003D82] text-xs font-bold hover:underline flex items-center gap-1">View CTEVT Results »</a>
                     </div>
                 </div>
             </div>
@@ -439,7 +439,7 @@
         {{-- RIGHT COLUMN (News & Events - Dynamic) --}}
         <div class="order-3 lg:order-none lg:col-span-3 space-y-6 flex flex-col">
             <div class="bg-white rounded-lg shadow-md overflow-hidden flex-1 flex flex-col">
-                <div class="bg-[#8B0000] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+                <div class="bg-[#003D82] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     News & Events
                 </div>
@@ -447,7 +447,7 @@
                     @forelse(($newsEvents ?? collect())->take(5) as $event)
                         @php $eventDate = $event->published_at ?? $event->created_at; @endphp
                         <div class="flex gap-3 group">
-                            <div class="w-12 h-12 flex-shrink-0 text-white flex flex-col items-center justify-center rounded text-center shadow-sm" style="background-color: #8B0000;">
+                            <div class="w-12 h-12 flex-shrink-0 text-white flex flex-col items-center justify-center rounded text-center shadow-sm" style="background-color: #003D82;">
                                 <span class="text-[8px] font-bold leading-none">{{ bsDate($eventDate, 'Y') }}</span>
                                 <span class="text-sm font-black leading-tight">{{ bsDate($eventDate, 'd') }}</span>
                                 <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($eventDate, 'F') }}</span>
@@ -460,7 +460,7 @@
                                         {{ $eventTypeLabel }}
                                     </span>
                                 </div>
-                                <a href="{{ route('public.news-events') }}" class="font-medium text-gray-800 text-[12px] leading-tight hover:text-[#8B0000] block transition-colors line-clamp-2">{{ $event->title }}</a>
+                                <a href="{{ route('public.news-events') }}" class="font-medium text-gray-800 text-[12px] leading-tight hover:text-[#003D82] block transition-colors line-clamp-2">{{ $event->title }}</a>
                             </div>
                         </div>
                     @empty
@@ -470,7 +470,7 @@
                         </div>
                     @endforelse
                 </div>
-                <a href="{{ route('public.news-events') }}" class="block p-2.5 bg-[#8B0000] text-white text-xs font-bold text-left hover:bg-red-900 transition-colors px-4">
+                <a href="{{ route('public.news-events') }}" class="block p-2.5 bg-[#003D82] text-white text-xs font-bold text-left hover:bg-blue-900 transition-colors px-4">
                     View All News & Events »
                 </a>
             </div>
@@ -486,7 +486,7 @@
     </div>
 
     <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-200">
-        <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
+        <h2 class="text-2xl font-bold font-serif text-[#003D82] border-l-[3px] border-[#003D82] pl-3 leading-none">
             Principal's Message
         </h2>
     </div>
@@ -507,11 +507,11 @@
                 @if($currentPrincipal?->avatar)
                     <img src="{{ asset('storage/'.$currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover object-top">
                 @else
-                    <div class="w-full h-full flex items-center justify-center text-7xl font-black" style="background:#f3f4f6;color:#8B0000;">{{ strtoupper(substr($currentPrincipal?->name ?? 'P',0,1)) }}</div>
+                    <div class="w-full h-full flex items-center justify-center text-7xl font-black" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($currentPrincipal?->name ?? 'P',0,1)) }}</div>
                 @endif
             </div>
             <div class="mt-4 text-center">
-                <div class="font-bold text-[#8B0000] text-base">{{ $currentPrincipal?->name ?? 'Principal' }}</div>
+                <div class="font-bold text-[#003D82] text-base">{{ $currentPrincipal?->name ?? 'Principal' }}</div>
                 <div class="text-xs text-gray-500 font-medium mt-0.5">{{ $currentPrincipal?->designation ?? 'Principal, MMP' }}</div>
             </div>
         </div>
@@ -531,14 +531,14 @@
                         <img src="{{ asset('storage/' . $principalMedia) }}" alt="Principal's message media" class="w-full max-h-72 object-contain bg-gray-50">
                     @elseif($isPdf)
                         <div class="bg-gray-50 p-4 flex items-center gap-4">
-                            <div class="w-12 h-14 bg-red-100 border border-red-200 rounded flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            <div class="w-12 h-14 bg-blue-100 border border-blue-200 rounded flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-gray-800">PDF Document</p>
                                 <p class="text-xs text-gray-500 truncate">{{ basename($principalMedia) }}</p>
                             </div>
-                            <a href="{{ asset('storage/' . $principalMedia) }}" target="_blank" class="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white rounded transition-colors" style="background:#8B0000;">
+                            <a href="{{ asset('storage/' . $principalMedia) }}" target="_blank" class="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white rounded transition-colors" style="background:#003D82;">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                 Open PDF
                             </a>
@@ -564,10 +564,10 @@
 {{-- ── DIPLOMA PROGRAMS (GRID) ───────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12 bg-white border-t border-[#f9f9f9]">
     <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-100">
-        <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
+        <h2 class="text-2xl font-bold font-serif text-[#003D82] border-l-[3px] border-[#003D82] pl-3 leading-none">
             Our Diploma Programs
         </h2>
-        <a href="{{ route('public.departments') }}" class="text-xs font-bold text-gray-500 hover:text-[#8B0000] flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-sm hover:border-[#8B0000] transition-colors">
+        <a href="{{ route('public.departments') }}" class="text-xs font-bold text-gray-500 hover:text-[#003D82] flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-sm hover:border-[#003D82] transition-colors">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
             VIEW ALL
         </a>
@@ -590,18 +590,18 @@
         @endphp
 
         @foreach($programData as $prog)
-            <a href="{{ route('public.department.show', $prog->slug) }}" class="group rounded-lg shadow-md p-6 text-center flex flex-col items-center hover:bg-[#8B0000] hover:text-white transition-all duration-200 h-full hover:shadow-lg hover:-translate-y-0.5 bg-white">
-                <div class="w-14 h-14 bg-red-50 border border-red-100 rounded-full shadow-sm flex items-center justify-center text-[#8B0000] group-hover:text-[#8B0000] mb-4 group-hover:bg-white transition-colors">
+            <a href="{{ route('public.department.show', $prog->slug) }}" class="group rounded-lg shadow-md p-6 text-center flex flex-col items-center hover:bg-[#003D82] hover:text-white transition-all duration-200 h-full hover:shadow-lg hover:-translate-y-0.5 bg-white">
+                <div class="w-14 h-14 bg-blue-50 border border-blue-100 rounded-full shadow-sm flex items-center justify-center text-[#003D82] group-hover:text-[#003D82] mb-4 group-hover:bg-white transition-colors">
                     {!! $programIcons[$prog->name] ?? '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' !!}
                 </div>
                 <h3 class="font-semibold text-[13px] leading-snug mb-1.5 text-gray-900 group-hover:text-white transition-colors">Diploma in<br>{{ str_replace('Diploma in ', '', $prog->name) }}</h3>
-                <p class="text-[11px] text-gray-400 font-normal group-hover:text-red-200 mb-3">3 Years / 6 Semesters</p>
+                <p class="text-[11px] text-gray-400 font-normal group-hover:text-blue-200 mb-3">3 Years / 6 Semesters</p>
             </a>
         @endforeach
     </div>
 
     <div class="text-center mt-10">
-        <a href="{{ route('public.departments') }}" class="bg-[#8B0000] text-white px-6 py-2.5 rounded-sm font-bold shadow hover:bg-red-900 transition-colors inline-flex items-center gap-2 text-sm">
+        <a href="{{ route('public.departments') }}" class="bg-[#003D82] text-white px-6 py-2.5 rounded-sm font-bold shadow hover:bg-blue-900 transition-colors inline-flex items-center gap-2 text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             View All Programs
         </a>
@@ -609,7 +609,7 @@
 </div>
 
 {{-- ── STATISTICS BANNER ───────────────────────────────────────── --}}
-<div class="bg-[#8B0000] text-white py-14 shadow-inner relative overflow-hidden">
+<div class="bg-[#003D82] text-white py-14 shadow-inner relative overflow-hidden">
     <div class="absolute inset-0 bg-black/10"></div>
     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto relative z-10">
         @php $s = $stats ?? []; @endphp
@@ -622,11 +622,11 @@
                 ['icon' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-3.77 1.522m0 0a6.003 6.003 0 01-3.77-1.522"/></svg>', 'value' => ($s['years'] ?? 0) . '+', 'label' => 'Years of Excellence'],
             ] as $stat)
                 <div class="px-2">
-                    <div class="w-14 h-14 mx-auto border-2 border-red-400/30 rounded-full flex items-center justify-center mb-3 bg-red-900/40 text-yellow-400">
+                    <div class="w-14 h-14 mx-auto border-2 border-blue-400/30 rounded-full flex items-center justify-center mb-3 bg-blue-900/40 text-yellow-400">
                         {!! $stat['icon'] !!}
                     </div>
                     <div class="text-2xl lg:text-3xl font-black mb-1 drop-shadow">{{ $stat['value'] }}</div>
-                    <div class="text-[10px] sm:text-xs font-bold text-red-100 uppercase tracking-widest">{{ $stat['label'] }}</div>
+                    <div class="text-[10px] sm:text-xs font-bold text-blue-100 uppercase tracking-widest">{{ $stat['label'] }}</div>
                 </div>
             @endforeach
         </div>
@@ -639,18 +639,18 @@
 
         {{-- Downloads & Publications (Dynamic) --}}
         <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm flex flex-col">
-            <div class="bg-[#8B0000] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+            <div class="bg-[#003D82] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 Downloads & Publications
             </div>
             <div class="p-5 space-y-4 flex-1">
                 @forelse(($recentDownloads ?? collect())->take(4) as $dl)
                     <div class="flex gap-3 items-start {{ !$loop->last ? 'border-b border-gray-100 pb-4' : '' }}">
-                        <div class="w-10 h-10 bg-red-50 border border-red-100 flex items-center justify-center text-[#8B0000] rounded flex-shrink-0">
+                        <div class="w-10 h-10 bg-blue-50 border border-blue-100 flex items-center justify-center text-[#003D82] rounded flex-shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="font-bold text-[13px] text-[#8B0000] truncate">{{ $dl->title }}</div>
+                            <div class="font-bold text-[13px] text-[#003D82] truncate">{{ $dl->title }}</div>
                             <div class="text-[11px] text-gray-400 mt-0.5">{{ bsDate($dl->created_at, 'Y, F d') }}{{ $dl->category ? ' · '.ucfirst(str_replace('-', ' ', $dl->category)) : '' }}</div>
                         </div>
                     </div>
@@ -662,13 +662,13 @@
                 @endforelse
             </div>
             <div class="p-3 bg-gray-50 border-t">
-                <a href="{{ route('public.downloads') }}" class="text-xs font-bold text-[#8B0000] hover:underline">All Downloads & Publications »</a>
+                <a href="{{ route('public.downloads') }}" class="text-xs font-bold text-[#003D82] hover:underline">All Downloads & Publications »</a>
             </div>
         </div>
 
         {{-- Important Links --}}
         <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm flex flex-col">
-            <div class="bg-[#8B0000] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+            <div class="bg-[#003D82] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                 Important Links
             </div>
@@ -681,8 +681,8 @@
                     'Department of Education, Nepal' => 'https://doe.gov.np',
                 ] as $label => $link)
                 <li>
-                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-4 py-2.5 text-[13px] text-gray-700 hover:bg-gray-50 hover:text-[#8B0000] transition-colors group">
-                        <svg class="w-3.5 h-3.5 text-red-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-4 py-2.5 text-[13px] text-gray-700 hover:bg-gray-50 hover:text-[#003D82] transition-colors group">
+                        <svg class="w-3.5 h-3.5 text-blue-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         {{ $label }}
                     </a>
                 </li>
@@ -692,7 +692,7 @@
 
         {{-- Why Choose MMP? --}}
         <div class="bg-white rounded-lg shadow-md overflow-hidden text-sm flex flex-col">
-            <div class="bg-[#8B0000] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
+            <div class="bg-[#003D82] text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                 Why Choose MMP?
             </div>
@@ -716,7 +716,7 @@
                 @endforeach
             </div>
             <div class="p-3 bg-gray-50 border-t">
-                <a href="{{ route('public.facilities') }}" class="text-xs font-bold text-[#8B0000] hover:underline">Explore Facilities »</a>
+                <a href="{{ route('public.facilities') }}" class="text-xs font-bold text-[#003D82] hover:underline">Explore Facilities »</a>
             </div>
         </div>
 
@@ -726,10 +726,10 @@
 {{-- ── FIND US / MAP ───────────────────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto pt-10 pb-16 bg-white border-t border-gray-100">
     <div class="flex justify-between items-center mb-6 pb-2 border-b border-gray-100">
-        <h2 class="text-2xl font-bold font-serif text-[#8B0000] border-l-[3px] border-[#8B0000] pl-3 leading-none">
+        <h2 class="text-2xl font-bold font-serif text-[#003D82] border-l-[3px] border-[#003D82] pl-3 leading-none">
             Find Us
         </h2>
-        <a href="{{ route('public.page', 'contact-us') }}" class="text-xs font-bold text-gray-500 hover:text-[#8B0000] flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-sm hover:border-[#8B0000] transition-colors">
+        <a href="{{ route('public.page', 'contact-us') }}" class="text-xs font-bold text-gray-500 hover:text-[#003D82] flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-sm hover:border-[#003D82] transition-colors">
             Contact Us
         </a>
     </div>
@@ -748,39 +748,39 @@
             @endif
         </div>
         <div class="lg:col-span-1 p-6 md:p-8 bg-[#f9f9f9]">
-            <h3 class="font-semibold text-[#8B0000] text-[15px] mb-5 border-b border-red-200 pb-2">Contact Information</h3>
+            <h3 class="font-semibold text-[#003D82] text-[15px] mb-5 border-b border-blue-200 pb-2">Contact Information</h3>
             <ul class="space-y-4 text-[13px] text-gray-700 font-medium">
                 @if($contactAddress = optional($siteSettings->get('contact_address'))->value)
                 <li class="flex gap-3">
-                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <svg class="w-4 h-4 text-[#003D82] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     <div>{{ $contactAddress }}</div>
                 </li>
                 @endif
                 @if($contactPhone = optional($siteSettings->get('contact_phone'))->value)
                 <li class="flex gap-3">
-                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <svg class="w-4 h-4 text-[#003D82] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     <div>{{ $contactPhone }}</div>
                 </li>
                 @endif
                 @if($contactEmail = optional($siteSettings->get('contact_email'))->value)
                 <li class="flex gap-3">
-                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <svg class="w-4 h-4 text-[#003D82] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     <div>{{ $contactEmail }}</div>
                 </li>
                 @endif
                 @if($website = optional($siteSettings->get('website_url'))->value)
                 <li class="flex gap-3">
-                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                    <svg class="w-4 h-4 text-[#003D82] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
                     <div>{{ $website }}</div>
                 </li>
                 @endif
             </ul>
 
             @if($affiliation = optional($siteSettings->get('affiliation_text'))->value)
-            <h3 class="font-semibold text-[#8B0000] text-[15px] mt-8 mb-5 border-b border-red-200 pb-2">Affiliated Under</h3>
+            <h3 class="font-semibold text-[#003D82] text-[15px] mt-8 mb-5 border-b border-blue-200 pb-2">Affiliated Under</h3>
             <ul class="space-y-3 text-[13px] text-gray-700 font-medium">
                 <li class="flex gap-3">
-                    <svg class="w-4 h-4 text-[#8B0000] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    <svg class="w-4 h-4 text-[#003D82] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                     <div>{!! nl2br(e($affiliation)) !!}</div>
                 </li>
             </ul>
@@ -864,3 +864,4 @@
     })();
 </script>
 @endpush
+

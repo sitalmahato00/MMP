@@ -135,7 +135,7 @@
                                 <a href="{{ $alumnus->portfolio_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Portfolio</a>
                             @endif
                             @if($alumnus->cv_path)
-                                <a href="{{ asset('storage/'.$alumnus->cv_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-3 py-2 text-xs font-semibold text-white hover:bg-[#720000] transition">Download CV</a>
+                                <a href="{{ asset('storage/'.$alumnus->cv_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl bg-[#003D82] px-3 py-2 text-xs font-semibold text-white hover:bg-[#720000] transition">Download CV</a>
                             @endif
                         </div>
                     </div>
@@ -340,7 +340,7 @@
                         <div class="flex items-start justify-between gap-4 py-1.5">
                             <span class="text-xs font-semibold text-slate-500">{{ $f['label'] }}</span>
                             @if(!empty($f['url']))
-                                <a href="{{ $f['url'] }}" class="text-sm font-medium text-slate-900 hover:text-[#8B0000] transition">{{ $f['value'] }}</a>
+                                <a href="{{ $f['url'] }}" class="text-sm font-medium text-slate-900 hover:text-[#003D82] transition">{{ $f['value'] }}</a>
                             @else
                                 <span class="text-sm text-right text-slate-900">{{ $f['value'] }}</span>
                             @endif
@@ -403,7 +403,7 @@
 
                         <div class="pt-2">
                             <div class="h-2 overflow-hidden rounded-full bg-slate-100">
-                                <div class="h-full rounded-full bg-gradient-to-r from-[#8B0000] to-amber-500" style="width: {{ $profileCompletion }}%"></div>
+                                <div class="h-full rounded-full bg-gradient-to-r from-[#003D82] to-amber-500" style="width: {{ $profileCompletion }}%"></div>
                             </div>
                         </div>
                     </div>
@@ -439,7 +439,7 @@
                             <a href="{{ $alumnus->portfolio_url }}" target="_blank" rel="noopener" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Portfolio</a>
                         @endif
                         @if($alumnus->cv_path)
-                            <a href="{{ asset('storage/'.$alumnus->cv_path) }}" target="_blank" rel="noopener" class="rounded-xl bg-[#8B0000] px-3 py-2 text-xs font-semibold text-white hover:bg-[#720000] transition">CV</a>
+                            <a href="{{ asset('storage/'.$alumnus->cv_path) }}" target="_blank" rel="noopener" class="rounded-xl bg-[#003D82] px-3 py-2 text-xs font-semibold text-white hover:bg-[#720000] transition">CV</a>
                         @endif
                     </div>
                 </div>
@@ -450,3 +450,4 @@
     </div>
 </section>
 @endsection
+

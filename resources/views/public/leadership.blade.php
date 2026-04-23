@@ -8,7 +8,7 @@
         
         {{-- Presidents Section --}}
         <div class="mb-16">
-            <div class="bg-[#8B0000] border-b-2 border-yellow-500 text-white text-center py-3 rounded-t-lg shadow font-bold text-lg mb-8">
+            <div class="bg-[#003D82] border-b-2 border-yellow-500 text-white text-center py-3 rounded-t-lg shadow font-bold text-lg mb-8">
                 Presidents of MMP
             </div>
             
@@ -43,7 +43,7 @@
 
         {{-- Principals Section --}}
         <div>
-            <div class="bg-[#8B0000] border-b-2 border-yellow-500 text-white text-center py-3 rounded-t-lg shadow font-bold text-lg mb-8">
+            <div class="bg-[#003D82] border-b-2 border-yellow-500 text-white text-center py-3 rounded-t-lg shadow font-bold text-lg mb-8">
                 Principals of MMP
             </div>
             
@@ -74,3 +74,4 @@
     </div>
 </div>
 @endsection
+

@@ -11,32 +11,32 @@
         <div class="lg:col-span-2 space-y-6">
             {{-- Department Hero --}}
             <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div class="h-2" style="background-color: #8B0000;"></div>
+                <div class="h-2" style="background-color: #003D82;"></div>
                 @if($department->photo_url)
                     <img src="{{ $department->photo_url }}" alt="{{ $department->name }}" class="w-full h-72 object-cover">
                 @endif
                 <div class="p-8">
                     <div class="flex items-center gap-3 mb-4">
                         <h2 class="text-2xl font-black font-serif text-gray-900">{{ $department->name }}</h2>
-                        <span class="rounded-md bg-red-50 border border-red-100 px-2 py-0.5 text-xs font-bold text-red-800 uppercase">{{ $department->code }}</span>
+                        <span class="rounded-md bg-blue-50 border border-blue-100 px-2 py-0.5 text-xs font-bold text-blue-800 uppercase">{{ $department->code }}</span>
                     </div>
                     <p class="text-gray-600 leading-relaxed mb-6">{{ $department->description ?? 'This department offers a comprehensive CTEVT-approved 3-year diploma program designed to equip students with hands-on technical skills required in today\'s industry.' }}</p>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-red-50 border border-red-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-red-800">{{ $department->programs->count() }}</div>
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-black text-blue-800">{{ $department->programs->count() }}</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Programs</div>
                         </div>
-                        <div class="bg-red-50 border border-red-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-red-800">3</div>
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-black text-blue-800">3</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Years Duration</div>
                         </div>
-                        <div class="bg-red-50 border border-red-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-red-800">6</div>
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-black text-blue-800">6</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Semesters</div>
                         </div>
-                        <div class="bg-red-50 border border-red-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-red-800">CTEVT</div>
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-black text-blue-800">CTEVT</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Affiliated</div>
                         </div>
                     </div>
@@ -44,14 +44,14 @@
             </div>
 
             {{-- Programs Section --}}
-            <div class="section-header" style="background-color: #8B0000;">?? Programs Offered</div>
+            <div class="section-header" style="background-color: #003D82;">?? Programs Offered</div>
 
             @forelse($department->programs as $program)
                 @php $icon = $programIcons[$loop->index % count($programIcons)]; @endphp
                 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                     <div class="p-6">
                         <div class="flex items-start gap-4">
-                            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-red-50 border border-red-100 text-3xl">{{ $icon }}</div>
+                            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100 text-3xl">{{ $icon }}</div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
@@ -93,7 +93,7 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <a href="{{ route('public.program.show', [$department->slug, $program->slug ?: \Illuminate\Support\Str::slug($program->name)]) }}" class="inline-flex items-center gap-2 rounded-lg border-2 border-[#8B0000] bg-white px-5 py-2 text-sm font-bold text-[#8B0000] transition-colors hover:bg-[#8B0000] hover:text-white">
+                                    <a href="{{ route('public.program.show', [$department->slug, $program->slug ?: \Illuminate\Support\Str::slug($program->name)]) }}" class="inline-flex items-center gap-2 rounded-lg border-2 border-[#003D82] bg-white px-5 py-2 text-sm font-bold text-[#003D82] transition-colors hover:bg-[#003D82] hover:text-white">
                                         View Full Details
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                     </a>
@@ -114,13 +114,13 @@
         <div class="space-y-6">
             @if($department->hod)
                 <div>
-                    <div class="section-header" style="background-color: #8B0000;">👨‍💼 Head of Department</div>
+                    <div class="section-header" style="background-color: #003D82;">👨‍💼 Head of Department</div>
                     <div class="bg-white border border-gray-200 border-t-0 p-5">
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-full bg-red-50 border-2 flex items-center justify-center text-3xl flex-shrink-0" style="border-color: #8B0000;">?????</div>
+                            <div class="w-16 h-16 rounded-full bg-blue-50 border-2 flex items-center justify-center text-3xl flex-shrink-0" style="border-color: #003D82;">?????</div>
                             <div>
                                 <div class="font-bold text-gray-900">{{ $department->hod->name }}</div>
-                                <div class="text-sm text-red-700">Head of Department</div>
+                                <div class="text-sm text-blue-700">Head of Department</div>
                                 <div class="text-xs text-gray-500">{{ $department->name }}</div>
                             </div>
                         </div>
@@ -130,10 +130,10 @@
 
             @if($department->programs->count())
                 <div>
-                    <div class="section-header" style="background-color: #8B0000;">📚 Programs at a Glance</div>
+                    <div class="section-header" style="background-color: #003D82;">📚 Programs at a Glance</div>
                     <div class="bg-white border border-gray-200 border-t-0 divide-y divide-gray-100">
                         @foreach($department->programs as $program)
-                            <a href="{{ route('public.program.show', [$department->slug, $program->slug ?: \Illuminate\Support\Str::slug($program->name)]) }}" class="block px-4 py-3 hover:bg-red-50 transition-colors">
+                            <a href="{{ route('public.program.show', [$department->slug, $program->slug ?: \Illuminate\Support\Str::slug($program->name)]) }}" class="block px-4 py-3 hover:bg-blue-50 transition-colors">
                                 <div class="font-bold text-sm text-gray-900">{{ $program->name }}</div>
                                 <div class="text-xs text-gray-500 mt-0.5">{{ $program->code }} • {{ $program->duration_years }} yrs • {{ $program->total_semesters }} sem • {{ $program->subjects->count() }} subjects</div>
                             </a>
@@ -143,15 +143,16 @@
             @endif
 
             <div>
-                <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
+                <div class="section-header" style="background-color: #003D82;">🔗 Quick Links</div>
                 <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
-                    <a href="{{ route('public.departments') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm font-bold text-red-800 hover:bg-red-50 transition-colors"><span class="text-red-600">›</span> All Departments</a>
-                    <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Notices</a>
-                    <a href="{{ route('public.downloads') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">›</span> Downloads</a>
-                    <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-800 hover:bg-red-50 transition-colors"><span class="text-red-600">›</span> Student Portal</a>
+                    <a href="{{ route('public.departments') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm font-bold text-blue-800 hover:bg-blue-50 transition-colors"><span class="text-blue-600">›</span> All Departments</a>
+                    <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"><span class="text-blue-600">›</span> Notices</a>
+                    <a href="{{ route('public.downloads') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"><span class="text-blue-600">›</span> Downloads</a>
+                    <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-blue-800 hover:bg-blue-50 transition-colors"><span class="text-blue-600">›</span> Student Portal</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 @endsection
+

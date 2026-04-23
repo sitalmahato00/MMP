@@ -25,7 +25,7 @@
             @if($hasMainContent)
                 <div>
                     <div class="section-header">{{ $page->title }}</div>
-                    <div class="bg-white border border-gray-200 border-t-0 p-8 prose prose-sm max-w-none prose-headings:text-red-900 prose-a:text-red-700 rounded-b-lg shadow-md">
+                    <div class="bg-white border border-gray-200 border-t-0 p-8 prose prose-sm max-w-none prose-headings:text-blue-900 prose-a:text-blue-700 rounded-b-lg shadow-md">
                         {!! $formattedContent !!}
                     </div>
                 </div>
@@ -36,16 +36,16 @@
                     <div class="section-header">Contact Details</div>
                     <div class="bg-white border border-gray-200 border-t-0 p-6 rounded-b-lg shadow-md">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="rounded-lg border border-red-100 bg-red-50/60 p-5 shadow-sm">
-                                <div class="text-xs font-bold uppercase tracking-wider text-[#8B0000] mb-2">Email</div>
+                            <div class="rounded-lg border border-blue-100 bg-blue-50/60 p-5 shadow-sm">
+                                <div class="text-xs font-bold uppercase tracking-wider text-[#003D82] mb-2">Email</div>
                                 <div class="text-sm text-gray-700 break-words">{{ $contactEmail ?: 'Not available yet.' }}</div>
                             </div>
-                            <div class="rounded-lg border border-red-100 bg-red-50/60 p-5 shadow-sm">
-                                <div class="text-xs font-bold uppercase tracking-wider text-[#8B0000] mb-2">Phone</div>
+                            <div class="rounded-lg border border-blue-100 bg-blue-50/60 p-5 shadow-sm">
+                                <div class="text-xs font-bold uppercase tracking-wider text-[#003D82] mb-2">Phone</div>
                                 <div class="text-sm text-gray-700">{{ $contactPhone ?: 'Not available yet.' }}</div>
                             </div>
-                            <div class="rounded-lg border border-red-100 bg-red-50/60 p-5 shadow-sm">
-                                <div class="text-xs font-bold uppercase tracking-wider text-[#8B0000] mb-2">Address</div>
+                            <div class="rounded-lg border border-blue-100 bg-blue-50/60 p-5 shadow-sm">
+                                <div class="text-xs font-bold uppercase tracking-wider text-[#003D82] mb-2">Address</div>
                                 <div class="text-sm text-gray-700">{{ $contactAddress ?: 'Not available yet.' }}</div>
                             </div>
                         </div>
@@ -67,10 +67,10 @@
             <div>
                 <div class="section-header">Quick Links</div>
                 <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
-                    <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">&rsaquo;</span> Notices</a>
-                    <a href="{{ route('public.departments') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">&rsaquo;</span> Our Programs</a>
-                    <a href="{{ route('public.downloads') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"><span class="text-red-600">&rsaquo;</span> Downloads</a>
-                    <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-800"><span>&rsaquo;</span> Student Portal</a>
+                    <a href="{{ route('public.notices') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"><span class="text-blue-600">&rsaquo;</span> Notices</a>
+                    <a href="{{ route('public.departments') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"><span class="text-blue-600">&rsaquo;</span> Our Programs</a>
+                    <a href="{{ route('public.downloads') }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors"><span class="text-blue-600">&rsaquo;</span> Downloads</a>
+                    <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-blue-800"><span>&rsaquo;</span> Student Portal</a>
                 </div>
             </div>
 
@@ -78,9 +78,9 @@
                 <div>
                     <div class="section-header">Office Summary</div>
                     <div class="bg-white border border-gray-200 border-t-0 p-5 space-y-3 text-sm text-gray-700 rounded-b-lg shadow-md">
-                        <p><span class="font-semibold text-red-900">Email:</span> {{ $contactEmail ?: 'Not available yet.' }}</p>
-                        <p><span class="font-semibold text-red-900">Phone:</span> {{ $contactPhone ?: 'Not available yet.' }}</p>
-                        <p><span class="font-semibold text-red-900">Address:</span> {{ $contactAddress ?: 'Not available yet.' }}</p>
+                        <p><span class="font-semibold text-blue-900">Email:</span> {{ $contactEmail ?: 'Not available yet.' }}</p>
+                        <p><span class="font-semibold text-blue-900">Phone:</span> {{ $contactPhone ?: 'Not available yet.' }}</p>
+                        <p><span class="font-semibold text-blue-900">Address:</span> {{ $contactAddress ?: 'Not available yet.' }}</p>
                     </div>
                 </div>
             @endif
@@ -88,3 +88,4 @@
     </div>
 </div>
 @endsection
+

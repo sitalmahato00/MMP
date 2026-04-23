@@ -25,7 +25,7 @@
 
                 {{-- Name and Info --}}
                 <h3 class="text-lg font-semibold text-slate-900">{{ $member->name }}</h3>
-                <p class="mt-1 text-sm text-[#8B0000]">{{ $member->designation }}</p>
+                <p class="mt-1 text-sm text-[#003D82]">{{ $member->designation }}</p>
                 <p class="mt-2 text-sm text-slate-500">{{ $member->department ?: 'General Administration' }}</p>
 
                 {{-- Contact Info --}}
@@ -36,7 +36,7 @@
 
                 {{-- Action Button --}}
                 <div class="mt-5 flex flex-col items-center gap-2">
-                    <a href="{{ route('public.staff.profile', $member->id) }}" class="inline-flex items-center justify-center rounded-full bg-[#8B0000] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f0000]">View Profile</a>
+                    <a href="{{ route('public.staff.profile', $member->id) }}" class="inline-flex items-center justify-center rounded-full bg-[#003D82] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f0000]">View Profile</a>
                     <span class="text-xs text-slate-400">Joined {{ $member->join_date ? bsDate($member->join_date, 'Y') : '—' }}</span>
                 </div>
             </article>
@@ -56,4 +56,5 @@
     @endif
 </div>
 @endsection
+
 

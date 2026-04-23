@@ -36,24 +36,24 @@
                 <div class="p-6 space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Full Name <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Full Name <span class="text-blue-500">*</span></label>
                             <input type="text" name="full_name" value="{{ old('full_name') }}" required placeholder="Enter your full name"
-                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000] @error('full_name') border-red-400 bg-red-50 @enderror">
-                            @error('full_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] @error('full_name') border-blue-400 bg-blue-50 @enderror">
+                            @error('full_name') <p class="text-blue-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email <span class="text-blue-500">*</span></label>
                             <input type="email" name="email" value="{{ old('email') }}" required placeholder="your@email.com"
-                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000] @error('email') border-red-400 bg-red-50 @enderror">
-                            @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] @error('email') border-blue-400 bg-blue-50 @enderror">
+                            @error('email') <p class="text-blue-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Phone <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Phone <span class="text-blue-500">*</span></label>
                             <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="98XXXXXXXX"
-                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000] @error('phone') border-red-400 bg-red-50 @enderror">
-                            @error('phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] @error('phone') border-blue-400 bg-blue-50 @enderror">
+                            @error('phone') <p class="text-blue-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth (BS)</label>
@@ -63,7 +63,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Gender</label>
-                            <select name="gender" class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000]">
+                            <select name="gender" class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82]">
                                 <option value="">Select Gender</option>
                                 <option value="male" {{ old('gender') === 'male' ? 'selected' : '' }}>Male</option>
                                 <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Female</option>
@@ -73,7 +73,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Address</label>
                             <input type="text" name="address" value="{{ old('address') }}" placeholder="Your address"
-                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000]">
+                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82]">
                         </div>
                     </div>
                 </div>
@@ -89,12 +89,12 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Guardian Name</label>
                             <input type="text" name="guardian_name" value="{{ old('guardian_name') }}" placeholder="Parent/Guardian name"
-                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000]">
+                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82]">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Guardian Phone</label>
                             <input type="text" name="guardian_phone" value="{{ old('guardian_phone') }}" placeholder="98XXXXXXXX"
-                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000]">
+                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82]">
                         </div>
                     </div>
                 </div>
@@ -108,36 +108,36 @@
                 <div class="p-6 space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Preferred Department <span class="text-red-500">*</span></label>
-                            <select name="department_id" required class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000] @error('department_id') border-red-400 bg-red-50 @enderror">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Preferred Department <span class="text-blue-500">*</span></label>
+                            <select name="department_id" required class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] @error('department_id') border-blue-400 bg-blue-50 @enderror">
                                 <option value="">Select Department</option>
                                 @foreach($departments as $dept)
                                     <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
                                 @endforeach
                             </select>
-                            @error('department_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            @error('department_id') <p class="text-blue-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">SEE GPA</label>
                             <input type="text" name="gpa" value="{{ old('gpa') }}" placeholder="e.g. 3.60"
-                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000]">
+                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82]">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Previous School/College</label>
                         <input type="text" name="previous_school" value="{{ old('previous_school') }}" placeholder="Name of your previous school"
-                            class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000]">
+                            class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82]">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Additional Message</label>
                         <textarea name="message" rows="3" placeholder="Anything else you'd like us to know..."
-                            class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000]">{{ old('message') }}</textarea>
+                            class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82]">{{ old('message') }}</textarea>
                     </div>
                 </div>
             </div>
 
             <div class="flex justify-center">
-                <button type="submit" class="bg-[#8B0000] hover:bg-[#a00000] text-white px-8 py-3 rounded-lg font-bold text-sm shadow-lg transition-colors inline-flex items-center gap-2">
+                <button type="submit" class="bg-[#003D82] hover:bg-[#a00000] text-white px-8 py-3 rounded-lg font-bold text-sm shadow-lg transition-colors inline-flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Submit Application
                 </button>
@@ -146,3 +146,4 @@
     </div>
 </div>
 @endsection
+

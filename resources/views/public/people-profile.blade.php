@@ -17,7 +17,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                <div class="h-24" style="background: linear-gradient(135deg, #8B0000, #5B0000);"></div>
+                <div class="h-24" style="background: linear-gradient(135deg, #003D82, #001F4D);"></div>
                 <div class="px-6 pb-6 -mt-12">
                     <div class="flex flex-col sm:flex-row sm:items-end gap-4">
                         <div class="w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-100 flex-shrink-0">
@@ -29,7 +29,7 @@
                                     {{ $profile['type_label'] }}
                                 </span>
                                 @if(!empty(data_get($department, 'name')))
-                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-red-700 bg-red-50 px-3 py-1 rounded-full border border-red-100">
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
                                         {{ data_get($department, 'name') }}
                                     </span>
                                 @endif
@@ -90,7 +90,7 @@
                             @foreach($subjects as $subject)
                                 <span class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-700">
                                     @if(!empty($subject['code']))
-                                        <span class="text-red-700">{{ $subject['code'] }}</span>
+                                        <span class="text-blue-700">{{ $subject['code'] }}</span>
                                         <span class="text-gray-300">|</span>
                                     @endif
                                     <span>{{ $subject['name'] }}</span>
@@ -111,9 +111,9 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             @if(!empty(data_get($department, 'seat_capacity')))
-                                <div class="rounded-lg bg-red-50 border border-red-100 px-4 py-3">
-                                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-red-500">Seat Capacity</div>
-                                    <div class="mt-1 text-sm font-bold text-red-900">{{ data_get($department, 'seat_capacity') }}</div>
+                                <div class="rounded-lg bg-blue-50 border border-blue-100 px-4 py-3">
+                                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-500">Seat Capacity</div>
+                                    <div class="mt-1 text-sm font-bold text-blue-900">{{ data_get($department, 'seat_capacity') }}</div>
                                 </div>
                             @endif
                             @if(!empty(data_get($department, 'programs_count')))
@@ -152,9 +152,9 @@
                 <h3 class="font-bold font-serif text-lg text-gray-900 mb-4">Quick Actions</h3>
                 <div class="space-y-2">
                     @foreach($actionLinks as $link)
-                        <a href="{{ $link['href'] }}" class="flex items-center justify-between gap-3 rounded-lg border border-gray-100 px-4 py-3 text-sm text-gray-700 hover:border-[#8B0000]/20 hover:bg-red-50 hover:text-[#8B0000] transition-colors">
+                        <a href="{{ $link['href'] }}" class="flex items-center justify-between gap-3 rounded-lg border border-gray-100 px-4 py-3 text-sm text-gray-700 hover:border-[#003D82]/20 hover:bg-blue-50 hover:text-[#003D82] transition-colors">
                             <span>{{ $link['label'] }}</span>
-                            <span class="text-[#8B0000] font-bold">›</span>
+                            <span class="text-[#003D82] font-bold">›</span>
                         </a>
                     @endforeach
                 </div>
@@ -179,14 +179,14 @@
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
                 <h3 class="font-bold font-serif text-lg text-gray-900 mb-4">Directory Links</h3>
                 <div class="space-y-2 text-sm">
-                    <a href="{{ route('public.people') }}" class="flex items-center gap-2 text-gray-700 hover:text-[#8B0000] transition-colors">
-                        <span class="text-[#8B0000] font-bold">›</span> Department Wise People
+                    <a href="{{ route('public.people') }}" class="flex items-center gap-2 text-gray-700 hover:text-[#003D82] transition-colors">
+                        <span class="text-[#003D82] font-bold">›</span> Department Wise People
                     </a>
-                    <a href="{{ route('public.staff') }}" class="flex items-center gap-2 text-gray-700 hover:text-[#8B0000] transition-colors">
-                        <span class="text-[#8B0000] font-bold">›</span> Administrative Staff
+                    <a href="{{ route('public.staff') }}" class="flex items-center gap-2 text-gray-700 hover:text-[#003D82] transition-colors">
+                        <span class="text-[#003D82] font-bold">›</span> Administrative Staff
                     </a>
-                    <a href="{{ route('public.leadership') }}" class="flex items-center gap-2 text-gray-700 hover:text-[#8B0000] transition-colors">
-                        <span class="text-[#8B0000] font-bold">›</span> Presidents & Principals
+                    <a href="{{ route('public.leadership') }}" class="flex items-center gap-2 text-gray-700 hover:text-[#003D82] transition-colors">
+                        <span class="text-[#003D82] font-bold">›</span> Presidents & Principals
                     </a>
                 </div>
             </div>
@@ -194,3 +194,4 @@
     </div>
 </div>
 @endsection
+

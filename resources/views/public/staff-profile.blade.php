@@ -12,7 +12,7 @@
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
         <div class="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
-            <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-[#8B0000] p-8 text-white lg:p-10">
+            <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-[#003D82] p-8 text-white lg:p-10">
                 <div class="flex items-start gap-5">
                     <div class="h-28 w-28 overflow-hidden rounded-[1.75rem] border border-white/20 bg-white/10 shadow-lg">
                         <img src="{{ $staff->photo_url }}" alt="{{ $staff->name }}" class="h-full w-full object-cover">
@@ -121,12 +121,12 @@
 
             <div class="mt-4 space-y-3">
                 @forelse($publicDocuments as $document)
-                    <a href="{{ asset('storage/' . ltrim($document->file_path, '/')) }}" target="_blank" class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-[#8B0000] hover:bg-white">
+                    <a href="{{ asset('storage/' . ltrim($document->file_path, '/')) }}" target="_blank" class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-[#003D82] hover:bg-white">
                         <div>
                             <div class="text-sm font-semibold text-slate-900">{{ $document->label }}</div>
                             <div class="mt-1 text-xs text-slate-500">{{ ucfirst(str_replace('_', ' ', $document->document_type)) }}</div>
                         </div>
-                        <span class="text-sm font-semibold text-[#8B0000]">Open</span>
+                        <span class="text-sm font-semibold text-[#003D82]">Open</span>
                     </a>
                 @empty
                     <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">No public documents are available for this profile.</div>

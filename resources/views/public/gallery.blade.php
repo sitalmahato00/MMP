@@ -7,16 +7,16 @@
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2">
-            <div class="section-header flex items-center justify-between" style="background-color: #8B0000;">
+            <div class="section-header flex items-center justify-between" style="background-color: #003D82;">
                 <span>📷 Photo Gallery</span>
-                <span class="text-red-200 text-xs">{{ $media->count() }} photos</span>
+                <span class="text-blue-200 text-xs">{{ $media->count() }} photos</span>
             </div>
 
             <div class="bg-white border border-gray-200 border-t-0 p-5">
                 @if($media->count() > 0)
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3" x-data="{ lightbox: false, currentImage: '', currentTitle: '' }">
                         @foreach($media as $item)
-                            <div class="group relative aspect-square overflow-hidden rounded bg-gray-100 cursor-pointer border border-gray-200 hover:border-[#8B0000] transition-colors"
+                            <div class="group relative aspect-square overflow-hidden rounded bg-gray-100 cursor-pointer border border-gray-200 hover:border-[#003D82] transition-colors"
                                  @click="lightbox = true; currentImage = '{{ $item->url }}'; currentTitle = '{{ e($item->title) }}'">
                                 <img src="{{ $item->url }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end">
@@ -53,7 +53,7 @@
         {{-- Sidebar --}}
         <div class="space-y-6">
             <div>
-                <div class="section-header" style="background-color: #8B0000;">🔗 Quick Links</div>
+                <div class="section-header" style="background-color: #003D82;">🔗 Quick Links</div>
                 <div class="bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-md">
                     @foreach([
                         ['label' => 'News & Events', 'href' => route('public.news-events')],
@@ -62,8 +62,8 @@
                         ['label' => 'Our Programs', 'href' => route('public.departments')],
                         ['label' => 'Student Portal', 'href' => route('login')],
                     ] as $link)
-                        <a href="{{ $link['href'] }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 text-sm text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors">
-                            <span class="text-red-600">›</span>{{ $link['label'] }}
+                        <a href="{{ $link['href'] }}" class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-800 transition-colors">
+                            <span class="text-blue-600">›</span>{{ $link['label'] }}
                         </a>
                     @endforeach
                 </div>
@@ -72,3 +72,4 @@
     </div>
 </div>
 @endsection
+

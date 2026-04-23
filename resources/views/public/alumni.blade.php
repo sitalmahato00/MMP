@@ -17,11 +17,11 @@
                 <div class="flex-1 min-w-[200px]">
                     <label class="mb-1.5 block text-xs font-semibold text-slate-600">Search</label>
                     <input name="search" value="{{ request('search') }}" type="text" placeholder="Search alumni by name…"
-                           class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-[#8B0000] focus:ring-[#8B0000]/20"/>
+                           class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-[#003D82] focus:ring-[#003D82]/20"/>
                 </div>
                 <div class="min-w-[180px]">
                     <label class="mb-1.5 block text-xs font-semibold text-slate-600">Department</label>
-                    <select name="department" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-[#8B0000] focus:ring-[#8B0000]/20">
+                    <select name="department" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-[#003D82] focus:ring-[#003D82]/20">
                         <option value="">All Departments</option>
                         @foreach($departments as $d)
                             <option value="{{ $d->id }}" @selected(request('department') == $d->id)>{{ $d->name }}</option>
@@ -30,14 +30,14 @@
                 </div>
                 <div class="min-w-[140px]">
                     <label class="mb-1.5 block text-xs font-semibold text-slate-600">Batch</label>
-                    <select name="year" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-[#8B0000] focus:ring-[#8B0000]/20">
+                    <select name="year" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-[#003D82] focus:ring-[#003D82]/20">
                         <option value="">All Years</option>
                         @foreach($graduationYears as $y)
                             <option value="{{ $y }}" @selected(request('year') == $y)>{{ $y }}</option>
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="rounded-xl bg-[#8B0000] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#7a0000] transition">Search</button>
+                <button type="submit" class="rounded-xl bg-[#003D82] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#7a0000] transition">Search</button>
                 @if(request()->hasAny(['search','department','year']))
                     <a href="{{ route('public.alumni') }}" class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Clear</a>
                 @endif
@@ -71,7 +71,7 @@
                         @endif
                     </div>
                     
-                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-[#8B0000] transition truncate">{{ $a->user?->name }}</h3>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-[#003D82] transition truncate">{{ $a->user?->name }}</h3>
                     @if($a->current_job)
                         <p class="text-xs text-slate-500 truncate">{{ $a->current_job }}@if($a->company_name) · {{ $a->company_name }}@endif</p>
                     @endif
@@ -94,7 +94,7 @@
                     @if($profileCompletion > 0)
                         <div class="mt-3">
                             <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                                <div class="h-full rounded-full bg-gradient-to-r from-[#8B0000] to-amber-500" style="width: {{ $profileCompletion }}%"></div>
+                                <div class="h-full rounded-full bg-gradient-to-r from-[#003D82] to-amber-500" style="width: {{ $profileCompletion }}%"></div>
                             </div>
                             <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Profile {{ $profileCompletion }}%</p>
                         </div>
@@ -116,3 +116,4 @@
     </div>
 </section>
 @endsection
+
