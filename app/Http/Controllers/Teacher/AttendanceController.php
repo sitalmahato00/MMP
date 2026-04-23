@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Subject;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -21,41 +22,82 @@ class AttendanceController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        // Get attendance sessions for teacher's subjects
+        // Get teacher's assigned subject IDs
+        $assignedSubjectIds = $teacher->subjects()
+            ->wherePivot('academic_session_id', $session?->id)
+            ->pluck('subjects.id')
+            ->toArray();
+
+        // Get attendance sessions created by this teacher for their assigned subjects
         $query = AttendanceSession::query()
-            ->whereHas('subject', function ($q) use ($teacher, $session) {
-                $q->whereHas('teachers', fn ($tq) => $tq->where('teachers.id', $teacher->id)
-                    ->where('subject_teacher.academic_session_id', $session?->id));
+            ->where('teacher_id', $teacher->id)
+            ->whereIn('subject_id', $assignedSubjectIds)
+            ->with([
+                'subject:id,name,code',
+                'teacher.user:id,name',
+                'attendances'
+            ])
+            ->when($request->search, function ($q) use ($request) {
+                $term = trim((string) $request->search);
+                $q->whereHas('subject', fn ($sq) => $sq->where('name', 'like', "%{$term}%"))
+                  ->orWhereHas('teacher.user', fn ($tq) => $tq->where('name', 'like', "%{$term}%"));
             })
-            ->with(['subject:id,name,code', 'teacher.user:id,name'])
-            ->withCount('attendances');
+            ->when($request->subject_id, fn ($q) => $q->where('subject_id', $request->subject_id))
+            ->when($request->date_from, function ($q) use ($request) {
+                $adDate = \App\Helpers\NepaliDateHelper::toAD($request->date_from);
+                if ($adDate) {
+                    $q->where('date', '>=', $adDate->format('Y-m-d'));
+                }
+            })
+            ->when($request->date_to, function ($q) use ($request) {
+                $adDate = \App\Helpers\NepaliDateHelper::toAD($request->date_to);
+                if ($adDate) {
+                    $q->where('date', '<=', $adDate->format('Y-m-d'));
+                }
+            });
 
-        // Search
-        if ($request->filled('search')) {
-            $query->whereHas('subject', fn ($q) => $q->where('name', 'like', '%' . $request->search . '%'));
-        }
+        $sessions = (clone $query)
+            ->latest('date')
+            ->latest('created_at')
+            ->paginate(20)
+            ->withQueryString();
 
-        // Filter by subject
-        if ($request->filled('subject_id')) {
-            $query->where('subject_id', $request->subject_id);
-        }
+        // Stats
+        $totalSessions = (clone $query)->count();
+        $todaySessions = (clone $query)->whereDate('date', today())->count();
+        $thisWeekSessions = (clone $query)->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])->count();
 
-        // Filter by date
-        if ($request->filled('date_from')) {
-            $query->where('date', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->where('date', '<=', $request->date_to);
-        }
+        // Overall attendance rate for teacher's subjects
+        $attendanceRate = DB::table('attendances')
+            ->join('attendance_sessions', 'attendances.attendance_session_id', '=', 'attendance_sessions.id')
+            ->join('subjects', 'attendance_sessions.subject_id', '=', 'subjects.id')
+            ->join('subject_teacher', 'subjects.id', '=', 'subject_teacher.subject_id')
+            ->where('subject_teacher.teacher_id', $teacher->id)
+            ->where('subject_teacher.academic_session_id', $session?->id)
+            ->where('attendances.status', 'present')
+            ->count();
 
-        $sessions = $query->latest('date')->paginate(20);
+        $totalAttendanceRecords = DB::table('attendances')
+            ->join('attendance_sessions', 'attendances.attendance_session_id', '=', 'attendance_sessions.id')
+            ->join('subjects', 'attendance_sessions.subject_id', '=', 'subjects.id')
+            ->join('subject_teacher', 'subjects.id', '=', 'subject_teacher.subject_id')
+            ->where('subject_teacher.teacher_id', $teacher->id)
+            ->where('subject_teacher.academic_session_id', $session?->id)
+            ->count();
 
-        // Get subjects for filter
+        $overallAttendanceRate = $totalAttendanceRecords > 0 ? round(($attendanceRate / $totalAttendanceRecords) * 100, 1) : 0;
+
+        // Subjects for filter (all assigned subjects)
         $subjects = $teacher->subjects()
             ->wherePivot('academic_session_id', $session?->id)
+            ->select('subjects.id', 'subjects.name', 'subjects.code')
+            ->orderBy('subjects.name')
             ->get();
 
-        return view('teacher.attendance.index', compact('sessions', 'subjects', 'session'));
+        return view('teacher.attendance.index', compact(
+            'sessions', 'subjects', 'session', 'teacher',
+            'totalSessions', 'todaySessions', 'thisWeekSessions', 'overallAttendanceRate'
+        ));
     }
 
     public function create(Request $request)
@@ -68,7 +110,7 @@ class AttendanceController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        // Get teacher's subjects
+        // Get teacher's all subjects
         $subjects = $teacher->subjects()
             ->wherePivot('academic_session_id', $session?->id)
             ->with('program')
@@ -83,40 +125,60 @@ class AttendanceController extends Controller
         $teacher = $user->teacher;
         $session = AcademicSession::current();
 
-        $data = $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
-            'date' => 'required|date',
-            'period' => 'nullable|string',
-            'attendances' => 'required|array',
-            'attendances.*.student_id' => 'required|exists:students,id',
-            'attendances.*.status' => 'required|in:present,absent',
-            'attendances.*.remarks' => 'nullable|string',
-        ]);
-
-        // Verify teacher teaches this subject
-        if (!$teacher->subjects()->where('subject_id', $data['subject_id'])->wherePivot('academic_session_id', $session?->id)->exists()) {
-            abort(403, 'Unauthorized');
-        }
-
-        // Create attendance session
-        $attendanceSession = AttendanceSession::create([
-            'subject_id' => $data['subject_id'],
-            'teacher_id' => $teacher->id,
-            'date' => $data['date'],
-            'period' => $data['period'] ?? null,
-        ]);
-
-        // Create attendance records
-        foreach ($data['attendances'] as $attendance) {
-            Attendance::create([
-                'attendance_session_id' => $attendanceSession->id,
-                'student_id' => $attendance['student_id'],
-                'status' => $attendance['status'],
-                'remarks' => $attendance['remarks'] ?? null,
+        try {
+            $data = $request->validate([
+                'subject_id' => 'required|exists:subjects,id',
+                'date' => 'required|string',
+                'period' => 'required|string',
+                'category' => 'required|in:class,lab',
+                'attendances' => 'required|array',
+                'attendances.*.student_id' => 'required|exists:students,id',
+                'attendances.*.status' => 'required|in:present,absent,late',
+                'attendances.*.remarks' => 'nullable|string',
             ]);
-        }
 
-        return redirect()->route('teacher.attendance.index')->with('success', 'Attendance recorded successfully.');
+            // Verify teacher teaches this subject
+            if (!$teacher->subjects()->where('subject_id', $data['subject_id'])->wherePivot('academic_session_id', $session?->id)->exists()) {
+                return back()->with('error', 'You are not authorized to mark attendance for this subject.');
+            }
+
+            // Convert BS date to AD
+            $adDate = \App\Helpers\NepaliDateHelper::toAD($data['date']);
+            if (!$adDate) {
+                return back()->withErrors(['date' => 'Invalid date format. Please use YYYY-MM-DD format.']);
+            }
+
+            // Get subject with program
+            $subject = Subject::findOrFail($data['subject_id']);
+
+            // Create attendance session
+            $attendanceSession = AttendanceSession::create([
+                'academic_session_id' => $session?->id,
+                'subject_id' => $data['subject_id'],
+                'teacher_id' => $teacher->id,
+                'program_id' => $subject->program_id,
+                'semester' => $subject->semester,
+                'date' => $adDate->format('Y-m-d'),
+                'period' => $data['period'] ?? null,
+            ]);
+
+            // Create attendance records
+            foreach ($data['attendances'] as $attendance) {
+                Attendance::create([
+                    'attendance_session_id' => $attendanceSession->id,
+                    'student_id' => $attendance['student_id'],
+                    'status' => $attendance['status'],
+                    'remarks' => $attendance['remarks'] ?? null,
+                ]);
+            }
+
+            return redirect()->route('teacher.attendance.index')->with('success', 'Attendance recorded successfully for ' . count($data['attendances']) . ' students.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors());
+        } catch (\Exception $e) {
+            \Log::error('Attendance Store Error: ' . $e->getMessage(), ['exception' => $e]);
+            return back()->with('error', 'An error occurred while saving attendance: ' . $e->getMessage());
+        }
     }
 
     public function show(AttendanceSession $attendanceSession)
@@ -124,9 +186,9 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization
+        // Verify authorization - check if teacher created this attendance session
         if ($attendanceSession->teacher_id !== $teacher->id) {
-            abort(403, 'Unauthorized');
+            return redirect()->route('teacher.attendance.index')->with('error', 'You are not authorized to view this attendance record.');
         }
 
         $attendanceSession->load(['subject', 'teacher.user', 'attendances.student.user']);
@@ -139,9 +201,9 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization
+        // Verify authorization - check if teacher created this attendance session
         if ($attendanceSession->teacher_id !== $teacher->id) {
-            abort(403, 'Unauthorized');
+            return redirect()->route('teacher.attendance.index')->with('error', 'You are not authorized to edit this attendance record.');
         }
 
         $attendanceSession->load(['subject', 'attendances.student.user']);
@@ -154,40 +216,50 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization
+        // Verify authorization - check if teacher created this attendance session
         if ($attendanceSession->teacher_id !== $teacher->id) {
-            abort(403, 'Unauthorized');
+            return back()->with('error', 'You are not authorized to edit this attendance record.');
         }
 
-        $data = $request->validate([
-            'date' => 'required|date',
-            'period' => 'nullable|string',
-            'attendances' => 'required|array',
-            'attendances.*.student_id' => 'required|exists:students,id',
-            'attendances.*.status' => 'required|in:present,absent',
-            'attendances.*.remarks' => 'nullable|string',
-        ]);
-
-        // Update session
-        $attendanceSession->update([
-            'date' => $data['date'],
-            'period' => $data['period'] ?? null,
-        ]);
-
-        // Delete old attendance records
-        $attendanceSession->attendances()->delete();
-
-        // Create new attendance records
-        foreach ($data['attendances'] as $attendance) {
-            Attendance::create([
-                'attendance_session_id' => $attendanceSession->id,
-                'student_id' => $attendance['student_id'],
-                'status' => $attendance['status'],
-                'remarks' => $attendance['remarks'] ?? null,
+        try {
+            $data = $request->validate([
+                'date' => 'required|string',
+                'period' => 'required|string',
+                'attendances' => 'required|array',
+                'attendances.*.student_id' => 'required|exists:students,id',
+                'attendances.*.status' => 'required|in:present,absent,late',
+                'attendances.*.remarks' => 'nullable|string',
             ]);
-        }
 
-        return redirect()->route('teacher.attendance.index')->with('success', 'Attendance updated successfully.');
+            // Convert BS date to AD
+            $adDate = \App\Helpers\NepaliDateHelper::toAD($data['date']);
+            if (!$adDate) {
+                return back()->withErrors(['date' => 'Invalid date format. Please use YYYY-MM-DD format.']);
+            }
+
+            // Update session
+            $attendanceSession->update([
+                'date' => $adDate->format('Y-m-d'),
+                'period' => $data['period'] ?? null,
+            ]);
+
+            // Delete old attendance records
+            $attendanceSession->attendances()->delete();
+
+            // Create new attendance records
+            foreach ($data['attendances'] as $attendance) {
+                Attendance::create([
+                    'attendance_session_id' => $attendanceSession->id,
+                    'student_id' => $attendance['student_id'],
+                    'status' => $attendance['status'],
+                    'remarks' => $attendance['remarks'] ?? null,
+                ]);
+            }
+
+            return redirect()->route('teacher.attendance.index')->with('success', 'Attendance updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'An error occurred while updating attendance. Please try again.');
+        }
     }
 
     public function destroy(AttendanceSession $attendanceSession)
@@ -195,7 +267,7 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization
+        // Verify authorization - check if teacher created this attendance session
         if ($attendanceSession->teacher_id !== $teacher->id) {
             abort(403, 'Unauthorized');
         }
@@ -203,5 +275,24 @@ class AttendanceController extends Controller
         $attendanceSession->delete();
 
         return redirect()->route('teacher.attendance.index')->with('success', 'Attendance deleted successfully.');
+    }
+
+    public function loadStudents(Subject $subject)
+    {
+        $user = auth()->user();
+        $teacher = $user->teacher;
+        $session = AcademicSession::current();
+
+        // Verify teacher teaches this subject
+        if (!$teacher->subjects()->where('subject_id', $subject->id)->wherePivot('academic_session_id', $session?->id)->exists()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $students = $subject->program->students()
+            ->where('current_semester', $subject->semester)
+            ->with(['user:id,name,email'])
+            ->get(['id', 'user_id', 'student_no', 'program_id', 'current_semester']);
+
+        return response()->json($students);
     }
 }

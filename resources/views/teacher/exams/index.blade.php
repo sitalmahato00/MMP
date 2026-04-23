@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Exams')
+@section('title', 'Exams & Marks')
 
 @section('content')
 <div class="space-y-6">
@@ -12,9 +12,9 @@
                 <div>
                     <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Teacher</p>
                     <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
-                        Exams
+                        Exams & Marks
                     </h1>
-                    <p class="mt-1 text-sm text-slate-600">View exam schedules and results</p>
+                    <p class="mt-1 text-sm text-slate-600">View exam schedules and manage marks</p>
                 </div>
             </div>
         </div>

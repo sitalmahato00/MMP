@@ -29,6 +29,7 @@ return new class extends Migration
             $table->foreignId('subject_id')->constrained()->cascadeOnDelete();
             $table->foreignId('academic_session_id')->constrained('academic_sessions')->cascadeOnDelete();
             $table->string('section')->nullable();
+            $table->string('role')->nullable(); // e.g., 'theory', 'practical', 'both'
             $table->timestamps();
 
             $table->unique(['teacher_id', 'subject_id', 'academic_session_id', 'section'], 'subject_teacher_unique');

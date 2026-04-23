@@ -261,8 +261,12 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">Role *</label>
-                            <input type="text" name="role" required placeholder="e.g., Theory Teacher, Lab Tech" 
-                                   class="w-full rounded-lg border-slate-300 text-sm">
+                            <select name="role" required class="w-full rounded-lg border-slate-300 text-sm">
+                                <option value="">Select Role</option>
+                                <option value="Theory Teacher">Theory Teacher</option>
+                                <option value="Lab Tech">Lab Technician</option>
+                            </select>
+                            <p class="mt-1 text-xs text-slate-500">Only 1 theory teacher and 1 lab tech allowed</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">Section (Optional)</label>
@@ -275,6 +279,14 @@
                                 Assign
                             </button>
                         </div>
+                    </div>
+                    <div class="mt-3 rounded-lg bg-blue-50 p-3 text-xs text-blue-800">
+                        <p class="font-medium">Assignment Rules:</p>
+                        <ul class="mt-1 list-disc list-inside space-y-0.5">
+                            <li>Only ONE theory teacher can be assigned per subject</li>
+                            <li>Only ONE lab technician can be assigned per subject</li>
+                            <li>Remove existing assignment before adding a new one</li>
+                        </ul>
                     </div>
                 </form>
             </div>

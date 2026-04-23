@@ -43,7 +43,7 @@
         </div>
         <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
             <p class="text-xs font-semibold text-slate-500 uppercase">Due Date</p>
-            <p class="mt-2 text-lg font-semibold text-slate-900">{{ bsDate($assignment->due_date, 'M d, Y') }}</p>
+            <p class="mt-2 text-lg font-semibold text-slate-900">{{ bsDate($assignment->due_date, 'Y-m-d') }}</p>
             @php
                 $isOverdue = $assignment->due_date < now();
             @endphp

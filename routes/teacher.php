@@ -9,11 +9,7 @@ Route::resource('classes', \App\Http\Controllers\Teacher\ClassesController::clas
 
 // Attendance Entry
 Route::resource('attendance', \App\Http\Controllers\Teacher\AttendanceController::class);
-
-// Marks Entry
-Route::resource('marks', \App\Http\Controllers\Teacher\MarksController::class)->only(['index', 'show']);
-Route::get('marks/{exam}/{subject}/fill', [\App\Http\Controllers\Teacher\MarksController::class, 'fillMarks'])->name('marks.fill');
-Route::post('marks/{exam}/{subject}/save', [\App\Http\Controllers\Teacher\MarksController::class, 'saveMarks'])->name('marks.save');
+Route::get('attendance/load-students/{subject}', [\App\Http\Controllers\Teacher\AttendanceController::class, 'loadStudents'])->name('attendance.load-students');
 
 // Student List
 Route::resource('students', \App\Http\Controllers\Teacher\StudentsController::class)->only(['index', 'show']);
@@ -21,8 +17,11 @@ Route::resource('students', \App\Http\Controllers\Teacher\StudentsController::cl
 // Timetable
 Route::resource('timetable', \App\Http\Controllers\Teacher\TimetableController::class)->only(['index', 'show']);
 
-// Exams
+// Exams & Marks
 Route::resource('exams', \App\Http\Controllers\Teacher\ExamsController::class)->only(['index', 'show']);
+Route::get('exams/{exam}/marks', [\App\Http\Controllers\Teacher\ExamsController::class, 'marks'])->name('exams.marks');
+Route::get('exams/{exam}/fill-marks', [\App\Http\Controllers\Teacher\ExamsController::class, 'fillMarks'])->name('exams.fill-marks');
+Route::post('exams/{exam}/save-marks', [\App\Http\Controllers\Teacher\ExamsController::class, 'saveMarks'])->name('exams.save-marks');
 
 // Assignments
 Route::resource('assignments', \App\Http\Controllers\Teacher\AssignmentsController::class);

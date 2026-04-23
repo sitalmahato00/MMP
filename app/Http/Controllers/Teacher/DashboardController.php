@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\{AcademicSession, Teacher, TimetableSlot, Notice, AttendanceSession, Assignment};
+use App\Models\{AcademicSession, Teacher, TimetableSlot, Notice, AttendanceSession, Attendance};
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -28,67 +27,99 @@ class DashboardController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        $cacheKey = "teacher_dashboard_{$teacher->id}_v2";
-        $data = Cache::remember($cacheKey, 300, function () use ($teacher) {
-            $subjectsCount = $teacher->subjects()->count();
-            
-            // Sessions conducted this month
-            $sessionsThisMonth = AttendanceSession::where('teacher_id', $teacher->id)
-                ->whereYear('date', now()->year)
-                ->whereMonth('date', now()->month)
-                ->count();
-            
-            // Pending assignments
-            $pendingAssignments = Assignment::whereHas('subject.teachers', fn($q) => $q->where('teachers.id', $teacher->id))
-                ->where('due_date', '>=', now())
-                ->count();
-            
-            return [
-                'subjects_count' => $subjectsCount,
-                'sessions_this_month' => $sessionsThisMonth,
-                'pending_assignments' => $pendingAssignments,
-            ];
-        });
+        // Get today's classes
+        $today = strtolower(now()->format('l')); // e.g., 'monday', 'tuesday', etc.
+        $todayClasses = TimetableSlot::with(['subject', 'timetable.program', 'timetable'])
+            ->where('teacher_id', $teacher->id)
+            ->where('day_of_week', $today)
+            ->whereHas('timetable', function($q) {
+                $q->where('is_active', true);
+            })
+            ->orderBy('start_time')
+            ->get();
 
-        $todaySlots = collect();
-        if ($teacher) {
-            $today = strtolower(now()->format('l'));
-            $todaySlots = Cache::remember("teacher_dashboard_slots:{$teacher->id}:{$today}", 300, function () use ($teacher, $today) {
-                return TimetableSlot::with(['subject', 'timetable.program'])
-                    ->where('teacher_id', $teacher->id)
-                    ->where('day_of_week', $today)
-                    ->orderBy('start_time')
-                    ->get();
-            });
-        }
+        // Debug: Log today's day and class count
+        \Log::info('Teacher Dashboard - Today Classes', [
+            'teacher_id' => $teacher->id,
+            'today' => $today,
+            'today_full' => now()->format('l'),
+            'classes_count' => $todayClasses->count(),
+        ]);
 
-        $subjects = Cache::remember("teacher_dashboard_subjects:{$teacher->id}", 300, function () use ($teacher) {
-            return $teacher->subjects()->with('program')->get();
-        });
+        // Get all my classes (subjects)
+        $myClasses = $teacher->subjects()->with('program')->get();
 
-        $recentNotices = Cache::remember("teacher_dashboard_notices_{$teacher->department_id}", 300, function () use ($teacher) {
-            return Notice::published()
-                ->where(function($q) use ($teacher) {
-                    $q->whereNull('department_id')
-                      ->orWhere('department_id', $teacher->department_id);
-                })
-                ->with('author')
-                ->latest()
-                ->take(5)
-                ->get();
-        });
+        // Get recent notices
+        $notices = Notice::published()
+            ->where(function($q) use ($teacher) {
+                $q->whereNull('department_id')
+                  ->orWhere('department_id', $teacher->department_id);
+            })
+            ->with('author')
+            ->latest()
+            ->take(5)
+            ->get();
 
         // CTEVT notices (from official CTEVT website)
         $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
         $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
 
-        $greeting = $this->greeting();
-        $lastUpdated = now();
+        // Get attendance data for chart (last 30 days)
+        $attendanceData = $this->getAttendanceChartData($teacher->id);
 
-        return view('teacher.dashboard', compact('teacher', 'session', 'todaySlots', 'subjects', 'recentNotices', 'ctevtGeneralNotices', 'ctevtResultNotices', 'data', 'greeting', 'lastUpdated'));
+        $greeting = $this->getGreeting();
+
+        return view('teacher.dashboard', compact(
+            'teacher',
+            'session',
+            'todayClasses',
+            'myClasses',
+            'notices',
+            'ctevtGeneralNotices',
+            'ctevtResultNotices',
+            'attendanceData',
+            'greeting'
+        ));
     }
 
-    private function greeting(): string
+    private function getAttendanceChartData($teacherId)
+    {
+        // Get last 7 days from today
+        $chartData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            
+            $sessions = AttendanceSession::where('teacher_id', $teacherId)
+                ->whereDate('date', $date->toDateString())
+                ->get();
+
+            $totalPresent = 0;
+            $totalStudents = 0;
+
+            foreach ($sessions as $session) {
+                $total = Attendance::where('attendance_session_id', $session->id)->count();
+                $present = Attendance::where('attendance_session_id', $session->id)
+                    ->where('status', 'present')
+                    ->count();
+                
+                $totalStudents += $total;
+                $totalPresent += $present;
+            }
+            
+            $rate = $totalStudents > 0 ? round(($totalPresent / $totalStudents) * 100, 1) : 0;
+            
+            $chartData[] = [
+                'date' => $date->format('M d'),
+                'date_bs' => bsDate($date, 'Y F d, l'), // Full BS format
+                'date_short' => bsDate($date, 'F d'), // Short format for chart
+                'rate' => $rate,
+            ];
+        }
+
+        return $chartData;
+    }
+
+    private function getGreeting(): string
     {
         $hour = Carbon::now()->hour;
         return match (true) {

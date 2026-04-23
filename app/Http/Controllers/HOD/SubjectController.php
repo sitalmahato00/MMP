@@ -338,7 +338,45 @@ class SubjectController extends HodController
             return back()->with('error', 'No active academic session found.');
         }
 
-        // Check if already assigned with same role
+        // Normalize role for checking
+        $roleNormalized = strtolower(trim($validated['role']));
+        
+        // Check if this is a theory teacher role
+        $isTheoryRole = in_array($roleNormalized, ['teacher', 'theory teacher', 'theory', 'lecturer']);
+        
+        // Check if this is a lab tech role
+        $isLabRole = in_array($roleNormalized, ['lab tech', 'lab technician', 'lab assistant', 'practical teacher']);
+
+        // Enforce one teacher and one lab tech rule
+        if ($isTheoryRole) {
+            // Check if a theory teacher is already assigned
+            $existingTheoryTeacher = $subject->teachers()
+                ->where('academic_session_id', $currentSession->id)
+                ->where('section', $validated['section'] ?? null)
+                ->where(function($query) {
+                    $query->whereRaw('LOWER(role) IN (?, ?, ?, ?)', ['teacher', 'theory teacher', 'theory', 'lecturer']);
+                })
+                ->exists();
+
+            if ($existingTheoryTeacher) {
+                return back()->with('error', 'A theory teacher is already assigned to this subject. Please remove the existing teacher first.');
+            }
+        } elseif ($isLabRole) {
+            // Check if a lab tech is already assigned
+            $existingLabTech = $subject->teachers()
+                ->where('academic_session_id', $currentSession->id)
+                ->where('section', $validated['section'] ?? null)
+                ->where(function($query) {
+                    $query->whereRaw('LOWER(role) IN (?, ?, ?, ?)', ['lab tech', 'lab technician', 'lab assistant', 'practical teacher']);
+                })
+                ->exists();
+
+            if ($existingLabTech) {
+                return back()->with('error', 'A lab technician is already assigned to this subject. Please remove the existing lab tech first.');
+            }
+        }
+
+        // Check if this exact assignment already exists
         $exists = $subject->teachers()
             ->where('teacher_id', $validated['teacher_id'])
             ->where('academic_session_id', $currentSession->id)

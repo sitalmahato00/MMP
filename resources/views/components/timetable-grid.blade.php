@@ -17,21 +17,6 @@
         return $startTime . '-' . $endTime;
     })->unique()->sort()->values()->toArray();
     
-    // If no slots, use default time slots
-    if (empty($timeSlots)) {
-        $timeSlots = [
-            '06:30-07:15',
-            '07:15-08:00',
-            '08:00-08:45',
-            '08:45-09:30',
-            '09:30-10:15',
-            '10:15-11:00',
-            '11:00-11:45',
-            '11:45-12:30',
-            '12:30-13:15'
-        ];
-    }
-    
     // Helper function to format time
     function formatTime($time) {
         $h = (int)substr($time, 0, 2);

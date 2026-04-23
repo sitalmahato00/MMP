@@ -149,8 +149,7 @@
             ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('teacher.timetable.index', 'teacher.dashboard'), 'isActive' => $active('teacher.timetable.*')],
         ]],
         ['label' => 'Evaluation', 'items' => [
-            ['label' => 'Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('teacher.marks.index', 'teacher.dashboard'), 'isActive' => $active('teacher.marks.*')],
-            ['label' => 'Exams', 'iconName' => 'doc-text', 'href' => $portalRoute('teacher.exams.index', 'teacher.dashboard'), 'isActive' => $active('teacher.exams.*')],
+            ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('teacher.exams.index', 'teacher.dashboard'), 'isActive' => $active('teacher.exams.*')],
         ]],
         ['label' => 'General', 'items' => [['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('teacher.notices.index', 'teacher.dashboard'), 'isActive' => $active('teacher.notices.*')]]],
     ];

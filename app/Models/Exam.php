@@ -43,6 +43,22 @@ class Exam extends Model
             ->withTimestamps();
     }
 
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'exam_subject_marking_schemes')
+            ->withPivot([
+                'full_marks_internal_theory',
+                'pass_marks_internal_theory',
+                'full_marks_external_theory',
+                'pass_marks_external_theory',
+                'full_marks_internal_practical',
+                'pass_marks_internal_practical',
+                'full_marks_external_practical',
+                'pass_marks_external_practical',
+            ])
+            ->withTimestamps();
+    }
+
     public function marks()
     {
         return $this->hasMany(Mark::class);

@@ -79,7 +79,7 @@ class AssignmentsController extends Controller
             'subject_id' => 'required|exists:subjects,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'due_date' => 'required|date|after:today',
+            'due_date' => 'required|date|after_or_equal:today',
             'attachment' => 'nullable|file|max:10240',
         ]);
 
@@ -157,18 +157,25 @@ class AssignmentsController extends Controller
             'subject_id' => 'required|exists:subjects,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'due_date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:today',
             'attachment' => 'nullable|file|max:10240',
         ]);
+
+        $updateData = [
+            'subject_id' => $data['subject_id'],
+            'title' => $data['title'],
+            'description' => $data['description'],
+            'due_date' => $data['due_date'],
+        ];
 
         if ($request->hasFile('attachment')) {
             if ($assignment->attachment) {
                 Storage::disk('public')->delete($assignment->attachment);
             }
-            $data['attachment'] = $request->file('attachment')->store('assignments', 'public');
+            $updateData['attachment'] = $request->file('attachment')->store('assignments', 'public');
         }
 
-        $assignment->update($data);
+        $assignment->update($updateData);
 
         return redirect()->route('teacher.assignments.show', $assignment)->with('success', 'Assignment updated successfully.');
     }

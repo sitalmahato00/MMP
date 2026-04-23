@@ -104,7 +104,7 @@
                                     $isOverdue = $assignment->due_date < now();
                                 @endphp
                                 <span class="inline-flex items-center rounded-full {{ $isOverdue ? 'bg-rose-50 text-rose-700' : 'bg-blue-50 text-blue-700' }} px-2.5 py-0.5 text-xs font-semibold">
-                                    {{ bsDate($assignment->due_date, 'M d, Y') }}
+                                    {{ bsDate($assignment->due_date, 'Y-m-d') }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-center">
