@@ -187,6 +187,9 @@
             ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('parent.results.index', 'parent.dashboard'), 'isActive' => $active('parent.results.*')],
         ]],
         ['label' => 'Communication', 'items' => [['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('parent.notices.index', 'parent.dashboard'), 'isActive' => $active('parent.notices.*')]]],
+        ['label' => 'Account', 'items' => [
+            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('parent.settings.index', 'parent.dashboard'), 'isActive' => $active('parent.settings.*')],
+        ]],
     ];
 
     $alumniGroups = [
