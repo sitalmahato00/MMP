@@ -144,6 +144,8 @@
     $teacherGroups = [
         ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('teacher.dashboard'), 'isActive' => $active('teacher.dashboard')]]],
         ['label' => 'Classroom', 'items' => [
+            ['label' => 'My Classes', 'iconName' => 'book-open', 'href' => $portalRoute('teacher.classes.index', 'teacher.dashboard'), 'isActive' => $active('teacher.classes.*')],
+            ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('teacher.students.index', 'teacher.dashboard'), 'isActive' => $active('teacher.students.*')],
             ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('teacher.attendance.index', 'teacher.dashboard'), 'isActive' => $active('teacher.attendance.*')],
             ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('teacher.assignments.index', 'teacher.dashboard'), 'isActive' => $active('teacher.assignments.*')],
             ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('teacher.timetable.index', 'teacher.dashboard'), 'isActive' => $active('teacher.timetable.*')],

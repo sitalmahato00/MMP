@@ -1,156 +1,323 @@
 @extends('layouts.app')
 
-@section('title', $subject->name)
+@section('title', $subject->name . ' - Students')
 
 @section('content')
 <div class="space-y-6">
-    {{-- Header --}}
-    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-violet-50/40"></div>
-        <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
-            <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
+    {{-- ═══════════════════════════════════════════════════════════
+         1. PAGE HEADER
+    ═══════════════════════════════════════════════════════════ --}}
+    <x-page-header 
+        :title="$subject->name" 
+        :subtitle="$subject->program->name . ' - Semester ' . $subject->semester"
+        icon="user-group"
+    >
+        <x-slot:breadcrumb>
+            <x-breadcrumb-item href="{{ route('teacher.dashboard') }}" icon="home">Dashboard</x-breadcrumb-item>
+            <x-breadcrumb-item href="{{ route('teacher.classes.index') }}">My Classes</x-breadcrumb-item>
+            <x-breadcrumb-item>{{ $subject->name }}</x-breadcrumb-item>
+        </x-slot:breadcrumb>
+
+        <x-slot:actions>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500">
+                    {{ $totalStudents }} total students
+                </span>
+                <span class="inline-flex items-center gap-2 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-medium text-emerald-700">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    {{ $activeStudents }} active
+                </span>
+                <x-btn href="{{ route('teacher.classes.index') }}" variant="secondary" icon="arrow-left">
+                    Back to Classes
+                </x-btn>
+            </div>
+        </x-slot:actions>
+    </x-page-header>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         2. SUBJECT INFO CARD
+    ═══════════════════════════════════════════════════════════ --}}
+    <x-card>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Subject Code</p>
+                <p class="mt-1 text-sm font-semibold text-slate-900">{{ $subject->code }}</p>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Department</p>
+                <p class="mt-1 text-sm font-semibold text-slate-900">{{ $subject->program->department->name }}</p>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Credit Hours</p>
+                <p class="mt-1 text-sm font-semibold text-slate-900">{{ $subject->credit_hours ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Type</p>
+                <p class="mt-1 text-sm font-semibold text-slate-900 capitalize">{{ $subject->type ?? 'Theory' }}</p>
+            </div>
+        </div>
+    </x-card>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         3. SEARCH & FILTERS
+    ═══════════════════════════════════════════════════════════ --}}
+    <x-search-filter>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+                <x-input 
+                    name="search" 
+                    placeholder="Search students..." 
+                    :value="request('search')"
+                    icon="search"
+                />
+            </div>
+            
+            <div>
+                <x-select name="section" placeholder="All Sections">
+                    @foreach($sections as $section)
+                        <option value="{{ $section }}" {{ request('section') == $section ? 'selected' : '' }}>
+                            Section {{ $section }}
+                        </option>
+                    @endforeach
+                </x-select>
+            </div>
+
+            <div>
+                <x-select name="status" placeholder="All Status">
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="graduated" {{ request('status') == 'graduated' ? 'selected' : '' }}>Graduated</option>
+                    <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
+                </x-select>
+            </div>
+        </div>
+    </x-search-filter>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         4. STUDENTS LIST WITH VIEW TOGGLE
+    ═══════════════════════════════════════════════════════════ --}}
+    <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" 
+         x-data="{ 
+             view: localStorage.getItem('mmp_teacher_class_students_view') || 'table',
+             toggleView(newView) {
+                 this.view = newView;
+                 localStorage.setItem('mmp_teacher_class_students_view', newView);
+             }
+         }">
+        <div class="border-b border-slate-100 px-6 py-4">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Class Details</p>
-                    <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
-                        {{ $subject->name }}
-                    </h1>
-                    <p class="mt-1 text-sm text-slate-600">{{ $subject->program->name }} - Semester {{ $subject->semester }}</p>
+                    <h2 class="text-base font-semibold text-slate-900">Enrolled Students</h2>
+                    <p class="mt-1 text-sm text-slate-500">
+                        Showing {{ $students->count() }} of {{ $students->total() }} students
+                    </p>
                 </div>
-                <a href="{{ route('teacher.classes.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Back
-                </a>
+                
+                <div class="flex items-center gap-2">
+                    <div class="flex rounded-lg bg-slate-100 p-1">
+                        <button @click="toggleView('table')" 
+                                :class="view === 'table' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                            </svg>
+                            Table
+                        </button>
+                        <button @click="toggleView('cards')" 
+                                :class="view === 'cards' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                            Cards
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
 
-    {{-- Tabs --}}
-    <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100">
-            <div class="flex gap-4 px-4 sm:px-6 overflow-x-auto">
-                <button class="border-b-2 border-blue-600 px-4 py-3 text-sm font-semibold text-blue-600 transition" onclick="showTab('students')">
-                    Students
-                </button>
-                <button class="border-b-2 border-transparent px-4 py-3 text-sm font-semibold text-slate-600 transition hover:text-slate-900" onclick="showTab('timetable')">
-                    Timetable
-                </button>
-            </div>
-        </div>
-
-        {{-- Students Tab --}}
-        <div id="students-tab" class="p-4 sm:p-6">
+        {{-- Table View --}}
+        <div x-show="view === 'table'" class="overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50">
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Student</th>
-                            <th class="px-4 py-3 text-left font-semibold text-slate-700">Student No.</th>
-                            <th class="px-4 py-3 text-center font-semibold text-slate-700">Attendance</th>
-                            <th class="px-4 py-3 text-right font-semibold text-slate-700">Actions</th>
+                            <th class="px-6 py-3 text-left font-semibold text-slate-700">Student</th>
+                            <th class="px-6 py-3 text-left font-semibold text-slate-700">Student No.</th>
+                            <th class="px-6 py-3 text-center font-semibold text-slate-700">Section</th>
+                            <th class="px-6 py-3 text-center font-semibold text-slate-700">Attendance</th>
+                            <th class="px-6 py-3 text-center font-semibold text-slate-700">Status</th>
+                            <th class="px-6 py-3 text-right font-semibold text-slate-700">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($students as $student)
+                            @php
+                                $attendanceRate = $student->total_attendance > 0 
+                                    ? round(($student->present_count / $student->total_attendance) * 100, 1) 
+                                    : 0;
+                            @endphp
                             <tr class="transition hover:bg-slate-50">
-                                <td class="px-4 py-3">
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <img src="{{ $student->user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->user->name) }}" 
-                                            alt="{{ $student->user->name }}" class="h-8 w-8 rounded-full">
-                                        <div>
-                                            <p class="font-semibold text-slate-900">{{ $student->user->name }}</p>
-                                            <p class="text-xs text-slate-500">{{ $student->user->email }}</p>
+                                        <img src="{{ $student->user->avatar_url }}" 
+                                            alt="{{ $student->user->name }}" 
+                                            class="h-10 w-10 rounded-full object-cover">
+                                        <div class="min-w-0">
+                                            <p class="font-semibold text-slate-900 truncate">{{ $student->user->name }}</p>
+                                            <p class="text-xs text-slate-500 truncate">{{ $student->user->email }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-slate-600">{{ $student->student_no }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    @php
-                                        $attendanceCount = $student->attendances->count();
-                                        $presentCount = $student->attendances->where('status', 'present')->count();
-                                        $percentage = $attendanceCount > 0 ? round(($presentCount / $attendanceCount) * 100) : 0;
-                                    @endphp
-                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
-                                        {{ $percentage }}%
-                                    </span>
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <p class="font-medium text-slate-900">{{ $student->student_no }}</p>
+                                        @if($student->roll_number)
+                                            <p class="text-xs text-slate-500">Roll: {{ $student->roll_number }}</p>
+                                        @endif
+                                    </div>
                                 </td>
-                                <td class="px-4 py-3 text-right">
-                                    <a href="{{ route('teacher.students.show', $student) }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-100">
+                                <td class="px-6 py-4 text-center">
+                                    @if($student->section)
+                                        <x-badge variant="slate">{{ $student->section }}</x-badge>
+                                    @else
+                                        <span class="text-slate-400">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-sm font-semibold {{ $attendanceRate >= 75 ? 'text-emerald-600' : ($attendanceRate >= 50 ? 'text-amber-600' : 'text-red-600') }}">
+                                            {{ $attendanceRate }}%
+                                        </span>
+                                        <span class="text-xs text-slate-500">{{ $student->present_count }}/{{ $student->total_attendance }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @php
+                                        $statusVariants = [
+                                            'active' => 'emerald',
+                                            'inactive' => 'slate',
+                                            'graduated' => 'blue',
+                                            'suspended' => 'red',
+                                        ];
+                                    @endphp
+                                    <x-badge :variant="$statusVariants[$student->status] ?? 'slate'">
+                                        {{ ucfirst($student->status) }}
+                                    </x-badge>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <x-btn 
+                                        href="{{ route('teacher.students.show', $student) }}" 
+                                        variant="ghost" 
+                                        size="sm"
+                                        icon="eye"
+                                    >
                                         View
-                                    </a>
+                                    </x-btn>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-4 py-12 text-center">
-                                    <p class="text-sm text-slate-500">No students enrolled</p>
+                                <td colspan="6" class="px-6 py-12">
+                                    <x-empty-state 
+                                        icon="user-group"
+                                        title="No students found"
+                                        description="No students match your current filters."
+                                    />
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            @if($students->hasPages())
-                <div class="mt-4 flex justify-center">
-                    {{ $students->links() }}
-                </div>
-            @endif
         </div>
 
-        {{-- Timetable Tab --}}
-        <div id="timetable-tab" class="hidden p-4 sm:p-6">
-            @if($slots->isEmpty())
-                <div class="py-12 text-center">
-                    <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p class="mt-2 text-sm text-slate-500">No timetable slots scheduled</p>
-                </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($slots->groupBy('day_of_week') as $day => $daySlots)
-                        <div>
-                            <h3 class="mb-2 font-semibold text-slate-900 capitalize">{{ $day }}</h3>
-                            <div class="space-y-2">
-                                @foreach($daySlots as $slot)
-                                    <div class="flex items-center gap-4 rounded-lg border border-slate-200 p-4 transition hover:bg-slate-50">
-                                        <div class="flex flex-col items-center justify-center rounded-lg bg-blue-50 px-3 py-2">
-                                            <span class="text-xs font-semibold text-blue-600">{{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}</span>
-                                            <span class="text-[10px] text-blue-500">to</span>
-                                            <span class="text-xs font-semibold text-blue-600">{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}</span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="font-semibold text-slate-900">{{ $slot->subject->name }}</p>
-                                            <p class="text-xs text-slate-500">{{ $slot->room ?? 'Room TBA' }}</p>
-                                        </div>
+        {{-- Cards View --}}
+        <div x-show="view === 'cards'" class="p-6">
+            @if($students->count() > 0)
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    @foreach($students as $student)
+                        @php
+                            $attendanceRate = $student->total_attendance > 0 
+                                ? round(($student->present_count / $student->total_attendance) * 100, 1) 
+                                : 0;
+                            $statusVariants = [
+                                'active' => 'emerald',
+                                'inactive' => 'slate',
+                                'graduated' => 'blue',
+                                'suspended' => 'red',
+                            ];
+                        @endphp
+                        <x-card class="group cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ $student->user->avatar_url }}" 
+                                        alt="{{ $student->user->name }}" 
+                                        class="h-12 w-12 rounded-full object-cover">
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="font-semibold text-slate-900 truncate">{{ $student->user->name }}</h3>
+                                        <p class="text-xs text-slate-500 truncate">{{ $student->student_no }}</p>
                                     </div>
-                                @endforeach
+                                </div>
+                                <x-badge :variant="$statusVariants[$student->status] ?? 'slate'" size="sm">
+                                    {{ ucfirst($student->status) }}
+                                </x-badge>
                             </div>
-                        </div>
+                            
+                            <div class="mt-4 space-y-2">
+                                @if($student->section)
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-slate-500">Section</span>
+                                        <span class="font-medium text-slate-900">{{ $student->section }}</span>
+                                    </div>
+                                @endif
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-500">Attendance</span>
+                                    <span class="font-medium {{ $attendanceRate >= 75 ? 'text-emerald-600' : ($attendanceRate >= 50 ? 'text-amber-600' : 'text-red-600') }}">
+                                        {{ $attendanceRate }}%
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-500">Classes</span>
+                                    <span class="font-medium text-slate-900">{{ $student->present_count }}/{{ $student->total_attendance }}</span>
+                                </div>
+                                @if($student->roll_number)
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-slate-500">Roll No.</span>
+                                        <span class="font-medium text-slate-900">{{ $student->roll_number }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div class="mt-4 pt-4 border-t border-slate-100">
+                                <x-btn 
+                                    href="{{ route('teacher.students.show', $student) }}" 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    class="w-full justify-center"
+                                    icon="eye"
+                                >
+                                    View Details
+                                </x-btn>
+                            </div>
+                        </x-card>
                     @endforeach
                 </div>
+            @else
+                <x-empty-state 
+                    icon="user-group"
+                    title="No students found"
+                    description="No students match your current filters."
+                />
             @endif
         </div>
+
+        {{-- Pagination --}}
+        @if($students->hasPages())
+            <div class="border-t border-slate-100 px-6 py-4">
+                {{ $students->withQueryString()->links() }}
+            </div>
+        @endif
     </div>
 </div>
-
-<script>
-function showTab(tabName) {
-    // Hide all tabs
-    document.getElementById('students-tab').classList.add('hidden');
-    document.getElementById('timetable-tab').classList.add('hidden');
-    
-    // Show selected tab
-    document.getElementById(tabName + '-tab').classList.remove('hidden');
-    
-    // Update button styles
-    document.querySelectorAll('button').forEach(btn => {
-        btn.classList.remove('border-blue-600', 'text-blue-600');
-        btn.classList.add('border-transparent', 'text-slate-600');
-    });
-    event.target.classList.remove('border-transparent', 'text-slate-600');
-    event.target.classList.add('border-blue-600', 'text-blue-600');
-}
-</script>
 @endsection
