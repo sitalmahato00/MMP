@@ -37,12 +37,13 @@ class PublicDataService
                     ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
-                    ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'published_at', 'created_at']),
+                    ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
                 'examNotices' => Notice::published()
                     ->where('type', 'exam')
+                    ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
-                    ->get(['id', 'title', 'slug', 'type', 'published_at', 'created_at']),
+                    ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
             ];
         });
     }

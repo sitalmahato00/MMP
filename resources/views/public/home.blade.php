@@ -314,22 +314,33 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="text-[13px] text-gray-700 group-hover:text-[#003D82] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
-                                    @if($notice->type !== 'general' || $notice->department || $notice->program || $notice->semester)
-                                        <div class="flex items-center gap-1 mt-1 flex-wrap">
-                                            @if($notice->type !== 'general')
-                                                <span class="text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded uppercase">{{ $notice->type }}</span>
-                                            @endif
-                                            @if($notice->department)
-                                                <span class="text-[9px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{{ $notice->department->name }}</span>
-                                            @endif
-                                            @if($notice->program)
-                                                <span class="text-[9px] font-medium text-green-700 bg-green-50 px-1.5 py-0.5 rounded">{{ $notice->program->name }}</span>
-                                            @endif
-                                            @if($notice->semester)
-                                                <span class="text-[9px] font-medium text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Sem {{ $notice->semester }}</span>
-                                            @endif
-                                        </div>
-                                    @endif
+                                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                        <span class="text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 uppercase">
+                                            {{ $notice->type === 'academic' ? 'ACADEMIC' : strtoupper($notice->type) }}
+                                        </span>
+                                        @if($notice->department)
+                                            <span class="text-[9px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                                                {{ $notice->department->name }}
+                                            </span>
+                                        @endif
+                                        @if($notice->program)
+                                            <span class="text-[9px] font-medium text-green-700 bg-green-50 px-1.5 py-0.5 rounded border border-green-100">
+                                                {{ $notice->program->name }}
+                                            </span>
+                                        @endif
+                                        @if($notice->semester)
+                                            <span class="text-[9px] font-medium text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100">
+                                                Semester {{ $notice->semester }}
+                                            </span>
+                                        @endif
+                                        <span class="text-[10px] text-gray-400">{{ bsDate($noticeDate, 'Y, F d') }}</span>
+                                        @if($notice->attachment)
+                                            <span class="text-[10px] text-blue-700 flex items-center gap-1 font-semibold">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                Attachment
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="text-gray-300 group-hover:text-[#003D82]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                             </a>
@@ -348,7 +359,34 @@
                                     <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                     <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
                                 </div>
-                                <div class="flex-1 text-[13px] text-gray-700 group-hover:text-[#003D82] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[13px] text-gray-700 group-hover:text-[#003D82] font-medium leading-snug pt-0.5">{{ $notice->title }}</div>
+                                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                        <span class="text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 uppercase">EXAM</span>
+                                        @if($notice->department)
+                                            <span class="text-[9px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                                                {{ $notice->department->name }}
+                                            </span>
+                                        @endif
+                                        @if($notice->program)
+                                            <span class="text-[9px] font-medium text-green-700 bg-green-50 px-1.5 py-0.5 rounded border border-green-100">
+                                                {{ $notice->program->name }}
+                                            </span>
+                                        @endif
+                                        @if($notice->semester)
+                                            <span class="text-[9px] font-medium text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100">
+                                                Semester {{ $notice->semester }}
+                                            </span>
+                                        @endif
+                                        <span class="text-[10px] text-gray-400">{{ bsDate($noticeDate, 'Y, F d') }}</span>
+                                        @if($notice->attachment)
+                                            <span class="text-[10px] text-blue-700 flex items-center gap-1 font-semibold">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                Attachment
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
                                 <div class="text-gray-300 group-hover:text-[#003D82]"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
                             </a>
                         </li>
