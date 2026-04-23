@@ -154,6 +154,7 @@
             ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('teacher.exams.index', 'teacher.dashboard'), 'isActive' => $active('teacher.exams.*')],
         ]],
         ['label' => 'General', 'items' => [
+            ['label' => 'Resources', 'iconName' => 'download', 'href' => $portalRoute('teacher.downloads.index', 'teacher.dashboard'), 'isActive' => $active('teacher.downloads.*')],
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('teacher.notices.index', 'teacher.dashboard'), 'isActive' => $active('teacher.notices.*')],
             ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('teacher.settings.index', 'teacher.dashboard'), 'isActive' => $active('teacher.settings.*')],
         ]],

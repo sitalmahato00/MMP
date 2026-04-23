@@ -7,10 +7,46 @@ use Illuminate\Support\Facades\Storage;
 
 class Download extends Model
 {
-    protected $fillable = ['title', 'file_path', 'file_name', 'file_type', 'file_size', 'description', 'category', 'department_id', 'is_public', 'uploaded_by'];
-    protected $casts = ['is_public' => 'boolean'];
-    public function department() { return $this->belongsTo(Department::class); }
-    public function uploader() { return $this->belongsTo(User::class, 'uploaded_by'); }
+    protected $fillable = [
+        'title', 
+        'file_path', 
+        'file_name', 
+        'file_type', 
+        'file_size', 
+        'description', 
+        'category', 
+        'department_id', 
+        'subject_id',
+        'program_id',
+        'semester',
+        'is_public',
+        'visibility',
+        'uploaded_by'
+    ];
+    
+    protected $casts = [
+        'is_public' => 'boolean'
+    ];
+    
+    public function department() 
+    { 
+        return $this->belongsTo(Department::class); 
+    }
+    
+    public function subject() 
+    { 
+        return $this->belongsTo(Subject::class); 
+    }
+    
+    public function program() 
+    { 
+        return $this->belongsTo(Program::class); 
+    }
+    
+    public function uploader() 
+    { 
+        return $this->belongsTo(User::class, 'uploaded_by'); 
+    }
 
     public function storageDisk(): string
     {

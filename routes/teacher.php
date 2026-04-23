@@ -25,6 +25,10 @@ Route::post('exams/save-marks', [\App\Http\Controllers\Teacher\ExamsController::
 // Assignments
 Route::resource('assignments', \App\Http\Controllers\Teacher\AssignmentsController::class);
 
+// Downloads/Resources
+Route::resource('downloads', \App\Http\Controllers\Teacher\DownloadController::class);
+Route::get('downloads/{download}/file', [\App\Http\Controllers\Teacher\DownloadController::class, 'file'])->name('downloads.file');
+
 // Notices
 Route::resource('notices', \App\Http\Controllers\Teacher\NoticesController::class)->only(['index', 'show']);
 

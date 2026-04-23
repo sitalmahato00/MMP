@@ -19,7 +19,7 @@
         </x-slot:breadcrumb>
 
         <x-slot:actions>
-            <x-btn href="{{ route('teacher.students.index') }}" variant="outline" icon="arrow-left">
+            <x-btn href="{{ route('teacher.students.index') }}" variant="secondary" icon="arrow-left">
                 Back to Students
             </x-btn>
         </x-slot:actions>
@@ -359,7 +359,7 @@
                                         {{ ucfirst($assignment->submission_status) }}
                                     </x-badge>
                                     @if($assignment->obtained_marks)
-                                        <p class="text-sm font-semibold text-slate-900 mt-1">{{ $assignment->obtained_marks }}/{{ $assignment->total_marks }}</p>
+                                        <p class="text-sm font-semibold text-slate-900 mt-1">{{ number_format($assignment->obtained_marks, 1) }}%</p>
                                     @endif
                                 @else
                                     <x-badge variant="slate" size="sm">Not Submitted</x-badge>
