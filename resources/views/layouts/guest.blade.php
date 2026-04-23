@@ -17,7 +17,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#8B0000">
+    <meta name="theme-color" content="#003D82">
     <link rel="icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
     <link rel="shortcut icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
     <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
@@ -27,18 +27,18 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         :root {
-            --red-primary: #8B0000;
-            --red-bright: #B91C1C;
-            --red-light: #FEF2F2;
+            --blue-primary: #003D82;
+            --blue-bright: #0052B3;
+            --blue-light: #E8F0F8;
             --gold: #EAB308;
         }
         body { font-family: 'Inter', sans-serif; }
         .font-serif { font-family: 'Merriweather', serif; }
-        .bg-primary { background-color: var(--red-primary); }
-        .text-primary { color: var(--red-primary); }
-        .border-primary { border-color: var(--red-primary); }
+        .bg-primary { background-color: var(--blue-primary); }
+        .text-primary { color: var(--blue-primary); }
+        .border-primary { border-color: var(--blue-primary); }
         .section-header {
-            background-color: var(--red-primary);
+            background-color: var(--blue-primary);
             color: white;
             padding: 0.5rem 1rem;
             font-family: 'Merriweather', serif;
@@ -57,15 +57,15 @@
         $courseMenu = collect($publicCourses ?? []);
     @endphp
 
-    {{-- ── TOP INFO BAR (Red, matching mmp.edu.np) ─────────────── --}}
-    <div style="background-color: #8B0000;" class="text-white text-xs py-1.5 hidden md:block">
+    {{-- ── TOP INFO BAR (CTEVT Blue) ─────────────── --}}
+    <div style="background-color: #003D82;" class="text-white text-xs py-1.5 hidden md:block">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex justify-between items-center">
             <div class="flex items-center gap-5">
                 <span class="flex items-center gap-1.5">
                     <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Budhiganga-4, Morang, Koshi Province, Nepal
                 </span>
-                <span class="text-red-400">|</span>
+                <span class="text-blue-400">|</span>
                 <span class="flex items-center gap-1.5">
                     <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     +977 21 590696, +977 21 590697
@@ -91,7 +91,7 @@
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center justify-between gap-3">
             <a href="{{ route('home') }}" class="flex min-w-0 flex-1 items-center gap-3">
                 {{-- MMP Seal/Emblem --}}
-                <div class="w-11 h-11 md:w-14 md:h-14 flex-shrink-0 rounded-full flex items-center justify-center" style="background: radial-gradient(circle, #8B0000, #5B0000); border: 2px solid #DAA520;">
+                <div class="w-11 h-11 md:w-14 md:h-14 flex-shrink-0 rounded-full flex items-center justify-center" style="background: radial-gradient(circle, #003D82, #001F4D); border: 2px solid #DAA520;">
                     @if($brandLogoUrl)
                         <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="w-full h-full object-cover rounded-full">
                     @else
@@ -99,7 +99,7 @@
                     @endif
                 </div>
                 <div class="min-w-0 leading-tight">
-                    <div class="text-base sm:text-xl font-semibold font-serif leading-tight text-[#8B0000] line-clamp-1">Manmohan Memorial Polytechnic</div>
+                    <div class="text-base sm:text-xl font-semibold font-serif leading-tight text-[#003D82] line-clamp-1">Manmohan Memorial Polytechnic</div>
                     <div class="text-[11px] sm:text-sm font-normal text-[#DAA520] line-clamp-1">Best Technical College in Koshi Province</div>
                     <div class="hidden sm:block text-xs text-gray-500 font-normal">A Constituent College of Manmohan Technical University</div>
                     <div class="sm:hidden text-[10px] font-normal text-gray-500">mmp.edu.np</div>
@@ -109,8 +109,8 @@
     </div>
     @endunless
 
-    {{-- ── MAIN NAVIGATION (Deep Red) ──────────────────────────── --}}
-    <nav style="background-color: #8B0000;" class="sticky top-0 z-50 shadow-md" x-data="{ mobileOpen: false }">
+    {{-- ── MAIN NAVIGATION (CTEVT Blue) ──────────────────────────── --}}
+    <nav style="background-color: #003D82;" class="sticky top-0 z-50 shadow-md" x-data="{ mobileOpen: false }">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto">
             <div class="flex items-center justify-between">
 
@@ -318,13 +318,13 @@
     @hasSection('no_breadcrumb')
     @else
         @hasSection('breadcrumb')
-            <div style="background: linear-gradient(to right, #6B0000, #8B0000, #6B0000);" class="py-6 text-white relative overflow-hidden">
+            <div style="background: linear-gradient(to right, #001F4D, #003D82, #001F4D);" class="py-6 text-white relative overflow-hidden">
                 <div class="absolute inset-0 opacity-5" style="background-image: url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\");"></div>
                 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto relative">
                     <h1 class="text-xl font-bold font-serif mb-1.5">@yield('title')</h1>
-                    <nav class="flex items-center gap-2 text-red-200 text-xs">
+                    <nav class="flex items-center gap-2 text-blue-200 text-xs">
                         <a href="{{ route('home') }}" class="hover:text-white transition-colors">Home</a>
-                        <span class="text-red-400">›</span>
+                        <span class="text-blue-400">›</span>
                         <span class="text-yellow-300">@yield('title')</span>
                     </nav>
                 </div>
@@ -338,27 +338,27 @@
     </main>
 
     {{-- ── FOOTER ─────────────────────────────────────────────── --}}
-    <footer style="background-color: #8B0000;" class="text-white pt-12 pb-0 mt-8">
+    <footer style="background-color: #003D82;" class="text-white pt-12 pb-0 mt-8">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-10 border-b border-red-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-10 border-b border-blue-700">
 
                 {{-- About --}}
                 <div>
                     <h3 class="font-bold font-serif text-lg mb-4 text-yellow-400">Manmohan Memorial Polytechnic</h3>
-                    <p class="text-red-200 text-sm leading-relaxed mb-5">
+                    <p class="text-blue-200 text-sm leading-relaxed mb-5">
                         Best Technical College in Koshi Province. CTEVT affiliated constituent college of Manmohan Technical University (MTU).
                     </p>
                     <div class="flex gap-3">
-                        <div class="w-8 h-8 rounded-full bg-red-700 hover:bg-red-600 flex items-center justify-center cursor-pointer transition-colors text-sm font-bold">f</div>
-                        <div class="w-8 h-8 rounded-full bg-red-700 hover:bg-red-600 flex items-center justify-center cursor-pointer transition-colors text-sm font-bold">t</div>
-                        <div class="w-8 h-8 rounded-full bg-red-700 hover:bg-red-600 flex items-center justify-center cursor-pointer transition-colors text-sm font-bold">y</div>
+                        <div class="w-8 h-8 rounded-full bg-blue-700 hover:bg-blue-600 flex items-center justify-center cursor-pointer transition-colors text-sm font-bold">f</div>
+                        <div class="w-8 h-8 rounded-full bg-blue-700 hover:bg-blue-600 flex items-center justify-center cursor-pointer transition-colors text-sm font-bold">t</div>
+                        <div class="w-8 h-8 rounded-full bg-blue-700 hover:bg-blue-600 flex items-center justify-center cursor-pointer transition-colors text-sm font-bold">y</div>
                     </div>
                 </div>
 
                 {{-- Quick Links --}}
                 <div>
                     <h3 class="font-bold font-serif text-lg mb-4 text-yellow-400">Quick Links</h3>
-                    <ul class="space-y-2 text-sm text-red-200">
+                    <ul class="space-y-2 text-sm text-blue-200">
                         @foreach([
                             ['href' => route('home'), 'label' => 'Home'],
                             ['href' => route('public.page', 'what-is-mmp'), 'label' => 'About MMP'],
@@ -376,9 +376,9 @@
                 {{-- Departments --}}
                 <div>
                     <h3 class="font-bold font-serif text-lg mb-4 text-yellow-400">Our Departments</h3>
-                    <ul class="space-y-2 text-sm text-red-200">
+                    <ul class="space-y-2 text-sm text-blue-200">
                         @forelse($courseMenu as $course)
-                            <li><a href="{{ route('public.department.show', $course->slug) }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> {{ $course->name }}</a></li>
+                            <li><a href="{{ route('public.department.show', $course->slug) }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-blue-500">›</span> {{ $course->name }}</a></li>
                         @empty
                             <li><a href="{{ route('public.departments') }}" class="hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> Departments & Programs</a></li>
                         @endforelse
@@ -391,12 +391,12 @@
                 {{-- Contact --}}
                 <div>
                     <h3 class="font-bold font-serif text-lg mb-4 text-yellow-400">Contact Us</h3>
-                    <ul class="space-y-3 text-sm text-red-200">
-                        <li class="flex items-start gap-2"><span class="mt-0.5 text-red-400">📍</span><span>Budhiganga-4, Morang, Koshi Province, Nepal</span></li>
-                        <li class="flex items-start gap-2"><span class="text-red-400">📞</span><span>+977 21 590696 / 590697</span></li>
-                        <li class="flex items-start gap-2"><span class="text-red-400">✉️</span><span>info@mmp.edu.np</span></li>
+                    <ul class="space-y-3 text-sm text-blue-200">
+                        <li class="flex items-start gap-2"><span class="mt-0.5 text-blue-400">📍</span><span>Budhiganga-4, Morang, Koshi Province, Nepal</span></li>
+                        <li class="flex items-start gap-2"><span class="text-blue-400">📞</span><span>+977 21 590696 / 590697</span></li>
+                        <li class="flex items-start gap-2"><span class="text-blue-400">✉️</span><span>info@mmp.edu.np</span></li>
                         <li class="mt-4">
-                            <p class="text-xs text-red-300 font-semibold uppercase tracking-wider mb-2">Useful Links</p>
+                            <p class="text-xs text-blue-300 font-semibold uppercase tracking-wider mb-2">Useful Links</p>
                             <div class="space-y-1">
                                 <a href="http://ctevt.org.np" target="_blank" class="block hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> CTEVT</a>
                                 <a href="https://mtu.edu.np/" target="_blank" class="block hover:text-white transition-colors flex items-center gap-2"><span class="text-red-500">›</span> Manmohan Technical University</a>
@@ -408,9 +408,9 @@
             </div>
 
             {{-- Copyright --}}
-            <div style="background-color: #5B0000;" class="-mx-4 px-4 py-4 mt-0 text-center text-sm text-red-300">
+            <div style="background-color: #001F4D;" class="-mx-4 px-4 py-4 mt-0 text-center text-sm text-blue-300">
                 <p>© {{ date('Y') }} Manmohan Memorial Polytechnic (www.mmp.edu.np). All Rights Reserved.</p>
-                <p class="text-xs mt-1 text-red-400">Budhiganga-4, Morang, Koshi Province, Nepal | Phone: +977 21 590696 | info@mmp.edu.np</p>
+                <p class="text-xs mt-1 text-blue-400">Budhiganga-4, Morang, Koshi Province, Nepal | Phone: +977 21 590696 | info@mmp.edu.np</p>
             </div>
         </div>
     </footer>
