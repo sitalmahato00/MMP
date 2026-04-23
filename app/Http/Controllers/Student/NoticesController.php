@@ -18,7 +18,7 @@ class NoticesController extends Controller
 
     public function index(Request $request)
     {
-        $student = auth()->user()->student;
+        $student = auth()->user()->student?->loadMissing('program.department');
         
         if (!$student) {
             abort(403, 'Student profile not found');
@@ -29,78 +29,46 @@ class NoticesController extends Controller
         $search = $request->get('search');
         $status = $request->get('status');
 
-        // Calculate statistics for KPI cards
-        $departmentNotices = Notice::where(function($q) use ($student) {
-            // General notices (visible to all)
-            $q->where(function($subQ) {
-                $subQ->whereNull('department_id')
-                     ->whereIn('type', ['general', 'news', 'event', 'exam']);
+        $internalBaseQuery = Notice::query()
+            ->visibleToStudent($student);
+
+        $departmentNotices = (clone $internalBaseQuery)
+            ->where('is_published', true)
+            ->where(function ($q) use ($student) {
+                $q->where('department_id', $student->department_id)
+                    ->orWhere(function ($programQuery) use ($student) {
+                        $programQuery->where('program_id', $student->program_id);
+                    });
             })
-            // OR department-specific notices
-            ->orWhere(function($subQ) use ($student) {
-                $subQ->where('department_id', $student->program->department_id)
-                     ->whereIn('type', ['department', 'general', 'news', 'event', 'exam']);
-            })
-            // OR program-specific notices
-            ->orWhere(function($subQ) use ($student) {
-                $subQ->where('program_id', $student->program_id)
-                     ->where('type', 'program');
-            });
-        })->count();
-        
-        $publishedNotices = Notice::where(function($q) use ($student) {
-            // General notices (visible to all)
-            $q->where(function($subQ) {
-                $subQ->whereNull('department_id')
-                     ->whereIn('type', ['general', 'news', 'event', 'exam']);
-            })
-            // OR department-specific notices
-            ->orWhere(function($subQ) use ($student) {
-                $subQ->where('department_id', $student->program->department_id)
-                     ->whereIn('type', ['department', 'general', 'news', 'event', 'exam']);
-            })
-            // OR program-specific notices
-            ->orWhere(function($subQ) use ($student) {
-                $subQ->where('program_id', $student->program_id)
-                     ->where('type', 'program');
-            });
-        })->where('is_published', true)->count();
-        
-        $ctevtNotices = count($this->publicDataService->getNotices());
-        $totalNotices = $departmentNotices + $ctevtNotices;
+            ->count();
+
+        $publishedNotices = (clone $internalBaseQuery)
+            ->where('is_published', true)
+            ->count();
+
+        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(10);
+        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(10);
+        $ctevtNotices = count($ctevtGeneralNotices['items'] ?? [])
+            + count($ctevtResultNotices['items'] ?? []);
+        $totalNotices = $publishedNotices + $ctevtNotices;
 
         if ($type === 'ctevt') {
-            // Get CTEVT notices
-            $notices = $this->publicDataService->getNotices();
+            $notices = collect(array_merge(
+                $this->mapCtevtNoticesForStudent($ctevtGeneralNotices['items'] ?? [], 'CTEVT General'),
+                $this->mapCtevtNoticesForStudent($ctevtResultNotices['items'] ?? [], 'CTEVT Result')
+            ));
             
             if ($search) {
-                $notices = collect($notices)->filter(function($notice) use ($search) {
-                    return stripos($notice['title'], $search) !== false ||
-                           stripos($notice['content'], $search) !== false;
+                $notices = $notices->filter(function ($notice) use ($search) {
+                    return str_contains(strtolower($notice['title'] ?? ''), strtolower($search))
+                        || str_contains(strtolower($notice['content'] ?? ''), strtolower($search));
                 });
             }
 
-            $notices = $notices->take(20); // Limit to 20 for pagination-like behavior
+            $notices = $notices->take(20)->values();
         } else {
-            // Get internal notices - include general notices and department-specific notices
             $noticesQuery = Notice::with(['attachments', 'author', 'department', 'program'])
-                ->where(function($q) use ($student) {
-                    // General notices (visible to all)
-                    $q->where(function($subQ) {
-                        $subQ->whereNull('department_id')
-                             ->whereIn('type', ['general', 'news', 'event', 'exam']);
-                    })
-                    // OR department-specific notices
-                    ->orWhere(function($subQ) use ($student) {
-                        $subQ->where('department_id', $student->program->department_id)
-                             ->whereIn('type', ['department', 'general', 'news', 'event', 'exam']);
-                    })
-                    // OR program-specific notices
-                    ->orWhere(function($subQ) use ($student) {
-                        $subQ->where('program_id', $student->program_id)
-                             ->where('type', 'program');
-                    });
-                })
+                ->visibleToStudent($student)
                 ->where('is_published', true);
 
             if ($search) {
@@ -134,17 +102,34 @@ class NoticesController extends Controller
 
     public function show($id)
     {
-        $student = auth()->user()->student;
+        $student = auth()->user()->student?->loadMissing('program.department');
         
         if (!$student) {
             abort(403, 'Student profile not found');
         }
 
-        $notice = Notice::with(['attachments', 'author'])
-            ->where('department_id', $student->program->department_id)
+        $notice = Notice::with(['attachments', 'author', 'department', 'program'])
+            ->visibleToStudent($student)
             ->where('is_published', true)
             ->findOrFail($id);
 
         return view('student.notices.show', compact('student', 'notice'));
+    }
+
+    private function mapCtevtNoticesForStudent(array $items, string $source): array
+    {
+        return collect($items)
+            ->map(function (array $notice) use ($source) {
+                $primaryFile = collect($notice['files'] ?? [])->first();
+
+                return [
+                    'title' => $notice['title'] ?? 'CTEVT Notice',
+                    'content' => trim((string) ($notice['publisher'] ?? '')),
+                    'published_date' => $notice['updated_date'] ?? null,
+                    'file_url' => $primaryFile['url'] ?? ($notice['url'] ?? null),
+                    'source_label' => $source,
+                ];
+            })
+            ->all();
     }
 }

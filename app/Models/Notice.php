@@ -62,4 +62,29 @@ class Notice extends Model
               });
         });
     }
+
+    public function scopeVisibleToStudent($query, Student $student)
+    {
+        $departmentId = $student->department_id ?: $student->program?->department_id;
+        $programId = $student->program_id;
+        $semester = $student->current_semester;
+
+        return $query
+            ->whereNotIn('type', ['teachers', 'ctevt'])
+            ->where(function ($q) use ($departmentId) {
+                $q->whereNull('department_id')
+                    ->orWhere('department_id', $departmentId);
+            })
+            ->where(function ($q) use ($programId) {
+                $q->whereNull('program_id')
+                    ->orWhere('program_id', $programId);
+            })
+            ->where(function ($q) use ($semester) {
+                $q->whereNull('semester');
+
+                if ($semester !== null) {
+                    $q->orWhere('semester', $semester);
+                }
+            });
+    }
 }
