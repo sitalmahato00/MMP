@@ -15,7 +15,7 @@
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-8">
     <div class="grid grid-cols-1 xl:grid-cols-5 gap-8 items-start">
         <div class="xl:col-span-2 order-1 xl:order-none">
-            <div class="rounded-3xl overflow-hidden shadow-xl border border-blue-100 bg-gradient-to-br from-[#003D82] via-[#A21818] to-[#5A0000] text-white">
+            <div class="rounded-3xl overflow-hidden shadow-xl border border-blue-100 bg-gradient-to-br from-[#003D82] via-[#002D5F] to-[#001F4D] text-white">
                 <div class="p-8 md:p-10 space-y-5">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-50 border border-white/15">
                         Official CTEVT Portal
@@ -58,7 +58,7 @@
             </div>
 
             <div class="bg-white border border-gray-200 border-t-0 shadow-sm overflow-hidden">
-                <div class="px-4 md:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-red-50/40">
+                <div class="px-4 md:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-blue-50/40">
                     <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                         <div>
                             <h2 class="text-lg md:text-xl font-semibold text-gray-800">{{ $formTitle }}</h2>
@@ -72,7 +72,7 @@
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-b from-white to-red-50/20 p-5 md:p-6 space-y-4">
+                <div class="bg-gradient-to-b from-white to-blue-50/20 p-5 md:p-6 space-y-4">
                     @if($errors->any())
                         <div class="rounded-2xl border border-blue-100 bg-blue-50/80 px-4 py-3 text-sm text-blue-900">
                             Please correct the highlighted fields and try again.
@@ -143,7 +143,7 @@
                         </div>
 
                         <div class="pt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start">
-                            <button type="submit" name="submit" value="Search" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#003D82] px-6 py-3 text-white font-semibold shadow-sm hover:bg-[#6f0000] transition-colors">
+                            <button type="submit" name="submit" value="Search" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#003D82] px-6 py-3 text-white font-semibold shadow-sm hover:bg-[#001F4D] transition-colors">
                                 Search
                             </button>
                         </div>
