@@ -15,7 +15,7 @@ return new class extends Migration
             $table->text('content');
             $table->string('attachment')->nullable();
 
-            $table->enum('type', ['general', 'department', 'program', 'teachers', 'exam', 'news', 'event'])->default('general');
+            $table->enum('type', ['general', 'department', 'program', 'teachers', 'exam', 'news', 'event', 'ctevt'])->default('general');
             $table->foreignId('department_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('program_id')->nullable()->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('semester')->nullable();

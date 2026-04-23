@@ -16,8 +16,7 @@ class TimetableSlot extends Model
     ];
 
     protected $casts = [
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        // Removed datetime casting to prevent serialization issues
     ];
 
     public function timetable()

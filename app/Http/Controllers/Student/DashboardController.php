@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\{AcademicSession, Notice, Assignment, Attendance, Mark, TimetableSlot, AttendanceSession};
+use App\Services\PublicDataService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    protected PublicDataService $publicDataService;
+
+    public function __construct(PublicDataService $publicDataService)
+    {
+        $this->publicDataService = $publicDataService;
+    }
+
     public function index()
     {
         $user = auth()->user();
@@ -33,8 +41,12 @@ class DashboardController extends Controller
         // Get KPI data
         $kpiData = $this->getKpiData($student);
 
-        // Get notices with CTEVT categorization
+        // Get internal notices
         $notices = $this->getNoticesData($student);
+
+        // Get CTEVT notices (from official CTEVT website) - same pattern as HOD/Teacher
+        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
+        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
 
         // Get upcoming assignments
         $upcomingAssignments = Assignment::where('program_id', $student->program_id)
@@ -46,43 +58,47 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Get recent notices
-        $recentNotices = $notices['general']->merge($notices['ctevt'])->sortByDesc('created_at')->take(5);
-
-        // Today's classes (filter by student's section if available)
-        $today = strtolower(now()->format('l'));
-        $todaySlots = Cache::remember("student_dashboard_slots:{$programId}:{$semester}:{$student->section}:{$today}", 300, function () use ($student, $today) {
-            return TimetableSlot::whereHas('timetable', function($q) use ($student) {
-                    $q->where('program_id', $student->program_id)
-                      ->where('semester', $student->current_semester)
-                      ->where(function($sq) use ($student) {
-                          $sq->whereNull('section')
-                            ->orWhere('section', $student->section);
-                      });
-                })
-                ->where('day_of_week', $today)
-                ->with(['subject', 'teacher.user'])
-                ->orderBy('start_time')
-                ->distinct()
-                ->get()
-                ->unique(function($slot) {
-                    return $slot->subject_id . '-' . $slot->start_time;
-                });
-        });
+        // Today's classes - simplified query
+        $today = strtolower(now()->format('l')); // e.g., 'thursday'
+        
+        // Get all timetable slots for today without complex filtering
+        $allSlots = TimetableSlot::with(['subject', 'teacher.user', 'timetable.program'])
+            ->where('day_of_week', $today)
+            ->whereHas('timetable', function($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->where('semester', $student->current_semester);
+            })
+            ->orderBy('start_time')
+            ->get();
+        
+        // Remove duplicates manually
+        $seen = [];
+        $todaySlots = collect();
+        foreach ($allSlots as $slot) {
+            $key = $slot->subject_id . '-' . $slot->start_time . '-' . $slot->end_time;
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $todaySlots->push($slot);
+            }
+        }
 
         $greeting = $this->greeting();
         $lastUpdated = now();
+
+        // Ensure todaySlots is a proper collection
+        $todaySlots = $todaySlots->values();
 
         return view('student.dashboard', compact(
             'student', 
             'session', 
             'notices', 
+            'ctevtGeneralNotices',
+            'ctevtResultNotices',
             'todaySlots', 
             'kpiData', 
             'attendanceChartData',
             'gradeDistribution',
             'upcomingAssignments',
-            'recentNotices',
             'greeting', 
             'lastUpdated'
         ));
@@ -91,12 +107,33 @@ class DashboardController extends Controller
     private function getAttendanceChartData($student)
     {
         $days = [];
+        $bsLabels = [];
         $attendanceData = [];
         
         // Get last 7 days
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $days[] = $date->format('Y-m-d');
+            
+            // Convert to BS date for label - use short month format
+            try {
+                // Get BS date and extract short month name
+                $bsFullDate = bsDate($date, 'F d'); // e.g., "Baisakh 10"
+                if ($bsFullDate) {
+                    // Extract first 3 letters of month
+                    $parts = explode(' ', $bsFullDate);
+                    if (count($parts) >= 2) {
+                        $shortMonth = substr($parts[0], 0, 3); // "Bai"
+                        $bsLabels[] = $shortMonth . ' ' . $parts[1]; // "Bai 10"
+                    } else {
+                        $bsLabels[] = $bsFullDate;
+                    }
+                } else {
+                    $bsLabels[] = $date->format('M d');
+                }
+            } catch (\Exception $e) {
+                $bsLabels[] = $date->format('M d');
+            }
             
             // Get attendance for this day
             $attendance = Attendance::where('student_id', $student->id)
@@ -115,7 +152,7 @@ class DashboardController extends Controller
         }
         
         return [
-            'labels' => $days,
+            'labels' => $bsLabels,
             'data' => $attendanceData
         ];
     }
@@ -189,22 +226,18 @@ class DashboardController extends Controller
 
     private function getNoticesData($student)
     {
-        $cacheKey = "student_dashboard_notices_{$student->department_id}_v2";
+        $cacheKey = "student_dashboard_notices_{$student->department_id}_v4";
         return Cache::remember($cacheKey, 300, function () use ($student) {
-            $allNotices = Notice::where('is_published', true)
+            // Get internal notices only
+            return Notice::where('is_published', true)
                 ->where(function($q) use ($student) {
                     $q->whereNull('department_id')
                       ->orWhere('department_id', $student->department_id);
                 })
                 ->with('author')
                 ->latest()
-                ->take(20)
+                ->take(5)
                 ->get();
-
-            return [
-                'general' => $allNotices->where('type', 'general')->take(5),
-                'ctevt' => $allNotices->where('type', 'ctevt')->take(5),
-            ];
         });
     }
 

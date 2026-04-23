@@ -145,11 +145,11 @@
         <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
             <div class="border-b border-slate-100 px-6 py-4">
                 <h2 class="text-base font-semibold text-slate-900">Today's Classes</h2>
-                <p class="mt-1 text-sm text-slate-500">{{ now()->format('l, F d, Y') }}</p>
+                <p class="mt-1 text-sm text-slate-500">{{ bsDate(now(), 'l, F d, Y') }}</p>
             </div>
             <div class="p-6">
                 @if($todaySlots->count() > 0)
-                    <div class="space-y-3">
+                    <div class="space-y-3 max-h-[400px] overflow-y-auto">
                         @foreach($todaySlots as $slot)
                             <div class="flex items-center gap-4 rounded-lg border border-slate-200 p-4">
                                 <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
@@ -199,9 +199,9 @@
             
             {{-- General Notices --}}
             <div x-show="activeTab === 'general'" class="p-6">
-                @if($notices['general']->count() > 0)
-                    <div class="space-y-3">
-                        @foreach($notices['general']->take(5) as $notice)
+                @if($notices->count() > 0)
+                    <div class="space-y-3 max-h-[400px] overflow-y-auto">
+                        @foreach($notices->take(5) as $notice)
                             <div class="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100">
                                     <svg class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,34 +227,84 @@
                 @endif
             </div>
 
-            {{-- CTEVT Notices --}}
-            <div x-show="activeTab === 'ctevt'" class="p-6">
-                @if($notices['ctevt']->count() > 0)
-                    <div class="space-y-3">
-                        @foreach($notices['ctevt']->take(5) as $notice)
-                            <div class="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
-                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                                    <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-semibold text-slate-900 line-clamp-2">{{ $notice->title }}</h3>
-                                    <p class="text-xs text-slate-500 mt-1">
-                                        {{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'CTEVT' }}
-                                    </p>
-                                </div>
+            {{-- CTEVT Notices Tab --}}
+            <div x-show="activeTab === 'ctevt'" class="p-6" x-cloak x-data="{ ctevtSubTab: 'general' }">
+                <div class="flex gap-1 bg-slate-50 p-2 rounded-lg mb-4">
+                    <button @click="ctevtSubTab = 'general'" 
+                            :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" 
+                            class="flex-1 rounded-md px-2.5 py-1.5 text-xs font-semibold transition">
+                        General ({{ collect($ctevtGeneralNotices['items'] ?? [])->count() }})
+                    </button>
+                    <button @click="ctevtSubTab = 'result'" 
+                            :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" 
+                            class="flex-1 rounded-md px-2.5 py-1.5 text-xs font-semibold transition">
+                        Results ({{ collect($ctevtResultNotices['items'] ?? [])->count() }})
+                    </button>
+                </div>
+
+                {{-- CTEVT General Notices --}}
+                <div x-show="ctevtSubTab === 'general'" class="space-y-3 max-h-[350px] overflow-y-auto">
+                    @forelse(collect($ctevtGeneralNotices['items'] ?? []) as $notice)
+                        <a href="{{ $notice['url'] ?? ($ctevtGeneralNotices['page_url'] ?? '#') }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="flex items-start gap-3 rounded-lg border border-slate-200 p-4 hover:border-blue-300 hover:bg-blue-50/50 transition-all">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
+                                <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
                             </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <p class="mt-2 text-sm text-slate-500">No CTEVT notices available</p>
-                    </div>
-                @endif
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-red-600">CTEVT</span>
+                                    <h3 class="font-semibold text-slate-900 line-clamp-2 text-sm">{{ $notice['title'] ?? 'Notice' }}</h3>
+                                </div>
+                                @if(!empty($notice['updated_date']))
+                                    <p class="text-xs text-slate-500">{{ $notice['updated_date'] }}</p>
+                                @endif
+                            </div>
+                        </a>
+                    @empty
+                        <div class="text-center py-8">
+                            <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="mt-2 text-sm text-slate-500">No general notices available</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- CTEVT Result Notices --}}
+                <div x-show="ctevtSubTab === 'result'" x-cloak class="space-y-3 max-h-[350px] overflow-y-auto">
+                    @forelse(collect($ctevtResultNotices['items'] ?? []) as $notice)
+                        <a href="{{ $notice['url'] ?? ($ctevtResultNotices['page_url'] ?? '#') }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="flex items-start gap-3 rounded-lg border border-slate-200 p-4 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
+                                <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600">CTEVT</span>
+                                    <h3 class="font-semibold text-slate-900 line-clamp-2 text-sm">{{ $notice['title'] ?? 'Result' }}</h3>
+                                </div>
+                                @if(!empty($notice['updated_date']))
+                                    <p class="text-xs text-slate-500">{{ $notice['updated_date'] }}</p>
+                                @endif
+                            </div>
+                        </a>
+                    @empty
+                        <div class="text-center py-8">
+                            <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="mt-2 text-sm text-slate-500">No result notices available</p>
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </section>
@@ -267,22 +317,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Attendance Chart
     const attendanceCtx = document.getElementById('attendanceCanvas');
     if (attendanceCtx) {
-        const attendanceData = @json($attendanceChartData);
+        const attendanceData = {!! json_encode($attendanceChartData) !!};
         
         new Chart(attendanceCtx, {
             type: 'line',
             data: {
-                labels: attendanceData.labels.map(date => {
-                    // Convert AD date to BS date for display
-                    const bsDate = window.convertADtoBS ? window.convertADtoBS(date) : date;
-                    if (typeof bsDate === 'object' && bsDate.month && bsDate.day) {
-                        const monthNames = ['Bai', 'Jes', 'Asa', 'Shr', 'Bhd', 'Asw', 'Kar', 'Man', 'Pou', 'Mag', 'Fal', 'Cha'];
-                        return monthNames[bsDate.month - 1] + ' ' + bsDate.day;
-                    }
-                    // Fallback to AD date if conversion fails
-                    const d = new Date(date);
-                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                }),
+                labels: attendanceData.labels,
                 datasets: [{
                     label: 'Attendance %',
                     data: attendanceData.data,
@@ -333,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Grade Distribution Chart
     const gradeCtx = document.getElementById('gradeCanvas');
     if (gradeCtx) {
-        const gradeData = @json($gradeDistribution);
+        const gradeData = {!! json_encode($gradeDistribution) !!};
         
         new Chart(gradeCtx, {
             type: 'doughnut',
