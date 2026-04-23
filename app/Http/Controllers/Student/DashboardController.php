@@ -36,17 +36,38 @@ class DashboardController extends Controller
         // Get notices with CTEVT categorization
         $notices = $this->getNoticesData($student);
 
-        // Today's classes
+        // Get upcoming assignments
+        $upcomingAssignments = Assignment::where('program_id', $student->program_id)
+            ->where('semester', $student->current_semester)
+            ->where('due_date', '>=', now())
+            ->whereDoesntHave('submissions', fn($q) => $q->where('student_id', $student->id))
+            ->with(['subject'])
+            ->orderBy('due_date')
+            ->take(5)
+            ->get();
+
+        // Get recent notices
+        $recentNotices = $notices['general']->merge($notices['ctevt'])->sortByDesc('created_at')->take(5);
+
+        // Today's classes (filter by student's section if available)
         $today = strtolower(now()->format('l'));
-        $todaySlots = Cache::remember("student_dashboard_slots:{$programId}:{$semester}:{$today}", 300, function () use ($student, $today) {
+        $todaySlots = Cache::remember("student_dashboard_slots:{$programId}:{$semester}:{$student->section}:{$today}", 300, function () use ($student, $today) {
             return TimetableSlot::whereHas('timetable', function($q) use ($student) {
                     $q->where('program_id', $student->program_id)
-                      ->where('semester', $student->current_semester);
+                      ->where('semester', $student->current_semester)
+                      ->where(function($sq) use ($student) {
+                          $sq->whereNull('section')
+                            ->orWhere('section', $student->section);
+                      });
                 })
                 ->where('day_of_week', $today)
                 ->with(['subject', 'teacher.user'])
                 ->orderBy('start_time')
-                ->get();
+                ->distinct()
+                ->get()
+                ->unique(function($slot) {
+                    return $slot->subject_id . '-' . $slot->start_time;
+                });
         });
 
         $greeting = $this->greeting();
@@ -60,6 +81,8 @@ class DashboardController extends Controller
             'kpiData', 
             'attendanceChartData',
             'gradeDistribution',
+            'upcomingAssignments',
+            'recentNotices',
             'greeting', 
             'lastUpdated'
         ));
@@ -180,7 +203,7 @@ class DashboardController extends Controller
 
             return [
                 'general' => $allNotices->where('type', 'general')->take(5),
-                'ctevt' => $allNotices->where('type', 'exam')->take(5),
+                'ctevt' => $allNotices->where('type', 'ctevt')->take(5),
             ];
         });
     }

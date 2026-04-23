@@ -138,70 +138,230 @@
     </section>
 
     {{-- ═══════════════════════════════════════════════════════════
-         4. ASSIGNMENTS & NOTICES
+         4. TODAY'S CLASSES & NOTICES
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="grid gap-5 lg:grid-cols-2">
-        {{-- Upcoming Assignments --}}
+    <section class="grid gap-6 lg:grid-cols-2">
+        {{-- Today's Classes --}}
         <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Upcoming Assignments</h2>
-                <p class="text-xs text-slate-500">Due soon</p>
+            <div class="border-b border-slate-100 px-6 py-4">
+                <h2 class="text-base font-semibold text-slate-900">Today's Classes</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ now()->format('l, F d, Y') }}</p>
             </div>
-            <div class="divide-y divide-slate-100">
-                @forelse($upcomingAssignments as $assignment)
-                    <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
-                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($assignment->due_date, 'Y') }}</span>
-                            <span class="text-sm font-bold leading-none">{{ bsDate($assignment->due_date, 'd') }}</span>
-                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($assignment->due_date, 'F') }}</span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-slate-900">{{ $assignment->title }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">
-                                {{ $assignment->subject->name ?? 'N/A' }} · Due {{ bsDate($assignment->due_date, 'F d, Y') }}
-                            </p>
-                        </div>
+            <div class="p-6">
+                @if($todaySlots->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($todaySlots as $slot)
+                            <div class="flex items-center gap-4 rounded-lg border border-slate-200 p-4">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+                                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-slate-900">{{ $slot->subject->name ?? 'N/A' }}</h3>
+                                    <p class="text-sm text-slate-600">{{ $slot->teacher->user->name ?? 'N/A' }}</p>
+                                    <p class="text-xs text-slate-500">
+                                        {{ \Carbon\Carbon::parse($slot->start_time)->format('g:i A') }} - 
+                                        {{ \Carbon\Carbon::parse($slot->end_time)->format('g:i A') }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                @empty
-                    <div class="py-12 text-center">
+                @else
+                    <div class="text-center py-8">
                         <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        <p class="mt-2 text-xs text-slate-400">No upcoming assignments</p>
+                        <p class="mt-2 text-sm text-slate-500">No classes scheduled for today</p>
                     </div>
-                @endforelse
+                @endif
             </div>
         </div>
 
-        {{-- Recent Notices --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                <p class="text-xs text-slate-500">Department and general notices</p>
+        {{-- Notices with CTEVT Tabs --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeTab: 'general' }">
+            <div class="border-b border-slate-100 px-6 py-4">
+                <h2 class="text-base font-semibold text-slate-900">Notices & Announcements</h2>
+                <div class="mt-3 flex space-x-1 rounded-lg bg-slate-100 p-1">
+                    <button @click="activeTab = 'general'" 
+                            :class="activeTab === 'general' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all">
+                        General
+                    </button>
+                    <button @click="activeTab = 'ctevt'" 
+                            :class="activeTab === 'ctevt' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all">
+                        CTEVT
+                    </button>
+                </div>
             </div>
-            <div class="divide-y divide-slate-100">
-                @forelse($recentNotices as $notice)
-                    <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
-                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
-                            <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
-                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}</p>
-                        </div>
+            
+            {{-- General Notices --}}
+            <div x-show="activeTab === 'general'" class="p-6">
+                @if($notices['general']->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($notices['general']->take(5) as $notice)
+                            <div class="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100">
+                                    <svg class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-slate-900 line-clamp-2">{{ $notice->title }}</h3>
+                                    <p class="text-xs text-slate-500 mt-1">
+                                        {{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                @empty
-                    <div class="py-12 text-center">
+                @else
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p class="mt-2 text-sm text-slate-500">No general notices available</p>
+                    </div>
+                @endif
+            </div>
+
+            {{-- CTEVT Notices --}}
+            <div x-show="activeTab === 'ctevt'" class="p-6">
+                @if($notices['ctevt']->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($notices['ctevt']->take(5) as $notice)
+                            <div class="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                                    <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-slate-900 line-clamp-2">{{ $notice->title }}</h3>
+                                    <p class="text-xs text-slate-500 mt-1">
+                                        {{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'CTEVT' }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-8">
                         <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <p class="mt-2 text-xs text-slate-400">No recent notices</p>
+                        <p class="mt-2 text-sm text-slate-500">No CTEVT notices available</p>
                     </div>
-                @endforelse
+                @endif
             </div>
         </div>
     </section>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Attendance Chart
+    const attendanceCtx = document.getElementById('attendanceCanvas');
+    if (attendanceCtx) {
+        const attendanceData = @json($attendanceChartData);
+        
+        new Chart(attendanceCtx, {
+            type: 'line',
+            data: {
+                labels: attendanceData.labels.map(date => {
+                    // Convert AD date to BS date for display
+                    const bsDate = window.convertADtoBS ? window.convertADtoBS(date) : date;
+                    if (typeof bsDate === 'object' && bsDate.month && bsDate.day) {
+                        const monthNames = ['Bai', 'Jes', 'Asa', 'Shr', 'Bhd', 'Asw', 'Kar', 'Man', 'Pou', 'Mag', 'Fal', 'Cha'];
+                        return monthNames[bsDate.month - 1] + ' ' + bsDate.day;
+                    }
+                    // Fallback to AD date if conversion fails
+                    const d = new Date(date);
+                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Attendance %',
+                    data: attendanceData.data,
+                    borderColor: 'rgb(16, 185, 129)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.1)',
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 11 },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Grade Distribution Chart
+    const gradeCtx = document.getElementById('gradeCanvas');
+    if (gradeCtx) {
+        const gradeData = @json($gradeDistribution);
+        
+        new Chart(gradeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: gradeData.labels,
+                datasets: [{
+                    data: gradeData.data,
+                    backgroundColor: gradeData.colors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 11 },
+                            color: '#64748b'
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush
 @endsection
