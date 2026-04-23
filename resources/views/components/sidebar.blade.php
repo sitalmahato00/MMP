@@ -126,7 +126,7 @@
         ]],
         ['label' => 'Communication', 'items' => [
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('hod.notices.index', 'hod.dashboard'), 'isActive' => $active('hod.notices.*')],
-            
+            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('hod.news-events.index', 'hod.dashboard'), 'isActive' => $active('hod.news-events.*')],
         ]],
         ['label' => 'Resources', 'items' => [
             ['label' => 'Facilities', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
@@ -156,6 +156,7 @@
         ['label' => 'General', 'items' => [
             ['label' => 'Resources', 'iconName' => 'download', 'href' => $portalRoute('teacher.downloads.index', 'teacher.dashboard'), 'isActive' => $active('teacher.downloads.*')],
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('teacher.notices.index', 'teacher.dashboard'), 'isActive' => $active('teacher.notices.*')],
+            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('teacher.news-events.index', 'teacher.dashboard'), 'isActive' => $active('teacher.news-events.*')],
             ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('teacher.settings.index', 'teacher.dashboard'), 'isActive' => $active('teacher.settings.*')],
         ]],
     ];
@@ -170,6 +171,7 @@
         ]],
         ['label' => 'Resources', 'items' => [
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('student.notices.index', 'student.dashboard'), 'isActive' => $active('student.notices.*')],
+            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('student.news-events.index', 'student.dashboard'), 'isActive' => $active('student.news-events.*')],
             ['label' => 'Downloads', 'iconName' => 'download', 'href' => $portalRoute('student.downloads.index', 'student.dashboard'), 'isActive' => $active('student.downloads.*')],
         ]],
     ];

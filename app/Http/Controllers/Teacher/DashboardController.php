@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\{AcademicSession, Teacher, TimetableSlot, Notice, AttendanceSession, Attendance};
+use App\Models\{AcademicSession, Teacher, TimetableSlot, Notice, AttendanceSession, Attendance, Program};
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -48,13 +48,12 @@ class DashboardController extends Controller
 
         // Get all my classes (subjects)
         $myClasses = $teacher->subjects()->with('program')->get();
+        $programIds = Program::where('department_id', $teacher->department_id)->pluck('id')->all();
 
         // Get recent notices
         $notices = Notice::published()
-            ->where(function($q) use ($teacher) {
-                $q->whereNull('department_id')
-                  ->orWhere('department_id', $teacher->department_id);
-            })
+            ->visibleToDepartmentContext($teacher->department_id, $programIds)
+            ->forNoticeBoard()
             ->with('author')
             ->latest()
             ->take(5)

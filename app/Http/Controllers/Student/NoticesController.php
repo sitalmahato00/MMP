@@ -30,7 +30,8 @@ class NoticesController extends Controller
         $status = $request->get('status');
 
         $internalBaseQuery = Notice::query()
-            ->visibleToStudent($student);
+            ->visibleToStudent($student)
+            ->forNoticeBoard();
 
         $departmentNotices = (clone $internalBaseQuery)
             ->where('is_published', true)
@@ -69,6 +70,7 @@ class NoticesController extends Controller
         } else {
             $noticesQuery = Notice::with(['attachments', 'author', 'department', 'program'])
                 ->visibleToStudent($student)
+                ->forNoticeBoard()
                 ->where('is_published', true);
 
             if ($search) {
@@ -110,10 +112,58 @@ class NoticesController extends Controller
 
         $notice = Notice::with(['attachments', 'author', 'department', 'program'])
             ->visibleToStudent($student)
+            ->forNoticeBoard()
             ->where('is_published', true)
             ->findOrFail($id);
 
         return view('student.notices.show', compact('student', 'notice'));
+    }
+
+    public function newsEvents(Request $request)
+    {
+        $student = auth()->user()->student?->loadMissing('program.department');
+
+        if (! $student) {
+            abort(403, 'Student profile not found');
+        }
+
+        $items = Notice::with(['attachments', 'author', 'department', 'program'])
+            ->visibleToStudent($student)
+            ->forNewsEvents()
+            ->where('is_published', true)
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = trim((string) $request->search);
+                $q->where(function ($inner) use ($search) {
+                    $inner->where('title', 'like', "%{$search}%")
+                        ->orWhere('content', 'like', "%{$search}%");
+                });
+            })
+            ->when(in_array($request->string('type')->toString(), ['news', 'event'], true), function ($q) use ($request) {
+                $q->where('type', $request->string('type')->toString());
+            })
+            ->latest('published_at')
+            ->latest('created_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('student.news-events.index', compact('student', 'items'));
+    }
+
+    public function showNewsEvent(Notice $notice)
+    {
+        $student = auth()->user()->student?->loadMissing('program.department');
+
+        if (! $student) {
+            abort(403, 'Student profile not found');
+        }
+
+        $newsEvent = Notice::with(['attachments', 'author', 'department', 'program'])
+            ->visibleToStudent($student)
+            ->forNewsEvents()
+            ->where('is_published', true)
+            ->findOrFail($notice->id);
+
+        return view('student.news-events.show', ['student' => $student, 'notice' => $newsEvent]);
     }
 
     private function mapCtevtNoticesForStudent(array $items, string $source): array

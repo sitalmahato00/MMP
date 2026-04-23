@@ -26,7 +26,6 @@
                 <option value="exam" {{ request('type') == 'exam' ? 'selected' : '' }}>Exam</option>
                 <option value="department" {{ request('type') == 'department' ? 'selected' : '' }}>Department</option>
                 <option value="academic" {{ request('type') == 'academic' ? 'selected' : '' }}>Academic</option>
-                <option value="event" {{ request('type') == 'event' ? 'selected' : '' }}>Event</option>
             </x-select>
         </div>
     </x-search-filter>

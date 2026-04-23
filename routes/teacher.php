@@ -31,6 +31,8 @@ Route::get('downloads/{download}/file', [\App\Http\Controllers\Teacher\DownloadC
 
 // Notices
 Route::resource('notices', \App\Http\Controllers\Teacher\NoticesController::class)->only(['index', 'show']);
+Route::get('news-events', [\App\Http\Controllers\Teacher\NoticesController::class, 'newsEvents'])->name('news-events.index');
+Route::get('news-events/{notice}', [\App\Http\Controllers\Teacher\NoticesController::class, 'showNewsEvent'])->name('news-events.show');
 
 // Profile
 Route::get('profile', [\App\Http\Controllers\Teacher\ProfileController::class, 'show'])->name('profile.show');

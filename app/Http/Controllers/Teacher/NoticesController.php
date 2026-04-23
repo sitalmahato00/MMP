@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicSession;
 use App\Models\Notice;
+use App\Models\Program;
 use Illuminate\Http\Request;
 
 class NoticesController extends Controller
@@ -19,15 +20,12 @@ class NoticesController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        // Get notices - ALL published notices + department-specific notices (both general and exam types)
+        $programIds = Program::where('department_id', $teacher->department_id)->pluck('id')->all();
+
         $query = Notice::query()
-            ->where('is_published', true)  // Only show published notices to teachers
-            ->where(function ($q) use ($teacher) {
-                // Show ALL published notices OR department-specific notices
-                $q->whereNull('department_id')  // All general notices
-                  ->orWhere('department_id', $teacher->department_id);  // Department-specific notices
-            })
-            ->whereIn('type', ['general', 'exam', 'department', 'program', 'academic', 'event'])  // Include both general and exam types
+            ->where('is_published', true)
+            ->visibleToDepartmentContext($teacher->department_id, $programIds)
+            ->forNoticeBoard()
             ->with(['author', 'attachments'])
             ->when($request->search, fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'))
             ->when($request->type, fn ($q) => $q->where('type', $request->type));
@@ -50,13 +48,64 @@ class NoticesController extends Controller
             abort(404, 'Notice not found');
         }
 
-        // Verify department access
-        if ($notice->department_id && $notice->department_id !== $teacher->department_id) {
-            abort(403, 'Unauthorized');
-        }
-
-        $notice->load(['author', 'attachments']);
+        $programIds = Program::where('department_id', $teacher->department_id)->pluck('id')->all();
+        $notice = Notice::with(['author', 'attachments', 'department', 'program'])
+            ->visibleToDepartmentContext($teacher->department_id, $programIds)
+            ->forNoticeBoard()
+            ->where('is_published', true)
+            ->findOrFail($notice->id);
 
         return view('teacher.notices.show', compact('notice'));
+    }
+
+    public function newsEvents(Request $request)
+    {
+        $teacher = auth()->user()->teacher;
+
+        if (! $teacher) {
+            abort(403, 'Teacher profile not found');
+        }
+
+        $programIds = Program::where('department_id', $teacher->department_id)->pluck('id')->all();
+
+        $items = Notice::with(['author', 'attachments', 'department', 'program'])
+            ->visibleToDepartmentContext($teacher->department_id, $programIds)
+            ->forNewsEvents()
+            ->where('is_published', true)
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = trim((string) $request->search);
+                $q->where(function ($inner) use ($search) {
+                    $inner->where('title', 'like', "%{$search}%")
+                        ->orWhere('content', 'like', "%{$search}%");
+                });
+            })
+            ->when(in_array($request->string('type')->toString(), ['news', 'event'], true), function ($q) use ($request) {
+                $q->where('type', $request->string('type')->toString());
+            })
+            ->latest('published_at')
+            ->latest('created_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('teacher.news-events.index', compact('items'));
+    }
+
+    public function showNewsEvent(Notice $notice)
+    {
+        $teacher = auth()->user()->teacher;
+
+        if (! $teacher) {
+            abort(403, 'Teacher profile not found');
+        }
+
+        $programIds = Program::where('department_id', $teacher->department_id)->pluck('id')->all();
+
+        $newsEvent = Notice::with(['author', 'attachments', 'department', 'program'])
+            ->visibleToDepartmentContext($teacher->department_id, $programIds)
+            ->forNewsEvents()
+            ->where('is_published', true)
+            ->findOrFail($notice->id);
+
+        return view('teacher.news-events.show', ['notice' => $newsEvent]);
     }
 }

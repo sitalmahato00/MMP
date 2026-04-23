@@ -52,6 +52,16 @@ class Notice extends Model
         return $query->where('type', 'general');
     }
 
+    public function scopeForNoticeBoard($query)
+    {
+        return $query->whereIn('type', ['general', 'exam', 'department', 'program', 'academic']);
+    }
+
+    public function scopeForNewsEvents($query)
+    {
+        return $query->whereIn('type', ['news', 'event']);
+    }
+
     public function scopeForDepartment($query, $departmentId)
     {
         return $query->where(function ($q) use ($departmentId) {
@@ -60,6 +70,18 @@ class Notice extends Model
                   $q2->where('type', 'department')
                      ->where('department_id', $departmentId);
               });
+        });
+    }
+
+    public function scopeVisibleToDepartmentContext($query, int $departmentId, array $programIds = [])
+    {
+        return $query->where(function ($q) use ($departmentId, $programIds) {
+            $q->whereNull('department_id')
+                ->orWhere('department_id', $departmentId);
+
+            if (! empty($programIds)) {
+                $q->orWhereIn('program_id', $programIds);
+            }
         });
     }
 

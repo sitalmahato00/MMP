@@ -75,6 +75,16 @@ Route::prefix('notices')->name('notices.')->group(function () {
     Route::delete('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'destroy'])->name('destroy');
 });
 
+Route::prefix('news-events')->name('news-events.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\HOD\NoticeController::class, 'newsEvents'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\HOD\NoticeController::class, 'createNewsEvent'])->name('create');
+    Route::post('/', [\App\Http\Controllers\HOD\NoticeController::class, 'storeNewsEvent'])->name('store');
+    Route::get('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'showNewsEvent'])->name('show');
+    Route::get('/{notice}/edit', [\App\Http\Controllers\HOD\NoticeController::class, 'editNewsEvent'])->name('edit');
+    Route::put('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'updateNewsEvent'])->name('update');
+    Route::delete('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'destroyNewsEvent'])->name('destroy');
+});
+
 // Facilities & Resources Management
 Route::prefix('facilities')->name('facilities.')->group(function () {
     Route::get('/', [\App\Http\Controllers\HOD\FacilityController::class, 'index'])->name('index');

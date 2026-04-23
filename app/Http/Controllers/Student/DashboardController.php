@@ -204,10 +204,8 @@ class DashboardController extends Controller
         return Cache::remember($cacheKey, 300, function () use ($student) {
             // Get internal notices only
             return Notice::where('is_published', true)
-                ->where(function($q) use ($student) {
-                    $q->whereNull('department_id')
-                      ->orWhere('department_id', $student->department_id);
-                })
+                ->visibleToStudent($student)
+                ->forNoticeBoard()
                 ->with('author')
                 ->latest()
                 ->take(5)

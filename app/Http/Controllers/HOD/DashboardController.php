@@ -41,6 +41,7 @@ class DashboardController extends Controller
             
             $recentNotices = Notice::published()
                 ->whereNull('department_id')
+                ->forNoticeBoard()
                 ->with(['author'])
                 ->latest()
                 ->take(5)
@@ -109,11 +110,11 @@ class DashboardController extends Controller
         $chartData = $this->getChartData($deptId);
         
         $recentNotices = Cache::remember("hod_dashboard_notices:{$deptId}_v2", 300, function () use ($deptId) {
+            $programIds = Program::where('department_id', $deptId)->pluck('id')->all();
+
             return Notice::published()
-                ->where(function($q) use ($deptId) {
-                    $q->where('department_id', $deptId)
-                      ->orWhereNull('department_id');
-                })
+                ->visibleToDepartmentContext($deptId, $programIds)
+                ->forNoticeBoard()
                 ->with(['author'])
                 ->latest()
                 ->take(5)
