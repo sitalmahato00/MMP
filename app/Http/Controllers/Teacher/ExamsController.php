@@ -40,6 +40,16 @@ class ExamsController extends Controller
         $ongoingExams = (clone $query)->where('status', 'ongoing')->count();
         $completedExams = (clone $query)->where('status', 'completed')->count();
 
+        // Mark assigned subjects for the teacher
+        foreach ($exams as $exam) {
+            foreach ($exam->subjects as $subject) {
+                $subject->is_assigned_to_teacher = $subject->teachers()
+                    ->where('teachers.id', $teacher->id)
+                    ->where('subject_teacher.academic_session_id', $session?->id)
+                    ->exists();
+            }
+        }
+
         return view('teacher.exams.index', compact('exams', 'totalExams', 'upcomingExams', 'ongoingExams', 'completedExams', 'session'));
     }
 

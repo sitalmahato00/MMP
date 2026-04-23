@@ -75,70 +75,104 @@
         </div>
     </x-filter-bar>
 
-    {{-- Exams Table --}}
-    <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+    {{-- Exams Table (HOD-style, restricted actions) --}}
+    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-5 py-4">
+            <h2 class="text-sm font-semibold text-slate-900">Assigned Exams</h2>
+            <p class="text-xs text-slate-500">Exam schedules and mark entry for your assigned subjects</p>
+        </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50">
-                        <th class="px-4 py-3 text-left font-semibold text-slate-700">Exam Name</th>
-                        <th class="px-4 py-3 text-left font-semibold text-slate-700">Category</th>
-                        <th class="px-4 py-3 text-center font-semibold text-slate-700">Status</th>
-                        <th class="px-4 py-3 text-left font-semibold text-slate-700">Date</th>
-                        <th class="px-4 py-3 text-right font-semibold text-slate-700">Actions</th>
+            <table class="w-full">
+                <thead class="bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <tr>
+                        <th class="px-5 py-3 text-left">Exam Name</th>
+                        <th class="px-5 py-3 text-left">Type</th>
+                        <th class="px-5 py-3 text-left">Schedule</th>
+                        <!-- Removed Subjects column -->
+                        <th class="px-5 py-3 text-center">Semester</th>
+                        <th class="px-5 py-3 text-left">Status</th>
+                        <th class="px-5 py-3 text-left">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($exams as $exam)
-                        <tr class="transition hover:bg-slate-50">
-                            <td class="px-4 py-3">
-                                <div>
-                                    <p class="font-semibold text-slate-900">{{ $exam->name }}</p>
-                                    <p class="text-xs text-slate-500">{{ $exam->subjects->pluck('name')->join(', ') }}</p>
-                                </div>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-5 py-4">
+                                <div class="text-sm font-medium text-slate-900">{{ $exam->name }}</div>
+                                <div class="text-xs text-slate-500">{{ $exam->academicSession->name ?? 'N/A' }}</div>
                             </td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 capitalize">
-                                    {{ str_replace('_', ' ', $exam->category) }}
-                                </span>
+                            <td class="px-5 py-4">
+                                <div class="text-sm text-slate-900">{{ ucfirst($exam->type) }}</div>
+                                <div class="text-xs text-slate-500">{{ $exam->category_label ?? str_replace('_', ' ', $exam->category) }}</div>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-5 py-4">
+                                <div class="text-sm text-slate-900">{{ bsDate($exam->start_date, 'F d, Y') }}</div>
+                                @if($exam->end_date && $exam->end_date != $exam->start_date)
+                                    <div class="text-xs text-slate-500">to {{ bsDate($exam->end_date, 'F d, Y') }}</div>
+                                @endif
+                            </td>
+                            <!-- Removed Subjects column cell -->
+                            <td class="px-5 py-4 text-center">
+                                @php
+                                    $semesters = $exam->subjects->pluck('pivot.semester')->filter()->unique()->sort()->values();
+                                @endphp
+                                @if($semesters->count() > 0)
+                                    <span class="text-sm font-medium text-slate-900">{{ $semesters->implode(', ') }}</span>
+                                @else
+                                    <span class="text-sm font-medium text-slate-500">All</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4">
                                 @php
                                     $statusColors = [
-                                        'upcoming' => 'bg-amber-50 text-amber-700',
-                                        'ongoing' => 'bg-rose-50 text-rose-700',
+                                        'upcoming' => 'bg-blue-50 text-blue-700',
+                                        'ongoing' => 'bg-orange-50 text-orange-700',
                                         'completed' => 'bg-emerald-50 text-emerald-700',
+                                        'published' => 'bg-green-50 text-green-700',
                                     ];
+                                    $statusColor = $statusColors[$exam->status] ?? 'bg-slate-50 text-slate-700';
                                 @endphp
-                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $statusColors[$exam->status] ?? 'bg-slate-50 text-slate-700' }} capitalize">
-                                    {{ $exam->status }}
+                                <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {{ $statusColor }}">
+                                    {{ $exam->status_label ?? ucfirst($exam->status) }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-slate-600">
-                                {{ bsDate($exam->start_date, 'M d, Y') }}
-                            </td>
-                            <td class="px-4 py-3 text-right">
-                                <a href="{{ route('teacher.exams.show', $exam) }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-100">
-                                    View
-                                </a>
+                            <td class="px-5 py-4">
+                                @php
+                                    $assignedSubject = $exam->subjects->first(function($subject) { return $subject->is_assigned_to_teacher; });
+                                @endphp
+                                @if($assignedSubject && !in_array($exam->status, ['published', 'completed']))
+                                    <a href="{{ route('teacher.exams.fill-marks', ['exam' => $exam->id, 'subject_id' => $assignedSubject->id]) }}"
+                                       class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+                                       title="Fill Marks">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                        Fill
+                                    </a>
+                                @else
+                                    <span class="text-xs text-slate-400">—</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-12 text-center">
-                                <div class="flex flex-col items-center justify-center">
-                                    <svg class="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                    <p class="mt-2 text-sm text-slate-500">No exams available</p>
-                                </div>
+                            <td colspan="7" class="px-5 py-12 text-center">
+                                <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <p class="mt-2 text-sm text-slate-500">No exams found</p>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+        @if($exams->hasPages())
+            <div class="border-t border-slate-100 px-5 py-4">
+                {{ $exams->links() }}
+            </div>
+        @endif
+    </section>
 
     {{-- Pagination --}}
     @if($exams->hasPages())
