@@ -22,13 +22,9 @@ class DownloadController extends Controller
         $subjectId = $request->get('subject_id');
         $search = $request->get('search');
 
-        // Get downloads for student's program and semester
+        // Get downloads with proper validation logic using scope
         $downloadsQuery = Download::with(['subject', 'uploadedBy'])
-            ->where('program_id', $student->program_id)
-            ->where(function($q) use ($student) {
-                $q->whereNull('semester')
-                  ->orWhere('semester', $student->semester);
-            });
+            ->visibleToStudent($student);
 
         if ($subjectId) {
             $downloadsQuery->where('subject_id', $subjectId);
@@ -43,25 +39,17 @@ class DownloadController extends Controller
 
         $downloads = $downloadsQuery->latest()->paginate(20);
 
-        // Get subjects for filter
+        // Get subjects for filter (student's current semester subjects)
         $subjects = Subject::where('program_id', $student->program_id)
-            ->where('semester', $student->semester)
+            ->where('semester', $student->current_semester)
             ->orderBy('name')
             ->get();
 
-        // Calculate statistics
-        $totalDownloads = Download::where('program_id', $student->program_id)
-            ->where(function($q) use ($student) {
-                $q->whereNull('semester')
-                  ->orWhere('semester', $student->semester);
-            })
-            ->count();
+        // Calculate statistics with same validation logic
+        $totalDownloads = Download::visibleToStudent($student)->count();
 
-        $subjectCount = Download::where('program_id', $student->program_id)
-            ->where(function($q) use ($student) {
-                $q->whereNull('semester')
-                  ->orWhere('semester', $student->semester);
-            })
+        $subjectCount = Download::visibleToStudent($student)
+            ->whereNotNull('subject_id')
             ->distinct('subject_id')
             ->count('subject_id');
 
@@ -82,12 +70,8 @@ class DownloadController extends Controller
             abort(403, 'Student profile not found');
         }
 
-        $download = Download::where('program_id', $student->program_id)
-            ->where(function($q) use ($student) {
-                $q->whereNull('semester')
-                  ->orWhere('semester', $student->semester);
-            })
-            ->findOrFail($id);
+        // Validate download access with same logic using scope
+        $download = Download::visibleToStudent($student)->findOrFail($id);
 
         if (!Storage::disk('public')->exists($download->file_path)) {
             abort(404, 'File not found');
