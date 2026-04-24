@@ -134,12 +134,7 @@
                         Home
                     </a>
                     
-                    <a href="{{ route('public.apply') }}" class="flex items-center gap-3 rounded-xl bg-[#d35400] px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#e67e22] hover:scale-[1.02] shadow-md hover:shadow-lg border-2 border-[#c44d00]">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Apply Now
-                    </a>
+                    {{-- Apply Now button removed --}}
                     
                     <div x-data="{ aboutOpen: false }">
                         <button @click="aboutOpen = !aboutOpen" class="flex w-full items-center justify-between rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-100 hover:scale-[1.02] dark:text-slate-200 dark:hover:bg-slate-800 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-700">
@@ -437,10 +432,7 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('public.apply') }}" class="ml-2 inline-flex items-center gap-1.5 rounded-sm bg-[#d35400] px-3 py-2.5 text-xs font-semibold uppercase text-white shadow-md transition-colors hover:bg-[#e67e22]">
-                        Apply Now
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </a>
+                    {{-- Apply Now button removed --}}
                 </div>
 
                 {{-- Phone Numbers exactly on the right side --}}
@@ -467,9 +459,7 @@
             <div class="px-0 py-0 divide-y divide-white/10 text-sm font-semibold uppercase tracking-wider">
                 <a href="{{ route('home') }}" class="block px-5 py-4 hover:bg-white/5 transition-colors {{ request()->routeIs('home') ? 'bg-white/10 border-l-4 border-white' : 'border-l-4 border-transparent' }}">Home</a>
 
-                <a href="{{ route('public.apply') }}" class="block px-5 py-4 bg-[#d35400] text-white hover:bg-[#e67e22] transition-colors border-l-4 border-[#f1b27a]">
-                    Apply Now
-                </a>
+                {{-- Apply Now button removed --}}
                 
                 <div x-data="{ subOpen: false }" class="border-l-4 border-transparent">
                     <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors">

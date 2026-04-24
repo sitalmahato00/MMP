@@ -65,9 +65,7 @@ Route::get('/alumni/{id}', [HomeController::class, 'alumniProfile'])->name('publ
 Route::get('/page/{slug}', [HomeController::class, 'page'])->name('public.page');
 Route::get('/app-preview', MobilePreviewController::class)->name('public.app-preview');
 
-// ─── Apply Now (Public Application Form) ───────────────────
-Route::get('/apply', [HomeController::class, 'apply'])->name('public.apply');
-Route::post('/apply', [HomeController::class, 'applyStore'])->middleware('throttle:apply')->name('public.apply.store');
+// Application feature removed
 
 // ─── Auth Routes ──────────────────────────────────────────
 Route::middleware('guest')->group(function () {

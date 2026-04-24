@@ -21,7 +21,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\WebControlController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\ExecutiveController;
-use App\Http\Controllers\Admin\ApplicationController;
+// Application feature removed
 use App\Http\Controllers\Admin\RolePermissionController;
 
 // ── Dashboard ──────────────────────────────────────────────
@@ -115,12 +115,7 @@ Route::get('web-control', [WebControlController::class, 'index'])->name('web-con
 Route::post('web-control', [WebControlController::class, 'update'])->name('web-control.update');
 Route::delete('web-control/file/{key}', [WebControlController::class, 'clearFile'])->name('web-control.clear-file');
 
-// ── Applications ───────────────────────────────────────────
-Route::get('applications', [ApplicationController::class, 'index'])->name('applications.index');
-Route::get('applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
-Route::patch('applications/bulk/status', [ApplicationController::class, 'bulkUpdateStatus'])->name('applications.bulk-update-status');
-Route::patch('applications/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applications.update-status');
-Route::delete('applications/{application}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
+// Application feature removed
 
 // ── Security & Audit ───────────────────────────────────────
 Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
