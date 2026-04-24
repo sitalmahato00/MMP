@@ -210,8 +210,13 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                         <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-50" data-period="session">Session</button>
                     </div>
                 </div>
-                <div class="h-[200px] sm:h-[250px]">
-                    <canvas id="attendance-curve-chart"></canvas>
+                <div class="h-[200px] sm:h-[250px] flex items-center justify-center">
+                    @php $hasAttendance = isset($attendanceChartData['7']['data']) && collect($attendanceChartData['7']['data'])->sum() > 0; @endphp
+                    @if($hasAttendance)
+                        <canvas id="attendance-curve-chart"></canvas>
+                    @else
+                        <div class="text-center text-slate-400 w-full">No attendance data available.</div>
+                    @endif
                 </div>
             </div>
 
@@ -224,7 +229,12 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                     </div>
                 </div>
                 <div class="h-[200px] sm:h-[250px] flex items-center justify-center">
-                    <canvas id="grade-donut-chart"></canvas>
+                    @php $hasGrades = isset($gradeDistribution['hasData']) && $gradeDistribution['hasData']; @endphp
+                    @if($hasGrades)
+                        <canvas id="grade-donut-chart"></canvas>
+                    @else
+                        <div class="text-center text-slate-400 w-full">No grade data available.</div>
+                    @endif
                 </div>
             </div>
         </div>
