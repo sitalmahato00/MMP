@@ -339,7 +339,7 @@
                 {{-- Desktop Nav Links --}}
                 <div class="hidden xl:flex items-center flex-1">
                     {{-- Active state uses pb-1, border-b-[4px] for the thick white underline --}}
-                    <a href="{{ route('home') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('home') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">HOME</a>
+                    <a href="{{ route('home') }}" class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('home') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">HOME</a>
 
                     @foreach([
                         ['label' => 'ABOUT US', 'items' => [
@@ -360,7 +360,7 @@
                         ]],
                     ] as $menu)
                         <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                            <button class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 border-transparent hover:border-white flex items-center gap-1">
+                            <button class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 border-transparent hover:border-white flex items-center gap-1">
                                 {{ $menu['label'] }}
                                 <svg class="w-3 h-3 ml-0.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                             </button>
@@ -406,11 +406,11 @@
                         </div>
                     @endforeach
 
-                    <a href="{{ route('public.news-events') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.news-events*') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NEWS & EVENTS</a>
-                    <a href="{{ route('public.notices') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.notices') || request()->routeIs('public.notice.show') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NOTICES</a>
-                    <a href="{{ route('public.gallery') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">GALLERY</a>
-                    <a href="{{ route('public.alumni') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.alumni') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">ALUMNI</a>
-                    <a href="{{ route('public.result') }}" class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">RESULT</a>
+                    <a href="{{ route('public.news-events') }}" class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.news-events*') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NEWS & EVENTS</a>
+                    <a href="{{ route('public.notices') }}" class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.notices') || request()->routeIs('public.notice.show') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">NOTICES</a>
+                    <a href="{{ route('public.gallery') }}" class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.gallery') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">GALLERY</a>
+                    <a href="{{ route('public.alumni') }}" class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.alumni') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">ALUMNI</a>
+                    <a href="{{ route('public.result') }}" class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('public.result') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">RESULT</a>
                     
                     @php
                         $resourceLinks = [
@@ -425,7 +425,7 @@
 
                     {{-- RESOURCES Dropdown --}}
                     <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                        <button class="text-white text-sm font-semibold uppercase px-3 py-3.5 hover:bg-white/10 transition-colors border-b-4 border-transparent hover:border-white flex items-center gap-1">
+                        <button class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 border-transparent hover:border-white flex items-center gap-1">
                             RESOURCES
                             <svg class="w-3 h-3 ml-0.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
@@ -437,7 +437,7 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('public.apply') }}" class="ml-2 inline-flex items-center gap-1.5 rounded-sm bg-[#d35400] px-4 py-3.5 text-sm font-semibold uppercase text-white shadow-md transition-colors hover:bg-[#e67e22]">
+                    <a href="{{ route('public.apply') }}" class="ml-2 inline-flex items-center gap-1.5 rounded-sm bg-[#d35400] px-3 py-2.5 text-xs font-semibold uppercase text-white shadow-md transition-colors hover:bg-[#e67e22]">
                         Apply Now
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>

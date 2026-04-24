@@ -44,14 +44,14 @@ section.hero-section {
   @apply relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm;
 }
 html.dark .dashboard-card {
-  background: linear-gradient(135deg, #232b3b 60%, #232b3b 100%) !important;
+  background: linear-gradient(135deg, #0f172a 60%, #0f172a 100%) !important;
   color: #e2e8f0 !important;
   border-color: #334155 !important;
 }
 /* Teacher dashboard large card dark mode fix */
 html.dark .teacher-dashboard-header,
 html.dark .teacher-dashboard-header .bg-gradient-to-br {
-  background: linear-gradient(135deg, #232b3b 60%, #232b3b 100%) !important;
+  background: linear-gradient(135deg, #0f172a 60%, #0f172a 100%) !important;
   color: #e2e8f0 !important;
   border-color: #334155 !important;
 }
@@ -69,7 +69,7 @@ html.dark [class*="bg-slate-600"]:not(.hero-section):not(.hero-section *),
 html.dark [class*="bg-slate-700"]:not(.hero-section):not(.hero-section *),
 html.dark [class*="bg-slate-800"]:not(.hero-section):not(.hero-section *),
 html.dark [class*="bg-slate-900"]:not(.hero-section):not(.hero-section *) {
-  background-color: #1e293b !important;
+  background-color: #0f172a !important;
   color: #e2e8f0 !important;
   border-color: #334155 !important;
 }
@@ -87,7 +87,7 @@ html.dark .border:not(.hero-section):not(.hero-section *),
 html.dark .bg-white:not(.hero-section):not(.hero-section *),
 html.dark .bg-gray-50:not(.hero-section):not(.hero-section *),
 html.dark .bg-slate-50:not(.hero-section):not(.hero-section *) {
-  background-color: #1e293b !important;
+  background-color: #0f172a !important;
   color: #e2e8f0 !important;
   border-color: #334155 !important;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18) !important;
@@ -113,7 +113,7 @@ html.dark .hover\:bg-gray-50\/70:hover {
 html.dark .bg-white:not(.hero-section):not(.hero-section *),
 html.dark .bg-gradient-to-b:not(.hero-section):not(.hero-section *),
 html.dark .bg-gradient-to-r:not(.hero-section):not(.hero-section *) {
-  background: #1e293b !important;
+  background: #0f172a !important;
   color: #e2e8f0 !important;
 }
 html.dark .border-gray-200,
@@ -170,7 +170,7 @@ html.dark .program-card:hover {
 .card, .program-card, .course-card, .feature-card {
   border: 2px solid #334155; /* slate-700 for dark, will override below for light */
   border-radius: 1rem;
-  background: #1e293b;
+  background: #0f172a;
 }
 html:not(.dark) .card, html:not(.dark) .program-card, html:not(.dark) .course-card, html:not(.dark) .feature-card {
   border: 2px solid #e5e7eb; /* gray-200 */
@@ -185,7 +185,7 @@ html:not(.dark) .card, html:not(.dark) .program-card, html:not(.dark) .course-ca
 }
 
 html.dark .card, html.dark .bg-white, html.dark .bg-gray-50, html.dark .bg-slate-50, html.dark .bg-slate-100 {
-  background-color: #1e293b !important; /* slate-800 */
+  background-color: #0f172a !important; /* slate-900 - darker */
   border-radius: 1rem;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18);
   border: 1px solid #334155 !important;
