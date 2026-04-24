@@ -42,9 +42,7 @@
 
     $currentUserId = $user?->id;
     $hasNotificationsTable = \Illuminate\Support\Facades\Schema::hasTable('notifications');
-    $pendingApplications = $isAdmin
-           ? \Illuminate\Support\Facades\Cache::remember('sidebar:applications:pending', 300, fn () => \App\Models\Application::where('status', 'pending')->count())
-        : 0;
+    // Application feature removed
     $unreadNotifications = $isAdmin && $currentUserId && $hasNotificationsTable
            ? \Illuminate\Support\Facades\Cache::remember("sidebar:notifications:{$currentUserId}", 180, fn () => $user->unreadNotifications()->count())
         : 0;
@@ -81,12 +79,7 @@
                 ['label' => 'Staff', 'iconName' => 'users', 'href' => route('admin.staff.index'), 'isActive' => $active('admin.staff.*')],
             ],
         ],
-        [
-            'label' => 'Applications',
-            'items' => [
-                ['label' => 'Applications', 'iconName' => 'doc-text', 'href' => route('admin.applications.index'), 'isActive' => $active('admin.applications.*') && request('status') !== 'pending', 'badge' => $pendingApplications],
-            ],
-        ],
+        // Application section removed
         [
             'label' => 'Communication',
             'items' => [
