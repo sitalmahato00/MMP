@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\PasswordReset;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,12 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    protected OtpService $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
     public function showLogin()
     {
         return view('auth.login');
@@ -86,20 +93,129 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string|min:6',
+            'otp' => 'nullable|string|digits:6',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        // Find user
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => 'The provided credentials do not match our records.',
             ]);
         }
 
-        $request->session()->regenerate();
+        // Check if user is active
+        if (!$user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => 'Your account is inactive. Please contact support.',
+            ]);
+        }
 
-        // Audit login
+        // Check if 2FA is enabled
+        if ($user->two_factor_enabled) {
+            // If OTP is provided, verify it
+            if ($request->filled('otp')) {
+                $identifier = $user->two_factor_method === 'email' ? $user->email : $user->phone;
+                $result = $this->otpService->verifyOtp($identifier, $request->otp);
+
+                if (!$result['success']) {
+                    throw ValidationException::withMessages([
+                        'otp' => $result['message'],
+                    ]);
+                }
+
+                // OTP verified, proceed with login
+                Auth::login($user, $request->boolean('remember'));
+                $request->session()->regenerate();
+                \App\Models\AuditLog::log('login');
+
+                return redirect()->intended($this->redirectByRole());
+            }
+
+            // 2FA enabled but no OTP provided - send OTP and show verification page
+            $identifier = $user->two_factor_method === 'email' ? $user->email : $user->phone;
+            $this->otpService->sendOtp($identifier, $user->two_factor_method ?? 'email', $user);
+
+            // Store user ID in session for OTP verification
+            $request->session()->put('2fa_user_id', $user->id);
+            $request->session()->put('2fa_remember', $request->boolean('remember'));
+
+            return redirect()->route('login.2fa')->with('success', 'Verification code sent to your ' . ($user->two_factor_method ?? 'email'));
+        }
+
+        // No 2FA - proceed with normal login
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
         \App\Models\AuditLog::log('login');
 
         return redirect()->intended($this->redirectByRole());
+    }
+
+    public function show2fa()
+    {
+        if (!session()->has('2fa_user_id')) {
+            return redirect()->route('login');
+        }
+
+        return view('auth.verify-2fa');
+    }
+
+    public function verify2fa(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|string|digits:6',
+        ]);
+
+        $userId = session('2fa_user_id');
+        if (!$userId) {
+            return redirect()->route('login')->withErrors(['otp' => 'Session expired. Please login again.']);
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            return redirect()->route('login')->withErrors(['otp' => 'User not found.']);
+        }
+
+        // Verify OTP
+        $identifier = $user->two_factor_method === 'email' ? $user->email : $user->phone;
+        $result = $this->otpService->verifyOtp($identifier, $request->otp);
+
+        if (!$result['success']) {
+            return back()->withErrors(['otp' => $result['message']]);
+        }
+
+        // OTP verified - log user in
+        Auth::login($user, session('2fa_remember', false));
+        $request->session()->regenerate();
+        $request->session()->forget(['2fa_user_id', '2fa_remember']);
+        \App\Models\AuditLog::log('login');
+
+        return redirect()->intended($this->redirectByRole());
+    }
+
+    public function resend2fa(Request $request)
+    {
+        $userId = session('2fa_user_id');
+        if (!$userId) {
+            return redirect()->route('login')->withErrors(['otp' => 'Session expired. Please login again.']);
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            return redirect()->route('login')->withErrors(['otp' => 'User not found.']);
+        }
+
+        // Check rate limiting
+        $identifier = $user->two_factor_method === 'email' ? $user->email : $user->phone;
+        if ($this->otpService->isRateLimited($identifier)) {
+            return back()->withErrors(['otp' => 'Please wait before requesting another code.']);
+        }
+
+        // Resend OTP
+        $this->otpService->sendOtp($identifier, $user->two_factor_method ?? 'email', $user);
+
+        return back()->with('success', 'Verification code resent successfully.');
     }
 
     public function logout(Request $request)

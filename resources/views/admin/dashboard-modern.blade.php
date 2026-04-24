@@ -543,56 +543,64 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Grade Distribution Donut Chart
     const gradeCtx = document.getElementById('grade-donut-chart');
-    new Chart(gradeCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'],
-            datasets: [{
-                data: [15, 25, 30, 20, 8, 2],
-                backgroundColor: [
-                    'rgb(34, 197, 94)',   // Green for A+
-                    'rgb(59, 130, 246)',  // Blue for A
-                    'rgb(168, 85, 247)',  // Purple for B+
-                    'rgb(251, 146, 60)',  // Orange for B
-                    'rgb(251, 191, 36)',  // Yellow for C
-                    'rgb(239, 68, 68)'    // Red for F
-                ],
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        padding: 15,
-                        font: {
-                            size: 11
-                        },
-                        generateLabels: function(chart) {
-                            const data = chart.data;
-                            return data.labels.map((label, i) => ({
-                                text: label + ' (' + data.datasets[0].data[i] + '%)',
-                                fillStyle: data.datasets[0].backgroundColor[i],
-                                hidden: false,
-                                index: i
-                            }));
+    const gradeData = @json($gradeDistribution);
+    
+    if (gradeData.hasData) {
+        new Chart(gradeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: gradeData.labels,
+                datasets: [{
+                    data: gradeData.data,
+                    backgroundColor: [
+                        'rgb(34, 197, 94)',   // Green for A+
+                        'rgb(59, 130, 246)',  // Blue for A
+                        'rgb(168, 85, 247)',  // Purple for B+
+                        'rgb(251, 146, 60)',  // Orange for B
+                        'rgb(251, 191, 36)',  // Yellow for C
+                        'rgb(239, 68, 68)'    // Red for F
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 11
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => ({
+                                    text: label + ' (' + data.datasets[0].data[i] + '%)',
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    hidden: false,
+                                    index: i
+                                }));
+                            }
                         }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.parsed + '%';
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = gradeData.counts[context.dataIndex];
+                                return context.label + ': ' + context.parsed + '% (' + count + ' students)';
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Show "No data" message
+        gradeCtx.parentElement.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">No grade data available for this period</div>';
+    }
 });
 </script>
 @endpush

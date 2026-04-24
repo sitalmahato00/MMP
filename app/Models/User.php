@@ -18,6 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'phone', 'avatar', 'gender', 'dob',
         'address', 'is_active', 'password', 'preferences', 'notification_preferences',
+        'two_factor_enabled', 'two_factor_method',
     ];
 
     protected $hidden = [
@@ -31,6 +32,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'dob' => 'date',
             'is_active' => 'boolean',
+            'two_factor_enabled' => 'boolean',
             'preferences' => 'array',
             'notification_preferences' => 'array',
         ];

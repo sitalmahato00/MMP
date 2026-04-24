@@ -102,6 +102,9 @@ class DashboardController extends Controller
             // Attendance chart data with real Nepali dates
             $attendanceChartData = $this->buildAttendanceChartData();
 
+            // Grade distribution from active students' marks
+            $gradeDistribution = $this->buildGradeDistribution($window['start'], $window['end'], $currentScopeSession);
+
             $alerts = $this->buildAlerts(
                 $departmentPerformance['rows'],
                 $attendanceSummary,
@@ -209,6 +212,7 @@ class DashboardController extends Controller
                 'ctevtGeneralNotices' => $ctevtGeneralNotices,
                 'ctevtResultNotices' => $ctevtResultNotices,
                 'attendanceChartData' => $attendanceChartData,
+                'gradeDistribution' => $gradeDistribution,
                 'currentStudents' => $currentStudents,
                 'totalTeachers' => $totalTeachers,
                 'totalParents' => $totalParents,
@@ -864,6 +868,115 @@ class DashboardController extends Controller
                 'labels' => $thirtyDaysLabels,
                 'data' => $thirtyDaysData,
             ],
+        ];
+    }
+
+    private function buildGradeDistribution(Carbon $start, Carbon $end, ?AcademicSession $session): array
+    {
+        // Get marks for active students only
+        $marks = Mark::query()
+            ->published()
+            ->join('students', 'students.id', '=', 'marks.student_id')
+            ->join('subjects', 'subjects.id', '=', 'marks.subject_id')
+            ->join('exams', 'exams.id', '=', 'marks.exam_id')
+            ->where('students.status', 'active') // Only active students
+            ->where('students.is_archived', false)
+            ->when(
+                $session,
+                fn ($query) => $query->where('exams.academic_session_id', $session->id),
+                fn ($query) => $query->whereBetween('marks.updated_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
+            )
+            ->select([
+                'marks.internal_theory_marks',
+                'marks.external_theory_marks',
+                'marks.internal_practical_marks',
+                'marks.external_practical_marks',
+                'marks.is_absent',
+                'marks.is_withheld',
+                'subjects.type as subject_type',
+                'subjects.full_marks_internal_theory',
+                'subjects.full_marks_external_theory',
+                'subjects.full_marks_internal_practical',
+                'subjects.full_marks_external_practical',
+            ])
+            ->get();
+
+        $gradeCounts = [
+            'A+' => 0,  // 90-100%
+            'A' => 0,   // 80-89%
+            'B+' => 0,  // 70-79%
+            'B' => 0,   // 60-69%
+            'C' => 0,   // 50-59%
+            'F' => 0,   // <50%
+        ];
+
+        $total = 0;
+
+        foreach ($marks as $mark) {
+            // Skip absent or withheld
+            if ($mark->is_absent || $mark->is_withheld) {
+                continue;
+            }
+
+            // Calculate total marks
+            $obtainedMarks = ($mark->internal_theory_marks ?? 0) + ($mark->external_theory_marks ?? 0);
+            $fullMarks = ($mark->full_marks_internal_theory ?? 0) + ($mark->full_marks_external_theory ?? 0);
+
+            // Add practical if applicable
+            if (in_array($mark->subject_type, ['practical', 'both'])) {
+                $obtainedMarks += ($mark->internal_practical_marks ?? 0) + ($mark->external_practical_marks ?? 0);
+                $fullMarks += ($mark->full_marks_internal_practical ?? 0) + ($mark->full_marks_external_practical ?? 0);
+            }
+
+            if ($fullMarks <= 0) {
+                continue;
+            }
+
+            $percentage = ($obtainedMarks / $fullMarks) * 100;
+            $total++;
+
+            // Categorize by grade
+            if ($percentage >= 90) {
+                $gradeCounts['A+']++;
+            } elseif ($percentage >= 80) {
+                $gradeCounts['A']++;
+            } elseif ($percentage >= 70) {
+                $gradeCounts['B+']++;
+            } elseif ($percentage >= 60) {
+                $gradeCounts['B']++;
+            } elseif ($percentage >= 50) {
+                $gradeCounts['C']++;
+            } else {
+                $gradeCounts['F']++;
+            }
+        }
+
+        // Convert to percentages
+        $gradePercentages = [];
+        foreach ($gradeCounts as $grade => $count) {
+            $gradePercentages[$grade] = $total > 0 ? round(($count / $total) * 100, 1) : 0;
+        }
+
+        return [
+            'labels' => ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'],
+            'data' => [
+                $gradePercentages['A+'],
+                $gradePercentages['A'],
+                $gradePercentages['B+'],
+                $gradePercentages['B'],
+                $gradePercentages['C'],
+                $gradePercentages['F'],
+            ],
+            'counts' => [
+                $gradeCounts['A+'],
+                $gradeCounts['A'],
+                $gradeCounts['B+'],
+                $gradeCounts['B'],
+                $gradeCounts['C'],
+                $gradeCounts['F'],
+            ],
+            'total' => $total,
+            'hasData' => $total > 0,
         ];
     }
 }

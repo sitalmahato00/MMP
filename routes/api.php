@@ -3,6 +3,17 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Public\PublicApiController;
+use App\Http\Controllers\Api\AuthController;
+
+// ─── OTP Authentication Routes ───────────
+Route::prefix('auth')->middleware('throttle:3,1')->group(function () {
+    Route::post('/send-otp', [AuthController::class, 'sendOtp']);
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Logout route (requires authentication)
+Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // ─── API v1 Routes (JWT/Sanctum authenticated) ───────────
 Route::prefix('v1')->group(function () {
