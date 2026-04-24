@@ -26,7 +26,7 @@ class MarksController extends Controller
         $marksQuery = Mark::with(['exam', 'subject'])
             ->where('student_id', $student->id)
             ->whereHas('exam', function($q) {
-                $q->where('status', 'published');
+                $q->where('is_published', true);
             });
 
         // Apply filters
@@ -51,17 +51,22 @@ class MarksController extends Controller
         // Calculate statistics
         $allMarks = Mark::where('student_id', $student->id)
             ->whereHas('exam', function($q) {
-                $q->where('status', 'published');
+                $q->where('is_published', true);
             })
             ->get();
 
         $totalExams = $allMarks->pluck('exam_id')->unique()->count();
-        $averageMarks = $allMarks->avg('obtained_marks') ?? 0;
+        
+        // Calculate average using total_marks attribute
+        $averageMarks = $allMarks->count() > 0 ? round($allMarks->avg(function($mark) {
+            return $mark->total_marks;
+        }), 2) : 0;
+        
         $totalSubjects = $allMarks->pluck('subject_id')->unique()->count();
         
-        // Calculate pass percentage
+        // Calculate pass percentage using is_passed attribute
         $passedSubjects = $allMarks->filter(function($mark) {
-            return $mark->obtained_marks >= ($mark->pass_marks ?? 32);
+            return $mark->is_passed;
         })->count();
         $passPercentage = $allMarks->count() > 0 ? round(($passedSubjects / $allMarks->count()) * 100, 1) : 0;
 
@@ -69,8 +74,8 @@ class MarksController extends Controller
         $recentExams = Exam::whereHas('marks', function($q) use ($student) {
                 $q->where('student_id', $student->id);
             })
-            ->where('status', 'published')
-            ->latest('start_date')
+            ->where('is_published', true)
+            ->latest('published_at')
             ->take(6)
             ->get();
 
@@ -82,14 +87,42 @@ class MarksController extends Controller
         foreach ($recentExams->reverse() as $exam) {
             $examMarks = Mark::where('student_id', $student->id)
                 ->where('exam_id', $exam->id)
+                ->where('status', 'published')
                 ->get();
             
-            $avgPercentage = $examMarks->avg(function($mark) {
-                return $mark->total_marks > 0 ? ($mark->obtained_marks / $mark->total_marks) * 100 : 0;
-            });
+            if ($examMarks->isEmpty()) {
+                continue;
+            }
+            
+            // Calculate average percentage for this exam
+            $totalObtained = 0;
+            $totalFull = 0;
+            
+            foreach ($examMarks as $mark) {
+                if ($exam->category === 'monthly_assessment') {
+                    $totalObtained += $mark->assessment_obtained_marks ?? 0;
+                    $totalFull += $mark->assessment_full_marks ?? 0;
+                } else {
+                    $totalObtained += $mark->total_marks;
+                    // Get full marks from marking scheme
+                    $scheme = \DB::table('exam_subject_marking_schemes')
+                        ->where('exam_id', $exam->id)
+                        ->where('subject_id', $mark->subject_id)
+                        ->first();
+                    
+                    if ($scheme) {
+                        $totalFull += ($scheme->full_marks_internal_theory ?? 0) +
+                                     ($scheme->full_marks_external_theory ?? 0) +
+                                     ($scheme->full_marks_internal_practical ?? 0) +
+                                     ($scheme->full_marks_external_practical ?? 0);
+                    }
+                }
+            }
+            
+            $avgPercentage = $totalFull > 0 ? round(($totalObtained / $totalFull) * 100, 1) : 0;
 
             $chartData['labels'][] = $exam->name;
-            $chartData['data'][] = round($avgPercentage, 1);
+            $chartData['data'][] = $avgPercentage;
         }
 
         return view('student.marks.index', compact(
