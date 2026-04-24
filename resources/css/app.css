@@ -1,3 +1,81 @@
+/* Reusable dashboard card class for all user dashboards */
+.dashboard-card {
+  @apply relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm;
+}
+html.dark .dashboard-card {
+  background: linear-gradient(135deg, #232b3b 60%, #232b3b 100%) !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+/* Teacher dashboard large card dark mode fix */
+html.dark .teacher-dashboard-header,
+html.dark .teacher-dashboard-header .bg-gradient-to-br {
+  background: linear-gradient(135deg, #232b3b 60%, #232b3b 100%) !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+/* Force all bg-white, bg-gray-50, and similar backgrounds to dark in dark mode, even with opacity or border utility classes */
+html.dark [class*="bg-white"],
+html.dark [class*="bg-gray-50"],
+html.dark [class*="bg-slate-50"],
+html.dark [class*="bg-slate-100"],
+html.dark [class*="bg-slate-200"],
+html.dark [class*="bg-slate-300"],
+html.dark [class*="bg-slate-400"],
+html.dark [class*="bg-slate-500"],
+html.dark [class*="bg-slate-600"],
+html.dark [class*="bg-slate-700"],
+html.dark [class*="bg-slate-800"],
+html.dark [class*="bg-slate-900"] {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+/* Large card/section dark mode fix for private pages */
+html.dark .card,
+html.dark .dashboard-card,
+html.dark .section,
+html.dark .rounded-2xl,
+html.dark .rounded-3xl,
+html.dark .shadow,
+html.dark .shadow-md,
+html.dark .shadow-xl,
+html.dark .border,
+html.dark .bg-white,
+html.dark .bg-gray-50,
+html.dark .bg-slate-50 {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18) !important;
+}
+/* Private pages: override white/gray hover backgrounds in dark mode to blue */
+html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-white\/50:hover,
+html.dark .hover\:bg-white\/60:hover,
+html.dark .hover\:bg-white\/70:hover,
+html.dark .hover\:bg-white\/80:hover,
+html.dark .hover\:bg-white\/90:hover,
+html.dark .hover\:bg-slate-50\/60:hover,
+html.dark .hover\:bg-slate-50\/70:hover,
+html.dark .hover\:bg-gray-50\/60:hover,
+html.dark .hover\:bg-gray-50\/70:hover {
+  background-color: #003D82 !important;
+  color: #fff !important;
+}
+/* Result search form dark mode fix */
+html.dark .bg-white,
+html.dark .bg-gradient-to-b,
+html.dark .bg-gradient-to-r {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+html.dark .border-gray-200,
+html.dark .border-blue-100 {
+  border-color: #334155 !important;
+}
 /* Program card blue hover with white text in light mode */
 .program-card:hover {
   border-color: #074ea2 !important; /* blue-800 */

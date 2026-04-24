@@ -50,7 +50,7 @@
     {{-- ═══════════════════════════════════════════════════════════
          1. TOP HEADER
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+    <section class="teacher-dashboard-header relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-violet-50/40"></div>
         <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">

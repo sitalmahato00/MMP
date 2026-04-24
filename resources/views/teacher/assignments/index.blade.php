@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     {{-- Header --}}
-    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+    <section class="dashboard-card">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-cyan-50/40"></div>
         <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -77,7 +77,7 @@
     </x-filter-bar>
 
     {{-- Assignments Table --}}
-    <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+    <div class="dashboard-card overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>

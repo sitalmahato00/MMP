@@ -44,7 +44,7 @@
     {{-- ═══════════════════════════════════════════════════════════
          1. TOP HEADER
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+    <section class="dashboard-card">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-amber-50/40"></div>
         <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -75,7 +75,7 @@
     <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         @foreach($kpiCards as $card)
             @php $t = $toneMap[$card['tone']] ?? $toneMap['blue']; @endphp
-            <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <div class="dashboard-card group p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div class="flex items-start justify-between">
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
                         <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,7 +101,7 @@
          3. PROFILE COMPLETION ALERT
     ═══════════════════════════════════════════════════════════ --}}
     @if($profileCompletion < 100)
-        <section class="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+        <section class="dashboard-card border-amber-200 bg-amber-50 p-5">
             <div class="flex items-start gap-4">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,7 +128,7 @@
     ═══════════════════════════════════════════════════════════ --}}
     <section class="grid gap-5 lg:grid-cols-2">
         {{-- Quick Actions --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="dashboard-card">
             <div class="border-b border-slate-100 px-5 py-4">
                 <h2 class="text-sm font-semibold text-slate-900">Quick Actions</h2>
                 <p class="text-xs text-slate-500">Manage your alumni profile</p>
@@ -187,7 +187,7 @@
         </div>
 
         {{-- Recent Notices --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="dashboard-card">
             <div class="border-b border-slate-100 px-5 py-4">
                 <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
                 <p class="text-xs text-slate-500">Latest announcements</p>
