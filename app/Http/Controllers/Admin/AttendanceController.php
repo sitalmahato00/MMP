@@ -305,6 +305,7 @@ class AttendanceController extends Controller
                 'teacher.user:id,name,avatar',
                 'teacher.department:id,name,code',
                 'subject:id,name,code,type,semester,program_id,credit_hours',
+                'program:id,department_id,name,code',
                 'program.department:id,name,code',
             ])
             ->withCount([
@@ -361,7 +362,7 @@ class AttendanceController extends Controller
             ->with([
                 'student.user:id,name,avatar',
                 'student.department:id,name,code',
-                'student.program:id,name,code,current_semester',
+                'student.program:id,name,code',
                 'attendanceSession.teacher.user:id,name,avatar',
                 'attendanceSession.teacher.department:id,name,code',
                 'attendanceSession.subject:id,name,code,type,semester,program_id,credit_hours',

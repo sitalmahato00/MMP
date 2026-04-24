@@ -44,6 +44,14 @@ class AttendanceSession extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    /**
+     * Alias for attendances() relationship - used for withCount('records')
+     */
+    public function records()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
     public function scopeForDate($query, $date)
     {
         return $query->whereDate('date', $date);

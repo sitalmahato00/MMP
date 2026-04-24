@@ -522,78 +522,49 @@ html.dark .text-slate-600 {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   FIX BLACK TEXT IN DARK MODE - MAKE ALL TEXT WHITE/LIGHT
+   SMART TEXT COLOR FIX - ONLY CHANGE BLACK TEXT TO WHITE IN DARK MODE
    ══════════════════════════════════════════════════════════════════════════════ */
 
-/* Force all text colors to light in dark mode */
-html.dark,
-html.dark body,
-html.dark main,
-html.dark div,
-html.dark section,
-html.dark article,
-html.dark p,
-html.dark span,
-html.dark h1,
-html.dark h2,
-html.dark h3,
-html.dark h4,
-html.dark h5,
-html.dark h6,
-html.dark label,
-html.dark td,
-html.dark th,
-html.dark li {
-  color: #e2e8f0 !important;
-}
-
-/* Specific text color classes */
+/* Only force dark text colors (black/gray-900/gray-800) to light in dark mode */
+/* This preserves already-light text colors and only fixes invisible black text */
 html.dark .text-gray-900,
 html.dark .text-gray-800,
-html.dark .text-gray-700,
 html.dark .text-slate-900,
 html.dark .text-slate-800,
-html.dark .text-slate-700,
 html.dark .text-black {
   color: #e2e8f0 !important;
 }
 
-/* Input and form elements */
-html.dark input,
-html.dark textarea,
-html.dark select {
+/* Fix dark gray text that's hard to read on dark backgrounds */
+html.dark .text-gray-700,
+html.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+/* Input and form elements - only if they have dark text */
+html.dark input.text-gray-900,
+html.dark textarea.text-gray-900,
+html.dark select.text-gray-900,
+html.dark input:not([class*="text-"]),
+html.dark textarea:not([class*="text-"]),
+html.dark select:not([class*="text-"]) {
   color: #e2e8f0 !important;
   background-color: #1e293b !important;
+  border-color: #475569 !important;
 }
 
-/* Links */
-html.dark a {
+/* Placeholder text */
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Links - only if they're dark colored */
+html.dark a.text-gray-900,
+html.dark a.text-gray-800,
+html.dark a.text-slate-900,
+html.dark a.text-slate-800,
+html.dark a:not([class*="text-"]):not([class*="bg-"]) {
   color: #60a5fa !important;
-}
-
-/* Buttons with dark text */
-html.dark button:not(.bg-blue-500):not(.bg-red-500):not(.bg-green-500):not([class*="bg-primary"]) {
-  color: #e2e8f0 !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   FORCE ONLY BLACK/DARK TEXT TO WHITE IN DARK MODE (NOT ALL TEXT)
-   ══════════════════════════════════════════════════════════════════════════════ */
-
-/* Only target specific dark text color classes that should be light in dark mode */
-html.dark .text-gray-900,
-html.dark .text-gray-800,
-html.dark .text-slate-900,
-html.dark .text-slate-800,
-html.dark .text-black {
-  color: #e2e8f0 !important;
-}
-
-/* Target elements with inline black/dark colors */
-html.dark [style*="color: black"],
-html.dark [style*="color: #000"],
-html.dark [style*="color: rgb(0, 0, 0)"],
-html.dark [style*="color:#000"] {
-  color: #e2e8f0 !important;
 }
 
