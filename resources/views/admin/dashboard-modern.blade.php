@@ -21,6 +21,7 @@
 
     $iconPaths = [
         'students'     => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z',
+        'teachers'     => 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z M12 14l9-5-9-5-9 5 9 5z',
         'attendance'   => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
         'results'      => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
         'semesters'    => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
@@ -68,9 +69,8 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     {{-- ═══════════════════════════════════════════════════════════
          1. TOP HEADER – Smart Control Bar
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40"></div>
-        <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+    <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             {{-- Row 1: Greeting + Quick Actions --}}
             <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -125,11 +125,12 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     {{-- ═══════════════════════════════════════════════════════════
          2. KPI METRICS – 6 Smart Cards
     ═══════════════════════════════════════════════════════════ --}}
-    <section id="dashboard-kpis" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <section id="dashboard-kpis" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         @foreach($kpiCards as $card)
             @php $t = $toneMap[$card['tone']] ?? $toneMap['blue']; @endphp
-            <div data-kpi-card="{{ $card['key'] }}" class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <div data-kpi-card="{{ $card['key'] }}" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="flex items-start justify-between">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
                         <svg class="h-4 w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $iconPaths[$card['icon']] ?? $iconPaths['students'] }}"/>
@@ -154,8 +155,6 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                     <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
                 </div>
                 <p data-kpi-note class="mt-2 text-[11px] text-slate-500">{{ $card['note'] }}</p>
-                {{-- Sparkline placeholder bar --}}
-                <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
             </div>
         @endforeach
     </section>
@@ -167,7 +166,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         {{-- LEFT: Charts --}}
         <div class="space-y-5">
             {{-- Attendance Curve Chart --}}
-            <div class="rounded-xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                     <div>
                         <h2 class="text-sm font-semibold text-slate-900">Attendance Trend</h2>
@@ -185,7 +184,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
             </div>
 
             {{-- Grade Distribution Donut Chart --}}
-            <div class="rounded-xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h2 class="text-sm font-semibold text-slate-900">Grade Distribution</h2>
@@ -201,7 +200,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         {{-- RIGHT: Notices Panel --}}
         <div class="space-y-5">
             {{-- Notices & CTEVT Notices Tabbed Card --}}
-            <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeNoticeTab: 'internal' }">
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm" x-data="{ activeNoticeTab: 'internal' }">
                 <div class="border-b border-slate-100 px-4 py-3">
                     <h2 class="text-sm font-semibold text-slate-900">Notices & Updates</h2>
                 </div>
@@ -288,7 +287,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
             </div>
 
             {{-- Active Academic Flow Card --}}
-            <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div class="border-b border-slate-100 px-4 py-3">
                     <div class="flex items-center gap-2">
                         <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
@@ -342,7 +341,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
             </div>
 
             {{-- Quick Stats --}}
-            <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Community</p>
                 <div class="mt-3 grid grid-cols-3 gap-2">
                     <div class="text-center">
@@ -363,84 +362,35 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     </section>
 
     {{-- ═══════════════════════════════════════════════════════════
-         4. ALERTS & INSIGHTS + HIGHLIGHTS
+         4. ALERTS & INSIGHTS
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="grid gap-5 xl:grid-cols-[1fr_340px]">
-        {{-- Alerts --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <div>
-                    <h2 class="text-sm font-semibold text-slate-900">Insights & Alerts</h2>
-                    <p class="text-xs text-slate-500">AI-style intelligent observations</p>
-                </div>
-            </div>
-            <div data-dashboard-alert-list class="divide-y divide-slate-100 px-5">
-                @forelse($alerts as $alert)
-                    @php $at = $alertTones[$alert['tone']] ?? $alertTones['info']; @endphp
-                    <div class="flex items-start gap-3 py-3.5">
-                        <div class="mt-0.5 h-2 w-2 shrink-0 rounded-full {{ $at['dot'] }}"></div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-semibold text-slate-900">{{ $alert['title'] }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ $alert['message'] }}</p>
-                        </div>
-                        @if(!empty($alert['actionHref']))
-                            <a href="{{ $alert['actionHref'] }}" class="shrink-0 rounded-md border border-slate-200 px-2 sm:px-2.5 py-0.5 sm:py-1 text-\[10px\] sm:text-\[11px\] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
-                                {{ $alert['actionLabel'] ?? 'View' }}
-                            </a>
-                        @endif
-                    </div>
-                @empty
-                    <div class="py-8 text-center">
-                        <p class="text-xs text-slate-400">No alerts for this period.</p>
-                    </div>
-                @endforelse
+    <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <div>
+                <h2 class="text-sm font-semibold text-slate-900">Insights & Alerts</h2>
+                <p class="text-xs text-slate-500">Important notifications and observations</p>
             </div>
         </div>
-
-        {{-- Highlight: Top Department --}}
-        <div data-dashboard-highlight>
-            @if($highlight)
-                <div class="overflow-hidden rounded-xl border border-slate-200/80 shadow-sm">
-                    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-5 py-5 text-white">
-                        <p class="text-[10px] font-semibold uppercase tracking-widest text-white/50">Top Department</p>
-                        <h3 class="mt-2 text-xl font-bold tracking-tight">{{ $highlight['name'] }}</h3>
-                        <p class="mt-1 text-xs text-white/70">{{ $highlight['summary'] }}</p>
-
-                        <div class="mt-4 flex items-end justify-between">
-                            <div>
-                                <span class="text-3xl font-bold">{{ number_format($highlight['score'], 1) }}%</span>
-                                <p class="text-[10px] uppercase tracking-wider text-white/50">Performance</p>
-                            </div>
-                            <div class="rounded-lg bg-white/10 px-3 py-2 text-right">
-                                <p class="text-[10px] text-white/50">Students</p>
-                                <p class="text-sm font-bold">{{ number_format($highlight['students']) }}</p>
-                            </div>
-                        </div>
+        <div data-dashboard-alert-list class="divide-y divide-slate-100 px-5">
+            @forelse($alerts as $alert)
+                @php $at = $alertTones[$alert['tone']] ?? $alertTones['info']; @endphp
+                <div class="flex items-start gap-3 py-3.5">
+                    <div class="mt-0.5 h-2 w-2 shrink-0 rounded-full {{ $at['dot'] }}"></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-slate-900">{{ $alert['title'] }}</p>
+                        <p class="mt-0.5 text-xs text-slate-500">{{ $alert['message'] }}</p>
                     </div>
-                    <div class="grid grid-cols-3 divide-x divide-slate-100 bg-white">
-                        <div class="px-3 py-3 text-center">
-                            <p class="text-sm font-bold text-slate-900">{{ number_format($highlight['attendance_rate'] ?? 0, 1) }}%</p>
-                            <p class="text-[10px] text-slate-500">Attendance</p>
-                        </div>
-                        <div class="px-3 py-3 text-center">
-                            <p class="text-sm font-bold text-slate-900">{{ number_format($highlight['pass_rate'] ?? 0, 1) }}%</p>
-                            <p class="text-[10px] text-slate-500">Pass Rate</p>
-                        </div>
-                        <div class="px-3 py-3 text-center">
-                            <p class="text-sm font-bold text-slate-900">{{ number_format($highlight['score'], 1) }}%</p>
-                            <p class="text-[10px] text-slate-500">Score</p>
-                        </div>
-                    </div>
+                    @if(!empty($alert['actionHref']))
+                        <a href="{{ $alert['actionHref'] }}" class="shrink-0 rounded-md border border-slate-200 px-2 sm:px-2.5 py-0.5 sm:py-1 text-\[10px\] sm:text-\[11px\] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
+                            {{ $alert['actionLabel'] ?? 'View' }}
+                        </a>
+                    @endif
                 </div>
-            @else
-                <div class="flex h-full items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-8">
-                    <div class="text-center">
-                        <svg class="mx-auto h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/></svg>
-                        <p class="mt-2 text-xs font-medium text-slate-500">No highlight data yet</p>
-                        <p class="text-[11px] text-slate-400">Add attendance and results to see top department.</p>
-                    </div>
+            @empty
+                <div class="py-8 text-center">
+                    <p class="text-xs text-slate-400">No alerts for this period.</p>
                 </div>
-            @endif
+            @endforelse
         </div>
     </section>
 
