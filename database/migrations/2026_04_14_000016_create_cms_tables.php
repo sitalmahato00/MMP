@@ -55,7 +55,11 @@ return new class extends Migration
             $table->unsignedBigInteger('file_size')->nullable();
             $table->string('category')->nullable(); // Syllabus, Forms, Notes, etc.
             $table->foreignId('department_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('subject_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('program_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('semester')->nullable();
             $table->boolean('is_public')->default(true);
+            $table->enum('visibility', ['public', 'students', 'private'])->default('students');
             $table->foreignId('uploaded_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });

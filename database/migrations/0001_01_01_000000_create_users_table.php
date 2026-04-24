@@ -17,6 +17,8 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->date('dob')->nullable();
             $table->text('address')->nullable();
+            $table->json('preferences')->nullable();
+            $table->json('notification_preferences')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

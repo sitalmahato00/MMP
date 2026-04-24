@@ -47,6 +47,8 @@ return new class extends Migration
             $table->unsignedSmallInteger('pass_marks_internal_practical')->default(15);
             $table->unsignedSmallInteger('pass_marks_external_practical')->default(10);
             $table->unsignedSmallInteger('credit_hours')->default(3);
+            $table->text('details')->nullable();
+            $table->string('syllabus')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
