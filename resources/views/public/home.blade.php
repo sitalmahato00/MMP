@@ -39,6 +39,16 @@
             ];
         });
 @endphp
+@php
+    $mobileDepartments = collect($departments ?? collect())->take(6);
+    $mobileNotices = collect($notices ?? collect())->take(5);
+    $mobileDownloads = collect($latestDownloads ?? collect())->take(4);
+    $mobileHero = $bannerSlides->first();
+@endphp
+
+{{-- Mobile view now shows desktop content --}}
+
+<div>
 <section class="relative w-full h-[300px] sm:h-[350px] md:h-[420px] overflow-hidden bg-gray-900"
     x-data="{
         current: 0,
@@ -825,6 +835,8 @@
             @endif
         </div>
     </div>
+</div>
+
 </div>
 
 @endsection
