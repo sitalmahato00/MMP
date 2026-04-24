@@ -1,9 +1,13 @@
-const CACHE_NAME = 'mmp-pwa-v2';
+const CACHE_NAME = 'mmp-pwa-v4';
+const OFFLINE_URL = '/offline.html';
 const PRECACHE_URLS = [
     '/',
-    '/manifest.json?v=2',
+    '/notices',
+    '/login',
+    '/manifest.json?v=3',
     '/brand-logo',
     '/favicon.ico',
+    OFFLINE_URL,
 ];
 
 self.addEventListener('install', event => {
@@ -22,6 +26,12 @@ self.addEventListener('activate', event => {
     );
 });
 
+self.addEventListener('message', event => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
 self.addEventListener('fetch', event => {
     const { request } = event;
 
@@ -36,9 +46,21 @@ self.addEventListener('fetch', event => {
     }
 
     if (request.mode === 'navigate') {
-        event.respondWith(
-            fetch(request).catch(() => caches.match('/'))
-        );
+        event.respondWith((async () => {
+            try {
+                const response = await fetch(request);
+
+                if (response && response.ok) {
+                    const cache = await caches.open(CACHE_NAME);
+                    cache.put(request, response.clone());
+                }
+
+                return response;
+            } catch (error) {
+                const cachedPage = await caches.match(request);
+                return cachedPage || caches.match(OFFLINE_URL);
+            }
+        })());
 
         return;
     }
@@ -55,7 +77,6 @@ self.addEventListener('fetch', event => {
         caches.match(request).then(cachedResponse => {
             const networkResponse = fetch(request).then(response => {
                 if (response && response.ok) {
-                    // Clone the response before consuming it
                     const responseClone = response.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
                 }
@@ -64,6 +85,64 @@ self.addEventListener('fetch', event => {
             }).catch(() => cachedResponse);
 
             return cachedResponse || networkResponse;
+        })
+    );
+});
+
+self.addEventListener('push', event => {
+    let payload = {};
+
+    if (event.data) {
+        try {
+            payload = event.data.json();
+        } catch (error) {
+            payload = {
+                title: 'MMP Academic App',
+                body: event.data.text(),
+            };
+        }
+    }
+
+    const title = payload.title || 'MMP Academic App';
+    const body = payload.body || 'You have a new update.';
+    const clickAction = payload.click_action || payload.target_url || '/';
+    const priority = payload.priority || 'medium';
+
+    event.waitUntil(
+        self.registration.showNotification(title, {
+            body,
+            icon: payload.icon || '/brand-logo',
+            badge: payload.badge || '/brand-logo',
+            tag: payload.tag || `mmp-${payload.type || 'general'}`,
+            silent: priority === 'low',
+            requireInteraction: priority === 'high',
+            renotify: priority === 'high',
+            data: {
+                click_action: clickAction,
+            },
+        })
+    );
+});
+
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+
+    const clickAction = event.notification.data?.click_action || '/';
+    const targetUrl = new URL(clickAction, self.location.origin).toString();
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+            for (const client of windowClients) {
+                if (client.url === targetUrl && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+
+            if (clients.openWindow) {
+                return clients.openWindow(targetUrl);
+            }
+
+            return undefined;
         })
     );
 });

@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MMP Mobile PWA Mockup</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #efe8dd;
+            --bg-accent: #f7f1e7;
+            --surface: rgba(255, 253, 248, 0.94);
+            --surface-strong: #ffffff;
+            --surface-soft: #f7f1e8;
+            --ink: #102033;
+            --muted: #627184;
+            --line: #d9d0c4;
+            --brand: #8b2332;
+            --brand-soft: rgba(139, 35, 50, 0.12);
+            --accent: #f0b24f;
+            --success: #15744e;
+            --warning: #a4631d;
+            --danger: #b42318;
+            --info: #165d9c;
+            --shadow: 0 18px 40px rgba(62, 38, 17, 0.14);
+            --phone-shadow: 0 24px 50px rgba(18, 24, 34, 0.18);
+            --radius-xl: 28px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        body[data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #07111d;
+            --bg-accent: #0f1827;
+            --surface: rgba(17, 28, 44, 0.94);
+            --surface-strong: #122033;
+            --surface-soft: #16243a;
+            --ink: #edf3ff;
+            --muted: #9fb1c8;
+            --line: #223248;
+            --brand: #ff8d6a;
+            --brand-soft: rgba(255, 141, 106, 0.16);
+            --accent: #ffd27c;
+            --success: #53d6a1;
+            --warning: #ffbf63;
+            --danger: #ff7d7d;
+            --info: #7db7ff;
+            --shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+            --phone-shadow: 0 24px 50px rgba(0, 0, 0, 0.36);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI Variable Text", "Aptos", "SF Pro Display", "Poppins", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(240, 178, 79, 0.18), transparent 32%),
+                radial-gradient(circle at top right, rgba(139, 35, 50, 0.12), transparent 28%),
+                linear-gradient(180deg, var(--bg-accent) 0%, var(--bg) 100%);
+            color: var(--ink);
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .page {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 56px;
+        }
+
+        .hero {
+            display: grid;
+            gap: 18px;
+            padding: 22px;
+            border: 1px solid var(--line);
+            background: linear-gradient(145deg, var(--surface-strong), var(--surface));
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--brand-soft);
+            color: var(--brand);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: "Georgia", "Iowan Old Style", "Palatino Linotype", serif;
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 1.04;
+        }
+
+        .lead {
+            margin: 0;
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .theme-toggle {
+            min-height: 44px;
+            padding: 0 16px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--surface-soft);
+            color: var(--ink);
+            cursor: pointer;
+        }
+
+        .decision-grid,
+        .notes-grid,
+        .phone-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .decision-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .decision-card,
+        .note-card {
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .decision-card h2,
+        .note-card h2 {
+            margin: 0 0 10px;
+            font-size: 15px;
+        }
+
+        .decision-card p,
+        .note-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 36px;
+            padding: 0 12px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: var(--surface-soft);
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .phone-grid {
+            margin-top: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .phone-wrap {
+            display: grid;
+            gap: 12px;
+        }
+
+        .role-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .role-head h2 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .role-meta {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .phone {
+            width: 100%;
+            max-width: 390px;
+            margin: 0 auto;
+            padding: 10px;
+            border-radius: 34px;
+            background: linear-gradient(180deg, #1f2937, #0b1220);
+            box-shadow: var(--phone-shadow);
+        }
+
+        .screen {
+            height: 760px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background:
+                radial-gradient(circle at top right, rgba(240, 178, 79, 0.12), transparent 28%),
+                linear-gradient(180deg, var(--surface-strong), var(--surface-soft));
+            color: var(--ink);
+        }
+
+        body[data-theme="dark"] .screen {
+            background:
+                radial-gradient(circle at top right, rgba(255, 141, 106, 0.12), transparent 28%),
+                linear-gradient(180deg, #122033, #0d1727);
+        }
+
+        .statusbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px 4px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 16px 14px;
+        }
+
+        .app-title {
+            display: grid;
+            gap: 4px;
+        }
+
+        .app-title strong {
+            font-size: 18px;
+        }
+
+        .app-title span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .icon-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .circle-btn,
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--brand);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .content {
+            flex: 1;
+            padding: 0 14px 0;
+            overflow: auto;
+        }
+
+        .hero-panel,
+        .module,
+        .summary-strip {
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: var(--surface);
+        }
+
+        .hero-panel {
+            padding: 16px;
+            background:
+                linear-gradient(135deg, rgba(139, 35, 50, 0.94), rgba(61, 20, 29, 0.96));
+            color: #fff8f5;
+            overflow: hidden;
+        }
+
+        body[data-theme="dark"] .hero-panel {
+            background:
+                linear-gradient(135deg, rgba(255, 141, 106, 0.16), rgba(255, 210, 124, 0.08)),
+                #16243a;
+            color: var(--ink);
+        }
+
+        .hero-panel h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .hero-panel p {
+            margin: 10px 0 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255, 248, 245, 0.84);
+        }
+
+        body[data-theme="dark"] .hero-panel p {
+            color: var(--muted);
+        }
+
+        .summary-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .summary-cell {
+            padding: 12px 10px;
+            border-right: 1px solid var(--line);
+        }
+
+        .summary-cell:last-child {
+            border-right: 0;
+        }
+
+        .summary-cell strong {
+            display: block;
+            font-size: 16px;
+        }
+
+        .summary-cell span {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .segment-row,
+        .chip-row {
+            display: flex;
+            gap: 8px;
+            overflow: auto;
+            padding: 12px 0 0;
+            scrollbar-width: none;
+        }
+
+        .segment-row::-webkit-scrollbar,
+        .chip-row::-webkit-scrollbar,
+        .content::-webkit-scrollbar,
+        .list-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .segment,
+        .chip {
+            flex: 0 0 auto;
+            min-height: 34px;
+            padding: 0 12px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: var(--surface-soft);
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .segment.active,
+        .chip.active {
+            background: var(--brand-soft);
+            color: var(--brand);
+            border-color: transparent;
+        }
+
+        .searchbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--surface);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .module {
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .module-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 14px 10px;
+        }
+
+        .module-head h4 {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .module-head span {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+        }
+
+        .list-scroll {
+            max-height: 238px;
+            overflow: auto;
+            border-top: 1px solid var(--line);
+        }
+
+        .table-head,
+        .table-row {
+            display: grid;
+            grid-template-columns: 0.9fr 1.8fr 0.8fr 0.8fr;
+            gap: 8px;
+            align-items: center;
+            min-height: 48px;
+            padding: 0 12px;
+        }
+
+        .table-head {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: var(--surface-soft);
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .table-row {
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+        }
+
+        .table-row:last-child {
+            border-bottom: 0;
+        }
+
+        .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .scope {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: var(--surface-soft);
+            color: var(--brand);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .scope.high {
+            background: rgba(180, 35, 24, 0.1);
+            color: var(--danger);
+        }
+
+        .scope.low {
+            background: rgba(21, 116, 78, 0.1);
+            color: var(--success);
+        }
+
+        .action-group {
+            display: inline-flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .action-group .icon-btn {
+            min-width: 28px;
+            height: 28px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .bottom-nav {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            align-items: center;
+            padding: 10px 8px calc(14px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+
+        body[data-theme="dark"] .bottom-nav {
+            background: rgba(12, 19, 31, 0.84);
+        }
+
+        .nav-item {
+            display: grid;
+            justify-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .nav-dot {
+            width: 26px;
+            height: 26px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+        }
+
+        .nav-item.active {
+            color: var(--brand);
+        }
+
+        .nav-item.active .nav-dot {
+            background: var(--brand-soft);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .fab {
+            position: absolute;
+            right: 24px;
+            bottom: 94px;
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            border: 0;
+            background: var(--brand);
+            color: #fff;
+            font-size: 24px;
+            box-shadow: 0 18px 28px rgba(139, 35, 50, 0.34);
+        }
+
+        .screen-wrap {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .sheet {
+            margin-top: 16px;
+            border: 1px solid var(--line);
+            border-radius: 24px 24px 0 0;
+            background: var(--surface);
+            padding: 14px 14px 18px;
+        }
+
+        .sheet-handle {
+            width: 52px;
+            height: 5px;
+            margin: 0 auto 12px;
+            border-radius: 999px;
+            background: var(--line);
+        }
+
+        .sheet-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .sheet-grid .pill {
+            justify-content: center;
+        }
+
+        .notification-row {
+            display: grid;
+            grid-template-columns: 28px 1fr auto;
+            gap: 10px;
+            align-items: start;
+            min-height: 56px;
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .notification-row:last-child {
+            border-bottom: 0;
+        }
+
+        .notif-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 10px;
+            background: var(--brand-soft);
+            color: var(--brand);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .notif-text strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .notif-text p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .notif-time {
+            display: grid;
+            justify-items: end;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .unread-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--brand);
+        }
+
+        .notes-grid {
+            margin-top: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        @media (max-width: 720px) {
+            .page {
+                width: min(100% - 20px, 100%);
+                padding-top: 18px;
+            }
+
+            .hero {
+                padding: 18px;
+                border-radius: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="hero-top">
+            <div class="eyebrow">Native-like academic PWA</div>
+            <button class="theme-toggle" type="button" id="themeToggle">Switch to dark mode</button>
+        </div>
+
+        <div>
+            <h1>MMP mobile app shell built for thumb reach, dense data, scoped feeds, and dark mode.</h1>
+            <p class="lead">
+                This mockup shows the full direction for Public, Admin, Teacher, Student, Parent, and the shared notification center.
+                It intentionally avoids desktop sidebars, oversized cards, and noisy dashboards. Every list stays compact, readable, and role-filtered.
+            </p>
+        </div>
+
+        <div class="decision-grid">
+            <div class="decision-card">
+                <h2>What we reject</h2>
+                <p>Desktop navigation on mobile, cardified tables, mixed-scope notices, long forms without sectioning, and generic web layouts that do not feel app-native.</p>
+            </div>
+            <div class="decision-card">
+                <h2>Navigation model</h2>
+                <p>Fixed top bar + fixed bottom navigation for every role. Notification access is global. Primary create actions live in a FAB or bottom action bar.</p>
+            </div>
+            <div class="decision-card">
+                <h2>List behavior</h2>
+                <p>Sticky list headers, 14px to 15px text, 48px to 56px rows, 3 to 4 visible columns, ellipsis for overflow, and expandable secondary metadata.</p>
+            </div>
+            <div class="decision-card">
+                <h2>Notification engine</h2>
+                <p>Real-time in-app updates plus service-worker push delivery. Results and exams are high priority. Resources are silent or grouped.</p>
+            </div>
+        </div>
+
+        <div class="pills">
+            <div class="pill">Bottom nav only</div>
+            <div class="pill">Compact tables, not cards</div>
+            <div class="pill">Strict department/program/semester filtering</div>
+            <div class="pill">Installable PWA</div>
+            <div class="pill">Light + dark themes</div>
+            <div class="pill">Service worker push ready</div>
+        </div>
+    </section>
+
+    <section class="phone-grid">
+        <article class="phone-wrap">
+            <div class="role-head">
+                <h2>Public</h2>
+                <div class="role-meta">Home, Notices, About, Login</div>
+            </div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="statusbar"><span>9:41</span><span>LTE 91%</span></div>
+                    <div class="topbar">
+                        <div class="app-title">
+                            <strong>MMP App</strong>
+                            <span>Guest mode</span>
+                        </div>
+                        <div class="icon-row">
+                            <div class="circle-btn">I</div>
+                            <div class="circle-btn">N</div>
+                        </div>
+                    </div>
+                    <div class="screen-wrap">
+                        <div class="content">
+                            <div class="hero-panel">
+                                <h3>Install the campus app</h3>
+                                <p>Get notices, admissions updates, and result alerts with fast app-style navigation even on weak connections.</p>
+                                <div class="chip-row">
+                                    <div class="chip active">Install</div>
+                                    <div class="chip">Login</div>
+                                    <div class="chip">View notices</div>
+                                </div>
+                            </div>
+
+                            <div class="summary-strip">
+                                <div class="summary-cell"><strong>27</strong><span>Live notices</span></div>
+                                <div class="summary-cell"><strong>4</strong><span>Open admissions</span></div>
+                                <div class="summary-cell"><strong>3</strong><span>Quick links</span></div>
+                            </div>
+
+                            <div class="searchbar">Search notices, resources, results</div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Latest notices</h4>
+                                    <span>Compact list</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Scope</div>
+                                        <div>Title</div>
+                                        <div>Age</div>
+                                        <div>Open</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">College</span></div>
+                                        <div class="truncate">Scholarship interview schedule</div>
+                                        <div class="muted">2h</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">Exam</span></div>
+                                        <div class="truncate">Entrance admit card download</div>
+                                        <div class="muted">5h</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">Dept</span></div>
+                                        <div class="truncate">Architecture studio orientation</div>
+                                        <div class="muted">1d</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">About</span></div>
+                                        <div class="truncate">Campus visit and contact hours</div>
+                                        <div class="muted">2d</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sheet">
+                                <div class="sheet-handle"></div>
+                                <div class="sheet-grid">
+                                    <div class="pill">Admissions</div>
+                                    <div class="pill">Programs</div>
+                                    <div class="pill">Result check</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-nav" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="nav-item active"><div class="nav-dot"></div><div>Home</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Notices</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>About</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Login</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="phone-wrap">
+            <div class="role-head">
+                <h2>Admin</h2>
+                <div class="role-meta">Dashboard, Users, Notices, Resources, Settings</div>
+            </div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="statusbar"><span>9:41</span><span>5G 87%</span></div>
+                    <div class="topbar">
+                        <div class="app-title">
+                            <strong>Admin Dashboard</strong>
+                            <span>Today overview</span>
+                        </div>
+                        <div class="icon-row">
+                            <div class="circle-btn">B<span class="badge">6</span></div>
+                            <div class="circle-btn">A</div>
+                        </div>
+                    </div>
+                    <div class="screen-wrap">
+                        <div class="content">
+                            <div class="summary-strip">
+                                <div class="summary-cell"><strong>512</strong><span>Users</span></div>
+                                <div class="summary-cell"><strong>9</strong><span>Urgent</span></div>
+                                <div class="summary-cell"><strong>14</strong><span>Drafts</span></div>
+                            </div>
+
+                            <div class="segment-row">
+                                <div class="segment active">Users</div>
+                                <div class="segment">Notices</div>
+                                <div class="segment">Resources</div>
+                                <div class="segment">Alerts</div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>User management</h4>
+                                    <span>Dense table</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Name</div>
+                                        <div>Role</div>
+                                        <div>Dept</div>
+                                        <div>Act</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Sita Rai</div>
+                                        <div class="truncate">Teacher</div>
+                                        <div class="muted">IT</div>
+                                        <div class="action-group"><span class="icon-btn">V</span><span class="icon-btn">E</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Rajan Karki</div>
+                                        <div class="truncate">Student</div>
+                                        <div class="muted">Civil</div>
+                                        <div class="action-group"><span class="icon-btn">V</span><span class="icon-btn">E</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Asha Sharma</div>
+                                        <div class="truncate">Parent</div>
+                                        <div class="muted">Mech</div>
+                                        <div class="action-group"><span class="icon-btn">V</span><span class="icon-btn">E</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Nabin Tamang</div>
+                                        <div class="truncate">Admin</div>
+                                        <div class="muted">All</div>
+                                        <div class="action-group"><span class="icon-btn">V</span><span class="icon-btn">E</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Urgent queue</h4>
+                                    <span>Priority first</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Type</div>
+                                        <div>Issue</div>
+                                        <div>Age</div>
+                                        <div>Fix</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope high">High</span></div>
+                                        <div class="truncate">Semester 4 result push pending</div>
+                                        <div class="muted">8m</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">Med</span></div>
+                                        <div class="truncate">3 notices waiting for publish review</div>
+                                        <div class="muted">22m</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope low">Low</span></div>
+                                        <div class="truncate">Resource tags missing on 5 uploads</div>
+                                        <div class="muted">1h</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="fab" type="button">+</button>
+
+                        <div class="bottom-nav">
+                            <div class="nav-item active"><div class="nav-dot"></div><div>Dash</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Users</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Notices</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Res</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Set</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="phone-wrap">
+            <div class="role-head">
+                <h2>Teacher</h2>
+                <div class="role-meta">Dashboard, Classes, Notices, Resources, Profile</div>
+            </div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="statusbar"><span>9:41</span><span>WiFi 73%</span></div>
+                    <div class="topbar">
+                        <div class="app-title">
+                            <strong>Teacher Workspace</strong>
+                            <span>3 classes today</span>
+                        </div>
+                        <div class="icon-row">
+                            <div class="circle-btn">B<span class="badge">3</span></div>
+                            <div class="circle-btn">P</div>
+                        </div>
+                    </div>
+                    <div class="screen-wrap">
+                        <div class="content">
+                            <div class="summary-strip">
+                                <div class="summary-cell"><strong>3</strong><span>Today</span></div>
+                                <div class="summary-cell"><strong>2</strong><span>To upload</span></div>
+                                <div class="summary-cell"><strong>1</strong><span>Exam alert</span></div>
+                            </div>
+
+                            <div class="searchbar">Search subject, notice, student</div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Classes</h4>
+                                    <span>Tap row for roster</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Subject</div>
+                                        <div>Section</div>
+                                        <div>Next</div>
+                                        <div>Act</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">DBMS</div>
+                                        <div class="truncate">DIT-4A</div>
+                                        <div class="muted">10:15</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Web Tech</div>
+                                        <div class="truncate">DIT-4B</div>
+                                        <div class="muted">12:30</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Lab</div>
+                                        <div class="truncate">DIT-2A</div>
+                                        <div class="muted">14:00</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Resource queue</h4>
+                                    <span>Scoped upload list</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Subj</div>
+                                        <div>File</div>
+                                        <div>Sem</div>
+                                        <div>Act</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">DBMS</div>
+                                        <div class="truncate">Normalization notes</div>
+                                        <div class="muted">4</div>
+                                        <div class="action-group"><span class="icon-btn">E</span><span class="icon-btn">D</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Web</div>
+                                        <div class="truncate">REST API handout</div>
+                                        <div class="muted">4</div>
+                                        <div class="action-group"><span class="icon-btn">E</span><span class="icon-btn">D</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Lab</div>
+                                        <div class="truncate">SQL practice sheet</div>
+                                        <div class="muted">2</div>
+                                        <div class="action-group"><span class="icon-btn">E</span><span class="icon-btn">D</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="fab" type="button">+</button>
+
+                        <div class="bottom-nav">
+                            <div class="nav-item active"><div class="nav-dot"></div><div>Dash</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Class</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Notes</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Res</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Prof</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="phone-wrap">
+            <div class="role-head">
+                <h2>Student</h2>
+                <div class="role-meta">Home, Notices, Resources, Profile</div>
+            </div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="statusbar"><span>9:41</span><span>5G 79%</span></div>
+                    <div class="topbar">
+                        <div class="app-title">
+                            <strong>Student Home</strong>
+                            <span>DIT, Semester 4, Section A</span>
+                        </div>
+                        <div class="icon-row">
+                            <div class="circle-btn">B<span class="badge">4</span></div>
+                            <div class="circle-btn">S</div>
+                        </div>
+                    </div>
+                    <div class="screen-wrap">
+                        <div class="content">
+                            <div class="hero-panel">
+                                <h3>Filtered to your semester only</h3>
+                                <p>College notices still appear, but department, program, and semester items only show when they match your active academic context.</p>
+                                <div class="chip-row">
+                                    <div class="chip active">College</div>
+                                    <div class="chip active">IT</div>
+                                    <div class="chip active">DIT</div>
+                                    <div class="chip active">Sem 4</div>
+                                </div>
+                            </div>
+
+                            <div class="summary-strip">
+                                <div class="summary-cell"><strong>2</strong><span>Exam alerts</span></div>
+                                <div class="summary-cell"><strong>7</strong><span>Unread</span></div>
+                                <div class="summary-cell"><strong>9</strong><span>Resources</span></div>
+                            </div>
+
+                            <div class="segment-row">
+                                <div class="segment active">Notices</div>
+                                <div class="segment">Resources</div>
+                                <div class="segment">Results</div>
+                                <div class="segment">Exams</div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Notices</h4>
+                                    <span>No irrelevant data</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Type</div>
+                                        <div>Title</div>
+                                        <div>Age</div>
+                                        <div>Act</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">College</span></div>
+                                        <div class="truncate">Library timing revised for final prep</div>
+                                        <div class="muted">3h</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">Prog</span></div>
+                                        <div class="truncate">DIT semester 4 project review slots</div>
+                                        <div class="muted">7h</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope high">Exam</span></div>
+                                        <div class="truncate">Midterm seating plan updated</div>
+                                        <div class="muted">1d</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Resources</h4>
+                                    <span>Program + semester scoped</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Subj</div>
+                                        <div>File</div>
+                                        <div>Size</div>
+                                        <div>Act</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">DBMS</div>
+                                        <div class="truncate">Normalization notes</div>
+                                        <div class="muted">1.4MB</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Web</div>
+                                        <div class="truncate">REST API handout</div>
+                                        <div class="muted">880KB</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">DBMS</div>
+                                        <div class="truncate">Lab worksheet 03</div>
+                                        <div class="muted">540KB</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-nav" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="nav-item active"><div class="nav-dot"></div><div>Home</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Notes</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Res</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Prof</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="phone-wrap">
+            <div class="role-head">
+                <h2>Parent</h2>
+                <div class="role-meta">Dashboard, Children, Notices, Profile</div>
+            </div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="statusbar"><span>9:41</span><span>LTE 84%</span></div>
+                    <div class="topbar">
+                        <div class="app-title">
+                            <strong>Parent Dashboard</strong>
+                            <span>Child context locked</span>
+                        </div>
+                        <div class="icon-row">
+                            <div class="circle-btn">B<span class="badge">2</span></div>
+                            <div class="circle-btn">P</div>
+                        </div>
+                    </div>
+                    <div class="screen-wrap">
+                        <div class="content">
+                            <div class="hero-panel">
+                                <h3>Viewing: Anish Rai</h3>
+                                <p>Diploma in Information Technology, Semester 4. Parent feeds must always bind to the selected child and never mix siblings by default.</p>
+                            </div>
+
+                            <div class="segment-row">
+                                <div class="segment active">Anish Rai</div>
+                                <div class="segment">Mina Rai</div>
+                            </div>
+
+                            <div class="summary-strip">
+                                <div class="summary-cell"><strong>92%</strong><span>Attendance</span></div>
+                                <div class="summary-cell"><strong>1</strong><span>Result</span></div>
+                                <div class="summary-cell"><strong>3</strong><span>Unread</span></div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Children</h4>
+                                    <span>Switch context</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Child</div>
+                                        <div>Program</div>
+                                        <div>Sem</div>
+                                        <div>Act</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Anish Rai</div>
+                                        <div class="truncate">DIT</div>
+                                        <div class="muted">4</div>
+                                        <div class="action-group"><span class="icon-btn">On</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="truncate">Mina Rai</div>
+                                        <div class="truncate">Civil</div>
+                                        <div class="muted">2</div>
+                                        <div class="action-group"><span class="icon-btn">Go</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Child notices</h4>
+                                    <span>Selected child only</span>
+                                </div>
+                                <div class="list-scroll">
+                                    <div class="table-head">
+                                        <div>Type</div>
+                                        <div>Title</div>
+                                        <div>Age</div>
+                                        <div>Act</div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope high">Result</span></div>
+                                        <div class="truncate">Internal result published</div>
+                                        <div class="muted">21m</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">Prog</span></div>
+                                        <div class="truncate">Parent meeting for DIT semester 4</div>
+                                        <div class="muted">5h</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div><span class="scope">College</span></div>
+                                        <div class="truncate">Transportation route update</div>
+                                        <div class="muted">1d</div>
+                                        <div class="action-group"><span class="icon-btn">V</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-nav" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="nav-item active"><div class="nav-dot"></div><div>Dash</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Kids</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Notes</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Prof</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="phone-wrap">
+            <div class="role-head">
+                <h2>Notification Center</h2>
+                <div class="role-meta">Shared dense inbox UI</div>
+            </div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="statusbar"><span>9:41</span><span>5G 83%</span></div>
+                    <div class="topbar">
+                        <div class="app-title">
+                            <strong>Notifications</strong>
+                            <span>Unread first, compact rows</span>
+                        </div>
+                        <div class="icon-row">
+                            <div class="circle-btn">All</div>
+                            <div class="circle-btn">U</div>
+                        </div>
+                    </div>
+                    <div class="screen-wrap">
+                        <div class="content">
+                            <div class="segment-row">
+                                <div class="segment active">All</div>
+                                <div class="segment">Unread</div>
+                                <div class="segment">High priority</div>
+                            </div>
+
+                            <div class="module">
+                                <div class="module-head">
+                                    <h4>Inbox</h4>
+                                    <span>Mark all read</span>
+                                </div>
+                                <div class="list-scroll" style="max-height: 520px;">
+                                    <div class="notification-row">
+                                        <div class="notif-icon">RS</div>
+                                        <div class="notif-text">
+                                            <strong>Result published</strong>
+                                            <p>Your semester 4 internal result is now available. Tap to open the result screen.</p>
+                                        </div>
+                                        <div class="notif-time"><div>5m</div><div class="unread-dot"></div></div>
+                                    </div>
+                                    <div class="notification-row">
+                                        <div class="notif-icon">EX</div>
+                                        <div class="notif-text">
+                                            <strong>Exam schedule updated</strong>
+                                            <p>Midterm practical timing changed for the IT department and semester 4 cohort.</p>
+                                        </div>
+                                        <div class="notif-time"><div>24m</div><div class="unread-dot"></div></div>
+                                    </div>
+                                    <div class="notification-row">
+                                        <div class="notif-icon">NT</div>
+                                        <div class="notif-text">
+                                            <strong>Department notice</strong>
+                                            <p>Project review panel list is now published for your program.</p>
+                                        </div>
+                                        <div class="notif-time"><div>2h</div><div class="unread-dot"></div></div>
+                                    </div>
+                                    <div class="notification-row">
+                                        <div class="notif-icon">RE</div>
+                                        <div class="notif-text">
+                                            <strong>New resource</strong>
+                                            <p>REST API handout uploaded to the semester 4 resource list.</p>
+                                        </div>
+                                        <div class="notif-time"><div>6h</div><div></div></div>
+                                    </div>
+                                    <div class="notification-row">
+                                        <div class="notif-icon">SY</div>
+                                        <div class="notif-text">
+                                            <strong>System alert</strong>
+                                            <p>Maintenance window tonight from 11:00 PM to 11:30 PM. Low-priority push will be silent.</p>
+                                        </div>
+                                        <div class="notif-time"><div>1d</div><div></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-nav" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="nav-item"><div class="nav-dot"></div><div>Home</div></div>
+                            <div class="nav-item active"><div class="nav-dot"></div><div>Inbox</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Filter</div></div>
+                            <div class="nav-item"><div class="nav-dot"></div><div>Profile</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="notes-grid">
+        <div class="note-card">
+            <h2>Compact table formula</h2>
+            <p>14px to 15px row text, 8px to 10px padding, 48px to 56px row height, sticky headers, ellipsis for long titles, and actions grouped on the trailing edge.</p>
+        </div>
+        <div class="note-card">
+            <h2>Dark mode behavior</h2>
+            <p>The app defaults to system theme, stores user preference, and keeps brand accents warm and readable in both modes instead of inverting into muddy grayscale.</p>
+        </div>
+        <div class="note-card">
+            <h2>Filtering principle</h2>
+            <p>Role, department, program, semester, and child context must be resolved before any list renders. No broadening OR rules after scope checks.</p>
+        </div>
+        <div class="note-card">
+            <h2>Notification delivery</h2>
+            <p>Results and exams are urgent. Notices are medium priority. Resources are grouped or silent. Every row deep-links directly into the destination screen.</p>
+        </div>
+    </section>
+</div>
+
+<script>
+    (function () {
+        var storageKey = "mmp-mobile-pwa-theme";
+        var root = document.body;
+        var button = document.getElementById("themeToggle");
+        var stored = localStorage.getItem(storageKey);
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = stored || (prefersDark ? "dark" : "light");
+
+        function applyTheme(nextTheme) {
+            root.setAttribute("data-theme", nextTheme);
+            button.textContent = nextTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+        }
+
+        applyTheme(theme);
+
+        button.addEventListener("click", function () {
+            theme = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            localStorage.setItem(storageKey, theme);
+            applyTheme(theme);
+        });
+    })();
+</script>
+</body>
+</html>

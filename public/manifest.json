@@ -1,17 +1,19 @@
 {
-  "name": "Manmohan Memorial Polytechnic",
-  "short_name": "MMP",
-  "description": "Manmohan Memorial Polytechnic public portal for notices, results, downloads, and admissions.",
+  "name": "MMP Academic App",
+  "short_name": "MMP App",
+  "description": "Installable academic app for notices, results, resources, and role-based dashboards.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait-primary",
-  "background_color": "#8B0000",
-  "theme_color": "#8B0000",
+  "background_color": "#efe8dd",
+  "theme_color": "#8b2332",
   "lang": "en",
-  "categories": ["education"],
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/brand-logo",
@@ -43,15 +45,15 @@
       "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     },
     {
-      "name": "Result",
-      "short_name": "Result",
-      "url": "/result",
+      "name": "Resources",
+      "short_name": "Resources",
+      "url": "/downloads",
       "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     },
     {
-      "name": "Downloads",
-      "short_name": "Downloads",
-      "url": "/downloads",
+      "name": "Result",
+      "short_name": "Result",
+      "url": "/result",
       "icons": [{ "src": "/brand-logo", "sizes": "192x192" }]
     },
     {

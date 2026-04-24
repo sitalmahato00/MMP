@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Custom Theme Extension specific for MMP CMS */
 @theme {
   --color-primary-50: #eff6ff;
@@ -17,11 +19,35 @@
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20;
   }
+
+  .safe-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+
+  .safe-bottom {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-bottom-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 5.5rem);
+  }
 }
 
 /* Base custom styles to enforce minimal scrollbar and smooth behaviors */
 html {
   scroll-behavior: smooth;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 ::-webkit-scrollbar {
@@ -43,6 +69,71 @@ html {
 }
 
 [x-cloak] { display: none !important; }
+
+html.dark body {
+  background-color: #020617;
+  color: #e2e8f0;
+}
+
+html.dark .bg-white {
+  background-color: rgb(15 23 42 / 0.96) !important;
+}
+
+html.dark .bg-gray-50,
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/60,
+html.dark .bg-slate-50\/70 {
+  background-color: rgb(15 23 42 / 0.72) !important;
+}
+
+html.dark .bg-gray-100,
+html.dark .bg-slate-100 {
+  background-color: rgb(30 41 59 / 0.9) !important;
+}
+
+html.dark .text-gray-900,
+html.dark .text-slate-900 {
+  color: rgb(248 250 252) !important;
+}
+
+html.dark .text-gray-800,
+html.dark .text-slate-800,
+html.dark .text-gray-700,
+html.dark .text-slate-700 {
+  color: rgb(226 232 240) !important;
+}
+
+html.dark .text-gray-600,
+html.dark .text-slate-600,
+html.dark .text-gray-500,
+html.dark .text-slate-500 {
+  color: rgb(148 163 184) !important;
+}
+
+html.dark .text-gray-400,
+html.dark .text-slate-400 {
+  color: rgb(100 116 139) !important;
+}
+
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-slate-100,
+html.dark .border-slate-200 {
+  border-color: rgb(51 65 85 / 0.9) !important;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+[data-shell-bottom-nav] {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
 
 /* ── Pagination ───────────────────────────────────────────── */
 .pagination-btn {

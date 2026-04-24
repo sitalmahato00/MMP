@@ -1,4 +1,4 @@
-<header class="bg-white border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 shadow-sm">
+<header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:px-6 lg:px-8">
     <div class="flex items-center gap-2">
         <!-- Mobile Sidebar Toggle -->
         <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 hover:text-gray-700 focus:outline-none lg:hidden">
@@ -74,7 +74,7 @@
         </div>
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
         <!-- Quick Stats (for HOD) -->
         @if($user->hasRole('hod') && $department)
             <div class="hidden xl:flex items-center gap-3 mr-2">
@@ -118,10 +118,32 @@
             </div>
         @endif
 
+        <button type="button"
+                x-show="canInstall && !isStandalone"
+                x-cloak
+                @click="installApp()"
+                class="hidden lg:inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v10m0 0l4-4m-4 4l-4-4M4 16.5v1A2.5 2.5 0 006.5 20h11a2.5 2.5 0 002.5-2.5v-1"/>
+            </svg>
+            Install App
+        </button>
+
+        <button type="button"
+                @click="toggleTheme()"
+                class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-slate-500 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <svg x-show="effectiveTheme !== 'dark'" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.354 15.354A9 9 0 018.646 3.646 9 9 0 1012 21a8.96 8.96 0 008.354-5.646z"/>
+            </svg>
+            <svg x-show="effectiveTheme === 'dark'" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2.25M12 18.75V21m9-9h-2.25M5.25 12H3m15.364 6.364l-1.591-1.591M7.227 7.227L5.636 5.636m12.728 0l-1.591 1.591M7.227 16.773l-1.591 1.591M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+            </svg>
+        </button>
+
         <div class="relative" x-data="{ notificationsOpen: false }">
             <button @click="notificationsOpen = !notificationsOpen"
                     @click.away="notificationsOpen = false"
-                    class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-slate-500 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                    class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-slate-500 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                 </svg>
@@ -134,7 +156,7 @@
 
             <div x-show="notificationsOpen"
                  x-transition.opacity.duration.200ms
-                 class="absolute right-0 mt-3 w-[22rem] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl shadow-slate-900/10"
+                 class="absolute right-0 mt-3 w-[22rem] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-900"
                  x-cloak>
                 <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
                     <div>
@@ -202,7 +224,7 @@
 
         <!-- User Dropdown Menu -->
         <div class="relative" x-data="{ userMenuOpen: false }">
-            <button @click="userMenuOpen = !userMenuOpen" @click.away="userMenuOpen = false" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full pr-2">
+            <button @click="userMenuOpen = !userMenuOpen" @click.away="userMenuOpen = false" class="flex items-center gap-2 rounded-full pr-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 border border-gray-300">
                     <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                 </div>
@@ -214,7 +236,7 @@
             </button>
 
             <!-- Dropdown -->
-            <div x-show="userMenuOpen" x-transition.opacity.duration.200ms class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 overflow-hidden" x-cloak>
+            <div x-show="userMenuOpen" x-transition.opacity.duration.200ms class="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900" x-cloak>
                 <div class="px-4 py-3 border-b border-gray-100 mb-1">
                     <p class="text-sm font-medium text-gray-900 truncate">{{ auth()->user()->name }}</p>
                     <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#8b2332">
+    <title>MMP App Offline</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: #efe8dd;
+            --surface: rgba(255, 253, 248, 0.94);
+            --ink: #102033;
+            --muted: #627184;
+            --line: #d9d0c4;
+            --brand: #8b2332;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #07111d;
+                --surface: rgba(18, 32, 51, 0.94);
+                --ink: #edf3ff;
+                --muted: #9fb1c8;
+                --line: #223248;
+                --brand: #ff8d6a;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: "Segoe UI Variable Text", "Aptos", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(240, 178, 79, 0.18), transparent 32%),
+                linear-gradient(180deg, var(--bg), var(--surface));
+            color: var(--ink);
+        }
+
+        .panel {
+            width: min(100%, 420px);
+            padding: 28px 24px;
+            border-radius: 28px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            text-align: center;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+        }
+
+        .logo {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px;
+            border-radius: 22px;
+            display: grid;
+            place-items: center;
+            background: color-mix(in srgb, var(--brand) 12%, white 88%);
+            color: var(--brand);
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 24px;
+        }
+
+        p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.65;
+            font-size: 14px;
+        }
+
+        .actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        a,
+        button {
+            min-height: 46px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: white;
+            color: var(--ink);
+            font: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        button.primary,
+        a.primary {
+            background: var(--brand);
+            border-color: transparent;
+            color: white;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            a,
+            button {
+                background: rgba(255, 255, 255, 0.04);
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="panel">
+        <div class="logo">M</div>
+        <h1>You are offline</h1>
+        <p>The MMP app can still open pages that were cached earlier, but fresh notices, results, and resources need a connection to sync.</p>
+        <div class="actions">
+            <button type="button" class="primary" onclick="window.location.reload()">Try again</button>
+            <a href="/" aria-label="Open cached home page">Open home</a>
+        </div>
+    </main>
+</body>
+</html>

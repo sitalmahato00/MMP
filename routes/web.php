@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\MobilePreviewController;
 
 // ─── Public Routes (SEO-optimized) ────────────────────────
 Route::get('/brand-logo', function () {
@@ -62,6 +63,7 @@ Route::get('/contact', [HomeController::class, 'contact'])->name('public.contact
 Route::get('/alumni', [HomeController::class, 'alumniDirectory'])->name('public.alumni');
 Route::get('/alumni/{id}', [HomeController::class, 'alumniProfile'])->name('public.alumni.profile')->whereNumber('id');
 Route::get('/page/{slug}', [HomeController::class, 'page'])->name('public.page');
+Route::get('/app-preview', MobilePreviewController::class)->name('public.app-preview');
 
 // ─── Apply Now (Public Application Form) ───────────────────
 Route::get('/apply', [HomeController::class, 'apply'])->name('public.apply');

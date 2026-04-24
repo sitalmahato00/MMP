@@ -3,6 +3,136 @@ import Alpine from 'alpinejs';
 import NepaliDate from 'nepali-date-converter';
 import Chart from 'chart.js/auto';
 
+const themeStorageKey = 'mmp.theme';
+const themePalette = {
+    light: '#8b2332',
+    dark: '#0f172a',
+};
+
+const getThemeMeta = () => document.querySelector('meta[name="theme-color"]');
+const getStoredTheme = () => localStorage.getItem(themeStorageKey) || 'system';
+const getSystemTheme = () => window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+const getEffectiveTheme = (choice = getStoredTheme()) => choice === 'system' ? getSystemTheme() : choice;
+
+const broadcastTheme = (choice, effective) => {
+    window.dispatchEvent(new CustomEvent('mmp:theme-changed', {
+        detail: { choice, theme: effective },
+    }));
+};
+
+const applyTheme = (choice = getStoredTheme()) => {
+    const effective = getEffectiveTheme(choice);
+
+    document.documentElement.classList.toggle('dark', effective === 'dark');
+    document.documentElement.dataset.theme = effective;
+    document.documentElement.style.colorScheme = effective;
+
+    const themeMeta = getThemeMeta();
+    if (themeMeta) {
+        if (!document.documentElement.dataset.themeLight) {
+            document.documentElement.dataset.themeLight = themeMeta.getAttribute('content') || themePalette.light;
+        }
+
+        themeMeta.setAttribute(
+            'content',
+            effective === 'dark'
+                ? themePalette.dark
+                : (document.documentElement.dataset.themeLight || themePalette.light)
+        );
+    }
+
+    broadcastTheme(choice, effective);
+
+    return effective;
+};
+
+window.mmpTheme = {
+    storageKey: themeStorageKey,
+    getStoredTheme,
+    getEffectiveTheme,
+    applyTheme,
+    set(choice) {
+        localStorage.setItem(themeStorageKey, choice);
+        return applyTheme(choice);
+    },
+    toggle() {
+        const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+        return this.set(next);
+    },
+};
+
+window.mmpPwa = (() => {
+    let deferredPrompt = null;
+    const listeners = new Set();
+
+    const getState = () => ({
+        canInstall: !!deferredPrompt,
+        isInstalled: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
+    });
+
+    const notify = () => {
+        const state = getState();
+        listeners.forEach((listener) => listener(state));
+    };
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        notify();
+    });
+
+    window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        notify();
+    });
+
+    return {
+        getState,
+        subscribe(listener) {
+            listeners.add(listener);
+            listener(getState());
+
+            return () => listeners.delete(listener);
+        },
+        async prompt() {
+            if (!deferredPrompt) {
+                return false;
+            }
+
+            const prompt = deferredPrompt;
+            prompt.prompt();
+
+            try {
+                await prompt.userChoice;
+            } catch (error) {
+                // The browser controls the install prompt lifecycle.
+            }
+
+            deferredPrompt = null;
+            notify();
+
+            return true;
+        },
+    };
+})();
+
+if (window.matchMedia) {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const syncSystemTheme = () => {
+        if (getStoredTheme() === 'system') {
+            applyTheme('system');
+        }
+    };
+
+    if (typeof media.addEventListener === 'function') {
+        media.addEventListener('change', syncSystemTheme);
+    } else if (typeof media.addListener === 'function') {
+        media.addListener(syncSystemTheme);
+    }
+}
+
+applyTheme();
+
 window.NepaliDate = NepaliDate;
 window.Alpine = Alpine;
 window.Chart = Chart;
@@ -877,4 +1007,3 @@ if (document.readyState === 'loading') {
 }
 
 Alpine.start();
-

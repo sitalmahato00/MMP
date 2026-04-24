@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 
 class Download extends Model
 {
@@ -58,9 +57,13 @@ class Download extends Model
      * Scope to filter downloads visible to a specific student
      * Validation logic:
      * - Department: NULL (all departments) OR matches student's department
-     * - Program: NULL (all programs) OR matches student's program  
+     * - Program: NULL (all programs) OR matches student's program
      * - Semester: NULL (all semesters) OR matches student's semester
-     * - Uploaded by: Student's class teachers (teachers teaching their subjects)
+     * - Subject: NULL OR belongs to the student's current program + semester
+     *
+     * Important:
+     * All filters must compose with AND. Do not add a broad OR path based on
+     * uploader, or unrelated resources can leak into the student's feed.
      */
     public function scopeVisibleToStudent($query, Student $student)
     {
@@ -68,36 +71,31 @@ class Download extends Model
         $programId = $student->program_id;
         $semester = $student->current_semester;
 
-        // Get IDs of teachers teaching this student's subjects via subject_teacher pivot table
-        $teacherUserIds = DB::table('subjects')
-            ->where('subjects.program_id', $programId)
-            ->where('subjects.semester', $semester)
-            ->join('subject_teacher', 'subjects.id', '=', 'subject_teacher.subject_id')
-            ->join('teachers', 'subject_teacher.teacher_id', '=', 'teachers.id')
-            ->pluck('teachers.user_id')
-            ->unique()
-            ->toArray();
-
         return $query
-            ->where(function($q) use ($departmentId) {
+            ->where(function ($q) use ($departmentId) {
                 $q->whereNull('department_id')
-                  ->orWhere('department_id', $departmentId);
+                    ->orWhere('department_id', $departmentId);
             })
-            ->where(function($q) use ($programId) {
+            ->where(function ($q) use ($programId) {
                 $q->whereNull('program_id')
-                  ->orWhere('program_id', $programId);
+                    ->orWhere('program_id', $programId);
             })
-            ->where(function($q) use ($semester) {
+            ->where(function ($q) use ($semester) {
                 $q->whereNull('semester');
+
                 if ($semester !== null) {
                     $q->orWhere('semester', $semester);
                 }
             })
-            // Also include resources uploaded by student's class teachers
-            ->orWhere(function($q) use ($teacherUserIds) {
-                if (!empty($teacherUserIds)) {
-                    $q->whereIn('uploaded_by', $teacherUserIds);
-                }
+            ->where(function ($q) use ($programId, $semester) {
+                $q->whereNull('subject_id')
+                    ->orWhereHas('subject', function ($subjectQuery) use ($programId, $semester) {
+                        $subjectQuery->where('program_id', $programId);
+
+                        if ($semester !== null) {
+                            $subjectQuery->where('semester', $semester);
+                        }
+                    });
             });
     }
 
