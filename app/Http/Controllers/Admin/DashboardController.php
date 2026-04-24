@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicSession;
 use App\Models\AcademicSessionSemester;
 use App\Models\Alumni;
-use App\Models\Application;
 use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\Mark;
@@ -60,11 +59,7 @@ class DashboardController extends Controller
             $currentAdmissions = $this->countAdmissions($window['start'], $window['end'], $period === 'session' ? $selectedSession : null);
             $previousAdmissions = $this->countAdmissions($comparison['start'], $comparison['end'], $comparison['session']);
 
-            $currentApplicationsVolume = $this->countApplications($window['start'], $window['end']);
-            $previousApplicationsVolume = $this->countApplications($comparison['start'], $comparison['end']);
-
             $currentStudents = Student::active()->count();
-            $pendingApplications = Application::where('status', 'pending')->count();
             $totalTeachers = Teacher::active()->count();
             $totalParents = ParentModel::count();
             $totalAlumni = Alumni::count();
@@ -76,7 +71,6 @@ class DashboardController extends Controller
             $currentAdmissionsTrend = $this->formatTrend($currentAdmissions, $previousAdmissions);
             $attendanceTrend = $this->formatTrend($attendanceSummary['rate'], $previousAttendanceSummary['rate']);
             $passTrend = $this->formatTrend($passSummary['rate'], $previousPassSummary['rate']);
-            $applicationTrend = $this->formatTrend($currentApplicationsVolume, $previousApplicationsVolume);
 
             // Semester status panel
             $runningSemesters = $this->buildSemesterStatus($activeSession);
@@ -89,11 +83,6 @@ class DashboardController extends Controller
                 ->with(['author', 'department'])
                 ->latest()
                 ->take(4)
-                ->get();
-
-            $recentApplications = Application::with('department')
-                ->latest()
-                ->take(5)
                 ->get();
 
             $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
@@ -109,8 +98,6 @@ class DashboardController extends Controller
                 $departmentPerformance['rows'],
                 $attendanceSummary,
                 $passSummary,
-                $pendingApplications,
-                $currentApplicationsVolume,
                 $currentAdmissions,
                 $previousAdmissions,
             );
@@ -161,18 +148,6 @@ class DashboardController extends Controller
                     'href' => '#',
                 ],
                 [
-                    'key' => 'applications',
-                    'title' => 'Active Applications',
-                    'value' => number_format($pendingApplications),
-                    'suffix' => null,
-                    'trend' => $applicationTrend['text'],
-                    'trendDirection' => $applicationTrend['direction'],
-                    'note' => number_format($currentApplicationsVolume) . ' in ' . $window['label'],
-                    'icon' => 'applications',
-                    'tone' => 'amber',
-                    'href' => route('admin.applications.index'),
-                ],
-                [
                     'key' => 'semesters',
                     'title' => 'Running Semesters',
                     'value' => (string) count(array_filter($runningSemesters, fn ($s) => $s['status'] !== 'completed')),
@@ -208,7 +183,6 @@ class DashboardController extends Controller
                 'alerts' => $alerts,
                 'highlight' => $highlight,
                 'recentNotices' => $recentNotices,
-                'recentApplications' => $recentApplications,
                 'ctevtGeneralNotices' => $ctevtGeneralNotices,
                 'ctevtResultNotices' => $ctevtResultNotices,
                 'attendanceChartData' => $attendanceChartData,
@@ -217,7 +191,6 @@ class DashboardController extends Controller
                 'totalTeachers' => $totalTeachers,
                 'totalParents' => $totalParents,
                 'totalAlumni' => $totalAlumni,
-                'pendingApplications' => $pendingApplications,
                 'attendanceSummary' => $attendanceSummary,
                 'passSummary' => $passSummary,
                 'activeSession' => $activeSession,
@@ -430,13 +403,6 @@ class DashboardController extends Controller
             ->count();
     }
 
-    private function countApplications(Carbon $start, Carbon $end): int
-    {
-        return Application::query()
-            ->whereBetween('created_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
-            ->count();
-    }
-
     // ─── Builders ──────────────────────────────────────────────
 
     private function buildEnrollmentTrend(Carbon $start, Carbon $end, string $period, ?AcademicSession $session): array
@@ -595,7 +561,7 @@ class DashboardController extends Controller
             && $externalPractical >= (float) ($row->pass_marks_external_practical ?? 0);
     }
 
-    private function buildAlerts(Collection $departmentRows, array $attendanceSummary, array $passSummary, int $pendingApplications, int $applicationVolume, int $admissions, int $previousAdmissions): array
+    private function buildAlerts(Collection $departmentRows, array $attendanceSummary, array $passSummary, int $admissions, int $previousAdmissions): array
     {
         $alerts = [];
 
@@ -608,17 +574,6 @@ class DashboardController extends Controller
                 'message' => 'Attendance is ' . number_format($lowAttendance['attendance_rate'], 1) . '% — below the 75% threshold.',
                 'actionLabel' => 'View Details',
                 'actionHref' => route('admin.students.index'),
-            ];
-        }
-
-        if ($pendingApplications >= 10) {
-            $alerts[] = [
-                'tone' => 'warning',
-                'icon' => 'clock',
-                'title' => number_format($pendingApplications) . ' applications awaiting review',
-                'message' => 'Admissions queue is growing. Clear the backlog to avoid delays.',
-                'actionLabel' => 'Review',
-                'actionHref' => route('admin.applications.index'),
             ];
         }
 
@@ -750,26 +705,6 @@ class DashboardController extends Controller
                 'type' => $n->type,
                 'href' => route('admin.notices.edit', $n),
             ])->values()->all(),
-            'recentApplications' => $payload['recentApplications']->map(function (Application $app) {
-                $status = $app->status ?? 'pending';
-                return [
-                    'full_name' => $app->full_name,
-                    'department' => $app->department->name ?? 'General intake',
-                    'phone' => $app->phone,
-                    'email' => $app->email,
-                    'date' => bsDate($app->created_at, 'Y, F d'),
-                    'status' => $status,
-                    'statusLabel' => ucfirst($status),
-                    'statusClass' => match ($status) {
-                        'reviewed' => 'bg-sky-100 text-sky-700',
-                        'contacted' => 'bg-violet-100 text-violet-700',
-                        'accepted' => 'bg-emerald-100 text-emerald-700',
-                        'rejected' => 'bg-rose-100 text-rose-700',
-                        default => 'bg-amber-100 text-amber-700',
-                    },
-                    'href' => route('admin.applications.show', $app),
-                ];
-            })->values()->all(),
             'ctevtNotices' => [
                 'general' => $payload['ctevtGeneralNotices'],
                 'result' => $payload['ctevtResultNotices'],
