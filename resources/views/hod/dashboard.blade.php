@@ -147,7 +147,12 @@
                 <p class="text-xs text-slate-500">Active students' exam performance breakdown</p>
             </div>
             <div class="p-4 sm:p-5">
-                <canvas class="h-48 sm:h-64 w-full" id="gradeChart"></canvas>
+                @php $hasGrades = array_sum($chartData['grades'] ?? []) > 0; @endphp
+                @if($hasGrades)
+                    <canvas class="h-48 sm:h-64 w-full" id="gradeChart"></canvas>
+                @else
+                    <div class="text-center text-slate-400 py-12">No grade data available.</div>
+                @endif
             </div>
         </div>
 
@@ -249,7 +254,12 @@
             </div>
         </div>
         <div class="p-4 sm:p-5">
-            <canvas class="h-48 sm:h-64 w-full" id="attendanceChart"></canvas>
+            @php $hasAttendance = !empty($chartData['attendance']) && count($chartData['attendance']) > 0; @endphp
+            @if($hasAttendance)
+                <canvas class="h-48 sm:h-64 w-full" id="attendanceChart"></canvas>
+            @else
+                <div class="text-center text-slate-400 py-12">No attendance data available.</div>
+            @endif
         </div>
     </section>
     @endif

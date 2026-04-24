@@ -178,18 +178,7 @@ class DashboardController extends Controller
         // Debug: Log the grade distribution results
         \Log::info('Grade Distribution Results:', $gradeDistribution);
 
-        // If no real data, add sample data for testing
-        if (empty($gradeDistribution)) {
-            $gradeDistribution = [
-                'A+' => 5,
-                'A' => 12,
-                'B+' => 18,
-                'B' => 15,
-                'C' => 8,
-                'F' => 2
-            ];
-            \Log::info('Using sample grade distribution data');
-        }
+        // If no real data, leave gradeDistribution empty (no sample data)
 
         // Fill missing grades with 0
         $allGrades = ['A+', 'A', 'B+', 'B', 'C', 'F'];
@@ -203,7 +192,6 @@ class DashboardController extends Controller
         $attendanceData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
-            
             $attendanceStats = Attendance::query()
                 ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
                 ->join('students', 'students.id', '=', 'attendances.student_id')
@@ -212,21 +200,23 @@ class DashboardController extends Controller
                 ->selectRaw('COUNT(*) as total')
                 ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
                 ->first();
-            
-            $attendanceRate = $attendanceStats && $attendanceStats->total > 0 
-                ? round(($attendanceStats->present / $attendanceStats->total) * 100, 1) 
-                : rand(75, 95); // Sample data if no real data
-            
+
+            if ($attendanceStats && $attendanceStats->total > 0) {
+                $attendanceRate = round(($attendanceStats->present / $attendanceStats->total) * 100, 1);
+            } else {
+                $attendanceRate = null; // No data for this day
+            }
+
             $attendanceData[] = [
                 'date' => $date->toDateString(),
-                'date_bs' => bsDate($date, 'Y F d, l'), // Full BS format with day name
-                'date_short' => bsDate($date, 'F d'), // Short format for chart labels
+                'date_bs' => bsDate($date, 'Y F d, l'),
+                'date_short' => bsDate($date, 'F d'),
                 'rate' => $attendanceRate
             ];
         }
-        
-        // Debug: Log attendance data
-        \Log::info('Attendance Data:', $attendanceData);
+
+        // Remove days with no data (rate === null)
+        $attendanceData = array_filter($attendanceData, fn($d) => $d['rate'] !== null);
         
         // Today's classes for the department with attendance information
         $today = strtolower(Carbon::now()->format('l')); // Day name (monday, tuesday, etc.)
@@ -313,57 +303,7 @@ class DashboardController extends Controller
         \Log::info('Today\'s Classes Query - Day: ' . $today . ', Department ID: ' . $deptId);
         \Log::info('Today\'s Classes Count: ' . $todayClasses->count());
 
-        // If no classes today, add sample data for testing
-        if ($todayClasses->isEmpty()) {
-            $todayClasses = collect([
-                [
-                    'time' => '9:00 AM - 10:00 AM',
-                    'subject' => 'Database Systems',
-                    'subject_code' => 'DIT-S1-02',
-                    'teacher' => 'Er. Sabin Shrestha',
-                    'room' => 'IT Lab-2',
-                    'type' => 'Lab',
-                    'program' => 'DIT - Sem 1 (A)',
-                    'program_full' => 'Diploma in Information Technology (Semester 1, Section A)',
-                    'attendance_marked' => true,
-                    'total_students_marked' => 25,
-                    'present_count' => 23,
-                    'absent_count' => 2,
-                    'attendance_rate' => 92.0
-                ],
-                [
-                    'time' => '10:00 AM - 11:00 AM',
-                    'subject' => 'Programming Fundamentals',
-                    'subject_code' => 'DIT-S1-01',
-                    'teacher' => 'Er. Ram Sharma',
-                    'room' => 'Room 101',
-                    'type' => 'Theory',
-                    'program' => 'DIT - Sem 1 (B)',
-                    'program_full' => 'Diploma in Information Technology (Semester 1, Section B)',
-                    'attendance_marked' => false,
-                    'total_students_marked' => 0,
-                    'present_count' => 0,
-                    'absent_count' => 0,
-                    'attendance_rate' => 0
-                ],
-                [
-                    'time' => '11:00 AM - 12:00 PM',
-                    'subject' => 'Web Development',
-                    'subject_code' => 'DIT-S2-03',
-                    'teacher' => 'Er. Sita Poudel',
-                    'room' => 'IT Lab-1',
-                    'type' => 'Lab',
-                    'program' => 'DIT - Sem 2 (A)',
-                    'program_full' => 'Diploma in Information Technology (Semester 2, Section A)',
-                    'attendance_marked' => true,
-                    'total_students_marked' => 22,
-                    'present_count' => 20,
-                    'absent_count' => 2,
-                    'attendance_rate' => 90.9
-                ]
-            ]);
-            \Log::info('Using sample today\'s classes data');
-        }
+        // If no classes today, leave todayClasses empty (no sample data)
         
         return [
             'grades' => $gradeDistribution,
