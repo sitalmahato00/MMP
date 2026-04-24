@@ -230,7 +230,7 @@
     <nav data-shell-bottom-nav class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/80 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] lg:hidden dark:border-slate-800 dark:bg-slate-950/95">
         <div class="grid grid-cols-{{ count($mobileNavItems) }} gap-1 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
             @foreach($mobileNavItems as $item)
-                <a href="{{ $item['href'] }}" class="flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-center transition {{ $item['active'] ? 'bg-[#8B0000]/10 text-[#8B0000] dark:bg-blue-500/15 dark:text-blue-300' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900' }}">
+                <a href="{{ $item['href'] }}" class="flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-center transition {{ $item['active'] ? 'bg-[#8B0000]/10 text-[#8B0000] dark:bg-blue-500/15 dark:text-blue-300' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900' }}">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         @if($item['icon'] === 'cog')
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $iconPaths[$item['icon']] }}"/>

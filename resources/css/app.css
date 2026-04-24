@@ -1,3 +1,25 @@
+/* Force horizontal mobile nav bar for all user roles */
+@media (max-width: 640px) {
+  [data-shell-bottom-nav] > div {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+    gap: 0.25rem !important;
+  }
+  [data-shell-bottom-nav] a {
+    flex-direction: column !important;
+    min-width: 0 !important;
+    width: 100%;
+  }
+}
+/* Fix: Ensure hero image is visible in dark mode on public page */
+html.dark .hero-section img, html.dark .hero-section .hero-bg {
+  opacity: 1 !important;
+  filter: none !important;
+}
+html.dark .hero-section {
+  background: none !important;
+}
 /* Reusable dashboard card class for all user dashboards */
 .dashboard-card {
   @apply relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm;
