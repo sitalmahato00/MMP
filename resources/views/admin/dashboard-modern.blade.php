@@ -126,60 +126,64 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
          2. SIMPLE STATS CARDS
     ═══════════════════════════════════════════════════════════ --}}
     <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {{-- Students Card --}}
-        <a href="{{ route('admin.students.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        {{-- Total Active Users Card --}}
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-slate-500">Active Students</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($currentStudents) }}</p>
+                    <p class="text-sm text-slate-500">Total Active Users</p>
+                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($currentStudents + $totalTeachers + $totalParents) }}</p>
+                    <p class="mt-1 text-xs text-slate-400">Students + Teachers + Parents</p>
                 </div>
                 <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
                     <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
                 </div>
             </div>
-        </a>
+        </div>
 
-        {{-- Teachers Card --}}
-        <a href="{{ route('admin.teachers.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        {{-- Attendance Percentage Card --}}
+        <a href="{{ route('admin.attendance.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-slate-500">Active Teachers</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($totalTeachers) }}</p>
-                </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50">
-                    <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
-                </div>
-            </div>
-        </a>
-
-        {{-- Parents Card --}}
-        <a href="{{ route('admin.parents.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500">Total Parents</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($totalParents) }}</p>
+                    <p class="text-sm text-slate-500">Attendance Rate</p>
+                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($attendanceSummary['rate'], 1) }}%</p>
+                    <p class="mt-1 text-xs text-slate-400">{{ number_format($attendanceSummary['present']) }} / {{ number_format($attendanceSummary['total']) }} present</p>
                 </div>
                 <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50">
                     <svg class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
         </a>
 
-        {{-- Departments Card --}}
-        <a href="{{ route('admin.departments.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        {{-- Pass Rate Card --}}
+        <a href="{{ route('admin.exams.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-slate-500">Departments</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format(App\Models\Department::active()->count()) }}</p>
+                    <p class="text-sm text-slate-500">Pass Rate</p>
+                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($passSummary['rate'], 1) }}%</p>
+                    <p class="mt-1 text-xs text-slate-400">{{ number_format($passSummary['passed']) }} / {{ number_format($passSummary['total']) }} passed</p>
                 </div>
                 <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-violet-50">
                     <svg class="h-6 w-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+
+        {{-- Total Departments Card --}}
+        <a href="{{ route('admin.departments.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Total Departments</p>
+                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format(App\Models\Department::active()->count()) }}</p>
+                    <p class="mt-1 text-xs text-slate-400">Active departments</p>
+                </div>
+                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-50">
+                    <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>

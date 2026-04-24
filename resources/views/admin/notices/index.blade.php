@@ -66,55 +66,45 @@
     class="space-y-6"
     @keydown.escape.window="closeDrawer()"
 >
-    <section class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
-        <div class="flex flex-wrap items-start justify-between gap-4">
+    <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-slate-950">{{ $workspace['title'] }}</h1>
-                <p class="mt-2 text-sm text-slate-500">{{ $workspace['subtitle'] }}</p>
+                <h1 class="text-2xl font-bold text-slate-900">{{ $workspace['title'] }}</h1>
+                <p class="mt-1 text-sm text-slate-500">{{ $workspace['subtitle'] }}</p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route($workspace['route_prefix'] . '.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#750000]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    {{ $workspace['create_label'] }}
-                </a>
-            </div>
+            <a href="{{ route($workspace['route_prefix'] . '.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                {{ $workspace['create_label'] }}
+            </a>
         </div>
 
-        <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+        <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-6 mb-5">
             @foreach($overviewCards as $card)
-                @php $tone = $toneStyles[$card['tone']] ?? $toneStyles['slate']; @endphp
-                <article class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">{{ $card['label'] }}</p>
-                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold {{ $tone['chip'] }}">
-                            <span class="h-1.5 w-1.5 rounded-full {{ $tone['dot'] }}"></span>
-                            Live
-                        </span>
-                    </div>
-                    <p class="mt-3 text-3xl font-black text-slate-950">{{ number_format($card['value']) }}</p>
-                    <p class="mt-1 text-xs text-slate-500">Current {{ $workspace['list_label'] }} snapshot</p>
-                </article>
+                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <p class="text-xs text-slate-500">{{ $card['label'] }}</p>
+                    <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($card['value']) }}</p>
+                </div>
             @endforeach
         </div>
     </section>
 
-    <section class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <form method="GET" action="{{ route($workspace['index_route']) }}" class="grid gap-3 lg:grid-cols-12">
             <div class="lg:col-span-3">
                 <input
                     type="search"
                     name="search"
                     value="{{ request('search') }}"
-                    placeholder="Search title or content..."
-                    class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100"
+                    placeholder="Search..."
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
             </div>
 
             <div class="lg:col-span-2">
-                <select name="type" class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                <select name="type" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                     <option value="">All Types</option>
                     @foreach($typeMeta as $type => $meta)
                         <option value="{{ $type }}" @selected(request('type') === $type)>{{ $meta['label'] }}</option>
@@ -123,7 +113,7 @@
             </div>
 
             <div class="lg:col-span-2">
-                <select name="status" class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                <select name="status" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                     <option value="">All Status</option>
                     @foreach($statusMeta as $status => $meta)
                         <option value="{{ $status }}" @selected(request('status') === $status)>{{ $meta['label'] }}</option>
@@ -133,50 +123,29 @@
 
             @if(! $workspace['is_news_events'])
                 <div class="lg:col-span-2">
-                    <select name="department_id" class="w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                    <select name="department_id" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                         <option value="">All Departments</option>
                         @foreach($departments as $department)
-                            @php
-                                $departmentLabel = $department->code
-                                    ? $department->code . ' - ' . $department->name
-                                    : $department->name;
-                            @endphp
-                            <option value="{{ $department->id }}" @selected((string) request('department_id') === (string) $department->id)>{{ $departmentLabel }}</option>
+                            <option value="{{ $department->id }}" @selected((string) request('department_id') === (string) $department->id)>
+                                {{ $department->code ? $department->code . ' - ' : '' }}{{ $department->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
             @endif
 
             <div class="lg:col-span-3 flex gap-2">
-                <button type="submit" class="w-full rounded-full bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#750000]">Search</button>
-                <a href="{{ route($workspace['index_route']) }}" class="w-full rounded-full border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-bold text-slate-600 transition hover:bg-slate-50">Reset</a>
-            </div>
-
-            <div class="lg:col-span-2">
-                <x-bs-date-picker name="date_from" :value="request('date_from')" placeholder="From BS date" class="rounded-full border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100"/>
-            </div>
-
-            <div class="lg:col-span-2">
-                <x-bs-date-picker name="date_to" :value="request('date_to')" placeholder="To BS date" class="rounded-full border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100"/>
-            </div>
-
-            <div class="lg:col-span-8 flex items-center text-xs text-slate-500">
-                Filter by published date in BS. Draft {{ $workspace['list_label'] }} without a publish date use their created date.
+                <button type="submit" class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Search</button>
+                <a href="{{ route($workspace['index_route']) }}" class="flex-1 rounded-lg border border-slate-200 px-4 py-2 text-center text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
         </form>
     </section>
 
-    <section class="rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
-            <p class="text-sm text-slate-500">
-                Showing <span class="font-semibold text-slate-700">{{ $notices->firstItem() ?? 0 }}-{{ $notices->lastItem() ?? 0 }}</span>
-                of <span class="font-semibold text-slate-700">{{ number_format($notices->total()) }}</span> {{ $workspace['list_label'] }}
+    <section class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <p class="text-sm text-slate-600">
+                Showing {{ $notices->firstItem() ?? 0 }}-{{ $notices->lastItem() ?? 0 }} of {{ number_format($notices->total()) }}
             </p>
-
-            <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-600">Published list shows BS dates</span>
-                <span class="rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-600">Open preview drawer from any row</span>
-            </div>
         </div>
 
         <div class="hidden lg:block overflow-hidden">
