@@ -185,7 +185,7 @@ class AttendanceController extends Controller
         }
     }
 
-    public function show(AttendanceSession $attendanceSession)
+    public function show(AttendanceSession $attendance)
     {
         $user = auth()->user();
         $teacher = $user->teacher;
@@ -194,16 +194,16 @@ class AttendanceController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        if (! $this->canManageAttendanceSession($teacher, $attendanceSession)) {
+        if (! $this->canManageAttendanceSession($teacher, $attendance)) {
             return redirect()->route('teacher.attendance.index')->with('error', 'You are not authorized to view this attendance record.');
         }
 
-        $attendanceSession->load(['subject', 'teacher.user', 'attendances.student.user']);
+        $attendance->load(['subject', 'teacher.user', 'attendances.student.user']);
 
-        return view('teacher.attendance.show', compact('attendanceSession'));
+        return view('teacher.attendance.show', ['attendanceSession' => $attendance]);
     }
 
-    public function edit(AttendanceSession $attendanceSession)
+    public function edit(AttendanceSession $attendance)
     {
         $user = auth()->user();
         $teacher = $user->teacher;
@@ -212,19 +212,20 @@ class AttendanceController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        if (! $this->canManageAttendanceSession($teacher, $attendanceSession)) {
+        if (! $this->canManageAttendanceSession($teacher, $attendance)) {
             return redirect()->route('teacher.attendance.index')->with('error', 'You are not authorized to edit this attendance record.');
         }
 
-        $attendanceSession->load(['subject', 'attendances.student.user']);
+        $attendance->load(['subject', 'attendances.student.user']);
 
-        return view('teacher.attendance.edit', compact('attendanceSession'));
+        return view('teacher.attendance.edit', ['attendanceSession' => $attendance]);
     }
 
-    public function update(Request $request, AttendanceSession $attendanceSession)
+    public function update(Request $request, AttendanceSession $attendance)
     {
         $user = auth()->user();
         $teacher = $user->teacher;
+        $attendanceSession = $attendance;
 
         if (! $teacher) {
             abort(403, 'Teacher profile not found');
@@ -260,12 +261,12 @@ class AttendanceController extends Controller
             $attendanceSession->attendances()->delete();
 
             // Create new attendance records
-            foreach ($data['attendances'] as $attendance) {
+            foreach ($data['attendances'] as $attendanceRow) {
                 Attendance::create([
                     'attendance_session_id' => $attendanceSession->id,
-                    'student_id' => $attendance['student_id'],
-                    'status' => $attendance['status'],
-                    'remarks' => $attendance['remarks'] ?? null,
+                    'student_id' => $attendanceRow['student_id'],
+                    'status' => $attendanceRow['status'],
+                    'remarks' => $attendanceRow['remarks'] ?? null,
                 ]);
             }
 
@@ -275,7 +276,7 @@ class AttendanceController extends Controller
         }
     }
 
-    public function destroy(AttendanceSession $attendanceSession)
+    public function destroy(AttendanceSession $attendance)
     {
         $user = auth()->user();
         $teacher = $user->teacher;
@@ -284,11 +285,11 @@ class AttendanceController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        if (! $this->canManageAttendanceSession($teacher, $attendanceSession)) {
+        if (! $this->canManageAttendanceSession($teacher, $attendance)) {
             abort(403, 'Unauthorized');
         }
 
-        $attendanceSession->delete();
+        $attendance->delete();
 
         return redirect()->route('teacher.attendance.index')->with('success', 'Attendance deleted successfully.');
     }
