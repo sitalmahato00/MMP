@@ -1,3 +1,73 @@
+/* Program card blue hover with white text in light mode */
+.program-card:hover {
+  border-color: #074ea2 !important; /* blue-800 */
+  box-shadow: 0 4px 24px 0 rgba(7, 78, 162, 0.12);
+  background: #074ea2 !important;
+  color: #fff !important;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+}
+/* Ensure only text changes color on hover, logo/icon remains blue with white background */
+.program-card:hover h3,
+.program-card:hover p {
+  color: #fff !important;
+}
+.program-card:hover .program-logo,
+.program-card:hover .program-logo * {
+  color: #003D82 !important;
+  background: #fff !important;
+  fill: #003D82 !important;
+  stroke: #003D82 !important;
+}
+html.dark .program-card:hover {
+  border-color: #60a5fa !important; /* blue-400 */
+  background: #1e293b;
+  box-shadow: 0 4px 24px 0 rgba(96, 165, 250, 0.10);
+}
+/* Card footer link bar for 'View More'/'View All' links */
+.card-footer-link {
+  display: block;
+  width: 100%;
+  background: #074ea2; /* blue-800 or your preferred blue */
+  color: #fff;
+  font-weight: 700;
+  padding: 1rem 1.5rem;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  text-align: left;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+.card-footer-link:hover {
+  background: #003D82;
+  color: #fff;
+  text-decoration: underline;
+}
+
+
+/* Card border style for card-like components only */
+.card, .program-card, .course-card, .feature-card {
+  border: 2px solid #334155; /* slate-700 for dark, will override below for light */
+  border-radius: 1rem;
+  background: #1e293b;
+}
+html:not(.dark) .card, html:not(.dark) .program-card, html:not(.dark) .course-card, html:not(.dark) .feature-card {
+  border: 2px solid #e5e7eb; /* gray-200 */
+  background: #fff;
+}
+
+/* Card color refinement */
+.card, .bg-white, .bg-gray-50, .bg-slate-50, .bg-slate-100 {
+  background-color: #fff !important;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+}
+
+html.dark .card, html.dark .bg-white, html.dark .bg-gray-50, html.dark .bg-slate-50, html.dark .bg-slate-100 {
+  background-color: #1e293b !important; /* slate-800 */
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18);
+  border: 1px solid #334155 !important;
+}
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -76,7 +146,15 @@ html.dark body {
 }
 
 html.dark .bg-white {
-  background-color: rgb(15 23 42 / 0.96) !important;
+  background-color: rgb(30 41 59 / 0.96) !important;
+}
+
+html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-blue-50:hover,
+html.dark .hover\:bg-red-50:hover,
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-gray-100:hover {
+  background-color: rgb(51 65 85 / 0.85) !important;
 }
 
 html.dark .bg-gray-50,
@@ -119,7 +197,7 @@ html.dark .border-gray-100,
 html.dark .border-gray-200,
 html.dark .border-slate-100,
 html.dark .border-slate-200 {
-  border-color: rgb(51 65 85 / 0.9) !important;
+  border-color: rgb(71 85 105 / 0.9) !important;
 }
 
 html.dark ::-webkit-scrollbar-thumb {
@@ -136,21 +214,35 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 }
 
 /* ── Pagination ───────────────────────────────────────────── */
+
 .pagination-btn {
   @apply inline-flex items-center justify-center h-8 min-w-8 px-2 rounded-lg
          text-sm font-medium text-slate-600 bg-white border border-slate-200
-         hover:border-[#8B0000] hover:text-[#8B0000] hover:bg-red-50
          transition-all select-none cursor-pointer;
 }
 
+html.dark .pagination-btn {
+  @apply text-slate-200 bg-slate-800 border-slate-700;
+}
+
+html.dark .pagination-btn:hover {
+  @apply border-blue-400 text-blue-400 bg-slate-700;
+}
+
 .pagination-active {
-  @apply bg-[#8B0000] text-white border-[#8B0000] font-bold
-         hover:bg-[#7a0000] hover:text-white hover:border-[#7a0000] hover:bg-[#7a0000];
+  @apply bg-[#8B0000] text-white border-[#8B0000] font-bold;
+}
+
+html.dark .pagination-active {
+  @apply bg-blue-700 text-white border-blue-700;
 }
 
 .pagination-disabled {
-  @apply text-slate-300 border-slate-100 bg-slate-50 cursor-not-allowed
-         hover:text-slate-300 hover:border-slate-100 hover:bg-slate-50;
+  @apply text-slate-300 border-slate-100 bg-slate-50 cursor-not-allowed;
+}
+
+html.dark .pagination-disabled {
+  @apply text-slate-600 border-slate-700 bg-slate-800;
 }
 
 /* ── Responsive table utility ─────────────────────────────── */

@@ -205,7 +205,7 @@
         {{-- LEFT COLUMN (Quick Links & Officials) --}}
         <div class="order-2 lg:order-none lg:col-span-3 space-y-6">
             {{-- Quick Links Card --}}
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-200 dark:border-slate-700">
                 <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                     Quick Links
@@ -227,7 +227,7 @@
             </div>
 
             {{-- People/Officials (Dynamic) --}}
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden text-sm hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden text-sm hover:shadow-xl transition-shadow duration-300 border border-gray-200 dark:border-slate-700">
                 <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Managements
@@ -256,14 +256,14 @@
                         <p class="text-xs text-gray-400 dark:text-slate-500 text-center py-2">Management details coming soon.</p>
                     @endif
                 </div>
-                <a href="{{ route('public.leadership') }}" class="block p-2.5 bg-gray-50 dark:bg-slate-700 border-t dark:border-slate-600 text-xs font-bold text-[#003D82] dark:text-blue-400 hover:underline text-center">View All Presidents & Principals »</a>
+                <a href="{{ route('public.leadership') }}" class="card-footer-link">View All Presidents & Principals »</a>
             </div>
         </div>
 
         {{-- CENTER COLUMN (Welcome & Notice Tabs) --}}
         <div class="order-1 lg:order-none lg:col-span-6 space-y-6">
             {{-- Welcome Box --}}
-            <div class="bg-[#003D82] dark:bg-slate-800 text-white p-8 text-center rounded-sm relative overflow-hidden shadow-sm">
+            <div class="bg-[#003D82] dark:bg-slate-800 text-white p-8 text-center rounded-sm relative overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700">
                 <div class="absolute inset-0 opacity-10 bg-gradient-to-tr from-black to-transparent"></div>
                 @php
                     $welcomeMessage = trim((string) optional($siteSettings->get('what_is_mmp'))->value ?? 'Manmohan Memorial Polytechnic (MMP) is a constituent college of Manmohan Technical University — the first technical university in Nepal.');
@@ -296,7 +296,7 @@
                 $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
                 $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
             @endphp
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden flex flex-col h-[400px] hover:shadow-xl transition-shadow duration-300" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden flex flex-col min-h-[520px] h-[520px] hover:shadow-xl transition-shadow duration-300 border border-gray-200 dark:border-slate-700" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
                 <div class="flex">
                     <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] dark:bg-slate-700 text-gray-700 dark:text-slate-300 border-transparent hover:bg-[#e9e9e9] dark:hover:bg-slate-600'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -473,12 +473,12 @@
                         </ul>
                     </div>
                 </div>
-                <div class="px-4 py-2 border-t dark:border-slate-700 bg-white dark:bg-slate-800">
-                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices') }}" class="text-[#003D82] dark:text-blue-400 text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
-                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices') }}" class="text-[#003D82] dark:text-blue-400 text-xs font-bold hover:underline flex items-center gap-1">View All Notices »</a>
+                <div class="px-0 pt-0 pb-0 mt-0 border-0 bg-transparent rounded-b-2xl">
+                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices') }}" class="card-footer-link">View All Notices »</a>
+                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices') }}" class="card-footer-link">View All Notices »</a>
                     <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex items-center gap-4 flex-wrap">
-                        <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="text-[#003D82] dark:text-blue-400 text-xs font-bold hover:underline flex items-center gap-1">View CTEVT General »</a>
-                        <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="text-[#003D82] dark:text-blue-400 text-xs font-bold hover:underline flex items-center gap-1">View CTEVT Results »</a>
+                        <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="card-footer-link">View CTEVT General »</a>
+                        <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="card-footer-link">View CTEVT Results »</a>
                     </div>
                 </div>
             </div>
@@ -638,8 +638,8 @@
         @endphp
 
         @foreach($programData as $prog)
-            <a href="{{ route('public.department.show', $prog->slug) }}" class="group rounded-2xl shadow-md p-6 text-center flex flex-col items-center hover:bg-[#003D82] hover:text-white dark:hover:bg-blue-600 transition-all duration-300 h-full hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] bg-white dark:bg-slate-800 dark:text-slate-200">
-                <div class="w-14 h-14 bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 rounded-full shadow-sm flex items-center justify-center text-[#003D82] dark:text-blue-400 group-hover:text-[#003D82] mb-4 group-hover:bg-white dark:group-hover:bg-white transition-colors">
+            <a href="{{ route('public.department.show', $prog->slug) }}" class="program-card group rounded-2xl shadow-md p-6 text-center flex flex-col items-center transition-all duration-300 h-full hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] bg-white dark:bg-slate-800 dark:text-slate-200">
+                <div class="program-logo w-14 h-14 bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 rounded-full shadow-sm flex items-center justify-center text-[#003D82] dark:text-blue-400 group-hover:text-[#003D82] mb-4 group-hover:bg-white dark:group-hover:bg-white transition-colors">
                     {!! $programIcons[$prog->name] ?? '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' !!}
                 </div>
                 <h3 class="font-semibold text-[13px] leading-snug mb-1.5 text-gray-900 dark:text-slate-200 group-hover:text-white transition-colors">Diploma in<br>{{ str_replace('Diploma in ', '', $prog->name) }}</h3>
@@ -709,8 +709,8 @@
                     </div>
                 @endforelse
             </div>
-            <div class="p-3 bg-gray-50 dark:bg-slate-700 border-t dark:border-slate-600">
-                <a href="{{ route('public.downloads') }}" class="text-xs font-bold text-[#003D82] dark:text-blue-400 hover:underline">All Downloads & Publications »</a>
+            <div class="p-0">
+                <a href="{{ route('public.downloads') }}" class="card-footer-link">All Downloads & Publications »</a>
             </div>
         </div>
 
@@ -763,8 +763,8 @@
                     </div>
                 @endforeach
             </div>
-            <div class="p-3 bg-gray-50 dark:bg-slate-700 border-t dark:border-slate-600">
-                <a href="{{ route('public.facilities') }}" class="text-xs font-bold text-[#003D82] dark:text-blue-400 hover:underline">Explore Facilities »</a>
+            <div class="p-0">
+                <a href="{{ route('public.facilities') }}" class="card-footer-link">Explore Facilities »</a>
             </div>
         </div>
 
