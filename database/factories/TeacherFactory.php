@@ -21,7 +21,7 @@ class TeacherFactory extends Factory
             'qualification' => fake()->randomElement(['B.E.', 'B.Tech', 'M.Sc.', 'M.E.']),
             'specialization' => fake()->sentence(3),
             'join_date' => fake()->dateTimeBetween('-10 years', '-1 year'),
-            'employment_type' => fake()->randomElement(['permanent', 'contract', 'visiting']),
+            'employment_type' => fake()->randomElement(['permanent', 'contract', 'part-time']),
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),

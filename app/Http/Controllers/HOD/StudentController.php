@@ -146,7 +146,9 @@ class StudentController extends HodController
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
-        DB::transaction(function () use ($data, $deptId, $academicSession, $request) {
+        $createdAccounts = [];
+
+        DB::transaction(function () use ($data, $deptId, $academicSession, $request, &$createdAccounts) {
             $user = User::create([
                 'name'      => $data['name'],
                 'email'     => $data['email'],
@@ -159,6 +161,7 @@ class StudentController extends HodController
                 'is_active' => true,
             ]);
             $user->assignRole('student');
+            $createdAccounts[] = ['user' => $user, 'password' => $data['password']];
 
             $student = new Student([
                 'user_id'             => $user->id,
@@ -192,6 +195,7 @@ class StudentController extends HodController
                     'is_active' => true,
                 ]);
                 $parentUser->assignRole('parent');
+                $createdAccounts[] = ['user' => $parentUser, 'password' => $data['password']];
 
                 $parentModel = ParentModel::create([
                     'user_id'             => $parentUser->id,
@@ -202,6 +206,11 @@ class StudentController extends HodController
                 $student->parents()->attach($parentModel->id);
             }
         });
+
+        $notificationService = app(\App\Services\PortalNotificationService::class);
+        foreach ($createdAccounts as $account) {
+            $notificationService->sendNewAccountCredentials($account['user'], $account['password'], auth()->user());
+        }
 
         return redirect()
             ->route('hod.students.index')

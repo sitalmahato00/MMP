@@ -20,6 +20,13 @@
             $user = auth()->user();
             $department = null;
             $designation = null;
+            $hasNotificationsTable = \Illuminate\Support\Facades\Schema::hasTable('notifications');
+            $headerNotifications = $hasNotificationsTable
+                ? $user->notifications()->latest()->limit(5)->get()
+                : collect();
+            $unreadNotificationCount = $hasNotificationsTable
+                ? $user->unreadNotifications()->count()
+                : 0;
             
             // Get department and designation based on user role
             if ($user->hasRole('hod')) {
@@ -111,6 +118,88 @@
             </div>
         @endif
 
+        <div class="relative" x-data="{ notificationsOpen: false }">
+            <button @click="notificationsOpen = !notificationsOpen"
+                    @click.away="notificationsOpen = false"
+                    class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-slate-500 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                @if($unreadNotificationCount > 0)
+                    <span class="absolute -right-1 -top-1 inline-flex min-h-[1.35rem] min-w-[1.35rem] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[11px] font-bold text-white shadow-lg">
+                        {{ $unreadNotificationCount > 99 ? '99+' : $unreadNotificationCount }}
+                    </span>
+                @endif
+            </button>
+
+            <div x-show="notificationsOpen"
+                 x-transition.opacity.duration.200ms
+                 class="absolute right-0 mt-3 w-[22rem] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl shadow-slate-900/10"
+                 x-cloak>
+                <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">Notifications</p>
+                        <p class="text-xs text-slate-500">{{ $unreadNotificationCount }} unread</p>
+                    </div>
+                    <a href="{{ route('notifications.index') }}"
+                       class="text-xs font-semibold text-blue-600 transition hover:text-blue-700">
+                        View all
+                    </a>
+                </div>
+
+                @if($headerNotifications->isEmpty())
+                    <div class="px-5 py-10 text-center">
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                        </div>
+                        <p class="mt-4 text-sm font-semibold text-slate-900">No notifications yet</p>
+                        <p class="mt-1 text-xs leading-6 text-slate-500">New notices, results, and official updates will appear here.</p>
+                    </div>
+                @else
+                    <div class="max-h-[28rem] divide-y divide-slate-100 overflow-y-auto">
+                        @foreach($headerNotifications as $notification)
+                            @php
+                                $title = data_get($notification->data, 'title', 'Notification');
+                                $message = data_get($notification->data, 'message', '');
+                                $scope = data_get($notification->data, 'scope_label');
+                                $isUnread = is_null($notification->read_at);
+                            @endphp
+                            <a href="{{ route('notifications.open', $notification) }}"
+                               class="block px-5 py-4 transition hover:bg-slate-50 {{ $isUnread ? 'bg-blue-50/40' : '' }}">
+                                <div class="flex items-start gap-3">
+                                    <span class="mt-1.5 h-2.5 w-2.5 flex-shrink-0 rounded-full {{ $isUnread ? 'bg-blue-500' : 'bg-slate-300' }}"></span>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <p class="truncate text-sm font-semibold text-slate-900">{{ $title }}</p>
+                                            @if($scope)
+                                                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">{{ $scope }}</span>
+                                            @endif
+                                        </div>
+                                        @if($message)
+                                            <p class="mt-1.5 text-xs leading-5 text-slate-600">{{ \Illuminate\Support\Str::limit($message, 88) }}</p>
+                                        @endif
+                                        <p class="mt-2 text-[11px] font-medium text-slate-400">{{ $notification->created_at?->diffForHumans() }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="border-t border-slate-100 bg-slate-50 px-5 py-3">
+                    <form method="POST" action="{{ route('notifications.read-all') }}">
+                        @csrf
+                        <button type="submit"
+                                class="text-xs font-semibold text-slate-600 transition hover:text-slate-900">
+                            Mark all as read
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- User Dropdown Menu -->
         <div class="relative" x-data="{ userMenuOpen: false }">
             <button @click="userMenuOpen = !userMenuOpen" @click.away="userMenuOpen = false" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full pr-2">
@@ -163,7 +252,7 @@
                         $user->hasRole('teacher') => route('teacher.settings.index'),
                         $user->hasRole('student') => route('student.settings.index'),
                         $user->hasRole('parent') => route('parent.settings.index'),
-                        $user->hasRole('alumni') => route('alumni.dashboard'), // Alumni doesn't have settings yet
+                        $user->hasRole('alumni') => route('alumni.settings.index'),
                         default => route('admin.settings.index'),
                     };
                 @endphp

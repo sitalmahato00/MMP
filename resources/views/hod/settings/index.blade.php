@@ -514,7 +514,7 @@
                     <div class="p-6">
                         <p class="text-sm text-slate-600">This will reset your dashboard widgets and layout to the default configuration. Your other settings will not be affected.</p>
                         
-                        <form action="{{ route('admin.settings.reset-dashboard') }}" method="POST" class="mt-4" x-data @submit.prevent="
+                        <form action="{{ route('hod.settings.reset-dashboard') }}" method="POST" class="mt-4" x-data @submit.prevent="
                             if (confirm('Are you sure you want to reset your dashboard? This cannot be undone.')) {
                                 $el.submit();
                             }
@@ -544,7 +544,7 @@
                     <div class="p-6">
                         <p class="text-sm text-slate-600">This will clear all your personal preferences including theme, language, notifications, and dashboard settings. You'll need to reconfigure everything.</p>
                         
-                        <form action="{{ route('admin.settings.clear-preferences') }}" method="POST" class="mt-4" x-data @submit.prevent="
+                        <form action="{{ route('hod.settings.clear-preferences') }}" method="POST" class="mt-4" x-data @submit.prevent="
                             if (confirm('Are you sure you want to clear all preferences? This cannot be undone.')) {
                                 $el.submit();
                             }
@@ -591,6 +591,7 @@
 @endsection
 
 @push('scripts')
+@include('partials.settings.form-state', ['preferences' => $preferences ?? [], 'notificationPreferences' => $notificationPreferences ?? []])
 <script>
 document.addEventListener('alpine:init', () => {
     // Auto-save indicator

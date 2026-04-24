@@ -90,7 +90,9 @@ class ParentController extends Controller
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
-        DB::transaction(function () use ($data) {
+        $createdUser = null;
+
+        DB::transaction(function () use ($data, &$createdUser) {
             $user = User::create([
                 'name'      => $data['name'],
                 'email'     => $data['email'],
@@ -101,6 +103,7 @@ class ParentController extends Controller
                 'is_active' => true,
             ]);
             $user->assignRole('parent');
+            $createdUser = $user;
 
             $parent = ParentModel::create([
                 'user_id'             => $user->id,
@@ -112,6 +115,11 @@ class ParentController extends Controller
                 $parent->students()->sync($data['student_ids']);
             }
         });
+
+        if ($createdUser) {
+            app(\App\Services\PortalNotificationService::class)
+                ->sendNewAccountCredentials($createdUser, $data['password'], auth()->user());
+        }
 
         return redirect()->route('admin.parents.index')
             ->with('success', 'Parent account created successfully.');

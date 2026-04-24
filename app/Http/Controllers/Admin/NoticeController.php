@@ -154,6 +154,7 @@ class NoticeController extends Controller
         ]);
 
         $this->storeAttachments($request, $notice);
+        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
 
@@ -193,6 +194,7 @@ class NoticeController extends Controller
 
         $this->removeSelectedAttachments($request, $notice);
         $this->storeAttachments($request, $notice);
+        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
 

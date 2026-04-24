@@ -82,7 +82,9 @@ class AlumniController extends Controller
             'is_featured' => 'boolean',
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
+        $createdUser = null;
+
+        DB::transaction(function () use ($validated, $request, &$createdUser) {
             $avatarPath = $request->hasFile('avatar')
                 ? $request->file('avatar')->store('avatars', 'public')
                 : null;
@@ -97,6 +99,7 @@ class AlumniController extends Controller
                 'is_active' => true,
             ]);
             $user->assignRole('alumni');
+            $createdUser = $user;
 
             Alumnus::create([
                 'user_id' => $user->id,
@@ -119,6 +122,11 @@ class AlumniController extends Controller
                 'visibility' => 'public',
             ]);
         });
+
+        if ($createdUser) {
+            app(\App\Services\PortalNotificationService::class)
+                ->sendNewAccountCredentials($createdUser, $validated['password'], auth()->user());
+        }
 
         return redirect()->route('admin.alumni.index')->with('success', 'Alumni record created successfully.');
     }

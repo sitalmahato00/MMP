@@ -64,6 +64,9 @@ class UserController extends Controller
 
         $user->assignRole($data['role']);
 
+        app(\App\Services\PortalNotificationService::class)
+            ->sendNewAccountCredentials($user, $data['password'], auth()->user());
+
         return redirect()->route('admin.users.index')
             ->with('success', "User {$user->name} created successfully.");
     }

@@ -125,7 +125,9 @@ class StudentController extends Controller
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
-        DB::transaction(function () use ($data, $program, $academicSession, $request) {
+        $createdAccounts = [];
+
+        DB::transaction(function () use ($data, $program, $academicSession, $request, &$createdAccounts) {
             $user = User::create([
                 'name'      => $data['name'],
                 'email'     => $data['email'],
@@ -138,6 +140,7 @@ class StudentController extends Controller
                 'is_active' => true,
             ]);
             $user->assignRole('student');
+            $createdAccounts[] = ['user' => $user, 'password' => $data['password']];
 
             $student = Student::create([
                 'user_id'             => $user->id,
@@ -167,6 +170,7 @@ class StudentController extends Controller
                     'is_active' => true,
                 ]);
                 $parentUser->assignRole('parent');
+                $createdAccounts[] = ['user' => $parentUser, 'password' => $data['password']];
 
                 $parentModel = ParentModel::create([
                     'user_id'             => $parentUser->id,
@@ -177,6 +181,11 @@ class StudentController extends Controller
                 $student->parents()->attach($parentModel->id);
             }
         });
+
+        $notificationService = app(\App\Services\PortalNotificationService::class);
+        foreach ($createdAccounts as $account) {
+            $notificationService->sendNewAccountCredentials($account['user'], $account['password'], auth()->user());
+        }
 
         return redirect()->route('admin.students.index')->with('success', 'Student enrolled successfully.');
     }

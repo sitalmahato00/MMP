@@ -103,6 +103,7 @@ class ExamController extends Controller
 
             return $exam;
         });
+        app(\App\Services\PortalNotificationService::class)->dispatchExamPublished($exam);
 
         return redirect()->route('admin.exams.show', $exam)->with('success', 'Exam created successfully.');
     }
@@ -378,6 +379,8 @@ class ExamController extends Controller
             $exam->update($data);
             $this->syncProgramAssignments($exam, $programIds, $semesterSelection, $sessionId);
         });
+        $exam->refresh()->loadMissing(['department:id,name,code', 'programs:id,name,code,department_id']);
+        app(\App\Services\PortalNotificationService::class)->dispatchExamPublished($exam);
 
         return redirect()->route('admin.exams.show', $exam)->with('success', 'Exam updated successfully.');
     }
@@ -397,6 +400,8 @@ class ExamController extends Controller
             'is_published' => true,
             'published_at' => now(),
         ]);
+        $exam->refresh()->loadMissing(['department:id,name,code', 'programs:id,name,code,department_id']);
+        app(\App\Services\PortalNotificationService::class)->dispatchExamPublished($exam);
 
         return redirect()->route('admin.exams.show', $exam)->with('success', "Exam '{$exam->name}' has been published.");
     }

@@ -211,6 +211,9 @@
         ['label' => 'Community', 'items' => [
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('alumni.notices.index', 'alumni.dashboard'), 'isActive' => $active('alumni.notices.*')],
         ]],
+        ['label' => 'Account', 'items' => [
+            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('alumni.settings.index', 'alumni.dashboard'), 'isActive' => $active('alumni.settings.*')],
+        ]],
     ];
 
     $sidebarExpandedWidth = '17rem';

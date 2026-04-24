@@ -28,6 +28,14 @@
                 <x-alert type="error" :message="$errors->first()" />
             @endif
 
+            @if (session('status'))
+                <x-alert type="success" :message="session('status')" class="mt-4" />
+            @endif
+
+            @if (session('success'))
+                <x-alert type="success" :message="session('success')" class="mt-4" />
+            @endif
+
             <form method="POST" action="{{ route('login') }}" class="space-y-5">
                 @csrf
                 <div>
@@ -38,7 +46,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="block text-sm font-bold text-gray-700">Password</label>
-                        <a href="#" class="text-xs font-bold text-[#003D82] hover:text-blue-900 hover:underline">Forgot password?</a>
+                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-[#003D82] hover:text-blue-900 hover:underline">Forgot password?</a>
                     </div>
                     <input type="password" name="password" required class="w-full rounded border-gray-300 focus:border-[#003D82] focus:ring-[#003D82] shadow-sm py-2.5 px-3 border transition-colors outline-none text-sm">
                 </div>

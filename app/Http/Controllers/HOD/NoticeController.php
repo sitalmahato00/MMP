@@ -154,7 +154,7 @@ class NoticeController extends HodController
             $data['attachment'] = $request->file('attachment')->store('notices', 'public');
         }
 
-        Notice::create([
+        $notice = Notice::create([
             'title' => $data['title'],
             'slug' => Str::slug($data['title']) . '-' . time(),
             'content' => $data['content'],
@@ -167,6 +167,7 @@ class NoticeController extends HodController
             'is_published' => $data['is_published'] ?? false,
             'published_at' => ($data['is_published'] ?? false) ? now() : null,
         ]);
+        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
 
@@ -244,6 +245,7 @@ class NoticeController extends HodController
             'is_published' => $data['is_published'] ?? false,
             'published_at' => ($data['is_published'] ?? false) && ! $notice->published_at ? now() : $notice->published_at,
         ] + (isset($data['attachment']) ? ['attachment' => $data['attachment']] : []));
+        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
 
@@ -329,6 +331,7 @@ class NoticeController extends HodController
             'is_published' => $data['is_published'] ?? false,
             'published_at' => ($data['is_published'] ?? false) ? now() : null,
         ]);
+        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         // Clear public caches so changes appear immediately
         PublicDataService::invalidate('*');
@@ -434,6 +437,7 @@ class NoticeController extends HodController
             'is_published' => $data['is_published'] ?? false,
             'published_at' => ($data['is_published'] ?? false) && !$notice->published_at ? now() : $notice->published_at,
         ] + (isset($data['attachment']) ? ['attachment' => $data['attachment']] : []));
+        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         // Clear public caches so changes appear immediately
         PublicDataService::invalidate('*');

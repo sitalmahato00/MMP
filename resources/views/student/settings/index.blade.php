@@ -607,6 +607,7 @@
 @endsection
 
 @push('scripts')
+@include('partials.settings.form-state', ['preferences' => $preferences ?? [], 'notificationPreferences' => $notificationPreferences ?? []])
 <script>
 document.addEventListener('alpine:init', () => {
     // Auto-save indicator

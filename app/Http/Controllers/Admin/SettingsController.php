@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotificationPreferenceService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,14 +16,11 @@ class SettingsController extends Controller
     public function index()
     {
         $user = Auth::user()->load('roles');
-        
-        // Get user preferences (stored in JSON or separate table)
         $preferences = $this->getUserPreferences($user);
-        
-        // Get active sessions (mock data for now - implement with session tracking)
+        $notificationPreferences = app(NotificationPreferenceService::class)->notificationPreferences($user);
         $activeSessions = $this->getActiveSessions($user);
-        
-        return view('admin.settings.index', compact('user', 'preferences', 'activeSessions'));
+
+        return view('admin.settings.index', compact('user', 'preferences', 'notificationPreferences', 'activeSessions'));
     }
 
     public function updateProfile(Request $request)
@@ -69,42 +67,55 @@ class SettingsController extends Controller
     public function updatePreferences(Request $request)
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
             'theme' => ['required', 'in:light,dark,auto'],
             'language' => ['required', 'in:en,ne'],
             'date_format' => ['required', 'in:bs,ad'],
-            'nepali_numbers' => ['required', 'boolean'],
+            'nepali_numbers' => ['nullable', 'boolean'],
             'dashboard_layout' => ['required', 'in:compact,comfortable'],
             'default_page' => ['required', 'string'],
             'table_density' => ['required', 'in:normal,compact'],
             'pagination_size' => ['required', 'in:10,25,50'],
         ]);
 
-        // Store preferences in user meta or separate table
-        // For now, we'll use a JSON column or session
-        session(['user_preferences' => $validated]);
+        app(NotificationPreferenceService::class)->saveUserPreferences($user, [
+            ...$validated,
+            'nepali_numbers' => $request->boolean('nepali_numbers'),
+        ]);
 
         return back()->with('success', 'Preferences updated successfully.');
     }
 
     public function updateNotifications(Request $request)
     {
-        $validated = $request->validate([
-            'email_system_alerts' => ['required', 'boolean'],
-            'email_new_applications' => ['required', 'boolean'],
-            'email_attendance_alerts' => ['required', 'boolean'],
-            'email_exam_alerts' => ['required', 'boolean'],
-            'email_system_warnings' => ['required', 'boolean'],
-            'inapp_notices' => ['required', 'boolean'],
-            'inapp_comments' => ['required', 'boolean'],
-            'inapp_user_creation' => ['required', 'boolean'],
-            'inapp_updates' => ['required', 'boolean'],
-            'sms_important_alerts' => ['required', 'boolean'],
+        $user = Auth::user();
+
+        $request->validate([
+            'email_system_alerts' => ['nullable', 'boolean'],
+            'email_new_applications' => ['nullable', 'boolean'],
+            'email_attendance_alerts' => ['nullable', 'boolean'],
+            'email_exam_alerts' => ['nullable', 'boolean'],
+            'email_system_warnings' => ['nullable', 'boolean'],
+            'inapp_notices' => ['nullable', 'boolean'],
+            'inapp_comments' => ['nullable', 'boolean'],
+            'inapp_user_creation' => ['nullable', 'boolean'],
+            'inapp_updates' => ['nullable', 'boolean'],
+            'sms_important_alerts' => ['nullable', 'boolean'],
         ]);
 
-        // Store notification preferences
-        session(['notification_preferences' => $validated]);
+        app(NotificationPreferenceService::class)->saveNotificationPreferences($user, [
+            'email_system_alerts' => $request->boolean('email_system_alerts'),
+            'email_new_applications' => $request->boolean('email_new_applications'),
+            'email_attendance_alerts' => $request->boolean('email_attendance_alerts'),
+            'email_exam_alerts' => $request->boolean('email_exam_alerts'),
+            'email_system_warnings' => $request->boolean('email_system_warnings'),
+            'inapp_notices' => $request->boolean('inapp_notices'),
+            'inapp_comments' => $request->boolean('inapp_comments'),
+            'inapp_user_creation' => $request->boolean('inapp_user_creation'),
+            'inapp_updates' => $request->boolean('inapp_updates'),
+            'sms_important_alerts' => $request->boolean('sms_important_alerts'),
+        ]);
 
         return back()->with('success', 'Notification preferences updated successfully.');
     }
@@ -129,23 +140,15 @@ class SettingsController extends Controller
 
     public function clearPreferences()
     {
+        app(NotificationPreferenceService::class)->clearStoredPreferences(Auth::user());
         session()->forget(['user_preferences', 'notification_preferences']);
-        
+
         return back()->with('success', 'Preferences cleared successfully.');
     }
 
     private function getUserPreferences($user)
     {
-        return session('user_preferences', [
-            'theme' => 'light',
-            'language' => 'en',
-            'date_format' => 'bs',
-            'nepali_numbers' => true,
-            'dashboard_layout' => 'comfortable',
-            'default_page' => 'dashboard',
-            'table_density' => 'normal',
-            'pagination_size' => '25',
-        ]);
+        return app(NotificationPreferenceService::class)->userPreferences($user);
     }
 
     private function getActiveSessions($user)

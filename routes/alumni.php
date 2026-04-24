@@ -26,3 +26,15 @@ Route::delete('/achievements/{achievement}', [\App\Http\Controllers\Alumni\Achie
 
 // Notices
 Route::get('/notices', [\App\Http\Controllers\Alumni\NoticeController::class, 'index'])->name('notices.index');
+
+// Settings & Account Management
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Alumni\SettingsController::class, 'index'])->name('index');
+    Route::patch('/profile', [\App\Http\Controllers\Alumni\SettingsController::class, 'updateProfile'])->name('profile.update');
+    Route::patch('/password', [\App\Http\Controllers\Alumni\SettingsController::class, 'updatePassword'])->name('password.update');
+    Route::patch('/preferences', [\App\Http\Controllers\Alumni\SettingsController::class, 'updatePreferences'])->name('preferences.update');
+    Route::patch('/notifications', [\App\Http\Controllers\Alumni\SettingsController::class, 'updateNotifications'])->name('notifications.update');
+    Route::post('/logout-all', [\App\Http\Controllers\Alumni\SettingsController::class, 'logoutAllDevices'])->name('logout-all');
+    Route::post('/reset-dashboard', [\App\Http\Controllers\Alumni\SettingsController::class, 'resetDashboard'])->name('reset-dashboard');
+    Route::post('/clear-preferences', [\App\Http\Controllers\Alumni\SettingsController::class, 'clearPreferences'])->name('clear-preferences');
+});

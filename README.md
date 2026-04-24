@@ -3,218 +3,545 @@
 [![Laravel](https://img.shields.io/badge/Laravel-12-brightgreen.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue.svg)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)]
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
-MMP College Management System is a Laravel 12 application for the college website, administration, academic operations, and public content delivery. It combines a public portal, CMS-driven content management, and role-based dashboards for principal/admin, HOD, teacher, student, parent, and alumni users. The current codebase is prepared for production with MySQL, Redis, object storage/CDN-friendly media delivery, route throttling, and short-lived dashboard caching.
+MMP College Management System is a Laravel 12 application that combines:
 
-## Platform Snapshot
+- a public-facing college website
+- a CMS for institutional content
+- role-based academic portals
+- admissions and result-check utilities
+- department-scoped academic operations
+- a notification and account-communication layer for every authenticated portal role
 
-- Public website for homepage content, notices, departments, facilities, leadership, gallery, downloads, question bank, result checking, contact, alumni, and admissions.
-- Admin CMS for banners, media, pages, departments, executives, facilities, downloads, notices, settings, applications, and audit logs.
-- Academic portals for students, teachers, HODs, parents, and alumni.
-- Nepali BS date support and a custom BS datepicker flow in the UI.
-- Storage accessors and a branded logo route for public and admin media.
-- Automatic student-to-alumni promotion when academic sessions are closed.
+The platform is designed for Principal/Admin, HOD, Teacher, Student, Parent, and Alumni workflows while also serving guests through the public site and public API.
 
-## Roles and Portals
+## Table of Contents
 
-| Role | Main responsibilities | Key areas |
-| --- | --- | --- |
-| Principal / Admin | Full site and academic administration | Dashboard, users, academic sessions, departments, programs, students, teachers, parents, alumni, staff, exams, notices, media, downloads, banners, facilities, executives, web control, applications, audit logs |
-| HOD | Department-level academic management | Department dashboard, department students and teachers, attendance, exams, marks, timetable, notices, media, alumni preparation, reports |
-| Teacher | Classroom and assessment workflow | Attendance entry, marks entry, assignments, timetable, class lists, exams, notices, profile |
-| Student | Academic self-service | Dashboard, profile, attendance, marks and results, timetable, assignments, downloads, notices, exams, performance |
-| Parent | Child monitoring | Child profile, attendance, marks and results, timetable, notices, communication, performance analytics |
-| Alumni | Former student profile and updates | Alumni profile, notices, events, directory |
-| Guest / Public | Browse and apply | Public pages, admissions form, result checker, public downloads, public API consumers |
+1. [Technology Stack](#technology-stack)
+2. [Application Areas](#application-areas)
+3. [Role and Portal Overview](#role-and-portal-overview)
+4. [Public Website Pages](#public-website-pages)
+5. [Portal Pages by Role](#portal-pages-by-role)
+6. [Notifications and Email Flows](#notifications-and-email-flows)
+7. [Authentication and Account Lifecycle](#authentication-and-account-lifecycle)
+8. [Database Schema](#database-schema)
+9. [Public API](#public-api)
+10. [Storage, Media, and Branding](#storage-media-and-branding)
+11. [Caching, Queues, and Rate Limits](#caching-queues-and-rate-limits)
+12. [Project Structure](#project-structure)
+13. [Local Setup](#local-setup)
+14. [Environment Configuration](#environment-configuration)
+15. [Testing and Verification](#testing-and-verification)
+16. [Deployment Notes](#deployment-notes)
+17. [Known Notes](#known-notes)
 
-## Public Pages
+## Technology Stack
 
-| Route | Page | Purpose |
-| --- | --- | --- |
-| `/` | Home | Hero banners, quick links, welcome content, principal corner, news, notices, CTEVT feeds, statistics, recent downloads, departments, facilities, gallery preview, apply CTA |
-| `/notices` | Notices | General, exam, news, event, CTEVT general, and CTEVT result notices |
-| `/news-events` | News and Events | Public news and event listings |
-| `/departments` | Departments | Program cards with photos, syllabus indicator, and summary info |
-| `/departments/{slug}` | Department detail | Department photo, description, HOD, programs, and syllabus download |
-| `/downloads` | Downloads | Public resources and downloadable files |
-| `/question-bank` | Question bank | Question bank resources for students and visitors |
-| `/gallery` | Gallery | Photo gallery with lightbox browsing |
-| `/result` | Result checker | Public result checking form with throttling |
-| `/people` | People directory | HOD, teachers, staff, and lab techs filtered by department |
-| `/people/{type}/{id}` | People profile | Individual HOD, teacher, or staff profile page |
-| `/staff` | Staff directory | Administrative and support staff listing |
-| `/leadership` | Leadership | Presidents and principals listing |
-| `/facilities` | Facilities | Facilities cards with photos, documents, and videos |
-| `/contact` | Contact | Contact details, address, phone, email, and map embed |
-| `/alumni` | Alumni directory | Featured alumni directory |
-| `/alumni/{id}` | Alumni profile | Individual alumni profile |
-| `/page/{slug}` | Managed page | CMS-managed page content such as about, objectives, contact, scholarships, and internships |
-| `/apply` | Apply now | Public admissions form |
-| `/brand-logo` | Brand logo | Current site logo with favicon fallback |
-
-### Public Page Features
-
-- Homepage content is built from `PublicDataService` and cached to reduce repeated queries.
-- The home page highlights the admissions CTA, public notices, news, departments, facilities, alumni-related content, and current branding.
-- Notices include both internal MMP content and CTEVT feeds.
-- Department pages surface the department photo and syllabus if available.
-- The gallery page uses CDN-backed image URLs and a lightbox viewer.
-- The facilities page renders photos, attached documents, and other resource links.
-- The people directory groups HODs, teachers, staff, and lab techs by department.
-- The apply form is rate limited and intended for admissions intake.
-- The result checker is throttled separately from the rest of the site.
-
-## Admin and CMS Modules
-
-| Module | Purpose |
+| Layer | Implementation |
 | --- | --- |
-| Dashboard | Site activity and operational overview |
-| Users | User and role management |
-| Academic Sessions | Academic year/session lifecycle and current session control |
-| Departments | Department records, HOD assignment, photos, syllabi |
-| Programs | Program definitions linked to departments |
-| Students | Student records and academic profile management |
-| Teachers | Teacher records and department assignment |
-| Parents | Parent/guardian records and child relationships |
-| Alumni | Alumni records derived from student history |
-| Staff | Administrative and support staff records |
-| Exams | Exam setup and publication |
-| Notices | Public and internal notices |
-| Facilities | Facility listings and associated media |
-| Executives | President/principal and other leadership records |
-| Media | Gallery and media uploads |
-| Downloads | Public resources and protected files |
-| Banners | Homepage hero banners |
-| Web Control | Site settings, branding, and shared page content |
-| Applications | Admissions submissions from the public apply form |
-| Audit Logs | Activity tracking and security review |
+| Backend framework | Laravel 12 |
+| Language | PHP 8.2+ |
+| Frontend build | Vite |
+| Styling | Tailwind CSS |
+| Auth model | Laravel auth with role-based redirects |
+| RBAC | Spatie Laravel Permission |
+| API auth | Sanctum |
+| Database | MySQL in production, SQLite supported for tests |
+| Cache/session/queue | Redis-ready configuration |
+| File storage | Public/private disks, S3-compatible storage supported |
+| Notifications | Database + email notifications |
+| Date support | AD plus Bikram Sambat helpers and BS datepicker UI |
 
-### Web Control Content
+## Application Areas
 
-The site settings module manages shared public content such as:
+The codebase is split into six major areas:
 
-- Site logo
-- Welcome message
-- What is MMP section
-- Objectives
-- Principal name
-- Principal photo
-- Principal message and attachment
-- Contact details
-- Google Maps embed
-- Scholarships and internships content
-- Managed pages like About, Objectives, Contact Us, Scholarship Schemes, and Internships
+1. Public website: homepage, notices, departments, gallery, downloads, admissions, result checker, people directory, facilities, leadership, alumni directory, and CMS pages.
+2. Principal/Admin portal: full institutional administration, CMS, academic records, site settings, applications, and audit logs.
+3. HOD portal: department-scoped student, teacher, subject, notice, timetable, attendance, exam, and resource management.
+4. Teacher portal: classes, attendance, marks, assignments, timetable, resources, notices, and profile management.
+5. Student and Parent portals: academic self-service, performance monitoring, subjects, results, notices, downloads, and settings.
+6. Alumni portal: alumni profile, projects, achievements, career records, notices, settings, and community updates.
 
-## Database Model
+## Role and Portal Overview
 
-The database is organized around academic structure, people, public content, and auditability.
-
-### Core Data Groups
-
-| Group | Main tables / models | Notes |
+| Role | Scope | Main outcomes |
 | --- | --- | --- |
-| Identity and access | `users`, Spatie permission tables | Authentication and role-based access control |
-| Academic structure | `academic_sessions`, `departments`, `programs`, `subjects`, `timetables`, `timetable_slots` | Defines the academic hierarchy and scheduling |
-| People | `students`, `teachers`, `parents`, `alumni`, `staff`, `executives` | Role-specific people records and profiles |
-| Teaching and assessment | `attendance_sessions`, `attendance`, `assignments`, `assignment_submissions`, `exams`, `marks` | Attendance, homework, exams, and result data |
-| Public content | `banners`, `notices`, `pages`, `media`, `downloads`, `facilities`, `site_settings`, `communications` | Homepage, CMS, downloadable resources, and public-facing content |
-| Governance and logs | `applications`, `audit_logs` | Admissions intake and action tracking |
+| Principal / Admin | Whole system | Configure academics, manage users and content, publish notices and exams, review applications, control site branding, inspect audit logs |
+| HOD | Department only | Manage department students/teachers/subjects, publish department notices, manage attendance, exams, timetable, and resources |
+| Teacher | Assigned subjects/classes | Record attendance, fill marks, manage assignments, review students and timetable |
+| Student | Self-service | View attendance, subjects, marks, notices, assignments, timetable, downloads, profile, and settings |
+| Parent | Child monitoring | Monitor child subjects, attendance, assignments, results, notices, and account preferences |
+| Alumni | Alumni community | Maintain profile, share projects and achievements, update career history, follow notices and updates |
+| Guest | Public access only | Browse site content, download public files, apply, and check results |
 
-### Relationship Summary
+## Public Website Pages
 
-- A department has many programs, students, teachers, notices, media items, facilities, and alumni.
-- A program belongs to a department and drives student enrollment, timetables, subjects, and assignments.
-- A student belongs to a program, department, and parent profile, and can later become an alumnus.
-- A teacher belongs to a department and participates in timetables, attendance, marks, and class workflows.
-- Academic sessions determine the active academic year and support the student-to-alumni promotion flow.
-- Site settings power global branding and shared public sections.
+### Public routes
 
-### Site Settings Defaults
+| Route | Purpose |
+| --- | --- |
+| `/` | Homepage with banners, welcome message, principal section, notices, downloads, departments, facilities, alumni preview, and CTA blocks |
+| `/notices` | Public notices listing |
+| `/notices/{slug}` | Notice details |
+| `/news-events` | Public news and events listing |
+| `/news-events/{slug}` | News/event details |
+| `/departments` | Department and program overview |
+| `/departments/{slug}` | Department detail page |
+| `/departments/{departmentSlug}/{programSlug}` | Program detail page |
+| `/downloads` | Public downloads and resources |
+| `/downloads/{download}/file` | Public file delivery |
+| `/question-bank` | Question bank page |
+| `/gallery` | Public gallery |
+| `/result` | Public result checker form |
+| `/result/submit` | Result search submission |
+| `/people` | Public people directory |
+| `/people/{type}/{id}` | HOD/teacher/staff profile page |
+| `/staff` | Staff listing |
+| `/staff/{id}` | Staff profile |
+| `/leadership` | Executive/leadership listing |
+| `/facilities` | Facilities showcase |
+| `/contact` | Contact page |
+| `/alumni` | Alumni directory |
+| `/alumni/{id}` | Alumni public profile |
+| `/page/{slug}` | CMS-managed standalone page |
+| `/apply` | Admission form |
+| `/brand-logo` | Dynamic brand logo endpoint |
 
-The application seeds a default site settings set through `SiteSetting::defaultDefinitions()`. Important keys include:
+### Public site features
 
-- `site_logo`
-- `what_is_mmp`
-- `objectives`
-- `welcome_message`
-- `principals_message`
-- `principal_photo`
-- `principal_message_media`
-- `president_name`
-- `principal_name`
-- `classrooms_labs`
-- `workshops`
-- `transportation`
-- `scholarship_schemes`
-- `internships_placements`
-- `contact_us_content`
-- `contact_email`
-- `contact_phone`
-- `contact_address`
-- `google_maps_iframe`
+- Homepage content comes from `PublicDataService` and site settings.
+- Department pages can surface program details, subject context, and syllabus availability.
+- Public notices support general notices, department/program notices, news, events, and CTEVT-related content.
+- The people directory includes HOD, teacher, and staff profile pages.
+- Public downloads and media use storage accessors instead of hardcoded asset paths.
+- Admission and result-check pages are rate limited independently.
+- CMS-managed pages are stored in the database and delivered via slug.
+
+## Portal Pages by Role
+
+### Shared authenticated pages
+
+All authenticated roles now have:
+
+- header notification bell with unread count
+- recent notification dropdown
+- full notification inbox page
+- mark-all-read and delete actions
+- role-based dashboard redirect after login
+- forgot password and reset password flows
+
+### Principal/Admin portal pages
+
+Routes are defined in `routes/admin.php`.
+
+- Dashboard
+- Users
+- Academic Sessions
+- Attendance overview
+- Departments
+- Programs
+- Students
+- Teachers
+- Parents
+- Alumni
+- Staff
+- Exams and result sheets
+- Notices
+- News & Events
+- Facilities
+- Executives
+- Media
+- Downloads / resources
+- Banners
+- Roles & Permissions
+- Web Control / site settings
+- Applications
+- Audit Logs
+- Personal account settings
+
+### HOD portal pages
+
+Routes are defined in `routes/hod.php`.
+
+- Dashboard
+- Students
+- Students export
+- Teachers
+- Attendance index, mark, store, sessions, reports, edit, update
+- Exams, marks entry, marking scheme, analytics, results, export
+- Timetable CRUD, slot delete, export, teacher conflict checks
+- Notices CRUD
+- News & Events CRUD
+- Facilities CRUD
+- Media upload/gallery/delete
+- Reports shortcuts
+- Alumni preparation and records
+- Subjects CRUD, drawer, teacher assignment, syllabus/details management
+- Downloads/resources
+- Account settings
+
+### Teacher portal pages
+
+Routes are defined in `routes/teacher.php`.
+
+- Dashboard
+- My Classes
+- Attendance CRUD
+- Load students by subject
+- Students list/show
+- Timetable
+- Exams index
+- Fill marks / save marks
+- Assignments CRUD
+- Downloads/resources
+- Notices
+- News & Events
+- Profile
+- Change password
+- Settings
+
+### Student portal pages
+
+Routes are defined in `routes/student.php`.
+
+- Dashboard
+- Attendance index/show
+- Marks index/show
+- Subjects
+- Assignments index/show/submit
+- Timetable
+- Downloads
+- Notices
+- News & Events
+- Profile
+- Change password
+- Settings
+
+### Parent portal pages
+
+Routes are defined in `routes/parent.php`.
+
+- Dashboard
+- Child overview
+- Attendance
+- Assignments
+- Results index/show
+- Subjects
+- Notices
+- News & Events
+- Settings
+
+### Alumni portal pages
+
+Routes are defined in `routes/alumni.php`.
+
+- Dashboard
+- Profile view/edit/update
+- Career history add/delete
+- Projects list/edit/update
+- Achievements list/store/delete
+- Notices
+- Settings
+
+## Notifications and Email Flows
+
+### Implemented notification channels
+
+- In-app database notifications via the `notifications` table
+- Email notifications via styled Blade email templates
+
+### Notification UI
+
+- Shared header bell in the portal navbar for every authenticated role
+- Recent notification dropdown in the header
+- Dedicated inbox page at `/notifications`
+- Mark all as read
+- Open notification target route
+- Delete notification from inbox
+
+### Notification triggers implemented
+
+- New account creation for users created from Admin or HOD workflows
+- Password reset emails
+- Published internal notices
+- Published exam/result notifications
+- Official CTEVT general notices
+- Official CTEVT result notices
+
+### Notification targeting rules
+
+The system supports all-user and scoped delivery:
+
+- all portal users
+- department-specific delivery
+- program-specific delivery
+- semester-specific delivery where relevant
+- role-aware routing to the correct page when a notification is opened
+
+### Account credential emails
+
+When a new portal account is created for these roles, the user receives a styled email containing the login email and generated password:
+
+- HOD
+- Teacher
+- Student
+- Parent
+- Alumni
+- User accounts created directly by admin
+
+If student creation automatically creates a linked parent account, both student and parent receive their credentials.
+
+### Role settings and notification preferences
+
+Notification preference forms are now persisted in `users.notification_preferences` rather than session-only storage.
+
+Supported settings coverage:
+
+- Principal/Admin settings
+- HOD settings
+- Teacher settings
+- Student settings
+- Parent settings
+- Alumni settings
+
+Supported preference types:
+
+- email alert toggles
+- in-app notification toggles
+- SMS critical-alert toggle placeholder
+- visual and locale preferences in `users.preferences`
+
+## Authentication and Account Lifecycle
+
+### Authentication routes
+
+- `GET /login`
+- `POST /login`
+- `POST /logout`
+- `GET /forgot-password`
+- `POST /forgot-password`
+- `GET /reset-password/{token}`
+- `POST /reset-password`
+
+### Authentication behavior
+
+- Role-aware dashboard redirect after login
+- Password reset notifications use a custom branded email template
+- Settings pages support password change per role
+- “Logout other devices” exists on the role settings pages
+
+### Account creation behavior
+
+- Admin and HOD user-management flows create portal users
+- Newly created users can receive credential emails automatically
+- Students can be linked to parents
+- Students can be promoted to alumni through academic-session workflows
+
+## Database Schema
+
+The database is grouped below by functional area. Table names reflect the current migrations in `database/migrations`.
+
+### 1. Identity, authentication, and access control
+
+- `users`
+- `password_reset_tokens`
+- `sessions`
+- `personal_access_tokens`
+- `roles`
+- `permissions`
+- `model_has_roles`
+- `model_has_permissions`
+- `role_has_permissions`
+- `notifications`
+
+### 2. Framework runtime tables
+
+- `cache`
+- `cache_locks`
+- `jobs`
+- `job_batches`
+- `failed_jobs`
+
+### 3. Academic structure
+
+- `departments`
+- `academic_sessions`
+- `academic_session_semesters`
+- `programs`
+- `subjects`
+- `subject_teacher`
+- `timetables`
+- `timetable_slots`
+
+### 4. Core people tables
+
+- `students`
+- `teachers`
+- `parents`
+- `parent_student`
+- `alumni`
+- `staff`
+- `executives`
+
+### 5. Alumni portfolio and career tables
+
+- `alumni_projects`
+- `alumni_achievements`
+- `alumni_employments`
+
+### 6. Attendance and academic activity
+
+- `attendance_sessions`
+- `attendances`
+- `assignments`
+- `assignment_submissions`
+- `exams`
+- `exam_program`
+- `marks`
+- `exam_subject_marking_schemes`
+- `staff_attendances`
+
+### 7. Public content and CMS
+
+- `notices`
+- `notice_attachments`
+- `pages`
+- `banners`
+- `downloads`
+- `media`
+- `facilities`
+- `site_settings`
+- `communications`
+
+### 8. Operations and governance
+
+- `applications`
+- `audit_logs`
+- `staff_documents`
+
+### Database notes
+
+- `subjects` includes `details` and `syllabus` fields.
+- `users` includes `preferences` and `notification_preferences` JSON columns.
+- `notifications` stores in-app inbox items for authenticated users.
+- `downloads` supports subject/program linkage for academic resources.
+- `departments`, `programs`, `subjects`, notices, and exams are inter-related for scope-aware notifications.
 
 ## Public API
 
-The public API is exposed under `/api/v1/public` and throttled with the `public-api` limiter.
+Public API routes are defined in `routes/api.php` under `/api/v1/public`.
 
 | Endpoint | Purpose |
 | --- | --- |
-| `GET /api/v1/public/homepage` | Homepage data |
+| `GET /api/v1/public/homepage` | Homepage payload |
 | `GET /api/v1/public/notices` | Public notices |
 | `GET /api/v1/public/departments` | Department listing |
-| `GET /api/v1/public/departments/{slug}` | Department details |
+| `GET /api/v1/public/departments/{slug}` | Department detail |
 | `GET /api/v1/public/alumni` | Featured alumni |
 | `GET /api/v1/public/downloads` | Public downloads |
-| `GET /api/v1/public/pages/{slug}` | Managed CMS pages |
-| `GET /api/v1/public/facilities` | Facilities data |
+| `GET /api/v1/public/pages/{slug}` | CMS page content |
+| `GET /api/v1/public/facilities` | Facilities payload |
 | `GET /api/v1/public/staff` | Staff listing |
 | `GET /api/v1/public/leadership` | Leadership listing |
 | `GET /api/v1/public/site-settings` | Shared branding and content settings |
 
-## Storage, CDN, and Branding
+Authenticated API:
 
-The project splits public and private file delivery.
+- `GET /api/v1/user`
+- `GET /api/v1/subjects/{subject}/students`
 
-- Public files live on the `public` disk and should resolve through a public URL or CDN URL.
-- Private files live on the `private` disk and are streamed through controller responses.
-- Brand images and icons come from the `site_logo` setting and are exposed through the `/brand-logo` route.
-- Model accessors are used for public URLs such as `image_url`, `avatar_url`, `file_url`, `url`, `photo_url`, `syllabus_url`, `image_urls`, `document_urls`, and `video_urls`.
+## Storage, Media, and Branding
 
-Relevant files:
+### File handling
 
-- [config/filesystems.php](config/filesystems.php)
-- [app/Http/Controllers/Admin/DownloadController.php](app/Http/Controllers/Admin/DownloadController.php)
-- [app/Models/Download.php](app/Models/Download.php)
-- [app/Models/Media.php](app/Models/Media.php)
-- [app/Models/Department.php](app/Models/Department.php)
-- [app/Models/Facility.php](app/Models/Facility.php)
+- Public files are served through the public disk or a public object-storage URL.
+- Restricted files can be delivered from a private disk through controllers.
+- Models expose helper accessors such as `image_url`, `avatar_url`, `file_url`, `photo_url`, and `syllabus_url`.
 
-## Routing and Security
+### Content/media areas
 
-The application uses named rate limiters and route-level protection for public traffic.
+- banners
+- gallery/media
+- downloads/resources
+- facility media
+- executive photos
+- department photos and syllabi
+- profile avatars
+- notice attachments
 
-- `login`: 5 attempts per minute per email and IP.
-- `apply`: 10 attempts per hour per email and IP.
-- `result-check`: 30 requests per minute per IP.
-- `public-api`: 120 requests per minute per IP.
+### Branding
 
-Other operational protections include:
+- Site branding is controlled via `site_settings`
+- `/brand-logo` returns the active logo with fallback behavior
+- shared navbar/sidebar branding uses the brand-logo route
 
-- Public content caching through `PublicDataService`
-- Dashboard caching for student, teacher, HOD, parent, and alumni portals
-- Separate public and private download handling
-- Automatic cache invalidation when content or files change
+## Caching, Queues, and Rate Limits
 
-## Development Setup
+### Caching
 
-For a full local bootstrap:
+- Public homepage and related public data are cached through `PublicDataService`
+- Dashboard sections use short-lived cache keys in several portals
+- Sidebar counters use cache for fast rendering
+
+### Queues
+
+- The project is queue-ready for email and asynchronous processing
+- Redis-backed queue workers are recommended in production
+
+### Rate limits
+
+- `login`: 5 attempts per minute per email/IP
+- `apply`: 10 attempts per hour per email/IP
+- `result-check`: 30 requests per minute per IP
+- `public-api`: 120 requests per minute per IP
+
+## Project Structure
+
+| Path | Purpose |
+| --- | --- |
+| `app/Http/Controllers/Public` | Public website controllers |
+| `app/Http/Controllers/Admin` | Principal/Admin portal controllers |
+| `app/Http/Controllers/HOD` | HOD portal controllers |
+| `app/Http/Controllers/Teacher` | Teacher portal controllers |
+| `app/Http/Controllers/Student` | Student portal controllers |
+| `app/Http/Controllers/Parent` | Parent portal controllers |
+| `app/Http/Controllers/Alumni` | Alumni portal controllers |
+| `app/Http/Controllers/Auth` | Login and password-reset controllers |
+| `app/Notifications` | Email/database notification classes |
+| `app/Services` | Portal services such as public-data and notification services |
+| `resources/views/public` | Public UI |
+| `resources/views/admin` | Admin UI |
+| `resources/views/hod` | HOD UI |
+| `resources/views/teacher` | Teacher UI |
+| `resources/views/student` | Student UI |
+| `resources/views/parent` | Parent UI |
+| `resources/views/alumni` | Alumni UI |
+| `resources/views/emails` | Styled email templates |
+| `routes/*.php` | Route files split by portal |
+| `tests/Feature` | Feature test coverage |
+
+### Route files
+
+- `routes/web.php`
+- `routes/admin.php`
+- `routes/hod.php`
+- `routes/teacher.php`
+- `routes/student.php`
+- `routes/parent.php`
+- `routes/alumni.php`
+- `routes/api.php`
+
+## Local Setup
+
+### Quick start
 
 ```bash
 composer run setup
 ```
 
-Manual setup if you want to run each step yourself:
+### Manual setup
 
 ```bash
 composer install
@@ -226,56 +553,78 @@ npm run dev
 php artisan serve
 ```
 
-**Seeding for Complete Demo Data:**
+### Demo data
 
 ```bash
-# Basic structure (safe for production-like env)
 php artisan db:seed
-
-# Full demo data with users/roles/content (DEMO ONLY)
 php artisan db:seed --class=DemoDataSeeder
-# Login with: email@domain.np / password: "password"
 ```
 
-Notes:
+Demo login pattern in seeded demo data:
 
-- Run `php artisan storage:link` if you are using the local public disk.
-- 17+ seeders + DemoDataSeeder provide complete coverage for all tables/fields.
-- New factories added for Department, Program, Student, Teacher, Exam.
-- `npm run dev` starts the Vite development build.
+- principal: `principal@mmp.edu.np / password`
+- hod: `hod.it@mmp.edu.np / password`
+- teacher: `teacher.it@mmp.edu.np / password`
+- student: `student01@mmp.edu.np / password`
+- parent: `parent01@mmp.edu.np / password`
+- alumni: `alumni01@mmp.edu.np / password`
 
-**Demo Logins:**
-| Role | Email | Password |
-|------|-------|----------|
-| Principal | principal@mmp.edu.np | password |
-| HOD | hod.it@mmp.edu.np | password |
-| Teacher | teacher.it@mmp.edu.np | password |
-| Student | student01@mmp.edu.np | password |
-| Parent | parent01@mmp.edu.np | password |
-| Alumni | alumni01@mmp.edu.np | password |
+### After local setup
+
+- run `php artisan storage:link` for local public-disk file access
+- run `php artisan optimize:clear` after config or route changes
 
 ## Environment Configuration
 
-The repository ships with production-oriented defaults in [.env.example](.env.example). Replace the placeholders with your real values before deployment.
+Important environment categories:
 
-| Category | Important variables | Purpose |
-| --- | --- | --- |
-| Application | `APP_ENV`, `APP_DEBUG`, `APP_URL` | Production app settings |
-| Database | `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | MySQL connection details |
-| Cache / Session / Queue | `CACHE_STORE`, `SESSION_DRIVER`, `SESSION_CONNECTION`, `SESSION_STORE`, `QUEUE_CONNECTION`, `REDIS_*` | Redis-backed runtime services |
-| Storage | `FILESYSTEM_DISK`, `PUBLIC_FILESYSTEM_DRIVER`, `PUBLIC_FILESYSTEM_URL`, `PRIVATE_FILESYSTEM_DRIVER`, `AWS_*` | Object storage and CDN integration |
-| Mail | `MAIL_*` | Outgoing email delivery |
-| External feeds | `CTEVT_*` | CTEVT notices and result integration |
+| Category | Important variables |
+| --- | --- |
+| App | `APP_NAME`, `APP_ENV`, `APP_DEBUG`, `APP_URL` |
+| Database | `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` |
+| Cache/session/queue | `CACHE_STORE`, `SESSION_DRIVER`, `QUEUE_CONNECTION`, `REDIS_*` |
+| Mail | `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` |
+| Storage | `FILESYSTEM_DISK`, `PUBLIC_FILESYSTEM_DRIVER`, `PUBLIC_FILESYSTEM_URL`, `PRIVATE_FILESYSTEM_DRIVER`, `AWS_*` |
+| External feeds | `CTEVT_*` |
 
-Recommended production storage behavior:
+### Recommended production services
 
-- Use `public` disk or an S3-compatible bucket for public assets.
-- Use `private` disk for restricted files.
-- Set `PUBLIC_FILESYSTEM_URL` to the CDN or public bucket URL you want browsers to use.
+- MySQL
+- Redis
+- S3-compatible object storage or equivalent
+- SMTP/mail provider
+- background queue worker
 
-## Production Deployment
+## Testing and Verification
 
-Recommended deployment steps:
+### Useful commands
+
+```bash
+php artisan test
+php artisan route:list --path=notifications
+php artisan route:list --name=password
+```
+
+### Notification/auth verification completed in this branch
+
+- password reset request and completion flow
+- notification inbox list/open/delete/mark-all-read
+- per-role preference persistence for admin, hod, teacher, student, parent, and alumni
+- notice, exam, and CTEVT notification targeting
+- credential-email notification dispatch for created accounts
+
+### Recommended smoke tests
+
+1. Create a HOD, Teacher, Student, Parent, or Alumni account and confirm credential email delivery.
+2. Publish a general notice and verify the bell dropdown/inbox updates.
+3. Publish a department/program-scoped notice and verify only matching users receive it.
+4. Publish exam results and verify student/parent result notifications.
+5. Open each role settings page and confirm preferences persist after refresh.
+6. Trigger forgot-password and reset-password once with a real mail transport.
+
+## Deployment Notes
+
+Recommended production steps:
 
 ```bash
 composer install --optimize-autoloader --no-dev
@@ -290,51 +639,24 @@ php artisan queue:restart
 
 Production checklist:
 
-1. Provision MySQL, Redis, and an S3-compatible object storage bucket.
-2. Point `APP_URL` to the public site domain.
-3. Set `PUBLIC_FILESYSTEM_URL` to the CDN origin or public bucket URL.
-4. Fill in the `AWS_*` credentials for public and private storage.
-5. Run queue workers continuously under Supervisor, systemd, Forge, or your hosting platform.
-6. Add a scheduler cron entry if you use scheduled tasks.
-7. Take a backup and test a restore before going live.
-8. Enable error monitoring or centralized logging before the first production release.
+1. Configure real mail credentials before enabling account-creation and password-reset notifications.
+2. Run queue workers continuously.
+3. Set correct storage URLs and CDN/public bucket URL.
+4. Confirm the `notifications` table exists in production.
+5. Verify brand logo, public media, protected downloads, and email links after deployment.
 
-Recommended runtime commands:
+## Known Notes
 
-- `php artisan queue:work`
-- `php artisan schedule:run` once per minute from cron
-- `php artisan optimize:clear` when you need to invalidate cached config, routes, or views
-
-## Testing and Verification
-
-```bash
-php artisan test
-npm run build
-```
-
-Suggested smoke tests after deployment:
-
-- Load the homepage and verify banners, notices, leadership, and quick links.
-- Open a department page and confirm the photo and syllabus links render.
-- Open public downloads and gallery items and confirm URLs resolve correctly.
-- Submit the apply form and confirm rate limiting works.
-- Check the result page and public API responses.
-- Visit the admin web control page and confirm logo, banner, and media previews load.
-
-## Troubleshooting
-
-- Broken public images usually mean the storage URL or CDN URL is wrong.
-- Missing private download files usually mean the stored path or private disk is wrong.
-- Queue jobs not running usually means the Redis worker is not active.
-- Stale content after a deploy usually means config, route, or view caches need to be rebuilt.
-- If you still see old storage URLs, search for `asset('storage/...')` and replace them with model accessors or the brand-logo route.
+- On some Windows environments, Blade compilation can hit a temporary-file rename permission issue in `storage/framework/views`. This can affect broad test runs or `view:cache` even when application logic is correct.
+- Some older feature tests in the repository still depend on missing factories or older fixture assumptions outside the notification/auth work.
+- Alumni now have a dedicated settings page for profile, preferences, security, and notifications, matching the other portal roles.
 
 ## Contributing
 
-1. Keep controllers thin and move reusable logic into services or model accessors.
-2. Run `vendor/bin/pint` before opening a pull request.
-3. Add tests for public pages, uploads, and deployment-sensitive behavior.
-4. Update this README whenever the route map, role matrix, or deployment defaults change.
+1. Keep controllers thin and move shared logic into services where possible.
+2. Prefer model accessors/services over hardcoded storage URLs.
+3. Add feature tests for role-based flows, uploads, and notification dispatch.
+4. Update the README when routes, tables, or role capabilities change.
 
 ## License
 

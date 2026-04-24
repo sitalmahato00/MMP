@@ -127,7 +127,9 @@ class TeacherController extends HodController
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
-        DB::transaction(function () use ($data, $deptId) {
+        $createdUser = null;
+
+        DB::transaction(function () use ($data, $deptId, &$createdUser) {
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
@@ -142,6 +144,7 @@ class TeacherController extends HodController
 
             // HODs can only create regular teachers, not other HODs
             $user->assignRole('teacher');
+            $createdUser = $user;
 
             $teacher = Teacher::create([
                 'user_id' => $user->id,
@@ -172,6 +175,11 @@ class TeacherController extends HodController
                 }
             }
         });
+
+        if ($createdUser) {
+            app(\App\Services\PortalNotificationService::class)
+                ->sendNewAccountCredentials($createdUser, $data['password'], auth()->user());
+        }
 
         return redirect()
             ->route('hod.teachers.index')

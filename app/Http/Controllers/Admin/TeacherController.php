@@ -122,7 +122,9 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'employment_type' => 'nullable|in:permanent,contract,part-time',
         ]);
 
-        DB::transaction(function () use ($data, $request) {
+        $createdUser = null;
+
+        DB::transaction(function () use ($data, $request, &$createdUser) {
             $avatarPath = null;
             if ($request->hasFile('avatar')) {
                 $avatarPath = $request->file('avatar')->store('avatars', 'public');
@@ -146,6 +148,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             } else {
                 $user->assignRole('teacher');
             }
+            $createdUser = $user;
 
             Teacher::create([
                 'user_id'         => $user->id,
@@ -159,6 +162,11 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
                 'is_active'       => true,
             ]);
         });
+
+        if ($createdUser) {
+            app(\App\Services\PortalNotificationService::class)
+                ->sendNewAccountCredentials($createdUser, $data['password'], auth()->user());
+        }
 
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher added successfully.');
     }
@@ -388,4 +396,3 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
         return $stats;
     }
 }
-

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -16,7 +17,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'phone', 'avatar', 'gender', 'dob',
-        'address', 'is_active', 'password',
+        'address', 'is_active', 'password', 'preferences', 'notification_preferences',
     ];
 
     protected $hidden = [
@@ -30,6 +31,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'dob' => 'date',
             'is_active' => 'boolean',
+            'preferences' => 'array',
+            'notification_preferences' => 'array',
         ];
     }
 
@@ -129,5 +132,15 @@ class User extends Authenticatable
     public function isAlumni(): bool
     {
         return $this->hasRole('alumni');
+    }
+
+    public function primaryRole(): ?string
+    {
+        return $this->getRoleNames()->first();
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new CustomResetPasswordNotification($token));
     }
 }
