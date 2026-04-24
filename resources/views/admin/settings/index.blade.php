@@ -220,21 +220,66 @@
                                     <p class="mt-1 text-sm text-slate-500">Add an extra layer of security to your account</p>
                                 </div>
                             </div>
-                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Coming Soon</span>
+                            @if($user->two_factor_enabled)
+                            <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Enabled</span>
+                            @else
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Disabled</span>
+                            @endif
                         </div>
                     </div>
                     
-                    <div class="p-6">
-                        <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                            <div class="flex items-start gap-3">
-                                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <form action="{{ route('admin.settings.two-factor.update') }}" method="POST" class="p-6">
+                        @csrf
+                        @method('PATCH')
+                        
+                        <div class="space-y-5">
+                            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
                                 <div>
-                                    <p class="text-sm font-medium text-slate-700">2FA will be available soon</p>
-                                    <p class="mt-1 text-xs text-slate-500">We're working on implementing SMS and authenticator app support for enhanced security.</p>
+                                    <p class="text-sm font-medium text-slate-900">Enable Two-Factor Authentication</p>
+                                    <p class="mt-0.5 text-xs text-slate-500">Require OTP verification when logging in</p>
                                 </div>
+                                <label class="relative inline-flex cursor-pointer items-center">
+                                    <input type="checkbox" name="two_factor_enabled" value="1" {{ $user->two_factor_enabled ? 'checked' : '' }} class="peer sr-only" onchange="document.getElementById('2fa-method-section').classList.toggle('hidden', !this.checked)">
+                                    <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300"></div>
+                                </label>
+                            </div>
+
+                            <div id="2fa-method-section" class="{{ $user->two_factor_enabled ? '' : 'hidden' }}">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Verification Method</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center gap-3 rounded-lg border-2 border-slate-200 bg-white px-4 py-3 cursor-pointer transition hover:border-blue-300 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                        <input type="radio" name="two_factor_method" value="email" {{ $user->two_factor_method === 'email' ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                                <span class="text-sm font-semibold text-slate-900">Email</span>
+                                            </div>
+                                            <p class="mt-1 text-xs text-slate-500">Send OTP to {{ $user->email }}</p>
+                                        </div>
+                                    </label>
+
+                                    <label class="flex items-center gap-3 rounded-lg border-2 border-slate-200 bg-slate-50 px-4 py-3 opacity-60 cursor-not-allowed">
+                                        <input type="radio" name="two_factor_method" value="phone" disabled class="h-4 w-4 text-slate-400">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                                <span class="text-sm font-semibold text-slate-600">Phone (SMS)</span>
+                                                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Coming Soon</span>
+                                            </div>
+                                            <p class="mt-1 text-xs text-slate-500">SMS verification will be available soon</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                @error('two_factor_method')<p class="mt-2 text-xs text-red-600 flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>{{ $message }}</p>@enderror
                             </div>
                         </div>
-                    </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <button type="submit" class="w-full sm:w-auto rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                                Save 2FA Settings
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
                 {{-- Active Sessions --}}

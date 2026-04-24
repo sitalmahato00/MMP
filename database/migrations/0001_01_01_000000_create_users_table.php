@@ -22,8 +22,8 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('two_factor_enabled')->default(false);
-            $table->string('two_factor_method')->nullable(); // 'email' or 'phone'
+            $table->boolean('two_factor_enabled')->default(true);
+            $table->string('two_factor_method')->default('email'); // 'email' or 'phone'
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

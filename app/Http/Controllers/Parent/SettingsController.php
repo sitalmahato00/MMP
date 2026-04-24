@@ -119,6 +119,32 @@ class SettingsController extends Controller
         return back()->with('success', 'Notification preferences updated successfully.');
     }
 
+    public function updateTwoFactor(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'two_factor_enabled' => ['required', 'boolean'],
+            'two_factor_method' => ['required_if:two_factor_enabled,true', 'in:email,phone'],
+        ]);
+
+        // If enabling 2FA with phone method, ensure phone number exists
+        if ($validated['two_factor_enabled'] && $validated['two_factor_method'] === 'phone' && !$user->phone) {
+            return back()->withErrors(['two_factor_method' => 'Please add a phone number to your profile before enabling phone-based 2FA.']);
+        }
+
+        $user->update([
+            'two_factor_enabled' => $validated['two_factor_enabled'],
+            'two_factor_method' => $validated['two_factor_enabled'] ? $validated['two_factor_method'] : 'email',
+        ]);
+
+        $message = $validated['two_factor_enabled'] 
+            ? 'Two-factor authentication enabled successfully.' 
+            : 'Two-factor authentication disabled successfully.';
+
+        return back()->with('success', $message);
+    }
+
     public function logoutAllDevices(Request $request)
     {
         $request->validate([

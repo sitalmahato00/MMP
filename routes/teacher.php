@@ -46,6 +46,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Teacher\SettingsController::class, 'index'])->name('index');
     Route::patch('/profile', [\App\Http\Controllers\Teacher\SettingsController::class, 'updateProfile'])->name('profile.update');
     Route::patch('/password', [\App\Http\Controllers\Teacher\SettingsController::class, 'updatePassword'])->name('password.update');
+    Route::patch('/two-factor', [\App\Http\Controllers\Teacher\SettingsController::class, 'updateTwoFactor'])->name('two-factor.update');
     Route::patch('/preferences', [\App\Http\Controllers\Teacher\SettingsController::class, 'updatePreferences'])->name('preferences.update');
     Route::patch('/notifications', [\App\Http\Controllers\Teacher\SettingsController::class, 'updateNotifications'])->name('notifications.update');
     Route::post('/logout-all', [\App\Http\Controllers\Teacher\SettingsController::class, 'logoutAllDevices'])->name('logout-all');

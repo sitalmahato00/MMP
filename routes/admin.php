@@ -124,6 +124,7 @@ Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs
 Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
 Route::patch('settings/profile', [\App\Http\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
 Route::patch('settings/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('settings.password.update');
+Route::patch('settings/two-factor', [\App\Http\Controllers\Admin\SettingsController::class, 'updateTwoFactor'])->name('settings.two-factor.update');
 Route::patch('settings/preferences', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
 Route::patch('settings/notifications', [\App\Http\Controllers\Admin\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
 Route::post('settings/logout-all', [\App\Http\Controllers\Admin\SettingsController::class, 'logoutAllDevices'])->name('settings.logout-all');
