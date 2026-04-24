@@ -280,8 +280,9 @@ html.dark body {
   border-top-right-radius: 0 !important;
 }
 
+/* AGGRESSIVE: Force ALL white backgrounds to dark in dark mode */
 html.dark .bg-white {
-  background-color: rgb(30 41 59 / 0.96) !important;
+  background-color: #0f172a !important;
 }
 
 html.dark .hover\:bg-white:hover,
@@ -296,12 +297,12 @@ html.dark .bg-gray-50,
 html.dark .bg-slate-50,
 html.dark .bg-slate-50\/60,
 html.dark .bg-slate-50\/70 {
-  background-color: rgb(15 23 42 / 0.72) !important;
+  background-color: #0f172a !important;
 }
 
 html.dark .bg-gray-100,
 html.dark .bg-slate-100 {
-  background-color: rgb(30 41 59 / 0.9) !important;
+  background-color: #0f172a !important;
 }
 
 html.dark .text-gray-900,
@@ -395,3 +396,204 @@ html.dark .pagination-disabled {
     min-width: 760px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ULTRA AGGRESSIVE DARK MODE CARD FIX - MUST BE LAST TO OVERRIDE EVERYTHING
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Force main content area background */
+html.dark main.bg-gray-50 {
+  background-color: #020617 !important;
+}
+
+/* Force ALL cards, divs, sections with white/gray backgrounds to dark */
+html.dark div[class*="bg-white"],
+html.dark section[class*="bg-white"],
+html.dark div[class*="bg-gray"],
+html.dark section[class*="bg-gray"],
+html.dark div[class*="bg-slate"],
+html.dark section[class*="bg-slate"],
+html.dark div.bg-white,
+html.dark section.bg-white,
+html.dark div.bg-gray-50,
+html.dark div.bg-gray-100,
+html.dark div.bg-slate-50,
+html.dark div.bg-slate-100,
+html.dark div.bg-slate-200 {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Target rounded cards specifically */
+html.dark div[class*="rounded"][class*="bg-white"],
+html.dark div[class*="rounded"][class*="bg-gray"],
+html.dark div[class*="rounded"][class*="bg-slate"],
+html.dark div.rounded-lg.bg-white,
+html.dark div.rounded-xl.bg-white,
+html.dark div.rounded-2xl.bg-white,
+html.dark div.rounded-3xl.bg-white {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+/* Target shadow cards */
+html.dark div[class*="shadow"][class*="bg-white"],
+html.dark div[class*="shadow"][class*="bg-gray"],
+html.dark div[class*="shadow"][class*="bg-slate"] {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Exclude only hero section */
+html.dark .hero-section,
+html.dark .hero-section *,
+html.dark .hero-section div,
+html.dark .hero-section section {
+  background-color: transparent !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   NUCLEAR OPTION - FORCE EVERY SINGLE ELEMENT TO DARK IN DARK MODE
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Target EVERY div, section, article, aside with ANY white/gray background class */
+html.dark div.bg-white,
+html.dark section.bg-white,
+html.dark article.bg-white,
+html.dark aside.bg-white,
+html.dark main.bg-white,
+html.dark div.bg-gray-50,
+html.dark div.bg-gray-100,
+html.dark div.bg-slate-50,
+html.dark div.bg-slate-100,
+html.dark div.bg-slate-200,
+html.dark section.bg-gray-50,
+html.dark section.bg-slate-50 {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Force body background */
+html.dark body {
+  background-color: #020617 !important;
+}
+
+/* Force main content area */
+html.dark main {
+  background-color: #020617 !important;
+}
+
+/* ULTRA SPECIFIC - Target exact card patterns from dashboard */
+html.dark .rounded-xl.border.border-slate-200\/80.bg-white,
+html.dark .rounded-xl.bg-white,
+html.dark div[class*="rounded"][class*="border"][class*="bg-white"],
+html.dark div[class*="rounded-xl"][class*="bg-white"] {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+/* Target nested white backgrounds */
+html.dark .bg-white .bg-white,
+html.dark .bg-white > div,
+html.dark .bg-white > section {
+  background-color: #0f172a !important;
+}
+
+/* Target slate backgrounds used in cards */
+html.dark .bg-slate-100,
+html.dark .bg-slate-50 {
+  background-color: #1e293b !important;
+}
+
+/* Ensure text remains visible */
+html.dark .text-slate-900 {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-slate-800,
+html.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FIX BLACK TEXT IN DARK MODE - MAKE ALL TEXT WHITE/LIGHT
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Force all text colors to light in dark mode */
+html.dark,
+html.dark body,
+html.dark main,
+html.dark div,
+html.dark section,
+html.dark article,
+html.dark p,
+html.dark span,
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6,
+html.dark label,
+html.dark td,
+html.dark th,
+html.dark li {
+  color: #e2e8f0 !important;
+}
+
+/* Specific text color classes */
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700,
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-slate-700,
+html.dark .text-black {
+  color: #e2e8f0 !important;
+}
+
+/* Input and form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  color: #e2e8f0 !important;
+  background-color: #1e293b !important;
+}
+
+/* Links */
+html.dark a {
+  color: #60a5fa !important;
+}
+
+/* Buttons with dark text */
+html.dark button:not(.bg-blue-500):not(.bg-red-500):not(.bg-green-500):not([class*="bg-primary"]) {
+  color: #e2e8f0 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FORCE ONLY BLACK/DARK TEXT TO WHITE IN DARK MODE (NOT ALL TEXT)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Only target specific dark text color classes that should be light in dark mode */
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-black {
+  color: #e2e8f0 !important;
+}
+
+/* Target elements with inline black/dark colors */
+html.dark [style*="color: black"],
+html.dark [style*="color: #000"],
+html.dark [style*="color: rgb(0, 0, 0)"],
+html.dark [style*="color:#000"] {
+  color: #e2e8f0 !important;
+}
+

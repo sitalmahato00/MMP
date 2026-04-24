@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-gray-50">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">
@@ -196,7 +196,7 @@
                 <x-navbar />
             </div>
 
-            <main class="min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 px-3 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-[calc(env(safe-area-inset-top)+5.5rem)] sm:px-4 lg:bg-gray-50 lg:p-8 dark:bg-slate-950">
+            <main class="min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-[calc(env(safe-area-inset-top)+5.5rem)] sm:px-4 lg:p-8">
                 <div class="mx-auto w-full max-w-full">
                     @if (session('success'))
                         <x-alert type="success" :message="session('success')" class="mb-6" />
