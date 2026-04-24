@@ -38,15 +38,8 @@ class AttendanceController extends Controller
                 })
                 ->map(function($subjectAttendances) {
                     $subject = $subjectAttendances->first()->attendanceSession->subject;
-                    
-                    // Separate class and lab attendance
-                    $classAttendances = $subjectAttendances->filter(function($att) {
-                        return str_contains(strtolower($att->attendanceSession->period ?? ''), 'class');
-                    });
-                    
-                    $labAttendances = $subjectAttendances->filter(function($att) {
-                        return str_contains(strtolower($att->attendanceSession->period ?? ''), 'lab');
-                    });
+
+                    [$classAttendances, $labAttendances] = $this->splitAttendanceBuckets($subjectAttendances, $subject->type);
                     
                     $classTotal = $classAttendances->count();
                     $classPresent = $classAttendances->where('status', 'present')->count();
@@ -84,5 +77,34 @@ class AttendanceController extends Controller
         });
 
         return view('parent.attendance', compact('childrenData'));
+    }
+
+    private function splitAttendanceBuckets($subjectAttendances, ?string $subjectType): array
+    {
+        $labAttendances = $subjectAttendances->filter(function ($attendance) use ($subjectType) {
+            return $this->isLabSession($attendance->attendanceSession->period ?? null, $subjectType);
+        })->values();
+
+        $classAttendances = $subjectAttendances->reject(function ($attendance) use ($subjectType) {
+            return $this->isLabSession($attendance->attendanceSession->period ?? null, $subjectType);
+        })->values();
+
+        return [$classAttendances, $labAttendances];
+    }
+
+    private function isLabSession(?string $period, ?string $subjectType): bool
+    {
+        $normalizedPeriod = strtolower(trim((string) $period));
+        $normalizedType = strtolower(trim((string) $subjectType));
+
+        if (str_contains($normalizedPeriod, 'lab')) {
+            return true;
+        }
+
+        if (str_contains($normalizedPeriod, 'class')) {
+            return false;
+        }
+
+        return $normalizedType === 'practical';
     }
 }

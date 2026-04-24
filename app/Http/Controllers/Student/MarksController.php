@@ -64,50 +64,13 @@ class MarksController extends Controller
             ? round(($passedSubjects / $allMarks->count()) * 100, 1)
             : 0;
 
-        $recentExams = Exam::whereHas('marks', function ($query) use ($student) {
-                $query->where('student_id', $student->id)
-                    ->where('status', 'published');
-            })
-            ->where('is_published', true)
-            ->latest('published_at')
-            ->take(6)
-            ->get();
-
-        $chartData = [
-            'labels' => [],
-            'data' => [],
-        ];
-
-        foreach ($recentExams->reverse() as $exam) {
-            $examMarks = $allMarks->where('exam_id', $exam->id);
-
-            if ($examMarks->isEmpty()) {
-                continue;
-            }
-
-            $totalObtained = 0;
-            $totalFull = 0;
-
-            foreach ($examMarks as $mark) {
-                $displayMetrics = $this->studentRecordService->getMarkDisplayMetrics($mark);
-                $totalObtained += $displayMetrics['obtained_marks'];
-                $totalFull += $displayMetrics['full_marks'];
-            }
-
-            $avgPercentage = $totalFull > 0 ? round(($totalObtained / $totalFull) * 100, 1) : 0;
-
-            $chartData['labels'][] = $exam->name;
-            $chartData['data'][] = $avgPercentage;
-        }
-
         return view('student.marks.index', compact(
             'student',
             'assessmentResults',
             'totalAssessments',
             'averagePercentage',
             'totalSubjects',
-            'passPercentage',
-            'chartData'
+            'passPercentage'
         ));
     }
 
@@ -121,7 +84,7 @@ class MarksController extends Controller
 
         $exam = Exam::with(['programs', 'academicSession', 'department'])->findOrFail($id);
 
-        if (!$exam->is_published) {
+        if (!$exam->isPublishedState) {
             abort(404, 'Exam results not published');
         }
 

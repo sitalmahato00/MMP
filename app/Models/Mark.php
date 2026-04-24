@@ -101,7 +101,13 @@ class Mark extends Model
     public function scopeVisibleToPortal($query)
     {
         return $query->where('marks.status', 'published')
-            ->whereHas('exam', fn ($examQuery) => $examQuery->where('is_published', true));
+            ->whereHas('exam', function ($examQuery) {
+                $examQuery->where(function ($publishedQuery) {
+                    $publishedQuery
+                        ->where('is_published', true)
+                        ->orWhere('status', 'results_published');
+                });
+            });
     }
 
     // ─── CTEVT Marks Calculation ───────────────────────────

@@ -168,7 +168,7 @@
             ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('student.timetable.index', 'student.dashboard'), 'isActive' => $active('student.timetable.*')],
             ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('student.attendance.index', 'student.dashboard'), 'isActive' => $active('student.attendance.*')],
             ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('student.assignments.index', 'student.dashboard'), 'isActive' => $active('student.assignments.*')],
-            ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => '#', 'isActive' => false, 'disabled' => true],
+            ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('student.marks.index', 'student.dashboard'), 'isActive' => $active('student.marks.*')],
         ]],
         ['label' => 'Resources', 'items' => [
             ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('student.notices.index', 'student.dashboard'), 'isActive' => $active('student.notices.*')],

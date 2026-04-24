@@ -60,7 +60,7 @@ class ResultController extends Controller
         }
         
         // Verify exam is published
-        if (!$exam->is_published) {
+        if (!$exam->isPublishedState) {
             abort(404, 'Exam results not published');
         }
 

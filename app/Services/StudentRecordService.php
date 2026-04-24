@@ -28,12 +28,8 @@ class StudentRecordService
     public function summarizeMarks(Collection $marks): array
     {
         $marks = $marks
-            ->filter(fn (Mark $mark) => $mark->exam?->is_published)
+            ->filter(fn (Mark $mark) => $mark->exam?->isPublishedState)
             ->values();
-
-        $assessmentResults = $this->buildAssessmentResults($marks);
-        $totalObtained = 0.0;
-        $totalFull = 0.0;
 
         $gradeDistribution = [
             'distinction' => 0,
@@ -43,24 +39,19 @@ class StudentRecordService
             'fail' => 0,
         ];
 
+        $assessmentResults = $this->buildAssessmentResults($marks);
+        $totalObtained = 0.0;
+        $totalFull = 0.0;
+
         foreach ($marks as $mark) {
             $displayMetrics = $this->getMarkDisplayMetrics($mark);
-            $percentage = $displayMetrics['percentage'];
 
             $totalObtained += $displayMetrics['obtained_marks'];
             $totalFull += $displayMetrics['full_marks'];
+        }
 
-            if ($percentage >= 80) {
-                $gradeDistribution['distinction']++;
-            } elseif ($percentage >= 60) {
-                $gradeDistribution['first_division']++;
-            } elseif ($percentage >= 45) {
-                $gradeDistribution['second_division']++;
-            } elseif ($percentage >= 32) {
-                $gradeDistribution['third_division']++;
-            } else {
-                $gradeDistribution['fail']++;
-            }
+        foreach ($assessmentResults as $result) {
+            $this->incrementGradeDistribution($gradeDistribution, (float) ($result['percentage'] ?? 0));
         }
 
         return [
@@ -82,7 +73,7 @@ class StudentRecordService
     public function buildAssessmentResults(Collection $marks): Collection
     {
         $marks = $marks
-            ->filter(fn (Mark $mark) => $mark->exam?->is_published)
+            ->filter(fn (Mark $mark) => $mark->exam?->isPublishedState)
             ->values();
 
         return $marks
@@ -355,5 +346,34 @@ class StudentRecordService
             $percentage >= 32 => 'Third Division',
             default => 'Fail',
         };
+    }
+
+    private function incrementGradeDistribution(array &$gradeDistribution, float $percentage): void
+    {
+        if ($percentage >= 80) {
+            $gradeDistribution['distinction']++;
+
+            return;
+        }
+
+        if ($percentage >= 60) {
+            $gradeDistribution['first_division']++;
+
+            return;
+        }
+
+        if ($percentage >= 45) {
+            $gradeDistribution['second_division']++;
+
+            return;
+        }
+
+        if ($percentage >= 32) {
+            $gradeDistribution['third_division']++;
+
+            return;
+        }
+
+        $gradeDistribution['fail']++;
     }
 }
