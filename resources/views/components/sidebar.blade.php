@@ -184,9 +184,13 @@
         ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('parent.dashboard'), 'isActive' => $active('parent.dashboard')]]],
         ['label' => 'Child Progress', 'items' => [
             ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('parent.attendance.index', 'parent.dashboard'), 'isActive' => $active('parent.attendance.*')],
+            ['label' => 'Assignments', 'iconName' => 'document-text', 'href' => $portalRoute('parent.assignments.index', 'parent.dashboard'), 'isActive' => $active('parent.assignments.*')],
             ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('parent.results.index', 'parent.dashboard'), 'isActive' => $active('parent.results.*')],
         ]],
-        ['label' => 'Communication', 'items' => [['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('parent.notices.index', 'parent.dashboard'), 'isActive' => $active('parent.notices.*')]]],
+        ['label' => 'Communication', 'items' => [
+            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('parent.notices.index', 'parent.dashboard'), 'isActive' => $active('parent.notices.*')],
+            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('parent.news-events.index', 'parent.dashboard'), 'isActive' => $active('parent.news-events.*')],
+        ]],
         ['label' => 'Account', 'items' => [
             ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('parent.settings.index', 'parent.dashboard'), 'isActive' => $active('parent.settings.*')],
         ]],

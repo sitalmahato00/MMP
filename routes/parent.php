@@ -10,11 +10,19 @@ Route::get('/child/{student}', [\App\Http\Controllers\Parent\ChildController::cl
 // Attendance
 Route::get('/attendance', [\App\Http\Controllers\Parent\AttendanceController::class, 'index'])->name('attendance.index');
 
+// Assignments
+Route::get('/assignments', [\App\Http\Controllers\Parent\AssignmentsController::class, 'index'])->name('assignments.index');
+
 // Results
 Route::get('/results', [\App\Http\Controllers\Parent\ResultController::class, 'index'])->name('results.index');
 
 // Notices
 Route::get('/notices', [\App\Http\Controllers\Parent\NoticeController::class, 'index'])->name('notices.index');
+Route::get('/notices/{notice}', [\App\Http\Controllers\Parent\NoticeController::class, 'show'])->name('notices.show');
+
+// News & Events
+Route::get('/news-events', [\App\Http\Controllers\Parent\NewsEventsController::class, 'index'])->name('news-events.index');
+Route::get('/news-events/{notice}', [\App\Http\Controllers\Parent\NewsEventsController::class, 'show'])->name('news-events.show');
 
 // Settings & Account Management
 Route::prefix('settings')->name('settings.')->group(function () {
