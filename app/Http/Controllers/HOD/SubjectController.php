@@ -8,6 +8,7 @@ use App\Models\Teacher;
 use App\Models\AcademicSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SubjectController extends HodController
 {
@@ -100,6 +101,8 @@ class SubjectController extends HodController
             'code' => 'required|string|max:50|unique:subjects,code',
             'type' => 'required|in:theory,practical,both',
             'credit_hours' => 'nullable|integer|min:0',
+            'details' => 'nullable|string',
+            'syllabus' => 'nullable|file|mimes:pdf|max:10240',
             'full_marks_internal_theory' => 'nullable|numeric|min:0',
             'pass_marks_internal_theory' => 'nullable|numeric|min:0',
             'full_marks_external_theory' => 'nullable|numeric|min:0',
@@ -122,6 +125,15 @@ class SubjectController extends HodController
         }
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['details'] = filled($validated['details'] ?? null)
+            ? trim((string) $validated['details'])
+            : null;
+
+        if ($request->hasFile('syllabus')) {
+            $validated['syllabus'] = $request->file('syllabus')->store('subjects/syllabi', 'public');
+        } else {
+            unset($validated['syllabus']);
+        }
 
         $subject = Subject::create($validated);
 
@@ -281,6 +293,8 @@ class SubjectController extends HodController
             'code' => 'required|string|max:50|unique:subjects,code,' . $subject->id,
             'type' => 'required|in:theory,practical,both',
             'credit_hours' => 'nullable|integer|min:0',
+            'details' => 'nullable|string',
+            'syllabus' => 'nullable|file|mimes:pdf|max:10240',
             'full_marks_internal_theory' => 'nullable|numeric|min:0',
             'pass_marks_internal_theory' => 'nullable|numeric|min:0',
             'full_marks_external_theory' => 'nullable|numeric|min:0',
@@ -299,6 +313,19 @@ class SubjectController extends HodController
         }
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['details'] = filled($validated['details'] ?? null)
+            ? trim((string) $validated['details'])
+            : null;
+
+        if ($request->hasFile('syllabus')) {
+            if ($subject->syllabus) {
+                Storage::disk('public')->delete($subject->syllabus);
+            }
+
+            $validated['syllabus'] = $request->file('syllabus')->store('subjects/syllabi', 'public');
+        } else {
+            unset($validated['syllabus']);
+        }
 
         $subject->update($validated);
 

@@ -11,7 +11,7 @@
         back="{{ route('hod.subjects.show', $subject) }}"/>
 
     {{-- Edit Form --}}
-    <form method="POST" action="{{ route('hod.subjects.update', $subject) }}">
+    <form method="POST" action="{{ route('hod.subjects.update', $subject) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -89,6 +89,33 @@
                                class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                         <span class="text-sm text-slate-700">Active</span>
                     </label>
+                </x-form-field>
+            </x-form-row>
+
+            <x-form-row>
+                <x-form-field label="Subject Details" name="details">
+                    <x-textarea
+                        name="details"
+                        rows="5"
+                        placeholder="Add topic outline, module notes, learning outcomes, or other subject details...">{{ old('details', $subject->details) }}</x-textarea>
+                </x-form-field>
+
+                <x-form-field label="Replace Subject Syllabus (PDF)" name="syllabus">
+                    <input
+                        type="file"
+                        name="syllabus"
+                        accept=".pdf"
+                        class="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="mt-2 text-xs text-slate-500">Leave blank to keep the current syllabus file.</p>
+
+                    @if($subject->syllabus_url)
+                        <div class="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-3 text-sm text-blue-900">
+                            <p class="font-semibold">{{ basename($subject->syllabus) }}</p>
+                            <a href="{{ $subject->syllabus_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">
+                                View Current Syllabus
+                            </a>
+                        </div>
+                    @endif
                 </x-form-field>
             </x-form-row>
         </x-form-section>

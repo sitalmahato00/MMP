@@ -10,6 +10,9 @@ Route::resource('attendance', \App\Http\Controllers\Student\AttendanceController
 // My Marks / Results
 Route::resource('marks', \App\Http\Controllers\Student\MarksController::class)->only(['index', 'show']);
 
+// My Subjects
+Route::get('subjects', [\App\Http\Controllers\Student\SubjectsController::class, 'index'])->name('subjects.index');
+
 // My Assignments
 Route::resource('assignments', \App\Http\Controllers\Student\AssignmentsController::class)->only(['index', 'show']);
 Route::post('assignments/{assignment}/submit', [\App\Http\Controllers\Student\AssignmentsController::class, 'submit'])->name('assignments.submit');

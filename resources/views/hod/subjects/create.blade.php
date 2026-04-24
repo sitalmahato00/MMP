@@ -11,7 +11,7 @@
         back="{{ route('hod.subjects.index') }}"/>
 
     {{-- Create Form --}}
-    <form method="POST" action="{{ route('hod.subjects.store') }}">
+    <form method="POST" action="{{ route('hod.subjects.store') }}" enctype="multipart/form-data">
         @csrf
 
         <x-form-section 
@@ -88,6 +88,24 @@
                                class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                         <span class="text-sm text-slate-700">Active</span>
                     </label>
+                </x-form-field>
+            </x-form-row>
+
+            <x-form-row>
+                <x-form-field label="Subject Details" name="details">
+                    <x-textarea
+                        name="details"
+                        rows="5"
+                        placeholder="Add topic outline, module notes, learning outcomes, or other subject details...">{{ old('details') }}</x-textarea>
+                </x-form-field>
+
+                <x-form-field label="Subject Syllabus (PDF)" name="syllabus">
+                    <input
+                        type="file"
+                        name="syllabus"
+                        accept=".pdf"
+                        class="w-full rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="mt-2 text-xs text-slate-500">Optional. Upload a subject-specific syllabus PDF up to 10 MB.</p>
                 </x-form-field>
             </x-form-row>
         </x-form-section>

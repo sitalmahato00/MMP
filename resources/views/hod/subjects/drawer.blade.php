@@ -26,7 +26,7 @@
 </div>
 
 {{-- Quick Stats --}}
-<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="grid grid-cols-2 gap-3 mb-6 sm:grid-cols-4">
     <div class="rounded-xl bg-blue-50 p-3 text-center">
         <p class="text-lg font-bold text-blue-600">{{ $subject->total_full_marks }}</p>
         <p class="text-xs text-slate-500">Total Marks</p>
@@ -38,6 +38,10 @@
     <div class="rounded-xl bg-violet-50 p-3 text-center">
         <p class="text-lg font-bold text-violet-600">{{ $assignedTeachers->count() }}</p>
         <p class="text-xs text-slate-500">Teachers</p>
+    </div>
+    <div class="rounded-xl bg-amber-50 p-3 text-center">
+        <p class="text-lg font-bold text-amber-600">{{ $subject->syllabus ? 'Yes' : 'No' }}</p>
+        <p class="text-xs text-slate-500">Syllabus</p>
     </div>
 </div>
 
@@ -98,6 +102,23 @@
                     <dd class="text-slate-800">{{ $subject->is_active ? 'Active' : 'Inactive' }}</dd>
                 </div>
             </dl>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 bg-white p-4">
+            <h4 class="mb-3 text-sm font-bold text-slate-700">Subject Details</h4>
+            <p class="whitespace-pre-line text-sm text-slate-600">{{ $subject->details ?: 'No subject details added yet.' }}</p>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 bg-white p-4">
+            <h4 class="mb-3 text-sm font-bold text-slate-700">Syllabus</h4>
+            @if($subject->syllabus_url)
+                <p class="text-sm font-semibold text-slate-900">{{ basename($subject->syllabus) }}</p>
+                <a href="{{ $subject->syllabus_url }}" target="_blank" rel="noopener" class="mt-3 inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">
+                    View Syllabus PDF
+                </a>
+            @else
+                <p class="text-sm text-slate-500">No syllabus uploaded for this subject.</p>
+            @endif
         </div>
     </div>
 

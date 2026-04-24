@@ -166,6 +166,7 @@
         ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('student.dashboard'), 'isActive' => $active('student.dashboard')]]],
         ['label' => 'Academics', 'items' => [
             ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('student.timetable.index', 'student.dashboard'), 'isActive' => $active('student.timetable.*')],
+            ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('student.subjects.index', 'student.dashboard'), 'isActive' => $active('student.subjects.*')],
             ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('student.attendance.index', 'student.dashboard'), 'isActive' => $active('student.attendance.*')],
             ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('student.assignments.index', 'student.dashboard'), 'isActive' => $active('student.assignments.*')],
             ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('student.marks.index', 'student.dashboard'), 'isActive' => $active('student.marks.*')],
@@ -183,6 +184,7 @@
     $parentGroups = [
         ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('parent.dashboard'), 'isActive' => $active('parent.dashboard')]]],
         ['label' => 'Child Progress', 'items' => [
+            ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('parent.subjects.index', 'parent.dashboard'), 'isActive' => $active('parent.subjects.*')],
             ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('parent.attendance.index', 'parent.dashboard'), 'isActive' => $active('parent.attendance.*')],
             ['label' => 'Assignments', 'iconName' => 'document-text', 'href' => $portalRoute('parent.assignments.index', 'parent.dashboard'), 'isActive' => $active('parent.assignments.*')],
             ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('parent.results.index', 'parent.dashboard'), 'isActive' => $active('parent.results.*')],

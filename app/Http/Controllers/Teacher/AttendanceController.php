@@ -7,6 +7,7 @@ use App\Models\AcademicSession;
 use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Subject;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -22,16 +23,19 @@ class AttendanceController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        // Get teacher's assigned subject IDs
-        $assignedSubjectIds = $teacher->subjects()
-            ->wherePivot('academic_session_id', $session?->id)
-            ->pluck('subjects.id')
-            ->toArray();
-
-        // Get attendance sessions created by this teacher for their assigned subjects
         $query = AttendanceSession::query()
-            ->where('teacher_id', $teacher->id)
-            ->whereIn('subject_id', $assignedSubjectIds)
+            ->where(function ($sessionQuery) use ($teacher) {
+                $sessionQuery
+                    ->where('teacher_id', $teacher->id)
+                    ->orWhereExists(function ($assignmentQuery) use ($teacher) {
+                        $assignmentQuery
+                            ->select(DB::raw(1))
+                            ->from('subject_teacher')
+                            ->whereColumn('subject_teacher.subject_id', 'attendance_sessions.subject_id')
+                            ->whereColumn('subject_teacher.academic_session_id', 'attendance_sessions.academic_session_id')
+                            ->where('subject_teacher.teacher_id', $teacher->id);
+                    });
+            })
             ->with([
                 'subject:id,name,code',
                 'teacher.user:id,name',
@@ -186,8 +190,11 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization - check if teacher created this attendance session
-        if ($attendanceSession->teacher_id !== $teacher->id) {
+        if (! $teacher) {
+            abort(403, 'Teacher profile not found');
+        }
+
+        if (! $this->canManageAttendanceSession($teacher, $attendanceSession)) {
             return redirect()->route('teacher.attendance.index')->with('error', 'You are not authorized to view this attendance record.');
         }
 
@@ -201,8 +208,11 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization - check if teacher created this attendance session
-        if ($attendanceSession->teacher_id !== $teacher->id) {
+        if (! $teacher) {
+            abort(403, 'Teacher profile not found');
+        }
+
+        if (! $this->canManageAttendanceSession($teacher, $attendanceSession)) {
             return redirect()->route('teacher.attendance.index')->with('error', 'You are not authorized to edit this attendance record.');
         }
 
@@ -216,8 +226,11 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization - check if teacher created this attendance session
-        if ($attendanceSession->teacher_id !== $teacher->id) {
+        if (! $teacher) {
+            abort(403, 'Teacher profile not found');
+        }
+
+        if (! $this->canManageAttendanceSession($teacher, $attendanceSession)) {
             return back()->with('error', 'You are not authorized to edit this attendance record.');
         }
 
@@ -267,8 +280,11 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $teacher = $user->teacher;
 
-        // Verify authorization - check if teacher created this attendance session
-        if ($attendanceSession->teacher_id !== $teacher->id) {
+        if (! $teacher) {
+            abort(403, 'Teacher profile not found');
+        }
+
+        if (! $this->canManageAttendanceSession($teacher, $attendanceSession)) {
             abort(403, 'Unauthorized');
         }
 
@@ -294,5 +310,17 @@ class AttendanceController extends Controller
             ->get(['id', 'user_id', 'student_no', 'program_id', 'current_semester']);
 
         return response()->json($students);
+    }
+
+    private function canManageAttendanceSession(Teacher $teacher, AttendanceSession $attendanceSession): bool
+    {
+        if ((int) $attendanceSession->teacher_id === (int) $teacher->id) {
+            return true;
+        }
+
+        return $teacher->subjects()
+            ->where('subjects.id', $attendanceSession->subject_id)
+            ->wherePivot('academic_session_id', $attendanceSession->academic_session_id)
+            ->exists();
     }
 }

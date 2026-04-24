@@ -65,6 +65,36 @@
         </div>
     </section>
 
+    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-5 py-4">
+            <h2 class="text-sm font-semibold text-slate-900">Subject Content</h2>
+        </div>
+
+        <div class="grid gap-6 p-5 md:grid-cols-2">
+            <div class="rounded-lg border border-slate-200 p-4">
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Details</p>
+                <p class="mt-3 whitespace-pre-line text-sm text-slate-600">{{ $subject->details ?: 'No subject details added yet.' }}</p>
+            </div>
+
+            <div class="rounded-lg border border-slate-200 p-4">
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Syllabus</p>
+
+                @if($subject->syllabus_url)
+                    <p class="mt-3 text-sm font-semibold text-slate-900">{{ basename($subject->syllabus) }}</p>
+                    <a href="{{ $subject->syllabus_url }}" target="_blank" rel="noopener" class="mt-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        View Syllabus PDF
+                    </a>
+                @else
+                    <p class="mt-3 text-sm text-slate-500">No syllabus uploaded for this subject.</p>
+                @endif
+            </div>
+        </div>
+    </section>
+
     {{-- Marking Scheme --}}
     <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
         <div class="border-b border-slate-100 px-5 py-4">

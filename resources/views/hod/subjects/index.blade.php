@@ -155,6 +155,7 @@
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Subject</th>
                         <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Program</th>
                         <th class="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Semester</th>
+                        <th class="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden xl:table-cell">Resources</th>
                         <th class="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Theory Marks</th>
                         <th class="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Practical Marks</th>
                         <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500">Actions</th>
@@ -178,6 +179,16 @@
                             <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
                                 Sem {{ $subject->semester }}
                             </span>
+                        </td>
+                        <td class="px-5 py-3.5 text-center hidden xl:table-cell">
+                            <div class="flex flex-col items-center gap-1 text-[11px]">
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold {{ $subject->syllabus ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500' }}">
+                                    {{ $subject->syllabus ? 'Syllabus PDF' : 'No Syllabus' }}
+                                </span>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold {{ filled($subject->details) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
+                                    {{ filled($subject->details) ? 'Details Added' : 'No Details' }}
+                                </span>
+                            </div>
                         </td>
                         <td class="px-5 py-3.5 text-center hidden lg:table-cell">
                             <div class="text-xs text-slate-600">
@@ -248,6 +259,15 @@
                 <div class="mb-3 space-y-0.5">
                     <p class="text-xs text-slate-600 font-medium truncate">{{ $subject->program->name }}</p>
                     <p class="text-[11px] text-slate-400">{{ $subject->program->code }}</p>
+                </div>
+
+                <div class="mb-3 flex flex-wrap gap-1.5">
+                    <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold {{ $subject->syllabus ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500' }}">
+                        {{ $subject->syllabus ? 'Syllabus PDF' : 'No Syllabus' }}
+                    </span>
+                    <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold {{ filled($subject->details) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
+                        {{ filled($subject->details) ? 'Details Added' : 'No Details' }}
+                    </span>
                 </div>
                 
                 {{-- Marks Summary --}}

@@ -2,14 +2,17 @@
 
 namespace App\Services;
 
+use App\Models\AcademicSession;
 use App\Models\Attendance;
 use App\Models\Exam;
 use App\Models\Mark;
 use App\Models\Student;
+use App\Models\Subject;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StudentRecordService
 {
@@ -260,6 +263,92 @@ class StudentRecordService
         ];
     }
 
+    public function getProgramSubjectOverview(Student $student, ?AcademicSession $session = null): array
+    {
+        $activeSession = $session ?: $student->academicSession ?: AcademicSession::current();
+        $sessionId = $activeSession?->id;
+
+        $program = $student->program()
+            ->with([
+                'subjects' => function ($subjectQuery) use ($sessionId) {
+                    $subjectQuery
+                        ->orderBy('semester')
+                        ->orderBy('name')
+                        ->with([
+                            'teachers' => function ($teacherQuery) use ($sessionId) {
+                                $teacherQuery
+                                    ->select('teachers.id', 'teachers.user_id')
+                                    ->with('user:id,name')
+                                    ->orderBy('teachers.id');
+
+                                if ($sessionId) {
+                                    $teacherQuery->wherePivot('academic_session_id', $sessionId);
+                                }
+                            },
+                        ]);
+                },
+            ])
+            ->first();
+
+        if (!$program) {
+            return [
+                'completed' => collect(),
+                'running' => collect(),
+                'upcoming' => collect(),
+                'counts' => [
+                    'completed' => 0,
+                    'running' => 0,
+                    'upcoming' => 0,
+                ],
+            ];
+        }
+
+        $semesterStatuses = $this->semesterProgressMap($student, $activeSession);
+        $allSubjects = $program->subjects;
+
+        $statusGroups = collect(['completed', 'running', 'upcoming'])->mapWithKeys(
+            function (string $status) use ($allSubjects, $semesterStatuses, $student) {
+                $semesterGroups = $allSubjects
+                    ->filter(function (Subject $subject) use ($status, $semesterStatuses, $student) {
+                        $subjectSemester = (int) ($subject->semester ?? 0);
+
+                        return $this->resolveSemesterProgressStatus(
+                            $subjectSemester,
+                            (int) ($student->current_semester ?? 0),
+                            $semesterStatuses
+                        ) === $status;
+                    })
+                    ->groupBy(fn (Subject $subject) => (int) ($subject->semester ?? 0))
+                    ->sortKeys()
+                    ->map(function (Collection $semesterSubjects, int $semester) {
+                        return [
+                            'semester' => $semester,
+                            'title' => 'Semester ' . $semester,
+                            'subject_count' => $semesterSubjects->count(),
+                            'subjects' => $semesterSubjects
+                                ->map(fn (Subject $subject) => $this->formatProgramSubject($subject))
+                                ->values()
+                                ->all(),
+                        ];
+                    })
+                    ->values();
+
+                return [$status => $semesterGroups];
+            }
+        );
+
+        return [
+            'completed' => $statusGroups->get('completed', collect()),
+            'running' => $statusGroups->get('running', collect()),
+            'upcoming' => $statusGroups->get('upcoming', collect()),
+            'counts' => [
+                'completed' => $statusGroups->get('completed', collect())->sum('subject_count'),
+                'running' => $statusGroups->get('running', collect())->sum('subject_count'),
+                'upcoming' => $statusGroups->get('upcoming', collect())->sum('subject_count'),
+            ],
+        ];
+    }
+
     private function markPercentage(Mark $mark): float
     {
         $full = $this->fullMarksForMark($mark);
@@ -375,5 +464,113 @@ class StudentRecordService
         }
 
         $gradeDistribution['fail']++;
+    }
+
+    private function semesterProgressMap(Student $student, ?AcademicSession $session = null): array
+    {
+        $sourceSession = $session ?: $student->academicSession ?: AcademicSession::current();
+
+        if (!$sourceSession) {
+            return [];
+        }
+
+        return $sourceSession->semesters()
+            ->get(['semester_number', 'status'])
+            ->mapWithKeys(fn ($semester) => [(int) $semester->semester_number => (string) $semester->status])
+            ->all();
+    }
+
+    private function resolveSemesterProgressStatus(int $subjectSemester, int $currentSemester, array $semesterStatuses): string
+    {
+        return match ($semesterStatuses[$subjectSemester] ?? null) {
+            'completed' => 'completed',
+            'running', 'delayed' => 'running',
+            'upcoming' => 'upcoming',
+            default => $subjectSemester < $currentSemester
+                ? 'completed'
+                : ($subjectSemester === $currentSemester ? 'running' : 'upcoming'),
+        };
+    }
+
+    private function formatProgramSubject(Subject $subject): array
+    {
+        $teachers = $subject->teachers
+            ->filter(fn ($teacher) => filled($teacher->user?->name))
+            ->map(function ($teacher) {
+                return [
+                    'id' => $teacher->id,
+                    'name' => $teacher->user->name,
+                    'role' => $this->formatTeacherRole($teacher->pivot?->role),
+                    'section' => filled($teacher->pivot?->section) ? (string) $teacher->pivot->section : null,
+                ];
+            })
+            ->unique(fn (array $teacher) => $teacher['name'] . '|' . ($teacher['role'] ?? '') . '|' . ($teacher['section'] ?? ''))
+            ->values();
+
+        $teacherSummary = $teachers->isNotEmpty()
+            ? $teachers
+                ->map(function (array $teacher) {
+                    $details = collect([
+                        $teacher['role'] ?? null,
+                        filled($teacher['section'] ?? null) ? 'Section ' . $teacher['section'] : null,
+                    ])->filter()->implode(', ');
+
+                    return $details !== ''
+                        ? $teacher['name'] . ' (' . $details . ')'
+                        : $teacher['name'];
+                })
+                ->implode(', ')
+            : 'Teacher not assigned';
+
+        $passTheoryMarks = (int) (($subject->pass_marks_internal_theory ?? 0) + ($subject->pass_marks_external_theory ?? 0));
+        $passPracticalMarks = (int) (($subject->pass_marks_internal_practical ?? 0) + ($subject->pass_marks_external_practical ?? 0));
+
+        return [
+            'id' => $subject->id,
+            'name' => $subject->name,
+            'code' => $subject->code,
+            'semester' => (int) ($subject->semester ?? 0),
+            'type' => (string) ($subject->type ?: 'theory'),
+            'type_label' => (string) Str::of((string) ($subject->type ?: 'theory'))->replace('_', ' ')->headline(),
+            'credit_hours' => $subject->credit_hours,
+            'details' => filled($subject->details) ? (string) $subject->details : null,
+            'syllabus' => filled($subject->syllabus) ? (string) $subject->syllabus : null,
+            'syllabus_name' => filled($subject->syllabus) ? basename((string) $subject->syllabus) : null,
+            'syllabus_url' => $subject->syllabus_url,
+            'is_active' => (bool) $subject->is_active,
+            'status_label' => $subject->is_active ? 'Active' : 'Inactive',
+            'has_theory' => $subject->hasTheory(),
+            'has_practical' => $subject->hasPractical(),
+            'full_marks_internal_theory' => (int) ($subject->full_marks_internal_theory ?? 0),
+            'pass_marks_internal_theory' => (int) ($subject->pass_marks_internal_theory ?? 0),
+            'full_marks_external_theory' => (int) ($subject->full_marks_external_theory ?? 0),
+            'pass_marks_external_theory' => (int) ($subject->pass_marks_external_theory ?? 0),
+            'full_marks_internal_practical' => (int) ($subject->full_marks_internal_practical ?? 0),
+            'pass_marks_internal_practical' => (int) ($subject->pass_marks_internal_practical ?? 0),
+            'full_marks_external_practical' => (int) ($subject->full_marks_external_practical ?? 0),
+            'pass_marks_external_practical' => (int) ($subject->pass_marks_external_practical ?? 0),
+            'total_theory_marks' => (int) $subject->total_theory_marks,
+            'total_theory_pass_marks' => $passTheoryMarks,
+            'total_practical_marks' => (int) $subject->total_practical_marks,
+            'total_practical_pass_marks' => $passPracticalMarks,
+            'total_full_marks' => (int) $subject->total_full_marks,
+            'total_pass_marks' => (int) $subject->total_pass_marks,
+            'teacher_summary' => $teacherSummary,
+            'teachers' => $teachers->all(),
+        ];
+    }
+
+    private function formatTeacherRole(?string $role): ?string
+    {
+        $normalizedRole = Str::of((string) $role)
+            ->replace(['_', '-'], ' ')
+            ->squish()
+            ->lower();
+
+        if ($normalizedRole->isEmpty() || (string) $normalizedRole === 'teacher') {
+            return null;
+        }
+
+        return (string) $normalizedRole->headline();
     }
 }

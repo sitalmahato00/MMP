@@ -128,7 +128,9 @@
         </div>
         <div class="p-4 sm:p-5">
             @if(count($attendanceData) > 0)
-                <canvas class="h-32 sm:h-40 w-full" id="attendanceChart"></canvas>
+                <div class="h-28 sm:h-32">
+                    <canvas class="h-full w-full" id="attendanceChart"></canvas>
+                </div>
             @else
                 <div class="text-center py-8 sm:py-12">
                     <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -353,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false

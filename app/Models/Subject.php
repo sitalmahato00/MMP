@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Subject extends Model
 {
@@ -15,7 +16,7 @@ class Subject extends Model
         'pass_marks_internal_theory', 'pass_marks_external_theory',
         'full_marks_internal_practical', 'full_marks_external_practical',
         'pass_marks_internal_practical', 'pass_marks_external_practical',
-        'credit_hours', 'is_active',
+        'credit_hours', 'details', 'syllabus', 'is_active',
     ];
 
     protected $casts = [
@@ -88,5 +89,10 @@ class Subject extends Model
     public function hasPractical(): bool
     {
         return in_array($this->type, ['practical', 'both']);
+    }
+
+    public function getSyllabusUrlAttribute(): ?string
+    {
+        return $this->syllabus ? Storage::disk('public')->url($this->syllabus) : null;
     }
 }
