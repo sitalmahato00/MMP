@@ -13,16 +13,31 @@
   }
 }
 /* Fix: Ensure hero image is visible in dark mode on public page */
-html.dark .hero-section img, html.dark .hero-section .hero-bg {
+html.dark .hero-section img {
   opacity: 1 !important;
   filter: none !important;
 }
-html.dark .hero-section {
-  background: none !important;
-}
-html.dark .hero-section [class*="bg-gradient-to-"] {
-  background: none !important;
+/* Prevent dark mode CSS from hiding hero section backgrounds */
+html.dark .hero-section,
+html.dark .hero-section > div,
+html.dark .hero-section img {
   background-color: transparent !important;
+}
+html.dark .hero-section .bg-gray-900 {
+  background-color: #111827 !important;
+}
+/* Remove all rounded corners from hero section - AGGRESSIVE */
+.hero-section,
+.hero-section *,
+.hero-section > div,
+.hero-section .absolute,
+.hero-section section,
+section.hero-section {
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 /* Reusable dashboard card class for all user dashboards */
 .dashboard-card {
@@ -41,35 +56,37 @@ html.dark .teacher-dashboard-header .bg-gradient-to-br {
   border-color: #334155 !important;
 }
 /* Force all bg-white, bg-gray-50, and similar backgrounds to dark in dark mode, even with opacity or border utility classes */
-html.dark [class*="bg-white"],
-html.dark [class*="bg-gray-50"],
-html.dark [class*="bg-slate-50"],
-html.dark [class*="bg-slate-100"],
-html.dark [class*="bg-slate-200"],
-html.dark [class*="bg-slate-300"],
-html.dark [class*="bg-slate-400"],
-html.dark [class*="bg-slate-500"],
-html.dark [class*="bg-slate-600"],
-html.dark [class*="bg-slate-700"],
-html.dark [class*="bg-slate-800"],
-html.dark [class*="bg-slate-900"] {
+/* Exclude hero-section to prevent hiding hero images */
+html.dark [class*="bg-white"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-gray-50"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-50"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-100"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-200"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-300"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-400"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-500"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-600"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-700"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-800"]:not(.hero-section):not(.hero-section *),
+html.dark [class*="bg-slate-900"]:not(.hero-section):not(.hero-section *) {
   background-color: #1e293b !important;
   color: #e2e8f0 !important;
   border-color: #334155 !important;
 }
 /* Large card/section dark mode fix for private pages */
-html.dark .card,
-html.dark .dashboard-card,
-html.dark .section,
-html.dark .rounded-2xl,
-html.dark .rounded-3xl,
-html.dark .shadow,
-html.dark .shadow-md,
-html.dark .shadow-xl,
-html.dark .border,
-html.dark .bg-white,
-html.dark .bg-gray-50,
-html.dark .bg-slate-50 {
+/* Exclude hero-section to prevent hiding hero images */
+html.dark .card:not(.hero-section):not(.hero-section *),
+html.dark .dashboard-card:not(.hero-section):not(.hero-section *),
+html.dark .section:not(.hero-section):not(.hero-section *),
+html.dark .rounded-2xl:not(.hero-section):not(.hero-section *),
+html.dark .rounded-3xl:not(.hero-section):not(.hero-section *),
+html.dark .shadow:not(.hero-section):not(.hero-section *),
+html.dark .shadow-md:not(.hero-section):not(.hero-section *),
+html.dark .shadow-xl:not(.hero-section):not(.hero-section *),
+html.dark .border:not(.hero-section):not(.hero-section *),
+html.dark .bg-white:not(.hero-section):not(.hero-section *),
+html.dark .bg-gray-50:not(.hero-section):not(.hero-section *),
+html.dark .bg-slate-50:not(.hero-section):not(.hero-section *) {
   background-color: #1e293b !important;
   color: #e2e8f0 !important;
   border-color: #334155 !important;
@@ -92,9 +109,10 @@ html.dark .hover\:bg-gray-50\/70:hover {
   color: #fff !important;
 }
 /* Result search form dark mode fix */
-html.dark .bg-white,
-html.dark .bg-gradient-to-b,
-html.dark .bg-gradient-to-r {
+/* Exclude hero-section to prevent hiding hero gradient overlays */
+html.dark .bg-white:not(.hero-section):not(.hero-section *),
+html.dark .bg-gradient-to-b:not(.hero-section):not(.hero-section *),
+html.dark .bg-gradient-to-r:not(.hero-section):not(.hero-section *) {
   background: #1e293b !important;
   color: #e2e8f0 !important;
 }
@@ -210,6 +228,13 @@ html.dark .card, html.dark .bg-white, html.dark .bg-gray-50, html.dark .bg-slate
 /* Base custom styles to enforce minimal scrollbar and smooth behaviors */
 html {
   scroll-behavior: smooth;
+  border-radius: 0 !important;
+}
+
+html, body {
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
 
 :root {
@@ -218,6 +243,9 @@ html {
 
 html.dark {
   color-scheme: dark;
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
 
 body {
@@ -247,6 +275,9 @@ body {
 html.dark body {
   background-color: #020617;
   color: #e2e8f0;
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
 
 html.dark .bg-white {

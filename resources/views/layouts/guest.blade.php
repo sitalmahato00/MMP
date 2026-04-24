@@ -55,8 +55,6 @@
             font-family: 'Merriweather', serif;
             font-weight: 700;
             font-size: 0.95rem;
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
         }
     </style>
     @stack('styles')
