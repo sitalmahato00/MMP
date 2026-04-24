@@ -15,6 +15,7 @@ Route::get('/assignments', [\App\Http\Controllers\Parent\AssignmentsController::
 
 // Results
 Route::get('/results', [\App\Http\Controllers\Parent\ResultController::class, 'index'])->name('results.index');
+Route::get('/results/{student}/{exam}', [\App\Http\Controllers\Parent\ResultController::class, 'show'])->name('results.show');
 
 // Notices
 Route::get('/notices', [\App\Http\Controllers\Parent\NoticeController::class, 'index'])->name('notices.index');
