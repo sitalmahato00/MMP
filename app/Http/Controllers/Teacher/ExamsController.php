@@ -31,8 +31,9 @@ class ExamsController extends Controller
 
         if ($teacherSubjects->isEmpty()) {
             // No subjects assigned, show empty state
+            $exams = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
             return view('teacher.exams.index', [
-                'exams' => collect()->paginate(20),
+                'exams' => $exams,
                 'totalExams' => 0,
                 'upcomingExams' => 0,
                 'ongoingExams' => 0,
