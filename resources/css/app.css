@@ -20,6 +20,10 @@ html.dark .hero-section img, html.dark .hero-section .hero-bg {
 html.dark .hero-section {
   background: none !important;
 }
+html.dark .hero-section [class*="bg-gradient-to-"] {
+  background: none !important;
+  background-color: transparent !important;
+}
 /* Reusable dashboard card class for all user dashboards */
 .dashboard-card {
   @apply relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm;

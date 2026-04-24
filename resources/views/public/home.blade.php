@@ -75,12 +75,12 @@
             <div class="absolute inset-0 transition-opacity duration-700"
                  :class="current === {{ $i }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
                 <img src="{{ $banner->image_url ?? asset('assets/image.png') }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent dark:bg-none dark:bg-transparent"></div>
                 <div class="absolute inset-0 flex flex-col justify-center">
                     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
                         <div class="max-w-3xl pl-2 sm:pl-4 md:pl-10">
                             {{-- College identity always visible --}}
-                            <div class="flex flex-wrap items-center gap-1 sm:gap-2 mb-2 sm:mb-4">
+                            <div class="flex flex-wrap items-center gap-1 sm:gap-2 mb-2 sm:mb-4 border-none rounded-none bg-transparent p-0">
                                 <span class="text-yellow-400 text-[10px] sm:text-xs md:text-[0.85rem] font-bold sm:font-extrabold uppercase tracking-wider drop-shadow-lg">Best Technical College in Nepal</span>
                                 <span class="text-white/40 text-[10px] sm:text-xs md:text-[0.85rem]">·</span>
                                 <span class="text-white/85 text-[10px] sm:text-xs md:text-[0.85rem] font-medium">Est. 2054 B.S.</span>
