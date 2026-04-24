@@ -22,7 +22,7 @@ class AttendanceController extends Controller
             $present = $student->attendances->where('status', 'present')->count();
             $absent = $student->attendances->where('status', 'absent')->count();
             $late = $student->attendances->where('status', 'late')->count();
-            $pct = $total > 0 ? round(($present / $total) * 100) : null;
+            $pct = $total > 0 ? round(($present / $total) * 100, 1) : null;
 
             // Subject-wise attendance with class/lab breakdown
             $subjectAttendance = $student->attendances()

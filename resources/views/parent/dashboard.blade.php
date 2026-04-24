@@ -53,11 +53,12 @@
                 @php
                     $student = $summary['student'];
                     $attPct = $summary['attendancePct'];
-                    $avgMarks = $summary['avgMarks'];
-                    $totalExams = $summary['totalExams'];
+                    $percentageRate = $summary['percentageRate'];
+                    $publishedAssessments = $summary['publishedAssessments'];
+                    $distinctionAssessments = $summary['distinctionAssessments'];
                     $pendingAssignments = $summary['pendingAssignments'];
                     
-                    $attColor = $attPct >= 75 ? 'emerald' : ($attPct >= 60 ? 'amber' : 'red');
+                    $attColor = $attPct === null ? 'slate' : ($attPct >= 75 ? 'emerald' : ($attPct >= 60 ? 'amber' : 'red'));
                 @endphp
                 
                 <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
@@ -95,14 +96,14 @@
                                 <div class="flex-1">
                                     <p class="text-xs font-medium text-slate-500">Attendance</p>
                                     <p class="text-lg font-bold text-slate-900">
-                                        {{ $attPct !== null ? $attPct . '%' : 'N/A' }}
+                                        {{ $attPct !== null ? number_format($attPct, 1) . '%' : 'N/A' }}
                                     </p>
                                 </div>
                             </div>
-                            <p class="mt-1 text-[10px] text-slate-400">Last 30 days</p>
+                            <p class="mt-1 text-[10px] text-slate-400">Overall attendance</p>
                         </div>
 
-                        {{-- Average Marks --}}
+                        {{-- Percentage Rate --}}
                         <div class="rounded-lg border border-slate-200 p-4">
                             <div class="flex items-center gap-2">
                                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
@@ -111,13 +112,18 @@
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-medium text-slate-500">Avg Marks</p>
+                                    <p class="text-xs font-medium text-slate-500">Percentage Rate</p>
                                     <p class="text-lg font-bold text-slate-900">
-                                        {{ $avgMarks !== null ? number_format($avgMarks, 1) : 'N/A' }}
+                                        {{ $percentageRate !== null ? number_format($percentageRate, 1) . '%' : 'N/A' }}
                                     </p>
                                 </div>
                             </div>
-                            <p class="mt-1 text-[10px] text-slate-400">{{ $totalExams }} exams</p>
+                            <p class="mt-1 text-[10px] text-slate-400">
+                                {{ $publishedAssessments }} published assessment{{ $publishedAssessments === 1 ? '' : 's' }}
+                                @if($distinctionAssessments > 0)
+                                    · {{ $distinctionAssessments }} distinction{{ $distinctionAssessments === 1 ? '' : 's' }}
+                                @endif
+                            </p>
                         </div>
 
                         {{-- Pending Assignments --}}

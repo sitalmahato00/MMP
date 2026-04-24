@@ -147,8 +147,8 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($marks as $mark)
                         @php
-                            $percentage = $mark->total_marks > 0 ? round(($mark->obtained_marks / $mark->total_marks) * 100, 2) : 0;
-                            $passed = $mark->obtained_marks >= ($mark->pass_marks ?? 32);
+                            $percentage = $mark->display_percentage ?? 0;
+                            $passed = $mark->display_passed ?? false;
                         @endphp
                         <tr class="hover:bg-slate-50">
                             <td class="px-5 py-4">
@@ -163,18 +163,18 @@
                                 <div class="text-sm text-slate-900">{{ bsDate($mark->exam->start_date, 'F d, Y') }}</div>
                             </td>
                             <td class="px-5 py-4 text-center">
-                                <span class="text-sm font-medium text-slate-900">{{ $mark->obtained_marks }}</span>
+                                <span class="text-sm font-medium text-slate-900">{{ number_format($mark->display_obtained_marks ?? 0, 2) }}</span>
                             </td>
                             <td class="px-5 py-4 text-center">
-                                <span class="text-sm text-slate-600">{{ $mark->total_marks }}</span>
+                                <span class="text-sm text-slate-600">{{ number_format($mark->display_full_marks ?? 0, 2) }}</span>
                             </td>
                             <td class="px-5 py-4 text-center">
                                 <span class="text-sm font-medium text-slate-900">{{ $percentage }}%</span>
                             </td>
                             <td class="px-5 py-4 text-center">
-                                @if($mark->grade)
+                                @if(!empty($mark->display_grade))
                                     <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700">
-                                        {{ $mark->grade }}
+                                        {{ $mark->display_grade }}
                                     </span>
                                 @else
                                     <span class="text-xs text-slate-400">—</span>
