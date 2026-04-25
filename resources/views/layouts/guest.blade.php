@@ -537,11 +537,11 @@
     @endif
 
     {{-- Main Content --}}
-    <main class="pb-[calc(env(safe-area-inset-bottom)+5.75rem)] pt-[calc(env(safe-area-inset-top)+5.25rem)] lg:pb-0 lg:pt-0">
+    <main :class="(isStandalone || installDismissed || !canInstall) ? 'pb-[calc(env(safe-area-inset-bottom)+5.75rem)]' : 'pb-[calc(env(safe-area-inset-bottom)+1rem)]'" class="pt-[calc(env(safe-area-inset-top)+5.25rem)] lg:pb-0 lg:pt-0">
         @yield('content')
     </main>
 
-    <nav data-shell-bottom-nav class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] lg:hidden dark:border-slate-800 dark:bg-slate-950/95">
+    <nav data-shell-bottom-nav x-show="isStandalone || installDismissed || !canInstall" x-cloak class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] lg:hidden dark:border-slate-800 dark:bg-slate-950/95">
         <div class="grid grid-cols-4 gap-1 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
             @foreach($publicMobileNav as $item)
                 <a href="{{ $item['href'] }}" class="flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-center transition {{ $item['active'] ? 'bg-[#003D82]/10 text-[#003D82] dark:bg-blue-500/15 dark:text-blue-300' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900' }}">
@@ -632,7 +632,7 @@
         </div>
     </footer>
 
-    <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-50 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
+    <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] z-50 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
         <div class="w-full max-w-2xl rounded-[26px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/95 lg:max-w-md">
             <div class="flex items-center gap-3">
                 <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP logo" class="h-16 w-16 shrink-0 rounded-[20px] border border-slate-200 bg-white p-2 shadow-sm object-contain dark:border-slate-700">
