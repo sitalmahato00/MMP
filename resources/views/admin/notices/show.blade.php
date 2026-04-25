@@ -99,20 +99,113 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-center justify-between gap-3">
-                <div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{{ $workspace['content_heading'] }}</p>
-                    <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Published content</h2>
+        <div class="space-y-6">
+            @if($workspace['is_news_events'] && !empty($payload['media']) && count($payload['media']) > 0)
+            {{-- Media Gallery for News & Events --}}
+            <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Media Gallery</p>
+                        <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Images & Videos</h2>
+                    </div>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600">{{ count($payload['media']) }} item(s)</span>
                 </div>
-            </div>
 
-            <div class="prose prose-slate mt-5 max-w-none leading-7">
-                {!! $payload['content_html'] !!}
-            </div>
-        </article>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    @foreach($payload['media'] as $media)
+                        <div class="group relative rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                            <div class="relative h-64 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+                                @if($media['is_image'])
+                                    <img src="{{ $media['url'] }}" alt="{{ $media['name'] }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                    {{-- Image icon overlay --}}
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @elseif($media['is_video'])
+                                    <video src="{{ $media['url'] }}" controls class="w-full h-full bg-black object-contain">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    {{-- Video icon overlay --}}
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
+                                        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            {{-- Card footer --}}
+                            <div class="p-4 bg-white">
+                                <p class="text-sm font-semibold text-slate-900 truncate mb-2">{{ $media['name'] }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                        @if($media['is_image'])
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                            </svg>
+                                        @endif
+                                        {{ $media['extension'] }}
+                                    </span>
+                                    <a href="{{ $media['url'] }}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition">
+                                        View Full
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </article>
+            @endif
+
+            <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{{ $workspace['content_heading'] }}</p>
+                        <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Published content</h2>
+                    </div>
+                </div>
+
+                <div class="prose prose-slate mt-5 max-w-none leading-7">
+                    {!! $payload['content_html'] !!}
+                </div>
+            </article>
+        </div>
 
         <div class="space-y-6">
+            @if($workspace['is_news_events'] && !empty($payload['documents']) && count($payload['documents']) > 0)
+            {{-- Documents for News & Events --}}
+            <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Documents</p>
+                        <h2 class="mt-1 text-xl font-black tracking-tight text-slate-950">Linked files</h2>
+                    </div>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600">{{ count($payload['documents']) }} total</span>
+                </div>
+
+                <div class="mt-4 space-y-3">
+                    @foreach($payload['documents'] as $file)
+                        <a href="{{ $file['url'] }}" target="_blank" class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-[#8B0000]/20 hover:bg-rose-50/70">
+                            <div class="min-w-0">
+                                <p class="truncate font-semibold text-slate-900">{{ $file['name'] }}</p>
+                                <p class="mt-1 text-xs text-slate-500">{{ $file['meta'] }}</p>
+                            </div>
+                            <span class="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-slate-500 ring-1 ring-slate-200">{{ $file['extension'] }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            </article>
+            @elseif(!$workspace['is_news_events'])
+            {{-- All Attachments for Regular Notices --}}
             <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="flex items-center justify-between gap-3">
                     <div>
@@ -136,6 +229,7 @@
                     @endforelse
                 </div>
             </article>
+            @endif
 
             <article class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
                 <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Audit Trail</p>
