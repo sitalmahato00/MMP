@@ -632,15 +632,15 @@ class PublicDataService
     {
         $feedKey = 'public:ctevt_notices:' . ($isResult ? 'result' : 'general') . ':' . $limit;
 
-        return Cache::remember($feedKey, self::CACHE_TTL, function () use ($isResult, $limit) {
+        return Cache::remember($feedKey, 3600, function () use ($isResult, $limit) {
             $feedUrl = config('services.ctevt_notice.feed_url', 'https://itms.ctevt.org.np:5580/notices/get-ajax-notices');
             $pageUrl = $isResult
                 ? config('services.ctevt_notice.result_url', 'https://itms.ctevt.org.np:5580/notices/result')
                 : config('services.ctevt_notice.general_url', 'https://itms.ctevt.org.np:5580/notices');
             
             try {
-                $response = Http::timeout(20)
-                    ->retry(2, 250)
+                $response = Http::timeout(3)
+                    ->retry(1, 100)
                     ->withoutVerifying()
                     ->accept('application/json,text/javascript,*/*;q=0.1')
                     ->withHeaders([
