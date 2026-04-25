@@ -57,6 +57,36 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // Seed News & Events
+        $this->call(NewsEventsSeeder::class);
+
+        // Create sample principal
+        $principalAvatar = 'executives/principal-avatar.jpg';
+        $principalAvatarPath = storage_path('app/public/' . $principalAvatar);
+        
+        if (!file_exists(dirname($principalAvatarPath))) {
+            \Illuminate\Support\Facades\File::makeDirectory(dirname($principalAvatarPath), 0755, true);
+        }
+        
+        // Create a placeholder principal photo
+        $principalPhotoData = base64_decode('/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=');
+        file_put_contents($principalAvatarPath, $principalPhotoData);
+        
+        \App\Models\Executive::updateOrCreate(
+            ['type' => 'principal', 'is_current' => true],
+            [
+                'name' => 'Er. Binay Mahato',
+                'type' => 'principal',
+                'designation' => 'Principal',
+                'start_date_bs' => '2078-01-01',
+                'end_date_bs' => null,
+                'is_current' => true,
+                'avatar' => $principalAvatar,
+                'message' => 'Welcome to Manmohan Memorial Polytechnic. We are committed to providing quality technical education and producing skilled professionals who can contribute to the development of our nation.',
+                'order' => 1,
+            ]
+        );
+
         $this->command->info('Database seeded successfully.');
         $this->command->info('Admin account: sitalmahato077@gmail.com');
         $this->command->info('Password: password');

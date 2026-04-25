@@ -53,7 +53,13 @@ class HomeController extends Controller
                 $currentPrincipal->message = $principalMessage;
             }
             if ($principalPhoto !== '') {
-                $currentPrincipal->avatar = $principalPhoto;
+                // Set avatar_url directly if it's a full URL, otherwise treat as storage path
+                if (filter_var($principalPhoto, FILTER_VALIDATE_URL)) {
+                    $currentPrincipal->avatar_url = $principalPhoto;
+                } else {
+                    $currentPrincipal->avatar = $principalPhoto;
+                    $currentPrincipal->avatar_url = asset('storage/' . $principalPhoto);
+                }
             }
 
             $leadership['principals'] = $principals;

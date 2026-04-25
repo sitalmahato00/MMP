@@ -234,8 +234,8 @@
                     @foreach(array_filter([$currentPresident, $currentPrincipal]) as $exec)
                     <div class="flex gap-4 items-center">
                         <div class="w-14 h-16 bg-gray-200 dark:bg-slate-700 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
-                            @if(isset($exec->avatar_url) && $exec->avatar_url)
-                                <img src="{{ $exec->avatar_url }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
+                            @if($exec->avatar)
+                                <img src="{{ asset('storage/' . $exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
                             @endif
@@ -468,12 +468,7 @@
                     </div>
                 </div>
                 <div class="px-0 pt-0 pb-0 mt-0 border-0 bg-transparent rounded-b-2xl">
-                    <a x-show="activeNoticeTab === 'general'" x-cloak href="{{ route('public.notices') }}" class="card-footer-link">View All Notices »</a>
-                    <a x-show="activeNoticeTab === 'exam'" x-cloak href="{{ route('public.notices') }}" class="card-footer-link">View All Notices »</a>
-                    <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex items-center gap-4 flex-wrap">
-                        <a href="{{ route('public.notices', ['type' => 'ctevt-general']) }}" class="card-footer-link">View CTEVT General »</a>
-                        <a href="{{ route('public.notices', ['type' => 'ctevt-result']) }}" class="card-footer-link">View CTEVT Results »</a>
-                    </div>
+                    <a href="{{ route('public.notices') }}" class="card-footer-link">View All Notices »</a>
                 </div>
             </div>
         </div>
@@ -485,26 +480,39 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     News & Events
                 </div>
-                <div class="p-4 space-y-4 flex-1 overflow-y-auto">
+                <div class="p-0 flex-1 overflow-y-auto">
                     @forelse(($newsEvents ?? collect())->take(5) as $event)
-                        @php $eventDate = $event->published_at ?? $event->created_at; @endphp
-                        <div class="flex gap-3 group">
-                            <div class="w-12 h-12 flex-shrink-0 text-white flex flex-col items-center justify-center rounded text-center shadow-sm" style="background-color: #003D82;">
-                                <span class="text-[8px] font-bold leading-none">{{ bsDate($eventDate, 'Y') }}</span>
-                                <span class="text-sm font-black leading-tight">{{ bsDate($eventDate, 'd') }}</span>
-                                <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($eventDate, 'F') }}</span>
-                            </div>
+                        @php 
+                            $eventDate = $event->published_at ?? $event->created_at;
+                            $firstImage = $event->attachments->where('is_image', true)->first();
+                            $eventTypeLabel = $event->type === 'event' ? 'Event' : 'News';
+                        @endphp
+                        
+                        {{-- All items as list with thumbnail --}}
+                        <a href="{{ route('public.news-events.show', $event->slug) }}" class="flex gap-3 p-4 hover:bg-blue-50 dark:hover:bg-slate-700 group transition-colors border-b border-gray-100 dark:border-slate-700 last:border-b-0">
+                            @if($firstImage)
+                                {{-- Show thumbnail image --}}
+                                <div class="w-20 h-20 flex-shrink-0 rounded overflow-hidden bg-gray-100 dark:bg-slate-700">
+                                    <img src="{{ $firstImage->url }}" alt="{{ $event->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                </div>
+                            @else
+                                {{-- Show date badge if no image --}}
+                                <div class="w-12 h-12 flex-shrink-0 text-white flex flex-col items-center justify-center rounded text-center shadow-sm" style="background-color: #003D82;">
+                                    <span class="text-[8px] font-bold leading-none">{{ bsDate($eventDate, 'Y') }}</span>
+                                    <span class="text-sm font-black leading-tight">{{ bsDate($eventDate, 'd') }}</span>
+                                    <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($eventDate, 'F') }}</span>
+                                </div>
+                            @endif
                             <div class="flex-1 w-full overflow-hidden">
-                                @php $eventTypeLabel = $event->type === 'event' ? 'Event' : 'News'; @endphp
-                                <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <div class="text-[10px] font-bold text-gray-400 dark:text-slate-500">{{ bsDate($eventDate, 'Y, F d') }}</div>
                                     <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full border {{ $event->type === 'event' ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border-teal-100 dark:border-teal-800' : 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border-purple-100 dark:border-purple-800' }}">
                                         {{ $eventTypeLabel }}
                                     </span>
                                 </div>
-                                <a href="{{ route('public.news-events.show', $event->slug) }}" class="font-medium text-gray-800 dark:text-slate-200 text-[12px] leading-tight hover:text-[#003D82] dark:hover:text-blue-400 block transition-colors line-clamp-2">{{ $event->title }}</a>
+                                <h4 class="font-medium text-gray-800 dark:text-slate-200 text-[13px] leading-tight hover:text-[#003D82] dark:hover:text-blue-400 transition-colors line-clamp-2">{{ $event->title }}</h4>
                             </div>
-                        </div>
+                        </a>
                     @empty
                         <div class="text-center py-6 text-gray-400 dark:text-slate-500">
                             <svg class="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>

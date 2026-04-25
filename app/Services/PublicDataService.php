@@ -571,6 +571,7 @@ class PublicDataService
     {
         return Cache::remember("public:news_events:{$limit}", self::CACHE_TTL, function () use ($limit) {
             return Notice::published()
+                ->with('attachments')
                 ->whereIn('type', ['news', 'event'])
                 ->latest()
                 ->take($limit)
