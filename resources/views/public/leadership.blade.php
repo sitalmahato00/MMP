@@ -16,8 +16,8 @@
                 @forelse($presidents as $president)
                 <div class="flex flex-col items-center text-center">
                     <div class="w-48 h-64 md:w-56 md:h-72 rounded-full overflow-hidden border-[6px] border-white shadow-lg mb-6 bg-gray-100 object-cover">
-                        @if($president->avatar_url)
-                            <img src="{{ $president->avatar_url }}" alt="{{ $president->name }}" class="w-full h-full object-cover">
+                        @if($president->avatar)
+                            <img src="{{ asset('storage/' . $president->avatar) }}" alt="{{ $president->name }}" class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-4xl font-black" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
                                 {{ strtoupper(substr($president->name, 0, 1)) }}
@@ -51,8 +51,8 @@
                 @forelse($principals as $principal)
                 <div class="flex flex-col items-center text-center">
                     <div class="w-40 h-56 md:w-48 md:h-64 rounded-[40%] overflow-hidden border-4 border-white shadow-md mb-5 bg-gray-100">
-                        @if($principal->avatar_url)
-                            <img src="{{ $principal->avatar_url }}" alt="{{ $principal->name }}" class="w-full h-full object-cover">
+                        @if($principal->avatar)
+                            <img src="{{ asset('storage/' . $principal->avatar) }}" alt="{{ $principal->name }}" class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-3xl font-black" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
                                 {{ strtoupper(substr($principal->name, 0, 1)) }}

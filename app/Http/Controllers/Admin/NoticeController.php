@@ -435,6 +435,10 @@ class NoticeController extends Controller
             ? $notice->department->code . ' - ' . $notice->department->name
             : $notice->department?->name;
 
+        // Separate media (images/videos) from documents
+        $media = $notice->attachments->filter(fn($att) => $att->is_image || in_array(strtolower($att->file_type ?? ''), ['mp4', 'webm', 'mov']));
+        $documents = $notice->attachments->filter(fn($att) => !$att->is_image && !in_array(strtolower($att->file_type ?? ''), ['mp4', 'webm', 'mov']));
+
         return [
             'id' => $notice->id,
             'title' => $notice->title,
@@ -451,6 +455,26 @@ class NoticeController extends Controller
             'updated_bs' => $notice->updated_at ? bsDateTime($notice->updated_at, 'Y, F d', 'h:i A') : null,
             'attachments_count' => $notice->attachments_count ?? $notice->attachments->count(),
             'created_by' => $notice->created_by,
+            'has_media' => $media->isNotEmpty(),
+            'media_count' => $media->count(),
+            'media' => $media->map(fn (NoticeAttachment $attachment) => [
+                'id' => $attachment->id,
+                'name' => $attachment->file_name,
+                'url' => $attachment->url,
+                'is_image' => $attachment->is_image,
+                'is_video' => in_array(strtolower($attachment->file_type ?? ''), ['mp4', 'webm', 'mov']),
+                'extension' => $attachment->file_type ? strtoupper((string) $attachment->file_type) : 'FILE',
+            ])->values(),
+            'documents' => $documents->map(fn (NoticeAttachment $attachment) => [
+                'id' => $attachment->id,
+                'name' => $attachment->file_name,
+                'url' => $attachment->url,
+                'extension' => $attachment->file_type ? strtoupper((string) $attachment->file_type) : 'FILE',
+                'meta' => trim(collect([
+                    strtoupper((string) $attachment->file_type),
+                    $this->formatFileSize($attachment->file_size),
+                ])->filter()->implode(' | ')),
+            ])->values(),
             'attachments' => $notice->attachments->map(fn (NoticeAttachment $attachment) => [
                 'id' => $attachment->id,
                 'name' => $attachment->file_name,

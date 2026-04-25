@@ -141,14 +141,25 @@
         </form>
     </section>
 
-    <section class="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <section class="rounded-lg border border-slate-200 bg-white shadow-sm" x-data="{ viewMode: 'table' }">
         <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <p class="text-sm text-slate-600">
                 Showing {{ $notices->firstItem() ?? 0 }}-{{ $notices->lastItem() ?? 0 }} of {{ number_format($notices->total()) }}
             </p>
+            
+            @if($workspace['is_news_events'])
+            <div class="flex items-center gap-2">
+                <button type="button" @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                </button>
+                <button type="button" @click="viewMode = 'cards'" :class="viewMode === 'cards' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                </button>
+            </div>
+            @endif
         </div>
 
-        <div class="hidden lg:block overflow-hidden">
+        <div class="hidden lg:block overflow-hidden" x-show="viewMode === 'table'" x-cloak>
             <div class="mmp-table-wrap">
                 <table class="mmp-table divide-y divide-slate-100 text-sm">
                     <thead class="bg-slate-50/80">
@@ -243,6 +254,110 @@
                 </table>
             </div>
         </div>
+
+        {{-- Card View for News & Events --}}
+        @if($workspace['is_news_events'])
+        <div class="p-4" x-show="viewMode === 'cards'" x-cloak>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($notices as $notice)
+                    @php
+                        $type = $typeMeta[$notice->type] ?? ['label' => \Illuminate\Support\Str::headline($notice->type), 'badge' => 'bg-slate-100 text-slate-700 ring-slate-200', 'accent' => 'border-l-slate-300'];
+                        $statusKey = ! $notice->is_published
+                            ? 'draft'
+                            : (($notice->published_at && $notice->published_at->isFuture()) ? 'scheduled' : 'published');
+                        $status = $statusMeta[$statusKey] ?? $statusMeta['draft'];
+                        $noticeDate = $notice->published_at ?? $notice->created_at;
+                        $firstImage = $notice->attachments->where('is_image', true)->first();
+                        $hasVideo = $notice->attachments->where('file_type', 'mp4')->count() > 0 || 
+                                   $notice->attachments->where('file_type', 'webm')->count() > 0;
+                    @endphp
+                    <article class="group block rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        {{-- Image/Video Thumbnail --}}
+                        <div class="relative h-48 bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
+                            @if($firstImage)
+                                <img src="{{ $firstImage->url }}" alt="{{ $notice->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <svg class="w-20 h-20 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                            @endif
+                            
+                            {{-- Video indicator --}}
+                            @if($hasVideo)
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                    <div class="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
+                                        <svg class="w-8 h-8 text-blue-600 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            {{-- Date badge --}}
+                            <div class="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1.5 rounded-lg shadow-lg">
+                                <div class="text-xs font-bold">{{ bsDate($noticeDate, 'F') }}</div>
+                                <div class="text-2xl font-black leading-none">{{ bsDate($noticeDate, 'd') }}</div>
+                            </div>
+                            
+                            {{-- Type & Status badges --}}
+                            <div class="absolute top-3 right-3 flex flex-col gap-2">
+                                <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $type['badge'] }}">{{ $type['label'] }}</span>
+                                <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $status['badge'] }}">{{ $status['label'] }}</span>
+                            </div>
+                        </div>
+                        
+                        {{-- Content --}}
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                {{ $notice->title }}
+                            </h3>
+                            
+                            @if($notice->content)
+                                <p class="text-sm text-slate-600 mb-3 line-clamp-2">
+                                    {{ Str::limit(strip_tags($notice->content), 120) }}
+                                </p>
+                            @endif
+                            
+                            <div class="flex items-center justify-between text-xs text-slate-500 mb-3">
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    {{ bsDate($noticeDate, 'Y, F d') }}
+                                </span>
+                                
+                                @if($notice->attachments->count() > 0)
+                                    <span class="flex items-center gap-1 text-blue-600 font-semibold">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        {{ $notice->attachments->count() }}
+                                    </span>
+                                @endif
+                            </div>
+                            
+                            {{-- Action buttons --}}
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="openDrawer({{ $notice->id }})" class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Preview</button>
+                                <a href="{{ route($workspace['route_prefix'] . '.show', $notice) }}" class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition">View</a>
+                                @if($notice->created_by === auth()->id())
+                                    <a href="{{ route($workspace['route_prefix'] . '.edit', $notice) }}" class="rounded-lg bg-[#8B0000] px-3 py-2 text-xs font-bold text-white hover:bg-[#750000] transition">Edit</a>
+                                @endif
+                            </div>
+                        </div>
+                    </article>
+                @empty
+                    <div class="col-span-full py-16 text-center">
+                        <p class="text-4xl mb-4">📰</p>
+                        <p class="font-semibold text-slate-500">{{ $workspace['empty_title'] }}</p>
+                        <p class="mt-2 text-sm text-slate-400">{{ $workspace['empty_message'] }}</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+        @endif
 
         <div class="space-y-3 p-4 lg:hidden">
             @forelse($notices as $notice)
@@ -352,14 +467,40 @@
                     <div class="prose prose-sm mt-3 max-w-none text-slate-600" x-html="selectedNotice?.content_html || ''"></div>
                 </section>
 
-                <section class="rounded-2xl border border-slate-200 p-4">
+                @if($workspace['is_news_events'])
+                {{-- Media Gallery for News & Events --}}
+                <section class="rounded-2xl border border-slate-200 p-4" x-show="selectedNotice?.has_media">
                     <div class="flex items-center justify-between gap-3">
-                        <h4 class="text-sm font-black text-slate-900">Attachments</h4>
-                        <span class="text-xs font-semibold text-slate-400" x-text="(selectedNotice?.attachments?.length || 0) + ' file(s)'"></span>
+                        <h4 class="text-sm font-black text-slate-900">Media Gallery</h4>
+                        <span class="text-xs font-semibold text-slate-400" x-text="(selectedNotice?.media_count || 0) + ' item(s)'"></span>
                     </div>
 
-                    <div class="mt-3 space-y-2" x-show="selectedNotice?.attachments?.length">
-                        <template x-for="file in selectedNotice?.attachments || []" :key="file.id">
+                    <div class="mt-3 grid grid-cols-2 gap-3" x-show="selectedNotice?.media?.length">
+                        <template x-for="media in selectedNotice?.media || []" :key="media.id">
+                            <div class="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+                                <template x-if="media.is_image">
+                                    <img :src="media.url" :alt="media.name" class="w-full h-40 object-cover">
+                                </template>
+                                <template x-if="media.is_video">
+                                    <video :src="media.url" controls class="w-full h-40 bg-black"></video>
+                                </template>
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                    <p class="text-xs text-white font-semibold truncate" x-text="media.name"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </section>
+                @endif
+
+                <section class="rounded-2xl border border-slate-200 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-black text-slate-900">{{ $workspace['is_news_events'] ? 'Documents' : 'Attachments' }}</h4>
+                        <span class="text-xs font-semibold text-slate-400" x-text="(selectedNotice?.documents?.length || 0) + ' file(s)'"></span>
+                    </div>
+
+                    <div class="mt-3 space-y-2" x-show="selectedNotice?.documents?.length">
+                        <template x-for="file in selectedNotice?.documents || []" :key="file.id">
                             <a :href="file.url" target="_blank" class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 transition hover:border-[#8B0000]/20 hover:bg-rose-50/50">
                                 <div class="min-w-0">
                                     <p class="truncate text-sm font-semibold text-slate-900" x-text="file.name"></p>
@@ -370,7 +511,7 @@
                         </template>
                     </div>
 
-                    <p class="mt-3 text-sm text-slate-500" x-show="!selectedNotice?.attachments?.length">No files attached to this {{ $workspace['singular_label'] }}.</p>
+                    <p class="mt-3 text-sm text-slate-500" x-show="!selectedNotice?.documents?.length">No files attached to this {{ $workspace['singular_label'] }}.</p>
                 </section>
 
                 <section class="rounded-2xl border border-slate-200 p-4">
