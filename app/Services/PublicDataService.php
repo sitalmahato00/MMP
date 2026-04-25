@@ -637,17 +637,59 @@ class PublicDataService
             $pageUrl = $isResult
                 ? config('services.ctevt_notice.result_url', 'https://itms.ctevt.org.np:5580/notices/result')
                 : config('services.ctevt_notice.general_url', 'https://itms.ctevt.org.np:5580/notices');
-            $response = Http::timeout(20)
-                ->retry(2, 250)
-                ->withoutVerifying()
-                ->accept('application/json,text/javascript,*/*;q=0.1')
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ])
-                ->get($feedUrl, $this->buildCtevtNoticeFeedParams($isResult, $limit));
+            
+            try {
+                $response = Http::timeout(20)
+                    ->retry(2, 250)
+                    ->withoutVerifying()
+                    ->accept('application/json,text/javascript,*/*;q=0.1')
+                    ->withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+                        'X-Requested-With' => 'XMLHttpRequest',
+                    ])
+                    ->get($feedUrl, $this->buildCtevtNoticeFeedParams($isResult, $limit));
 
-            if (! $response->successful()) {
+                if (! $response->successful()) {
+                    return [
+                        'source' => $isResult ? 'result' : 'general',
+                        'source_state' => 'unavailable',
+                        'page_url' => $pageUrl,
+                        'items' => [],
+                    ];
+                }
+
+                $payload = $response->json();
+
+                if (! is_array($payload) || ! isset($payload['data']) || ! is_array($payload['data'])) {
+                    return [
+                        'source' => $isResult ? 'result' : 'general',
+                        'source_state' => 'empty',
+                        'page_url' => $pageUrl,
+                        'items' => [],
+                    ];
+                }
+
+                $items = collect($payload['data'])
+                    ->map(fn (array $row, int $index) => $this->mapCtevtNoticeRow($row, $index, $isResult))
+                    ->filter()
+                    ->values()
+                    ->all();
+
+                return [
+                    'source' => $isResult ? 'result' : 'general',
+                    'source_state' => 'live',
+                    'title' => $isResult ? 'Published Result' : 'General Notices',
+                    'page_url' => $pageUrl,
+                    'records_total' => (int) ($payload['recordsTotal'] ?? count($items)),
+                    'items' => $items,
+                ];
+            } catch (\Exception $e) {
+                // Log the error for debugging but don't crash the page
+                \Log::warning('CTEVT API timeout or connection error', [
+                    'type' => $isResult ? 'result' : 'general',
+                    'error' => $e->getMessage(),
+                ]);
+                
                 return [
                     'source' => $isResult ? 'result' : 'general',
                     'source_state' => 'unavailable',
@@ -655,32 +697,6 @@ class PublicDataService
                     'items' => [],
                 ];
             }
-
-            $payload = $response->json();
-
-            if (! is_array($payload) || ! isset($payload['data']) || ! is_array($payload['data'])) {
-                return [
-                    'source' => $isResult ? 'result' : 'general',
-                    'source_state' => 'empty',
-                    'page_url' => $pageUrl,
-                    'items' => [],
-                ];
-            }
-
-            $items = collect($payload['data'])
-                ->map(fn (array $row, int $index) => $this->mapCtevtNoticeRow($row, $index, $isResult))
-                ->filter()
-                ->values()
-                ->all();
-
-            return [
-                'source' => $isResult ? 'result' : 'general',
-                'source_state' => 'live',
-                'title' => $isResult ? 'Published Result' : 'General Notices',
-                'page_url' => $pageUrl,
-                'records_total' => (int) ($payload['recordsTotal'] ?? count($items)),
-                'items' => $items,
-            ];
         });
     }
 
