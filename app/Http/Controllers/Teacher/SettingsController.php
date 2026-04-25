@@ -124,21 +124,24 @@ class SettingsController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'two_factor_enabled' => ['required', 'boolean'],
-            'two_factor_method' => ['required_if:two_factor_enabled,true', 'in:email,phone'],
+            'two_factor_enabled' => ['nullable', 'boolean'],
+            'two_factor_method' => ['required_if:two_factor_enabled,1', 'in:email,phone'],
         ]);
 
+        // Convert null to false for unchecked checkbox
+        $twoFactorEnabled = $request->boolean('two_factor_enabled');
+
         // If enabling 2FA with phone method, ensure phone number exists
-        if ($validated['two_factor_enabled'] && $validated['two_factor_method'] === 'phone' && !$user->phone) {
+        if ($twoFactorEnabled && ($validated['two_factor_method'] ?? 'email') === 'phone' && !$user->phone) {
             return back()->withErrors(['two_factor_method' => 'Please add a phone number to your profile before enabling phone-based 2FA.']);
         }
 
         $user->update([
-            'two_factor_enabled' => $validated['two_factor_enabled'],
-            'two_factor_method' => $validated['two_factor_enabled'] ? $validated['two_factor_method'] : 'email',
+            'two_factor_enabled' => $twoFactorEnabled,
+            'two_factor_method' => $twoFactorEnabled ? ($validated['two_factor_method'] ?? 'email') : 'email',
         ]);
 
-        $message = $validated['two_factor_enabled'] 
+        $message = $twoFactorEnabled 
             ? 'Two-factor authentication enabled successfully.' 
             : 'Two-factor authentication disabled successfully.';
 
