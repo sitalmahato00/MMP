@@ -9,6 +9,12 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\MobilePreviewController;
+use App\Http\Controllers\PwaIconController;
+
+// ─── PWA Icon Routes ────────────────────────
+Route::get('/pwa-icon-{size}.png', [PwaIconController::class, 'icon'])
+    ->where('size', '[0-9]+')
+    ->name('pwa.icon');
 
 // ─── Public Routes (SEO-optimized) ────────────────────────
 Route::get('/brand-logo', function () {

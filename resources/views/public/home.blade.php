@@ -107,9 +107,7 @@
                                 @endif
                             </div>
                             <div class="flex flex-wrap gap-2 sm:gap-3">
-                                <a href="{{ route('public.apply') }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-[11px] sm:text-xs md:text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-1 sm:gap-2 rounded-sm">
-                                    Apply Now <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                </a>
+                               
                                 <a href="{{ route('public.page', 'what-is-mmp') }}" class="border-2 border-white/65 hover:border-white text-white px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-[11px] sm:text-xs md:text-sm font-bold inline-flex items-center gap-1 sm:gap-2 rounded-sm backdrop-blur-sm transition-colors">
                                     Learn More <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                 </a>
@@ -140,12 +138,8 @@
                         <span>Electronics Engineering</span>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('public.apply') }}" class="bg-[#d35400] hover:bg-[#e67e22] text-white px-5 py-2.5 text-sm font-bold shadow-lg transition-colors inline-flex items-center gap-2 rounded-sm leading-none">
-                            Apply Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
-                        <a href="{{ route('public.page', 'what-is-mmp') }}" class="border-2 border-white/65 hover:border-white text-white px-5 py-2.5 text-sm font-bold inline-flex items-center gap-2 rounded-sm leading-none backdrop-blur-sm transition-colors">
-                            Learn More <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
+                        
+                       
                     </div>
                 </div>
             </div>
