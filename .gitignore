@@ -15,7 +15,6 @@
 /node_modules
 /public/hot
 /public/storage
-/public/build
 /storage/*.key
 /storage/pail
 /storage/framework/views-test
@@ -23,17 +22,3 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
-
-# Public build artifacts:
-# keep generated Vite assets in git because production does not run Node.
-# /public/*
-# # But keep these essential files
-# !/public/.htaccess
-# !/public/index.php
-# !/public/robots.txt
-# !/public/favicon.ico
-# !/public/manifest.json
-# !/public/sw.js
-# !/public/offline.html
-# !/public/build
-# !/public/build/**
