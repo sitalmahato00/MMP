@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#8b2332" id="preview-theme-color">
-    <link rel="manifest" href="{{ asset('manifest.json') }}?v=2">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=4">
     <link rel="icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
     <link rel="shortcut icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
     <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">

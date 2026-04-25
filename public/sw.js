@@ -1,10 +1,10 @@
-const CACHE_NAME = 'mmp-pwa-v4';
+const CACHE_NAME = 'mmp-pwa-v5';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE_URLS = [
     '/',
     '/notices',
     '/login',
-    '/manifest.json?v=3',
+    '/manifest.json?v=4',
     '/brand-logo',
     '/favicon.ico',
     OFFLINE_URL,

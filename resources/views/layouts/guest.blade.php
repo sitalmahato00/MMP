@@ -12,7 +12,7 @@
     <meta property="og:title" content="@yield('title', 'Manmohan Memorial Polytechnic')">
     <meta property="og:description" content="@yield('meta_description', 'Best Technical College in Koshi Province offering CTEVT diploma programs.')">
     <meta property="og:type" content="website">
-    <link rel="manifest" href="{{ asset('manifest.json') }}?v=3">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=4">
     <meta name="application-name" content="Manmohan Memorial Polytechnic">
     <meta name="apple-mobile-web-app-title" content="Manmohan Memorial Polytechnic">
     <meta name="mobile-web-app-capable" content="yes">
@@ -99,11 +99,6 @@
             </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2">
-                <button type="button" x-show="canInstall && !isStandalone" x-cloak @click="installApp()" class="inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-slate-300 bg-white text-slate-600 shadow-md transition-all duration-200 hover:bg-slate-50 hover:scale-105 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                    <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v10m0 0l4-4m-4 4l-4-4M4 16.5v1A2.5 2.5 0 006.5 20h11a2.5 2.5 0 002.5-2.5v-1"/>
-                    </svg>
-                </button>
                 <button type="button" @click="toggleTheme()" class="inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-slate-300 bg-white text-slate-600 shadow-md transition-all duration-200 hover:bg-slate-50 hover:scale-105 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
                     <svg x-show="effectiveTheme !== 'dark'" x-cloak class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9 9 0 1012 21a8.96 8.96 0 008.354-5.646z"/>
@@ -289,9 +284,6 @@
                     <svg x-show="effectiveTheme === 'dark'" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2.25M12 18.75V21m9-9h-2.25M5.25 12H3m15.364 6.364l-1.591-1.591M7.227 7.227L5.636 5.636m12.728 0l-1.591 1.591M7.227 16.773l-1.591 1.591M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
                     </svg>
-                </button>
-                <button type="button" x-show="canInstall && !isStandalone" x-cloak @click="installApp()" class="rounded bg-white/10 px-3 py-1 text-[11px] font-semibold text-white transition hover:bg-white/20">
-                    Install App
                 </button>
                 <a href="{{ route('login') }}" class="bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-semibold px-4 py-1 rounded text-[11px] transition-colors">
                     Login Portal
@@ -640,54 +632,28 @@
         </div>
     </footer>
 
-    <div id="pwa-install-banner" x-show="canInstall && !installDismissed && !isStandalone" x-cloak class="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-50 mx-auto w-full max-w-lg rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-red-900/20 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95 lg:inset-x-auto lg:right-6 lg:bottom-6">
-        <div class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-            <div class="flex items-start gap-3">
-                <img src="{{ route('public.brand-logo') }}" alt="MMP college logo" class="h-14 w-14 rounded-2xl border border-red-100 bg-white p-1 shadow-sm object-contain">
-                <div>
-                    <div class="text-sm font-bold text-gray-900 dark:text-slate-50">Install MMP App</div>
-                    <p class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-slate-400">Use the portal as a mobile or desktop app with faster launch and standalone windows.</p>
-                    <div class="mt-2 text-[11px] text-gray-500 dark:text-slate-500">Website: <span class="font-semibold text-gray-700 dark:text-slate-300">{{ url('/') }}</span></div>
+    <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-50 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
+        <div class="w-full max-w-2xl rounded-[26px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/95 lg:max-w-md">
+            <div class="flex items-center gap-3">
+                <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP logo" class="h-16 w-16 shrink-0 rounded-[20px] border border-slate-200 bg-white p-2 shadow-sm object-contain dark:border-slate-700">
+                <div class="min-w-0 flex-1">
+                    <p class="text-lg font-bold text-slate-900 dark:text-slate-50">Install MMP App</p>
+                    <p class="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">Faster access • Offline support • Updates &amp; notifications</p>
+                    <div x-show="installHelpVisible" x-transition.opacity.duration.200ms class="mt-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <span x-text="installHelpMessage"></span>
+                    </div>
                 </div>
             </div>
-            <div class="flex w-full gap-2 sm:w-auto sm:justify-end">
-                <button type="button" @click="dismissInstall()" class="flex-1 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 sm:flex-none">Not now</button>
-                <button type="button" @click="installApp()" class="flex-1 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6B0000] sm:flex-none">Install</button>
+            <div class="mt-4 flex items-center justify-end gap-3">
+                <button type="button" @click="dismissInstall()" class="inline-flex items-center rounded-2xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                    Not now
+                </button>
+                <button id="pwa-install-banner" type="button" @click="installApp()" class="inline-flex items-center rounded-2xl bg-[#2563eb] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/20 transition hover:bg-[#1d4ed8]">
+                    Download
+                </button>
             </div>
         </div>
     </div>
-
-    {{-- Install App Modal (Shows on first visit to home page) --}}
-    @if(request()->routeIs('home'))
-    <div id="install-modal" x-data="{ show: false }" x-show="show" x-cloak class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 backdrop-blur-sm sm:items-center" style="display: none;">
-        <div @click.away="show = false" x-show="show" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900">
-            <div class="p-6">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B0000] to-[#5B0000] flex items-center justify-center shadow-lg">
-                        <svg class="w-7 h-7 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-slate-50">Install MMP App</h3>
-                        <p class="text-xs text-gray-500 dark:text-slate-400">Manmohan Memorial Polytechnic</p>
-                    </div>
-                </div>
-                
-                <p class="mb-6 text-sm leading-relaxed text-gray-600 dark:text-slate-400">
-                    Add the system to your home screen for a faster, app-like experience and offline access to recent pages.
-                </p>
-
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button @click="show = false; installApp()" class="flex-1 bg-[#8B0000] hover:bg-[#6B0000] text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg">
-                        Install
-                    </button>
-                    <button @click="show = false; dismissInstall()" class="flex-1 rounded-xl bg-gray-100 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                        Not now
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 
     @stack('scripts')
 
@@ -696,8 +662,11 @@
             return {
                 canInstall: false,
                 isStandalone: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
-                installDismissed: localStorage.getItem('mmp.install.dismissed') === '1',
+                installDismissed: localStorage.getItem('mmp.install.dismissed.v2') === '1',
                 effectiveTheme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                installHelpVisible: false,
+                installHelpMessage: '',
+                installHelpTimer: null,
                 init() {
                     if (window.mmpTheme) {
                         this.effectiveTheme = window.mmpTheme.applyTheme(localStorage.getItem('mmp.theme') || 'system');
@@ -713,15 +682,6 @@
                             this.isStandalone = state.isInstalled;
                         });
                     }
-
-                    const installModal = document.getElementById('install-modal');
-                    if (installModal && !this.installDismissed && !this.isStandalone) {
-                        setTimeout(() => {
-                            if (installModal.__x && this.canInstall) {
-                                installModal.__x.$data.show = true;
-                            }
-                        }, 1800);
-                    }
                 },
                 toggleTheme() {
                     if (!window.mmpTheme) {
@@ -735,36 +695,30 @@
                         return;
                     }
 
-                    const installModal = document.getElementById('install-modal');
-                    await window.mmpPwa.prompt();
-                    if (installModal && installModal.__x) {
-                        installModal.__x.$data.show = false;
+                    const prompted = await window.mmpPwa.prompt();
+                    if (!prompted) {
+                        this.showInstallHelp(window.mmpPwa.manualInstallMessage());
                     }
-                    localStorage.setItem('mmp.install.dismissed', '1');
-                    this.installDismissed = true;
                 },
                 dismissInstall() {
-                    const installModal = document.getElementById('install-modal');
-                    if (installModal && installModal.__x) {
-                        installModal.__x.$data.show = false;
-                    }
-                    localStorage.setItem('mmp.install.dismissed', '1');
+                    localStorage.setItem('mmp.install.dismissed.v2', '1');
                     this.installDismissed = true;
+                    this.installHelpVisible = false;
+                },
+                showInstallHelp(message) {
+                    this.installHelpMessage = message;
+                    this.installHelpVisible = true;
+
+                    if (this.installHelpTimer) {
+                        clearTimeout(this.installHelpTimer);
+                    }
+
+                    this.installHelpTimer = setTimeout(() => {
+                        this.installHelpVisible = false;
+                    }, 5000);
                 }
             };
         };
-    </script>
-
-    <script>
-        (function () {
-            const installModal = document.getElementById('install-modal');
-            if (!installModal) {
-                return;
-            }
-
-            window.installApp = () => window.mmpPwa?.prompt();
-            window.dismissInstall = () => localStorage.setItem('mmp.install.dismissed', '1');
-        })();
     </script>
 
     <script>

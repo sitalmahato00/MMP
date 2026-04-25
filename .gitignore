@@ -24,13 +24,16 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# Ignore entire public folder for deployment (assets are built on server)
-/public/*
-# But keep these essential files
-!/public/.htaccess
-!/public/index.php
-!/public/robots.txt
-!/public/favicon.ico
-!/public/manifest.json
-!/public/sw.js
-!/public/offline.html
+# Public build artifacts:
+# keep generated Vite assets in git because production does not run Node.
+# /public/*
+# # But keep these essential files
+# !/public/.htaccess
+# !/public/index.php
+# !/public/robots.txt
+# !/public/favicon.ico
+# !/public/manifest.json
+# !/public/sw.js
+# !/public/offline.html
+# !/public/build
+# !/public/build/**

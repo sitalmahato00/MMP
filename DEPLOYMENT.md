@@ -41,12 +41,30 @@ MAIL_FROM_ADDRESS=noreply@yourdomain.com
 # Install PHP dependencies (production only)
 composer install --optimize-autoloader --no-dev
 
-# Install Node dependencies
+# If your production server supports Node:
 npm install
-
-# Build assets for production
 npm run build
 ```
+
+### 2A. No-Node Production Deploy
+If your production server does not support Node, build locally and upload the generated assets:
+
+```bash
+# Run this on your local machine before deploy
+npm install
+npm run build
+```
+
+Then deploy these generated files with your code:
+- `public/build/`
+- `public/manifest.json`
+- `public/sw.js`
+- `public/offline.html`
+
+Important:
+- Do not upload `public/hot`
+- `public/build` is the compiled Vite output used by Laravel in production
+- After upload, clear Laravel caches with `php artisan optimize:clear`
 
 ### 3. Application Setup
 ```bash

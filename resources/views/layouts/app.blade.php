@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="color-scheme" content="light dark">
-    <link rel="manifest" href="{{ asset('manifest.json') }}?v=3">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=4">
     <meta name="application-name" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">
     <meta name="apple-mobile-web-app-title" content="{{ config('app.name', 'Manmohan Memorial Polytechnic') }}">
     <meta name="mobile-web-app-capable" content="yes">
@@ -124,25 +124,26 @@
 
     <div x-show="sidebarOpen" class="fixed inset-0 z-40 bg-gray-950/65 backdrop-blur-sm lg:hidden" x-cloak @click="sidebarOpen = false"></div>
 
-    <div x-show="canInstall && !installDismissed && !isStandalone" x-cloak class="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-40 rounded-[28px] border border-white/70 bg-white/95 p-4 shadow-2xl shadow-slate-950/20 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95 lg:inset-x-auto lg:right-6 lg:bottom-6 lg:w-[22rem]">
-        <div class="flex items-start gap-3">
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#8B0000]/10 text-[#8B0000] dark:bg-blue-500/15 dark:text-blue-300">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
+    <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-40 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
+        <div class="w-full max-w-md rounded-[26px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/95">
+            <div class="flex items-center gap-3">
+                <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP logo" class="h-16 w-16 shrink-0 rounded-[20px] border border-slate-200 bg-white p-2 shadow-sm object-contain dark:border-slate-700">
+                <div class="min-w-0 flex-1">
+                    <p class="text-lg font-bold text-slate-900 dark:text-slate-50">Install MMP App</p>
+                    <p class="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">Faster access • Offline support • Updates &amp; notifications</p>
+                    <div x-show="installHelpVisible" x-transition.opacity.duration.200ms class="mt-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <span x-text="installHelpMessage"></span>
+                    </div>
+                </div>
             </div>
-            <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-slate-900 dark:text-slate-50">Install MMP App</p>
-                <p class="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">Add the portal to your phone or desktop for faster launch, standalone windows, and cached pages.</p>
+            <div class="mt-4 flex items-center justify-end gap-3">
+                <button type="button" @click="dismissInstall()" class="inline-flex items-center rounded-2xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                    Not now
+                </button>
+                <button type="button" @click="installApp()" class="inline-flex items-center rounded-2xl bg-[#2563eb] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/20 transition hover:bg-[#1d4ed8]">
+                    Download
+                </button>
             </div>
-        </div>
-        <div class="mt-4 flex gap-2">
-            <button type="button" @click="dismissInstall()" class="flex-1 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
-                Later
-            </button>
-            <button type="button" @click="installApp()" class="flex-1 rounded-2xl bg-[#8B0000] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f001f]">
-                Install
-            </button>
         </div>
     </div>
 
@@ -165,11 +166,6 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button type="button" x-show="canInstall && !isStandalone" x-cloak @click="installApp()" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v10m0 0l4-4m-4 4l-4-4M4 16.5v1A2.5 2.5 0 006.5 20h11a2.5 2.5 0 002.5-2.5v-1"/>
-                            </svg>
-                        </button>
                         <button type="button" @click="toggleTheme()" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                             <svg x-show="effectiveTheme !== 'dark'" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.354 15.354A9 9 0 018.646 3.646 9 9 0 1012 21a8.96 8.96 0 008.354-5.646z"/>
@@ -252,8 +248,11 @@
                 sidebarCollapsed: localStorage.getItem('mmp.sidebar.collapsed') === '1',
                 canInstall: false,
                 isStandalone: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
-                installDismissed: localStorage.getItem('mmp.install.dismissed') === '1',
+                installDismissed: localStorage.getItem('mmp.install.dismissed.v2') === '1',
                 effectiveTheme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                installHelpVisible: false,
+                installHelpMessage: '',
+                installHelpTimer: null,
                 init() {
                     this.$watch('sidebarCollapsed', (value) => {
                         localStorage.setItem('mmp.sidebar.collapsed', value ? '1' : '0');
@@ -286,13 +285,27 @@
                         return;
                     }
 
-                    await window.mmpPwa.prompt();
-                    localStorage.setItem('mmp.install.dismissed', '1');
-                    this.installDismissed = true;
+                    const prompted = await window.mmpPwa.prompt();
+                    if (!prompted) {
+                        this.showInstallHelp(window.mmpPwa.manualInstallMessage());
+                    }
                 },
                 dismissInstall() {
-                    localStorage.setItem('mmp.install.dismissed', '1');
+                    localStorage.setItem('mmp.install.dismissed.v2', '1');
                     this.installDismissed = true;
+                    this.installHelpVisible = false;
+                },
+                showInstallHelp(message) {
+                    this.installHelpMessage = message;
+                    this.installHelpVisible = true;
+
+                    if (this.installHelpTimer) {
+                        clearTimeout(this.installHelpTimer);
+                    }
+
+                    this.installHelpTimer = setTimeout(() => {
+                        this.installHelpVisible = false;
+                    }, 5000);
                 }
             };
         };

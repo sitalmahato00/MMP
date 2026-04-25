@@ -12,8 +12,10 @@ class PublicHomePwaShellTest extends TestCase
             'publicCourses' => collect(),
         ])->render();
 
-        $this->assertStringContainsString('manifest.json?v=3', $html);
+        $this->assertStringContainsString('manifest.json?v=4', $html);
         $this->assertStringContainsString('data-shell-bottom-nav', $html);
         $this->assertStringContainsString('Install MMP App', $html);
+        $this->assertStringContainsString('Download', $html);
+        $this->assertStringNotContainsString('id="install-modal"', $html);
     }
 }

@@ -64,6 +64,8 @@ window.mmpTheme = {
 window.mmpPwa = (() => {
     let deferredPrompt = null;
     const listeners = new Set();
+    const userAgent = window.navigator.userAgent || '';
+    const isiOS = /iphone|ipad|ipod/i.test(userAgent);
 
     const getState = () => ({
         canInstall: !!deferredPrompt,
@@ -93,6 +95,13 @@ window.mmpPwa = (() => {
             listener(getState());
 
             return () => listeners.delete(listener);
+        },
+        manualInstallMessage() {
+            if (isiOS) {
+                return 'Use Share and then Add to Home Screen.';
+            }
+
+            return 'If the install popup does not open, use the browser menu and choose Install app or Add to Home screen.';
         },
         async prompt() {
             if (!deferredPrompt) {

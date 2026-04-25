@@ -1,0 +1,55 @@
+{
+    "id": "/",
+    "name": "Manmohan Memorial Polytechnic",
+    "short_name": "MMP",
+    "description": "MMP portal and college website with quick access to notices, results, and resources.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f8fafc",
+    "theme_color": "#003D82",
+    "lang": "en",
+    "icons": [
+        {
+            "src": "/pwa-icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/pwa-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Notice Board",
+            "short_name": "Notices",
+            "description": "Open latest public notices",
+            "url": "/notices",
+            "icons": [
+                {
+                    "src": "/pwa-icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Login Portal",
+            "short_name": "Login",
+            "description": "Open the MMP portal login page",
+            "url": "/login",
+            "icons": [
+                {
+                    "src": "/pwa-icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ]
+}

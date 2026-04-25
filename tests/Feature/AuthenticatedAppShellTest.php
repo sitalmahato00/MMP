@@ -19,9 +19,10 @@ class AuthenticatedAppShellTest extends TestCase
 
         $html = view('layouts.app')->render();
 
-        $this->assertStringContainsString('manifest.json?v=3', $html);
+        $this->assertStringContainsString('manifest.json?v=4', $html);
         $this->assertStringContainsString('data-shell-bottom-nav', $html);
         $this->assertStringContainsString('Install MMP App', $html);
+        $this->assertStringContainsString('Download', $html);
         $this->assertStringContainsString('Results', $html);
     }
 }
