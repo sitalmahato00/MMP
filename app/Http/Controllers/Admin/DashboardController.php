@@ -168,8 +168,6 @@ class DashboardController extends Controller
                 'alerts' => $alerts,
                 'highlight' => $highlight,
                 'recentNotices' => $recentNotices,
-                'ctevtGeneralNotices' => $ctevtGeneralNotices,
-                'ctevtResultNotices' => $ctevtResultNotices,
                 'attendanceChartData' => $attendanceChartData,
                 'gradeDistribution' => $gradeDistribution,
                 'currentStudents' => $currentStudents,
@@ -203,8 +201,6 @@ class DashboardController extends Controller
             ],
             'lastUpdated' => now(),
             'dashboardState' => $dashboardState,
-            'ctevtGeneralNotices' => $payload['ctevtGeneralNotices'],
-            'ctevtResultNotices' => $payload['ctevtResultNotices'],
         ]));
     }
 
@@ -690,10 +686,6 @@ class DashboardController extends Controller
                 'type' => $n->type,
                 'href' => route('admin.notices.edit', $n),
             ])->values()->all(),
-            'ctevtNotices' => [
-                'general' => $payload['ctevtGeneralNotices'],
-                'result' => $payload['ctevtResultNotices'],
-            ],
         ];
     }
 

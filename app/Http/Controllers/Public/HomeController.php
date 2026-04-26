@@ -79,13 +79,11 @@ class HomeController extends Controller
 
     public function notices(Request $request)
     {
-        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'department', 'program', 'academic', 'all', 'ctevt-general', 'ctevt-result'], true)
+        $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'department', 'program', 'academic', 'all'], true)
             ? $request->string('type')->toString()
             : 'all';
 
-        $notices = in_array($activeType, ['general', 'exam', 'department', 'program', 'academic', 'all'], true)
-            ? $this->service->getNotices(15, $activeType)
-            : $this->service->getNotices(15, 'general');
+        $notices = $this->service->getNotices(15, $activeType);
 
         return view('public.notices', compact('notices', 'activeType'));
     }

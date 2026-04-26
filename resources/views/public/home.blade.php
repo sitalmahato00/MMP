@@ -288,7 +288,7 @@
             {{-- Notice Board Tabs --}}
             @php
             @endphp
-            <div class="dashboard-card flex flex-col min-h-[520px] h-[520px] hover:shadow-xl transition-shadow duration-300" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
+            <div class="dashboard-card flex flex-col min-h-[520px] h-[520px] hover:shadow-xl transition-shadow duration-300" x-data="{ activeNoticeTab: 'general' }">
                 <div class="flex">
                     <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] dark:bg-slate-700 text-gray-700 dark:text-slate-300 border-transparent hover:bg-[#e9e9e9] dark:hover:bg-slate-600'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -299,7 +299,7 @@
                         Exam Results
                     </button>
                     </div>
-                <div class="p-0 overflow-y-auto flex-1">
+                <div class="p-0 overflow-y-auto flex-1"
                     <ul class="divide-y divide-gray-100 dark:divide-slate-700" x-show="activeNoticeTab === 'general'" x-cloak>
                         @forelse(($notices ?? collect())->take(6) as $notice)
                         <li>
@@ -392,110 +392,6 @@
                         <li class="px-4 py-8 text-center text-gray-500 dark:text-slate-400 text-sm">No exam schedules or result notices found.</li>
                         @endforelse
                     </ul>
-                    <div x-show="activeNoticeTab === 'ctevt'" x-cloak class="flex flex-col h-full">
-                        <div class="flex border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
-                            <button type="button" @click="activeCtevtTab = 'general'" :class="activeCtevtTab === 'general' ? 'bg-[#003D82] text-white' : 'bg-transparent text-gray-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
-                                General Notices
-                            </button>
-                            <button type="button" @click="activeCtevtTab = 'result'" :class="activeCtevtTab === 'result' ? 'bg-[#003D82] text-white' : 'bg-transparent text-gray-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700'" class="flex-1 py-3 text-xs md:text-sm font-bold transition-colors">
-                                Published Result
-                            </button>
-                        </div>
-
-                        <ul class="divide-y divide-gray-100 dark:divide-slate-700 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'general'" x-cloak>
-                            @forelse($ctevtGeneralItems as $notice)
-                                <li>
-                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'general']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-blue-50 dark:hover:bg-slate-700 group transition-colors">
-                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
-                                            <span class="text-[8px] font-bold uppercase leading-none">CTEVT</span>
-                                        </div>
-                                        <div class="flex-1 text-[13px] text-gray-700 dark:text-slate-300 group-hover:text-[#003D82] dark:group-hover:text-blue-400 font-medium leading-snug pt-0.5">
-                                            {{ $notice['title'] ?? 'Notice' }}
-                                            <div class="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-normal text-gray-400 dark:text-slate-500">
-                                                @if(!empty($notice['updated_date']))
-                                                    <span>{{ $notice['updated_date'] }}</span>
-                                                @endif
-                                                @if(!empty($notice['publisher']))
-                                                    <span>• {{ $notice['publisher'] }}</span>
-                                                @endif
-                                                @if(!empty($notice['files_count']))
-                                                    <span class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400">{{ $notice['files_count'] }} file{{ $notice['files_count'] > 1 ? 's' : '' }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="text-gray-300 dark:text-slate-600 group-hover:text-[#003D82] dark:group-hover:text-blue-400"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
-                                    </a>
-                                </li>
-                            @empty
-                                <li class="px-4 py-8 text-center">
-                                    @if($ctevtGeneralState === 'unavailable')
-                                        <div class="flex flex-col items-center gap-3">
-                                            <svg class="w-12 h-12 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                            </svg>
-                                            <div>
-                                                <p class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">CTEVT API Temporarily Unavailable</p>
-                                                <p class="text-xs text-gray-500 dark:text-slate-400 mb-3">Unable to fetch live notices from CTEVT server</p>
-                                                <a href="{{ $ctevtGeneralPageUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-[#003D82] text-white text-xs font-semibold rounded hover:bg-[#002a5c] transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                                    Visit CTEVT Website
-                                                </a>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <p class="text-sm text-gray-500 dark:text-slate-400">No live CTEVT general notices found.</p>
-                                    @endif
-                                </li>
-                            @endforelse
-                        </ul>
-
-                        <ul class="divide-y divide-gray-100 dark:divide-slate-700 flex-1 overflow-y-auto" x-show="activeCtevtTab === 'result'" x-cloak>
-                            @forelse($ctevtResultItems as $notice)
-                                <li>
-                                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'exam']) }}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-4 px-4 py-3 hover:bg-blue-50 dark:hover:bg-slate-700 group transition-colors">
-                                        <div class="flex-shrink-0 w-11 h-11 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
-                                            <span class="text-[8px] font-bold uppercase leading-none">CTEVT</span>
-                                        </div>
-                                        <div class="flex-1 text-[13px] text-gray-700 dark:text-slate-300 group-hover:text-[#003D82] dark:group-hover:text-blue-400 font-medium leading-snug pt-0.5">
-                                            {{ $notice['title'] ?? 'Result Notice' }}
-                                            <div class="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-normal text-gray-400 dark:text-slate-500">
-                                                @if(!empty($notice['updated_date']))
-                                                    <span>{{ $notice['updated_date'] }}</span>
-                                                @endif
-                                                @if(!empty($notice['publisher']))
-                                                    <span>• {{ $notice['publisher'] }}</span>
-                                                @endif
-                                                @if(!empty($notice['files_count']))
-                                                    <span class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400">{{ $notice['files_count'] }} file{{ $notice['files_count'] > 1 ? 's' : '' }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="text-gray-300 dark:text-slate-600 group-hover:text-[#003D82] dark:group-hover:text-blue-400"><svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
-                                    </a>
-                                </li>
-                            @empty
-                                <li class="px-4 py-8 text-center">
-                                    @if($ctevtResultState === 'unavailable')
-                                        <div class="flex flex-col items-center gap-3">
-                                            <svg class="w-12 h-12 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                            </svg>
-                                            <div>
-                                                <p class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">CTEVT API Temporarily Unavailable</p>
-                                                <p class="text-xs text-gray-500 dark:text-slate-400 mb-3">Unable to fetch live results from CTEVT server</p>
-                                                <a href="{{ $ctevtResultPageUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-[#003D82] text-white text-xs font-semibold rounded hover:bg-[#002a5c] transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                                    Visit CTEVT Website
-                                                </a>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <p class="text-sm text-gray-500 dark:text-slate-400">No live CTEVT result notices found.</p>
-                                    @endif
-                                </li>
-                            @endforelse
-                        </ul>
-                    </div>
                 </div>
                 <div class="px-0 pt-0 pb-0 mt-0 border-0 bg-transparent rounded-b-2xl">
                     <a href="{{ route('public.notices') }}" class="card-footer-link">View All Notices »</a>

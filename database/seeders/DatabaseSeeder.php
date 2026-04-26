@@ -57,8 +57,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Seed News & Events
-        $this->call(NewsEventsSeeder::class);
+        // Seed News & Events - Commented out as seeder doesn't exist
+        // $this->call(NewsEventsSeeder::class);
 
         // Create sample principal
         $principalAvatar = 'executives/principal-avatar.jpg';
