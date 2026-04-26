@@ -137,7 +137,7 @@ class PublicDataService
                 ])
                 ->firstOrFail([
                     'id', 'department_id', 'coordinator_id', 'name', 'code', 'slug',
-                    'ctevt_code', 'affiliation_type', 'total_semesters', 'duration_years',
+                    'affiliation_type', 'total_semesters', 'duration_years',
                     'description', 'eligibility', 'syllabus', 'is_active'
                 ]);
 
@@ -579,12 +579,7 @@ class PublicDataService
         });
     }
 
-    public function getCtevtGeneralNotices(int $limit = 6): array
-    {
-        return $this->getCtevtNoticeFeed(false, $limit);
-    }
-
-    public function getCtevtResultNotices(int $limit = 6): array
+public function getCtevtResultNotices(int $limit = 6): array
     {
         return $this->getCtevtNoticeFeed(true, $limit);
     }
@@ -629,63 +624,7 @@ class PublicDataService
         });
     }
 
-    private function getCtevtNoticeFeed(bool $isResult, int $limit): array
-    {
-        $feedKey = 'public:ctevt_notices:' . ($isResult ? 'result' : 'general') . ':' . $limit;
-
-        return Cache::remember($feedKey, 600, function () use ($isResult, $limit) {
-            $type = $isResult ? 'result' : 'general';
-            $pageUrl = $isResult
-                ? config('services.ctevt_notice.result_url', 'https://itms.ctevt.org.np:5580/notices/result')
-                : config('services.ctevt_notice.general_url', 'https://itms.ctevt.org.np:5580/notices');
-            
-            // Try to fetch from API first
-            try {
-                $feedUrl = config('services.ctevt_notice.feed_url', 'https://itms.ctevt.org.np:5580/notices/get-ajax-notices');
-                
-                $response = Http::timeout(30)
-                    ->retry(3, 1000)
-                    ->withoutVerifying()
-                    ->accept('application/json,text/javascript,*/*;q=0.1')
-                    ->withHeaders([
-                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-                        'X-Requested-With' => 'XMLHttpRequest',
-                    ])
-                    ->get($feedUrl, $this->buildCtevtNoticeFeedParams($isResult, $limit));
-
-                if ($response->successful()) {
-                    $payload = $response->json();
-
-                    if (is_array($payload) && isset($payload['data']) && is_array($payload['data'])) {
-                        $items = collect($payload['data'])
-                            ->map(fn (array $row, int $index) => $this->mapCtevtNoticeRow($row, $index, $isResult))
-                            ->filter()
-                            ->values()
-                            ->all();
-
-                        return [
-                            'source' => $type,
-                            'source_state' => 'live',
-                            'title' => $isResult ? 'Published Result' : 'General Notices',
-                            'page_url' => $pageUrl,
-                            'records_total' => (int) ($payload['recordsTotal'] ?? count($items)),
-                            'items' => $items,
-                        ];
-                    }
-                }
-            } catch (\Exception $e) {
-                \Log::warning('CTEVT API connection error, falling back to database', [
-                    'type' => $type,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-            
-            // Fallback to database if API fails
-            return $this->getCtevtNoticesFromDatabase($type, $limit, $pageUrl);
-        });
-    }
-
-    private function getCtevtNoticesFromDatabase(string $type, int $limit, string $pageUrl): array
+private function getCtevtNoticesFromDatabase(string $type, int $limit, string $pageUrl): array
     {
         $notices = \App\Models\CtevtNotice::where('type', $type)
             ->latest('fetched_at')
@@ -725,32 +664,7 @@ class PublicDataService
         ];
     }
 
-    private function buildCtevtNoticeFeedParams(bool $isResult, int $limit): array
-    {
-        return [
-            'draw' => 1,
-            'columns' => [
-                ['data' => 'serial_no', 'name' => '', 'searchable' => 'true', 'orderable' => 'false', 'search' => ['value' => '', 'regex' => 'false']],
-                ['data' => 'updated_date', 'name' => '', 'searchable' => 'true', 'orderable' => 'false', 'search' => ['value' => '', 'regex' => 'false']],
-                ['data' => 'notice_title', 'name' => '', 'searchable' => 'true', 'orderable' => 'false', 'search' => ['value' => '', 'regex' => 'false']],
-                ['data' => 'notice_files', 'name' => '', 'searchable' => 'false', 'orderable' => 'false', 'search' => ['value' => '', 'regex' => 'false']],
-                ['data' => 'publisher', 'name' => '', 'searchable' => 'true', 'orderable' => 'false', 'search' => ['value' => '', 'regex' => 'false']],
-            ],
-            'order' => [
-                ['column' => 0, 'dir' => 'asc'],
-            ],
-            'start' => 0,
-            'length' => $limit,
-            'search' => [
-                'value' => '',
-                'regex' => 'false',
-            ],
-            'tab_id' => 'tab-0',
-            'is_result' => $isResult ? '1' : '0',
-        ];
-    }
-
-    private function mapCtevtNoticeRow(array $row, int $index, bool $isResult): ?array
+private function mapCtevtNoticeRow(array $row, int $index, bool $isResult): ?array
     {
         $titleHtml = trim((string) ($row['notice_title'] ?? ''));
 
@@ -774,19 +688,7 @@ class PublicDataService
         ];
     }
 
-    private function extractFirstHtmlLink(string $html): array
-    {
-        if (! preg_match('/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/is', $html, $matches)) {
-            return [null, $this->cleanText(strip_tags($html))];
-        }
-
-        return [
-            html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-            $this->cleanText(html_entity_decode(strip_tags($matches[2]), ENT_QUOTES | ENT_HTML5, 'UTF-8')),
-        ];
-    }
-
-    private function extractHtmlLinks(string $html): array
+private function extractHtmlLinks(string $html): array
     {
         if (! preg_match_all('/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/is', $html, $matches, PREG_SET_ORDER)) {
             return [];
@@ -870,11 +772,6 @@ class PublicDataService
                 'public:news_events:5',
                 'public:homepage_stats',
                 'public:navigation_courses',
-                'public:ctevt_result_form',
-                'public:ctevt_notices:general:5',
-                'public:ctevt_notices:result:5',
-                'public:ctevt_notices:general:10',
-                'public:ctevt_notices:result:10',
             ];
 
             foreach (array_keys(SiteSetting::managedPageDefinitions()) as $slug) {
@@ -1194,110 +1091,7 @@ class PublicDataService
             ->toString();
     }
 
-    private function parseCtevtResultForm(string $html, string $fallbackAction): array
-    {
-        $previousLibxmlSetting = libxml_use_internal_errors(true);
-
-        try {
-            $dom = new \DOMDocument();
-            $dom->loadHTML($this->normalizeHtmlForDom($html));
-            $xpath = new \DOMXPath($dom);
-
-            $formNode = $xpath->query('//form[@id="frmCheckResults" or @name="frmCheckResults"]')->item(0);
-
-            if (! $formNode) {
-                $formNode = $xpath->query('//form[contains(@action, "search_results")]')->item(0);
-            }
-
-            if (! $formNode) {
-                return $this->fallbackCtevtResultForm($fallbackAction);
-            }
-
-            $fields = [];
-            $hiddenFields = [];
-
-            foreach ($xpath->query('.//input[@type="hidden"]', $formNode) as $hiddenNode) {
-                $hiddenName = trim((string) $hiddenNode->getAttribute('name'));
-
-                if ($hiddenName === '') {
-                    continue;
-                }
-
-                $hiddenFields[] = [
-                    'name' => $hiddenName,
-                    'value' => trim((string) $hiddenNode->getAttribute('value')),
-                ];
-            }
-
-            foreach ($xpath->query('.//div[contains(concat(" ", normalize-space(@class), " "), " row ")]',$formNode) as $rowNode) {
-                $labelNode = $xpath->query('.//label', $rowNode)->item(0);
-                $controlNode = $xpath->query('.//select[1] | .//input[not(@type="hidden") and not(@type="submit")][1]', $rowNode)->item(0);
-
-                if (! $labelNode || ! $controlNode) {
-                    continue;
-                }
-
-                $field = [
-                    'label' => $this->cleanText($labelNode->textContent),
-                    'name' => trim((string) $controlNode->getAttribute('name')) ?: trim((string) $controlNode->getAttribute('id')),
-                    'id' => trim((string) $controlNode->getAttribute('id')) ?: trim((string) $controlNode->getAttribute('name')),
-                    'required' => $controlNode->hasAttribute('required'),
-                ];
-
-                if (strtolower($controlNode->nodeName) === 'select') {
-                    $field['type'] = 'select';
-                    $field['options'] = [];
-
-                    foreach ($xpath->query('./option', $controlNode) as $optionNode) {
-                        $field['options'][] = [
-                            'label' => $this->cleanText($optionNode->textContent),
-                            'value' => $optionNode->getAttribute('value'),
-                            'selected' => $optionNode->hasAttribute('selected'),
-                        ];
-                    }
-                } else {
-                    $field['type'] = 'input';
-                    $field['input_type'] = strtolower(trim((string) $controlNode->getAttribute('type')) ?: 'text');
-                    $field['placeholder'] = trim((string) $controlNode->getAttribute('placeholder'));
-                }
-
-                $fields[] = $field;
-            }
-
-            $submitNode = $xpath->query('.//input[@type="submit"]', $formNode)->item(0)
-                ?? $xpath->query('.//button[@type="submit"]', $formNode)->item(0);
-
-            $submitLabel = 'Search';
-
-            if ($submitNode) {
-                $submitLabel = $this->cleanText($submitNode->getAttribute('value') ?: $submitNode->textContent) ?: 'Search';
-            }
-
-            if ($fields === []) {
-                return $this->fallbackCtevtResultForm($fallbackAction);
-            }
-
-            return [
-                'title' => $this->cleanText($this->firstTextNode($xpath, $formNode, ['.//h5', './/h2', './/h1'])) ?: 'Yearly/Semester Check Results',
-                'action' => trim((string) $formNode->getAttribute('action')) ?: $fallbackAction,
-                'method' => strtolower(trim((string) $formNode->getAttribute('method'))) ?: 'post',
-                'target' => trim((string) $formNode->getAttribute('target')) ?: '_blank',
-                'autocomplete' => trim((string) $formNode->getAttribute('autocomplete')) ?: 'off',
-                'fields' => $fields,
-                'hidden_fields' => $hiddenFields,
-                'submit' => [
-                    'label' => $submitLabel,
-                ],
-                'source' => 'live',
-                'source_state' => 'live',
-            ];
-        } finally {
-            libxml_clear_errors();
-            libxml_use_internal_errors($previousLibxmlSetting);
-        }
-    }
-
-    private function parseCtevtResultFormWithRegex(string $html, string $fallbackAction): array
+private function parseCtevtResultFormWithRegex(string $html, string $fallbackAction): array
     {
         if (! preg_match_all('/<form\b([^>]*)>(.*?)<\/form>/is', $html, $formMatches, PREG_SET_ORDER)) {
             return $this->fallbackCtevtResultForm($fallbackAction);
@@ -1383,58 +1177,7 @@ class PublicDataService
         return $this->fallbackCtevtResultForm($fallbackAction);
     }
 
-    private function parseCtevtFieldFromHtml(string $html, string $fieldId): ?array
-    {
-        $label = $this->cleanText($this->firstRegexMatch($html, '/<label\b[^>]*for=["\']'.preg_quote($fieldId, '/').'["\'][^>]*>(.*?)<\/label>/is'));
-
-        $selectTag = $this->findHtmlTagByIdOrName($html, 'select', $fieldId);
-
-        if ($selectTag) {
-            $attributes = $this->parseHtmlAttributes($selectTag['attributes']);
-            $options = [];
-
-            if (preg_match_all('/<option\b([^>]*)>(.*?)<\/option>/is', $selectTag['inner'], $optionMatches, PREG_SET_ORDER)) {
-                foreach ($optionMatches as $optionMatch) {
-                    $optionAttributes = $this->parseHtmlAttributes($optionMatch[1]);
-
-                    $options[] = [
-                        'label' => $this->cleanText(strip_tags($optionMatch[2])),
-                        'value' => trim((string) ($optionAttributes['value'] ?? '')),
-                        'selected' => array_key_exists('selected', $optionAttributes),
-                    ];
-                }
-            }
-
-            return [
-                'label' => $label ?: $fieldId,
-                'name' => trim((string) ($attributes['name'] ?? $fieldId)) ?: $fieldId,
-                'id' => trim((string) ($attributes['id'] ?? $fieldId)) ?: $fieldId,
-                'type' => 'select',
-                'required' => array_key_exists('required', $attributes),
-                'options' => $options,
-            ];
-        }
-
-        $inputTag = $this->findHtmlTagByIdOrName($html, 'input', $fieldId);
-
-        if (! $inputTag) {
-            return null;
-        }
-
-        $attributes = $this->parseHtmlAttributes($inputTag['attributes']);
-
-        return [
-            'label' => $label ?: $fieldId,
-            'name' => trim((string) ($attributes['name'] ?? $fieldId)) ?: $fieldId,
-            'id' => trim((string) ($attributes['id'] ?? $fieldId)) ?: $fieldId,
-            'type' => 'input',
-            'input_type' => strtolower(trim((string) ($attributes['type'] ?? 'text'))) ?: 'text',
-            'placeholder' => trim((string) ($attributes['placeholder'] ?? '')),
-            'required' => array_key_exists('required', $attributes),
-        ];
-    }
-
-    private function findHtmlTags(string $html, string $tagName): array
+private function findHtmlTags(string $html, string $tagName): array
     {
         $pattern = $tagName === 'select'
             ? '/<select\b([^>]*)>(.*?)<\/select>/is'
@@ -1495,72 +1238,7 @@ class PublicDataService
         return $matches[1] ?? null;
     }
 
-    private function fallbackCtevtResultForm(string $fallbackAction): array
-    {
-        return [
-            'title' => 'Yearly/Semester Check Results',
-            'action' => $fallbackAction,
-            'method' => 'post',
-            'target' => '_blank',
-            'autocomplete' => 'off',
-            'fields' => [
-                [
-                    'label' => 'Examination Year',
-                    'name' => 'src_year',
-                    'id' => 'src_year',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => [
-                        ['label' => '-- Select --', 'value' => ''],
-                        ['label' => '2082', 'value' => '2082'],
-                        ['label' => '2081', 'value' => '2081'],
-                        ['label' => '2080', 'value' => '2080'],
-                        ['label' => '2079', 'value' => '2079'],
-                        ['label' => '2078', 'value' => '2078'],
-                        ['label' => '2077', 'value' => '2077'],
-                    ],
-                ],
-                [
-                    'label' => 'Level',
-                    'name' => 'src_level',
-                    'id' => 'src_level',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => [
-                        ['label' => '-- Select --', 'value' => ''],
-                        ['label' => 'Pre-diploma', 'value' => '2'],
-                        ['label' => 'Diploma/PCL', 'value' => '3'],
-                    ],
-                ],
-                [
-                    'label' => 'Symbol Number',
-                    'name' => 'exam_symbol_number',
-                    'id' => 'exam_symbol_number',
-                    'type' => 'input',
-                    'input_type' => 'text',
-                    'placeholder' => 'Enter your symbol number',
-                    'required' => true,
-                ],
-                [
-                    'label' => 'Date of Birth (B.S.)',
-                    'name' => 'dob',
-                    'id' => 'dob',
-                    'type' => 'input',
-                    'input_type' => 'text',
-                    'placeholder' => 'YYYY-MM-DD (B.S.)',
-                    'required' => true,
-                ],
-            ],
-            'hidden_fields' => [],
-            'submit' => [
-                'label' => 'Search',
-            ],
-            'source' => 'fallback',
-            'source_state' => 'fallback',
-        ];
-    }
-
-    private function cleanText(?string $value): string
+private function cleanText(?string $value): string
     {
         return preg_replace('/\s+/u', ' ', trim((string) $value)) ?? '';
     }

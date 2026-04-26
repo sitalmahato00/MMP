@@ -85,9 +85,6 @@ class DashboardController extends Controller
                 ->take(4)
                 ->get();
 
-            $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
-            $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
-
             // Attendance chart data with real Nepali dates
             $attendanceChartData = $this->buildAttendanceChartData();
 

@@ -161,7 +161,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                    <p class="text-xs text-slate-500">Internal and CTEVT announcements</p>
+                    <p class="text-xs text-slate-500">Internal  announcements</p>
                 </div>
             </div>
             
@@ -172,12 +172,7 @@
                         class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
                     Internal
                 </button>
-                <button @click="activeTab = 'ctevt'" 
-                        :class="activeTab === 'ctevt' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                        class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
-                    CTEVT
-                </button>
-            </div>
+                </div>
         </div>
         
         {{-- Internal Notices --}}
@@ -204,70 +199,7 @@
             @endforelse
         </div>
         
-        {{-- CTEVT Notices Tab --}}
-        <div x-show="activeTab === 'ctevt'" class="divide-y divide-slate-100" x-cloak x-data="{ ctevtSubTab: 'general' }">
-            <div class="flex gap-1 bg-slate-50 p-2">
-                <button @click="ctevtSubTab = 'general'" :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
-                    General
-                </button>
-                <button @click="ctevtSubTab = 'result'" :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
-                    Results
-                </button>
-            </div>
-
-            <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
-                @if(isset($ctevtGeneralNotices['items']) && count($ctevtGeneralNotices['items']) > 0)
-                    @foreach($ctevtGeneralNotices['items'] as $notice)
-                        <a href="{{ $notice['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
-                            <div class="flex items-center gap-2">
-                                <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-red-600">CTEVT</span>
-                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Notice' }}</span>
-                            </div>
-                            @if(!empty($notice['updated_date']))
-                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
-                            @endif
-                        </a>
-                    @endforeach
-                @else
-                    @php $ctevtState = $ctevtGeneralNotices['source_state'] ?? 'unavailable'; @endphp
-                    @if($ctevtState === 'cached')
-                        <div class="py-6 px-4 text-center">
-                            <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
-                            <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
-                        </div>
-                    @else
-                        <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
-                    @endif
-                @endif
-            </div>
-
-            <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
-                @if(isset($ctevtResultNotices['items']) && count($ctevtResultNotices['items']) > 0)
-                    @foreach($ctevtResultNotices['items'] as $notice)
-                        <a href="{{ $notice['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
-                            <div class="flex items-center gap-2">
-                                <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600">CTEVT</span>
-                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Result' }}</span>
-                            </div>
-                            @if(!empty($notice['updated_date']))
-                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
-                            @endif
-                        </a>
-                    @endforeach
-                @else
-                    @php $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable'; @endphp
-                    @if($ctevtResultState === 'cached')
-                        <div class="py-6 px-4 text-center">
-                            <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
-                            <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
-                        </div>
-                    @else
-                        <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
-                    @endif
-                @endif
-            </div>
-        </div>
-    </section>
+        </section>
 
     {{-- ═══════════════════════════════════════════════════════════
          4. UPCOMING ASSIGNMENTS – Pending Tasks

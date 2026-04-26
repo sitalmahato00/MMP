@@ -252,10 +252,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                     <button @click="activeNoticeTab = 'internal'" :class="activeNoticeTab === 'internal' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-600 hover:text-slate-900'" class="flex-1 px-3 py-2.5 text-xs font-semibold transition">
                         Internal
                     </button>
-                    <button @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-600 hover:text-slate-900'" class="flex-1 px-3 py-2.5 text-xs font-semibold transition">
-                        CTEVT
-                    </button>
-                </div>
+                    </div>
 
                 {{-- Internal Notices Tab --}}
                 <div x-show="activeNoticeTab === 'internal'" class="divide-y divide-slate-100 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
@@ -283,80 +280,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                     @endif
                 </div>
 
-                {{-- CTEVT Notices Tab --}}
-                <div x-show="activeNoticeTab === 'ctevt'" x-cloak x-data="{ ctevtSubTab: 'general', isSyncing: false, syncMessage: '' }">
-                    <div class="flex gap-1 bg-slate-50 p-2">
-                        <button @click="ctevtSubTab = 'general'" :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
-                            General ({{ $ctevtGeneralItems->count() }})
-                        </button>
-                        <button @click="ctevtSubTab = 'result'" :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
-                            Results ({{ $ctevtResultItems->count() }})
-                        </button>
-                        @if(config('services.ctevt_sync.external_url'))
-                            <button @click="syncCtevtNotices()" :disabled="isSyncing" class="rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition" :class="isSyncing ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'">
-                                <span x-show="!isSyncing">🔄 Sync</span>
-                                <span x-show="isSyncing">⏳ Syncing...</span>
-                            </button>
-                        @endif
-                    </div>
-
-                    @if(config('services.ctevt_sync.external_url'))
-                        <div x-show="syncMessage" x-cloak class="px-4 py-2 text-[10px]" :class="syncMessage.includes('successfully') ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'">
-                            <span x-text="syncMessage"></span>
-                        </div>
-                    @endif
-
-                    <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
-                        @forelse($ctevtGeneralItems as $notice)
-                            <a href="{{ $notice['url'] ?? $ctevtGeneralPageUrl }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-red-600">CTEVT</span>
-                                    <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Notice' }}</span>
-                                </div>
-                                @if(!empty($notice['updated_date']))
-                                    <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
-                                @endif
-                            </a>
-                        @empty
-                            @php $ctevtState = $ctevtGeneralNotices['source_state'] ?? 'unavailable'; @endphp
-                            @if($ctevtState === 'cached')
-                                <div class="py-6 px-4 text-center">
-                                    <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
-                                    <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
-                                </div>
-                            @else
-                                <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
-                            @endif
-                        @endforelse
-                    </div>
-
-                    <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
-                        @forelse($ctevtResultItems as $notice)
-                            <a href="{{ $notice['url'] ?? $ctevtResultPageUrl }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600">CTEVT</span>
-                                    <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Result' }}</span>
-                                </div>
-                                @if(!empty($notice['updated_date']))
-                                    <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
-                                @endif
-                            </a>
-                        @empty
-                            @php $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable'; @endphp
-                            @if($ctevtResultState === 'cached')
-                                <div class="py-6 px-4 text-center">
-                                    <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
-                                    <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
-                                </div>
-                            @else
-                                <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
-                            @endif
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
-            {{-- Active Academic Flow Card --}}
+                {{-- Active Academic Flow Card --}}
             <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div class="border-b border-slate-100 px-4 py-3">
                     <div class="flex items-center gap-2">

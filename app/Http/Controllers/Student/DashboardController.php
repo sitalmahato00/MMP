@@ -36,9 +36,6 @@ class DashboardController extends Controller
         $kpiData = $this->getKpiData($student, $marksSummary, $attendanceSummary);
         $notices = $this->getNoticesData($student);
 
-        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
-        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
-
         $upcomingAssignments = Assignment::where('program_id', $student->program_id)
             ->where('semester', $student->current_semester)
             ->where('due_date', '>=', now())

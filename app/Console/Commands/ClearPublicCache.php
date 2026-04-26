@@ -23,7 +23,6 @@ class ClearPublicCache extends Command
         $this->line('  - Notices and news');
         $this->line('  - Departments');
         $this->line('  - Downloads');
-        $this->line('  - CTEVT notices');
         $this->line('  - All other public pages');
         
         return Command::SUCCESS;

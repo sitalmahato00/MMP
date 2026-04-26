@@ -295,7 +295,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                        <p class="text-xs text-slate-500">Department and CTEVT announcements</p>
+                        <p class="text-xs text-slate-500">Department announcements</p>
                     </div>
                 </div>
                 
@@ -306,12 +306,7 @@
                             class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
                         Department
                     </button>
-                    <button @click="activeTab = 'ctevt'" 
-                            :class="activeTab === 'ctevt' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
-                        CTEVT
-                    </button>
-                </div>
+                    </div>
             </div>
             
             {{-- Department Notices --}}
@@ -341,68 +336,7 @@
                 @endforelse
             </div>
             
-            {{-- CTEVT Notices Tab --}}
-            <div x-show="activeTab === 'ctevt'" class="divide-y divide-slate-100" x-cloak x-data="{ ctevtSubTab: 'general' }">
-                <div class="flex gap-1 bg-slate-50 p-2">
-                    <button @click="ctevtSubTab = 'general'" :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
-                        General ({{ collect($ctevtGeneralNotices['items'] ?? [])->count() }})
-                    </button>
-                    <button @click="ctevtSubTab = 'result'" :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
-                        Results ({{ collect($ctevtResultNotices['items'] ?? [])->count() }})
-                    </button>
-                </div>
-
-                <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
-                    @forelse(collect($ctevtGeneralNotices['items'] ?? []) as $notice)
-                        <a href="{{ $notice['url'] ?? ($ctevtGeneralNotices['page_url'] ?? '#') }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
-                            <div class="flex items-center gap-2">
-                                <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-red-600">CTEVT</span>
-                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Notice' }}</span>
-                            </div>
-                            @if(!empty($notice['updated_date']))
-                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
-                            @endif
-                        </a>
-                    @empty
-                        @php $ctevtState = $ctevtGeneralNotices['source_state'] ?? 'unavailable'; @endphp
-                        @if($ctevtState === 'cached')
-                            <div class="py-6 px-4 text-center">
-                                <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
-                                <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
-                            </div>
-                        @else
-                            <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
-                        @endif
-                    @endforelse
-                </div>
-
-                <div x-show="ctevtSubTab === 'result'" x-cloak class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
-                    @forelse(collect($ctevtResultNotices['items'] ?? []) as $notice)
-                        <a href="{{ $notice['url'] ?? ($ctevtResultNotices['page_url'] ?? '#') }}" target="_blank" rel="noopener noreferrer" class="block px-4 py-2.5 transition hover:bg-slate-50">
-                            <div class="flex items-center gap-2">
-                                <span class="shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600">CTEVT</span>
-                                <span class="min-w-0 flex-1 truncate text-[11px] font-medium text-slate-700">{{ $notice['title'] ?? 'Result' }}</span>
-                            </div>
-                            @if(!empty($notice['updated_date']))
-                                <p class="mt-1 text-[9px] text-slate-400">{{ $notice['updated_date'] }}</p>
-                            @endif
-                        </a>
-                    @empty
-                        @php $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable'; @endphp
-                        @if($ctevtResultState === 'cached')
-                            <div class="py-6 px-4 text-center">
-                                <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
-                                <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
-                            </div>
-                        @else
-                            <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
-                        @endif
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        {{-- Quick Actions --}}
+            {{-- Quick Actions --}}
         <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
             <div class="border-b border-slate-100 px-5 py-4">
                 <h2 class="text-sm font-semibold text-slate-900">Quick Actions</h2>

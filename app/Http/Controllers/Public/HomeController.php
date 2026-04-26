@@ -67,13 +67,11 @@ class HomeController extends Controller
 
         $staff = $this->service->getStaff();
         $newsEvents = $this->service->getLatestNewsEvents(5);
-        $ctevtGeneralNotices = $this->service->getCtevtGeneralNotices(5);
-        $ctevtResultNotices = $this->service->getCtevtResultNotices(5);
         $recentDownloads = $this->service->getRecentDownloads(4);
         $stats = $this->service->getHomepageStats();
 
         return response()
-            ->view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff', 'newsEvents', 'ctevtGeneralNotices', 'ctevtResultNotices', 'recentDownloads', 'stats')))
+            ->view('public.home', array_merge($data, compact('leadership', 'siteSettings', 'staff', 'newsEvents', 'recentDownloads', 'stats')))
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -88,10 +86,8 @@ class HomeController extends Controller
         $notices = in_array($activeType, ['general', 'exam', 'department', 'program', 'academic', 'all'], true)
             ? $this->service->getNotices(15, $activeType)
             : $this->service->getNotices(15, 'general');
-        $ctevtGeneralNotices = $this->service->getCtevtGeneralNotices(10);
-        $ctevtResultNotices = $this->service->getCtevtResultNotices(10);
 
-        return view('public.notices', compact('notices', 'activeType', 'ctevtGeneralNotices', 'ctevtResultNotices'));
+        return view('public.notices', compact('notices', 'activeType'));
     }
 
     public function noticeShow(string $slug)
@@ -221,9 +217,8 @@ class HomeController extends Controller
 
     public function result()
     {
-        $resultForm = $this->service->getCtevtResultForm();
 
-        return view('public.result', compact('resultForm'));
+        return view('public.result', view('public.result'));
     }
 
     public function resultSubmit(Request $request)

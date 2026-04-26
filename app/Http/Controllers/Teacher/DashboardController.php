@@ -59,10 +59,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // CTEVT notices (from official CTEVT website)
-        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
-        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
-
         // Get attendance data for chart (last 30 days)
         $attendanceData = $this->getAttendanceChartData($teacher->id);
 

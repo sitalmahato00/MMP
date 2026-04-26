@@ -47,9 +47,6 @@ class DashboardController extends Controller
                 ->get();
         });
 
-        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
-        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
-
         $childrenSummaries = $children->map(function ($student) use ($session) {
             $today = Carbon::today()->toDateString();
             $attendanceSummary = $this->studentRecordService->getAttendanceSummary($student);

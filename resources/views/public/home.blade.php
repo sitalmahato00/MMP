@@ -1,7 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', 'Manmohan Memorial Polytechnic')
-@section('meta_description', 'Best Technical College in Koshi Province, Nepal. CTEVT Diploma programs in IT, Civil, Electrical, Mechanical & Electronics Engineering.')
+@section('meta_description', 'Best Technical College in Koshi Province, Nepal. Diploma programs in IT, Civil, Electrical, Mechanical & Electronics Engineering.')
 @section('no_breadcrumb', true)
 
 @section('content')
@@ -287,12 +287,6 @@
 
             {{-- Notice Board Tabs --}}
             @php
-                $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
-                $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
-                $ctevtGeneralState = $ctevtGeneralNotices['source_state'] ?? 'unavailable';
-                $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable';
-                $ctevtGeneralPageUrl = $ctevtGeneralNotices['page_url'] ?? 'https://itms.ctevt.org.np:5580/notices';
-                $ctevtResultPageUrl = $ctevtResultNotices['page_url'] ?? 'https://itms.ctevt.org.np:5580/notices/result';
             @endphp
             <div class="dashboard-card flex flex-col min-h-[520px] h-[520px] hover:shadow-xl transition-shadow duration-300" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
                 <div class="flex">
@@ -304,11 +298,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Exam Results
                     </button>
-                    <button type="button" @click="activeNoticeTab = 'ctevt'" :class="activeNoticeTab === 'ctevt' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] dark:bg-slate-700 text-gray-700 dark:text-slate-300 border-transparent hover:bg-[#e9e9e9] dark:hover:bg-slate-600'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
-                        CTEVT Notices
-                    </button>
-                </div>
+                    </div>
                 <div class="p-0 overflow-y-auto flex-1">
                     <ul class="divide-y divide-gray-100 dark:divide-slate-700" x-show="activeNoticeTab === 'general'" x-cloak>
                         @forelse(($notices ?? collect())->take(6) as $notice)

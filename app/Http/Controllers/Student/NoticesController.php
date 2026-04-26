@@ -46,11 +46,6 @@ class NoticesController extends Controller
         $publishedNotices = (clone $internalBaseQuery)
             ->where('is_published', true)
             ->count();
-
-        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(10);
-        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(10);
-        $ctevtNotices = count($ctevtGeneralNotices['items'] ?? [])
-            + count($ctevtResultNotices['items'] ?? []);
         $totalNotices = $publishedNotices + $ctevtNotices;
 
         if ($type === 'ctevt') {

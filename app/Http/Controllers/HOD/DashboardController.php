@@ -46,10 +46,6 @@ class DashboardController extends Controller
                 ->latest()
                 ->take(5)
                 ->get();
-
-            // CTEVT notices (from official CTEVT website)
-            $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
-            $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
             
             $greeting = $this->greeting();
             $lastUpdated = now();
@@ -120,10 +116,6 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
         });
-
-        // CTEVT notices (from official CTEVT website)
-        $ctevtGeneralNotices = $this->publicDataService->getCtevtGeneralNotices(5);
-        $ctevtResultNotices = $this->publicDataService->getCtevtResultNotices(5);
 
         $greeting = $this->greeting();
         $lastUpdated = now();

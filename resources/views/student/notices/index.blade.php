@@ -24,7 +24,6 @@
             ['label'=>'Total Notices',     'value'=>$totalNotices,      'icon'=>'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9', 'color'=>'blue',    'tag'=>'Total'],
             ['label'=>'Department',        'value'=>$departmentNotices, 'icon'=>'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',                                                                                                                                                                  'color'=>'violet',  'tag'=>'Dept'],
             ['label'=>'Published',         'value'=>$publishedNotices,  'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',                                                                                                                                                                                                                                                'color'=>'emerald', 'tag'=>'Live'],
-            ['label'=>'CTEVT',             'value'=>$ctevtNotices,      'icon'=>'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9',                                                                                                                                                                                                                                     'color'=>'amber',   'tag'=>'CTEVT'],
         ];
     @endphp
     @foreach($kpis as $kpi)
@@ -59,10 +58,9 @@
         {{-- Type --}}
         <select name="type" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
             <option value="internal" @selected(request('type', 'internal') === 'internal')>Department Notices</option>
-            <option value="ctevt" @selected(request('type') === 'ctevt')>CTEVT Notices</option>
         </select>
         {{-- Status (only for internal notices) --}}
-        <select name="status" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100" {{ request('type') === 'ctevt' ? 'disabled' : '' }}>
+        <select name="status" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100" {{ false ? 'disabled' : '' }}>
             <option value="">All Status</option>
             <option value="published" @selected(request('status') === 'published')>Published</option>
         </select>
@@ -87,7 +85,7 @@
     {{-- Panel header: result count + view toggle --}}
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
         <p class="text-sm text-slate-500">
-            @if(request('type') === 'ctevt')
+            @if(false)
                 @if($notices->count() > 0)
                     Showing <span class="font-semibold text-slate-700">{{ $notices->count() }}</span> CTEVT notices
                 @else
@@ -122,7 +120,7 @@
 
     {{-- ── TABLE VIEW ─────────────────────────────────────── --}}
     <div x-show="view === 'table'" x-cloak>
-        @if((request('type') === 'ctevt' && $notices->isEmpty()) || (request('type') !== 'ctevt' && $notices->isEmpty()))
+        @if((false && $notices->isEmpty()) || (request('type') !== 'ctevt' && $notices->isEmpty()))
             <div class="flex flex-col items-center justify-center py-20 text-center">
                 <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 mb-4">
                     <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -143,7 +141,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @if(request('type') === 'ctevt')
+                    @if(false)
                         @foreach($notices as $notice)
                         <tr class="group hover:bg-slate-50/60 transition-colors">
                             <td class="px-5 py-3.5">
@@ -237,14 +235,14 @@
 
     {{-- ── CARD VIEW ──────────────────────────────────────── --}}
     <div x-show="view === 'cards'" x-cloak>
-        @if((request('type') === 'ctevt' && $notices->isEmpty()) || (request('type') !== 'ctevt' && $notices->isEmpty()))
+        @if((false && $notices->isEmpty()) || (request('type') !== 'ctevt' && $notices->isEmpty()))
             <div class="flex flex-col items-center justify-center py-20 text-center">
                 <h3 class="text-base font-bold text-slate-800">No notices found</h3>
                 <p class="mt-1 text-sm text-slate-500">Try adjusting your filters to find notices.</p>
             </div>
         @else
         <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            @if(request('type') === 'ctevt')
+            @if(false)
                 @foreach($notices as $notice)
                 <div class="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150">
                     {{-- Icon --}}
