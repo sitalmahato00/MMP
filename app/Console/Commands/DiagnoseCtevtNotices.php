@@ -24,6 +24,9 @@ class DiagnoseCtevtNotices extends Command
         $this->checkConfiguration();
         $this->newLine();
 
+        $this->checkDatabaseStatus();
+        $this->newLine();
+
         $this->checkCacheStatus();
         $this->newLine();
 
@@ -68,6 +71,31 @@ class DiagnoseCtevtNotices extends Command
         $this->line("  Feed URL: {$feedUrl}");
         $this->line("  General URL: {$generalUrl}");
         $this->line("  Result URL: {$resultUrl}");
+    }
+
+    private function checkDatabaseStatus(): void
+    {
+        $this->info('🗄️  Database Fallback Status:');
+
+        $generalCount = \App\Models\CtevtNotice::where('type', 'general')->count();
+        $resultCount = \App\Models\CtevtNotice::where('type', 'result')->count();
+
+        $this->line("  General Notices: {$generalCount} stored");
+        $this->line("  Result Notices: {$resultCount} stored");
+
+        if ($generalCount > 0) {
+            $latestGeneral = \App\Models\CtevtNotice::where('type', 'general')->latest('fetched_at')->first();
+            $this->line("  Latest General: " . $latestGeneral->fetched_at->diffForHumans());
+        }
+
+        if ($resultCount > 0) {
+            $latestResult = \App\Models\CtevtNotice::where('type', 'result')->latest('fetched_at')->first();
+            $this->line("  Latest Result: " . $latestResult->fetched_at->diffForHumans());
+        }
+
+        if ($generalCount === 0 && $resultCount === 0) {
+            $this->warn("  ⚠️  No notices in database. Run 'php artisan ctevt:fetch-notices' to populate.");
+        }
     }
 
     private function checkCacheStatus(): void

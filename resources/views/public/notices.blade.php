@@ -52,10 +52,19 @@
                         </div>
                     </a>
                 @empty
-                    <div class="py-16 text-center">
-                        <p class="text-4xl mb-4">📋</p>
-                        <p class="font-semibold text-gray-500">No CTEVT general notices found.</p>
-                    </div>
+                    @php $ctevtGeneralState = $ctevtGeneralNotices['source_state'] ?? 'unavailable'; @endphp
+                    @if($ctevtGeneralState === 'cached')
+                        <div class="py-16 text-center">
+                            <p class="text-4xl mb-4">📦</p>
+                            <p class="font-semibold text-amber-600 mb-2">Showing Cached Notices</p>
+                            <p class="text-sm text-gray-500">Live API unavailable, displaying stored notices</p>
+                        </div>
+                    @else
+                        <div class="py-16 text-center">
+                            <p class="text-4xl mb-4">📋</p>
+                            <p class="font-semibold text-gray-500">No CTEVT general notices found.</p>
+                        </div>
+                    @endif
                 @endforelse
             </div>
 
@@ -73,10 +82,19 @@
                         </div>
                     </a>
                 @empty
-                    <div class="py-16 text-center">
-                        <p class="text-4xl mb-4">📋</p>
-                        <p class="font-semibold text-gray-500">No CTEVT result notices found.</p>
-                    </div>
+                    @php $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable'; @endphp
+                    @if($ctevtResultState === 'cached')
+                        <div class="py-16 text-center">
+                            <p class="text-4xl mb-4">📦</p>
+                            <p class="font-semibold text-amber-600 mb-2">Showing Cached Notices</p>
+                            <p class="text-sm text-gray-500">Live API unavailable, displaying stored notices</p>
+                        </div>
+                    @else
+                        <div class="py-16 text-center">
+                            <p class="text-4xl mb-4">📋</p>
+                            <p class="font-semibold text-gray-500">No CTEVT result notices found.</p>
+                        </div>
+                    @endif
                 @endforelse
             </div>
         @else

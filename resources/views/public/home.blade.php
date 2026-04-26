@@ -289,6 +289,10 @@
             @php
                 $ctevtGeneralItems = collect($ctevtGeneralNotices['items'] ?? []);
                 $ctevtResultItems = collect($ctevtResultNotices['items'] ?? []);
+                $ctevtGeneralState = $ctevtGeneralNotices['source_state'] ?? 'unavailable';
+                $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable';
+                $ctevtGeneralPageUrl = $ctevtGeneralNotices['page_url'] ?? 'https://itms.ctevt.org.np:5580/notices';
+                $ctevtResultPageUrl = $ctevtResultNotices['page_url'] ?? 'https://itms.ctevt.org.np:5580/notices/result';
             @endphp
             <div class="dashboard-card flex flex-col min-h-[520px] h-[520px] hover:shadow-xl transition-shadow duration-300" x-data="{ activeNoticeTab: 'general', activeCtevtTab: 'general' }">
                 <div class="flex">
@@ -433,7 +437,25 @@
                                     </a>
                                 </li>
                             @empty
-                                <li class="px-4 py-8 text-center text-gray-500 dark:text-slate-400 text-sm">No live CTEVT general notices found.</li>
+                                <li class="px-4 py-8 text-center">
+                                    @if($ctevtGeneralState === 'unavailable')
+                                        <div class="flex flex-col items-center gap-3">
+                                            <svg class="w-12 h-12 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">CTEVT API Temporarily Unavailable</p>
+                                                <p class="text-xs text-gray-500 dark:text-slate-400 mb-3">Unable to fetch live notices from CTEVT server</p>
+                                                <a href="{{ $ctevtGeneralPageUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-[#003D82] text-white text-xs font-semibold rounded hover:bg-[#002a5c] transition-colors">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                    Visit CTEVT Website
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <p class="text-sm text-gray-500 dark:text-slate-400">No live CTEVT general notices found.</p>
+                                    @endif
+                                </li>
                             @endforelse
                         </ul>
 
@@ -462,7 +484,25 @@
                                     </a>
                                 </li>
                             @empty
-                                <li class="px-4 py-8 text-center text-gray-500 dark:text-slate-400 text-sm">No live CTEVT result notices found.</li>
+                                <li class="px-4 py-8 text-center">
+                                    @if($ctevtResultState === 'unavailable')
+                                        <div class="flex flex-col items-center gap-3">
+                                            <svg class="w-12 h-12 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">CTEVT API Temporarily Unavailable</p>
+                                                <p class="text-xs text-gray-500 dark:text-slate-400 mb-3">Unable to fetch live results from CTEVT server</p>
+                                                <a href="{{ $ctevtResultPageUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-[#003D82] text-white text-xs font-semibold rounded hover:bg-[#002a5c] transition-colors">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                    Visit CTEVT Website
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <p class="text-sm text-gray-500 dark:text-slate-400">No live CTEVT result notices found.</p>
+                                    @endif
+                                </li>
                             @endforelse
                         </ul>
                     </div>

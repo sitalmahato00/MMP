@@ -306,7 +306,15 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                                 @endif
                             </a>
                         @empty
-                            <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
+                            @php $ctevtState = $ctevtGeneralNotices['source_state'] ?? 'unavailable'; @endphp
+                            @if($ctevtState === 'cached')
+                                <div class="py-6 px-4 text-center">
+                                    <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
+                                    <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
+                                </div>
+                            @else
+                                <p class="py-8 text-center text-xs text-slate-400">No general notices available.</p>
+                            @endif
                         @endforelse
                     </div>
 
@@ -322,7 +330,15 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                                 @endif
                             </a>
                         @empty
-                            <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
+                            @php $ctevtResultState = $ctevtResultNotices['source_state'] ?? 'unavailable'; @endphp
+                            @if($ctevtResultState === 'cached')
+                                <div class="py-6 px-4 text-center">
+                                    <p class="text-xs font-medium text-amber-600 mb-1">📦 Showing Cached Notices</p>
+                                    <p class="text-[10px] text-slate-400">Live API unavailable, displaying stored notices</p>
+                                </div>
+                            @else
+                                <p class="py-8 text-center text-xs text-slate-400">No result notices available.</p>
+                            @endif
                         @endforelse
                     </div>
                 </div>

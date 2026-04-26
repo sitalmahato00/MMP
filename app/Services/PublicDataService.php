@@ -634,12 +634,15 @@ class PublicDataService
         $feedKey = 'public:ctevt_notices:' . ($isResult ? 'result' : 'general') . ':' . $limit;
 
         return Cache::remember($feedKey, 600, function () use ($isResult, $limit) {
-            $feedUrl = config('services.ctevt_notice.feed_url', 'https://itms.ctevt.org.np:5580/notices/get-ajax-notices');
+            $type = $isResult ? 'result' : 'general';
             $pageUrl = $isResult
                 ? config('services.ctevt_notice.result_url', 'https://itms.ctevt.org.np:5580/notices/result')
                 : config('services.ctevt_notice.general_url', 'https://itms.ctevt.org.np:5580/notices');
             
+            // Try to fetch from API first
             try {
+                $feedUrl = config('services.ctevt_notice.feed_url', 'https://itms.ctevt.org.np:5580/notices/get-ajax-notices');
+                
                 $response = Http::timeout(30)
                     ->retry(3, 1000)
                     ->withoutVerifying()
@@ -650,55 +653,76 @@ class PublicDataService
                     ])
                     ->get($feedUrl, $this->buildCtevtNoticeFeedParams($isResult, $limit));
 
-                if (! $response->successful()) {
-                    return [
-                        'source' => $isResult ? 'result' : 'general',
-                        'source_state' => 'unavailable',
-                        'page_url' => $pageUrl,
-                        'items' => [],
-                    ];
+                if ($response->successful()) {
+                    $payload = $response->json();
+
+                    if (is_array($payload) && isset($payload['data']) && is_array($payload['data'])) {
+                        $items = collect($payload['data'])
+                            ->map(fn (array $row, int $index) => $this->mapCtevtNoticeRow($row, $index, $isResult))
+                            ->filter()
+                            ->values()
+                            ->all();
+
+                        return [
+                            'source' => $type,
+                            'source_state' => 'live',
+                            'title' => $isResult ? 'Published Result' : 'General Notices',
+                            'page_url' => $pageUrl,
+                            'records_total' => (int) ($payload['recordsTotal'] ?? count($items)),
+                            'items' => $items,
+                        ];
+                    }
                 }
-
-                $payload = $response->json();
-
-                if (! is_array($payload) || ! isset($payload['data']) || ! is_array($payload['data'])) {
-                    return [
-                        'source' => $isResult ? 'result' : 'general',
-                        'source_state' => 'empty',
-                        'page_url' => $pageUrl,
-                        'items' => [],
-                    ];
-                }
-
-                $items = collect($payload['data'])
-                    ->map(fn (array $row, int $index) => $this->mapCtevtNoticeRow($row, $index, $isResult))
-                    ->filter()
-                    ->values()
-                    ->all();
-
-                return [
-                    'source' => $isResult ? 'result' : 'general',
-                    'source_state' => 'live',
-                    'title' => $isResult ? 'Published Result' : 'General Notices',
-                    'page_url' => $pageUrl,
-                    'records_total' => (int) ($payload['recordsTotal'] ?? count($items)),
-                    'items' => $items,
-                ];
             } catch (\Exception $e) {
-                // Log the error for debugging but don't crash the page
-                \Log::warning('CTEVT API timeout or connection error', [
-                    'type' => $isResult ? 'result' : 'general',
+                \Log::warning('CTEVT API connection error, falling back to database', [
+                    'type' => $type,
                     'error' => $e->getMessage(),
                 ]);
-                
-                return [
-                    'source' => $isResult ? 'result' : 'general',
-                    'source_state' => 'unavailable',
-                    'page_url' => $pageUrl,
-                    'items' => [],
-                ];
             }
+            
+            // Fallback to database if API fails
+            return $this->getCtevtNoticesFromDatabase($type, $limit, $pageUrl);
         });
+    }
+
+    private function getCtevtNoticesFromDatabase(string $type, int $limit, string $pageUrl): array
+    {
+        $notices = \App\Models\CtevtNotice::where('type', $type)
+            ->latest('fetched_at')
+            ->limit($limit)
+            ->get();
+
+        if ($notices->isEmpty()) {
+            return [
+                'source' => $type,
+                'source_state' => 'unavailable',
+                'page_url' => $pageUrl,
+                'items' => [],
+            ];
+        }
+
+        $items = $notices->map(function ($notice) {
+            return [
+                'notice_cd' => $notice->external_id,
+                'serial_no' => $notice->id,
+                'title' => $notice->title,
+                'url' => $notice->url,
+                'updated_date' => $notice->updated_date,
+                'publisher' => $notice->publisher,
+                'files' => [],
+                'files_count' => $notice->files_count,
+                'source' => $notice->type,
+            ];
+        })->toArray();
+
+        return [
+            'source' => $type,
+            'source_state' => 'cached',
+            'title' => $type === 'result' ? 'Published Result' : 'General Notices',
+            'page_url' => $pageUrl,
+            'records_total' => $notices->count(),
+            'items' => $items,
+        ];
     }
 
     private function buildCtevtNoticeFeedParams(bool $isResult, int $limit): array
