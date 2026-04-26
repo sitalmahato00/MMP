@@ -12,6 +12,20 @@
     width: 100%;
   }
 }
+
+/* Make table action buttons always visible on mobile devices */
+@media (max-width: 1024px) {
+  /* Force action buttons to be visible on mobile/tablet */
+  .opacity-0.group-hover\:opacity-100,
+  .opacity-0.group-hover\:opacity-100.transition-opacity {
+    opacity: 1 !important;
+  }
+  
+  /* Also handle translate animations on mobile */
+  .translate-y-2.group-hover\:translate-y-0 {
+    transform: translateY(0) !important;
+  }
+}
 /* Fix: Ensure hero image is visible in dark mode on public page */
 html.dark .hero-section img {
   opacity: 1 !important;
