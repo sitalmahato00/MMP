@@ -37,7 +37,7 @@
                         <div class="rounded-lg border border-slate-200 p-4">
                             <div class="flex items-start gap-4">
                                 @if($president->avatar)
-                                    <img src="{{ Storage::url($president->avatar) }}" alt="{{ $president->name }}" class="h-16 w-16 rounded-lg object-cover">
+                                    <img src="{{ Storage::disk('public')->url($president->avatar) }}" alt="{{ $president->name }}" class="h-16 w-16 rounded-lg object-cover">
                                 @else
                                     <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-100">
                                         <svg class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,7 +105,7 @@
                         <div class="rounded-lg border border-slate-200 p-4">
                             <div class="flex items-start gap-4">
                                 @if($principal->avatar)
-                                    <img src="{{ Storage::url($principal->avatar) }}" alt="{{ $principal->name }}" class="h-16 w-16 rounded-lg object-cover">
+                                    <img src="{{ Storage::disk('public')->url($principal->avatar) }}" alt="{{ $principal->name }}" class="h-16 w-16 rounded-lg object-cover">
                                 @else
                                     <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-100">
                                         <svg class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -201,7 +201,7 @@
                                 <div x-show="selectedExec === {{ $exec->id }} && selectedType === 'president'">
                                     <div class="flex items-center gap-4 mb-6">
                                         @if($exec->avatar)
-                                            <img src="{{ Storage::url($exec->avatar) }}" alt="{{ $exec->name }}"
+                                            <img src="{{ Storage::disk('public')->url($exec->avatar) }}" alt="{{ $exec->name }}"
                                                  class="w-20 h-20 rounded-lg object-cover ring-4 ring-white shadow-lg">
                                         @else
                                             <div class="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-100 ring-4 ring-white shadow-lg">
@@ -253,7 +253,7 @@
                                 <div x-show="selectedExec === {{ $exec->id }} && selectedType === 'principal'">
                                     <div class="flex items-center gap-4 mb-6">
                                         @if($exec->avatar)
-                                            <img src="{{ Storage::url($exec->avatar) }}" alt="{{ $exec->name }}"
+                                            <img src="{{ Storage::disk('public')->url($exec->avatar) }}" alt="{{ $exec->name }}"
                                                  class="w-20 h-20 rounded-lg object-cover ring-4 ring-white shadow-lg">
                                         @else
                                             <div class="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-100 ring-4 ring-white shadow-lg">

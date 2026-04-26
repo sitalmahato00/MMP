@@ -21,8 +21,7 @@
     </div>
 </div>
 
-<form method="POST" action="{{ route('admin.teachers.update', $teacher) }}" enctype="multipart/form-data" class="space-y-5" 
-      x-data="{ designation: '{{ old('designation', $teacher->designation) }}' }">
+<form method="POST" action="{{ route('admin.teachers.update', $teacher) }}" enctype="multipart/form-data" class="space-y-5">
     @csrf @method('PUT')
 
     @if($errors->any())
@@ -138,17 +137,12 @@
             <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">Department <span class="text-red-500">*</span></label>
                 <select name="department_id" required
-                        :disabled="designation === 'HOD'"
-                        class="w-full rounded-xl border px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition"
-                        x-bind:class="designation === 'HOD' ? 'bg-slate-100 cursor-not-allowed opacity-60' : 'border-slate-200 bg-slate-50'">
-                    <option value="" x-text="designation === 'HOD' ? 'Assigned from Department page' : 'Select Department'"></option>
+                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
+                    <option value="">Select Department</option>
                     @foreach($departments as $dept)
                     <option value="{{ $dept->id }}" {{ old('department_id', $teacher->department_id) == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
                     @endforeach
                 </select>
-                <p class="mt-1 text-xs text-slate-500" x-show="designation === 'HOD'" x-cloak>
-                    HOD department is assigned from the Department management page
-                </p>
                 @error('department_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
@@ -163,12 +157,10 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">Designation <span class="text-red-500">*</span></label>
-                <select name="designation" required x-model="designation"
-                        class="w-full rounded-xl border {{ $errors->has('designation') ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50' }} px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
-                    <option value="">Select Designation</option>
-                    <option value="Teacher" {{ old('designation', $teacher->designation) === 'Teacher' ? 'selected' : '' }}>Teacher</option>
-                    <option value="HOD" {{ old('designation', $teacher->designation) === 'HOD' ? 'selected' : '' }}>Head of Department (HOD)</option>
-                </select>
+                <input type="text" name="designation" value="Teacher" readonly
+                       class="w-full rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-sm text-slate-600 cursor-not-allowed"
+                       placeholder="Teacher"/>
+                <p class="mt-1 text-xs text-slate-500">HODs are managed separately through the HOD management interface</p>
                 @error('designation')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 

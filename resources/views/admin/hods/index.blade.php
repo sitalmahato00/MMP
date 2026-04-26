@@ -307,77 +307,77 @@
         {{ $hods->links() }}
     </div>
     @endif
-</div>
+</div>{{-- /card view --}}
 
-{{-- Table View --}}
-<div x-show="view === 'table'" x-cloak>
-<x-data-table :paginator="$hods">
-    <x-slot name="head">
-        <tr>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-10">#</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">HOD</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Department</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Joined</th>
-            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Actions</th>
-        </tr>
-    </x-slot>
+    {{-- Table View --}}
+    <div x-show="view === 'table'" x-cloak>
+        <x-data-table :paginator="$hods">
+            <x-slot name="head">
+                <tr>
+                    <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-10">#</th>
+                    <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">HOD</th>
+                    <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Department</th>
+                    <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
+                    <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Actions</th>
+                </tr>
+            </x-slot>
 
-    @forelse($hods as $hod)
-    <tr class="hover:bg-gray-50/70 transition-colors">
-        <td class="px-5 py-3.5 text-gray-400 font-mono text-xs">{{ $hod->id }}</td>
-        <td class="px-5 py-3.5">
-            <div class="flex items-center gap-3">
-                <img src="{{ $hod->avatar_url }}" alt="{{ $hod->name }}"
-                     class="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100 flex-shrink-0">
-                <div class="min-w-0">
-                    <p class="font-semibold text-gray-900 truncate">{{ $hod->name }}</p>
-                    <p class="text-xs text-gray-400 truncate">{{ $hod->email }}</p>
-                </div>
-            </div>
-        </td>
-        <td class="px-5 py-3.5">
-            @if($hod->hodDepartment)
-                <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            @forelse($hods as $hod)
+            <tr class="hover:bg-gray-50/70 transition-colors">
+                <td class="px-5 py-3.5 text-gray-400 font-mono text-xs">{{ $hod->id }}</td>
+                <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ $hod->avatar_url }}" alt="{{ $hod->name }}"
+                             class="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100 flex-shrink-0">
+                        <div class="min-w-0">
+                            <p class="font-semibold text-gray-900 truncate">{{ $hod->name }}</p>
+                            <p class="text-xs text-gray-400 truncate">{{ $hod->email }}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-5 py-3.5">
+                    @if($hod->hodDepartment)
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-900">{{ $hod->hodDepartment->name }}</span>
+                        </div>
+                    @else
+                        <span class="text-xs text-gray-400 italic">Not assigned</span>
+                    @endif
+                </td>
+                <td class="px-5 py-3.5 text-gray-500 text-xs">{{ $hod->phone ?? '—' }}</td>
+                <td class="px-5 py-3.5">
+                    <x-badge :color="$hod->is_active ? 'green' : 'red'" :dot="true">
+                        {{ $hod->is_active ? 'Active' : 'Inactive' }}
+                    </x-badge>
+                </td>
+                <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ bsDate($hod->created_at, 'Y, F d') }}</td>
+                <td class="px-5 py-3.5">
+                    <x-table-actions
+                        :show="route('admin.hods.show', $hod)"
+                        :edit="route('admin.hods.edit', $hod)"
+                        :destroy="$hod->id !== auth()->id() ? route('admin.hods.destroy', $hod) : null"
+                        name="{{ $hod->name }}"
+                    />
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="7" class="px-5 py-14 text-center">
+                    <svg class="mx-auto w-10 h-10 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
-                    <span class="text-sm font-medium text-gray-900">{{ $hod->hodDepartment->name }}</span>
-                </div>
-            @else
-                <span class="text-xs text-gray-400 italic">Not assigned</span>
-            @endif
-        </td>
-        <td class="px-5 py-3.5 text-gray-500 text-xs">{{ $hod->phone ?? '—' }}</td>
-        <td class="px-5 py-3.5">
-            <x-badge :color="$hod->is_active ? 'green' : 'red'" :dot="true">
-                {{ $hod->is_active ? 'Active' : 'Inactive' }}
-            </x-badge>
-        </td>
-        <td class="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{{ bsDate($hod->created_at, 'Y, F d') }}</td>
-        <td class="px-5 py-3.5">
-            <x-table-actions
-                :show="route('admin.hods.show', $hod)"
-                :edit="route('admin.hods.edit', $hod)"
-                :destroy="$hod->id !== auth()->id() ? route('admin.hods.destroy', $hod) : null"
-                name="{{ $hod->name }}"
-            />
-        </td>
-    </tr>
-    @empty
-    <tr>
-        <td colspan="7" class="px-5 py-14 text-center">
-            <svg class="mx-auto w-10 h-10 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-            <p class="text-sm font-semibold text-gray-400">No HODs found</p>
-            <p class="text-xs text-gray-300 mt-1">Try adjusting your search or filters.</p>
-        </td>
-    </tr>
-    @endforelse
-</x-data-table>
-</div>
+                    <p class="text-sm font-semibold text-gray-400">No HODs found</p>
+                    <p class="text-xs text-gray-300 mt-1">Try adjusting your search or filters.</p>
+                </td>
+            </tr>
+            @endforelse
+        </x-data-table>
+    </div>
 
 </div>{{-- /panel --}}
 

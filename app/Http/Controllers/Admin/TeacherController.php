@@ -25,6 +25,13 @@ class TeacherController extends Controller
         $query = Teacher::query()
             ->with(['user:id,name,email,avatar', 'department:id,name'])
             ->withCount('subjects')
+            // Exclude HODs from teachers list - check both role and designation
+            ->where('designation', '!=', 'HOD')
+            ->whereDoesntHave('user', function($q) {
+                $q->whereHas('roles', function($r) {
+                    $r->where('name', 'hod');
+                });
+            })
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
                 $q->where(function ($inner) use ($term) {
@@ -76,13 +83,19 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
         );
 
         // KPIs
-        $totalTeachers  = Teacher::count();
-        $activeTeachers = Teacher::where('is_active', true)->count();
+        $totalTeachers  = Teacher::where('designation', '!=', 'HOD')->count();
+        $activeTeachers = Teacher::where('is_active', true)->where('designation', '!=', 'HOD')->count();
         $hodCount       = Teacher::where('designation', 'HOD')->count();
-        $totalSubjects  = DB::table('subject_teacher')->distinct()->count('subject_id');
+        $totalSubjects  = DB::table('subject_teacher')
+            ->join('teachers', 'teachers.id', '=', 'subject_teacher.teacher_id')
+            ->where('teachers.designation', '!=', 'HOD')
+            ->distinct()
+            ->count('subject_id');
         $sessionsMonth  = DB::table('attendance_sessions')
-            ->whereYear('date', now()->year)
-            ->whereMonth('date', now()->month)
+            ->join('teachers', 'teachers.id', '=', 'attendance_sessions.teacher_id')
+            ->where('teachers.designation', '!=', 'HOD')
+            ->whereYear('attendance_sessions.date', now()->year)
+            ->whereMonth('attendance_sessions.date', now()->month)
             ->count();
         $avgSessions = $totalTeachers > 0 ? round($sessionsMonth / $totalTeachers, 1) : 0;
 
@@ -115,7 +128,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'password'        => 'required|string|min:8|confirmed',
             'department_id'   => 'nullable|exists:departments,id',
             'employee_id'     => 'nullable|string|max:50|unique:teachers,employee_id',
-            'designation'     => 'nullable|in:Teacher,HOD',
+            'designation'     => 'nullable|in:Teacher',
             'qualification'   => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
             'join_date'       => 'nullable|string|max:12',
@@ -141,20 +154,15 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
                 'is_active' => true,
             ]);
             
-            // Assign role based on designation
-            $designation = $data['designation'] ?? 'Teacher';
-            if ($designation === 'HOD') {
-                $user->assignRole('hod');
-            } else {
-                $user->assignRole('teacher');
-            }
+            // Only assign teacher role (HODs are managed separately)
+            $user->assignRole('teacher');
             $createdUser = $user;
 
             Teacher::create([
                 'user_id'         => $user->id,
-                'department_id'   => $designation === 'HOD' ? null : $data['department_id'],
+                'department_id'   => $data['department_id'],
                 'employee_id'     => $data['employee_id'] ?? null,
-                'designation'     => $designation,
+                'designation'     => 'Teacher',
                 'qualification'   => $data['qualification'] ?? null,
                 'specialization'  => $data['specialization'] ?? null,
                 'join_date'       => NepaliDateHelper::toAD($data['join_date'] ?? null),
@@ -191,6 +199,12 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
     // ── Update ─────────────────────────────────────────────────────────────
     public function update(Request $request, Teacher $teacher)
     {
+        // Prevent updating HODs through teacher interface
+        if ($teacher->designation === 'HOD' || $teacher->user->hasRole('hod')) {
+            return redirect()->route('admin.teachers.index')
+                ->with('error', 'HODs must be managed through the HOD management interface.');
+        }
+
         $data = $request->validate([
             'name'            => 'required|string|max:255',
             'email'           => ['required', 'email', Rule::unique('users')->ignore($teacher->user_id)],
@@ -201,7 +215,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'avatar'          => 'nullable|image|max:2048',
             'department_id'   => 'nullable|exists:departments,id',
             'employee_id'     => ['nullable', 'string', 'max:50', Rule::unique('teachers', 'employee_id')->ignore($teacher->id)],
-            'designation'     => 'nullable|in:Teacher,HOD',
+            'designation'     => 'nullable|in:Teacher',
             'qualification'   => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
             'join_date'       => 'nullable|string|max:12',
@@ -232,11 +246,10 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'gender'  => $data['gender'] ?? null,
         ]);
 
-        $designation = $data['designation'] ?? 'Teacher';
         $teacher->update([
-            'department_id'   => $designation === 'HOD' ? null : $data['department_id'],
+            'department_id'   => $data['department_id'],
             'employee_id'     => $data['employee_id'] ?? null,
-            'designation'     => $designation,
+            'designation'     => 'Teacher',
             'qualification'   => $data['qualification'] ?? null,
             'specialization'  => $data['specialization'] ?? null,
             'join_date'       => NepaliDateHelper::toAD($data['join_date'] ?? null),
@@ -244,18 +257,9 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'is_active'       => $request->boolean('is_active', true),
         ]);
 
-        // Update role based on designation
-        $teacher->user->syncRoles([]); // Remove all roles first
-        if ($designation === 'HOD') {
-            $teacher->user->assignRole('hod');
-        } else {
-            $teacher->user->assignRole('teacher');
-        }
-
-        // If the current logged-in user is updating their own role, refresh their session
-        if (auth()->id() === $teacher->user_id) {
-            auth()->logout();
-            return redirect()->route('login')->with('success', 'Your role has been updated. Please login again.');
+        // Ensure teacher role is assigned
+        if (!$teacher->user->hasRole('teacher')) {
+            $teacher->user->syncRoles(['teacher']);
         }
 
         AuditLog::log('teacher.updated', $teacher);
@@ -266,6 +270,12 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
     // ── Destroy ────────────────────────────────────────────────────────────
     public function destroy(Teacher $teacher)
     {
+        // Prevent deleting HODs through teacher interface
+        if ($teacher->designation === 'HOD' || $teacher->user->hasRole('hod')) {
+            return redirect()->route('admin.teachers.index')
+                ->with('error', 'HODs must be managed through the HOD management interface.');
+        }
+
         if ($teacher->user->avatar && Storage::disk('public')->exists($teacher->user->avatar)) {
             Storage::disk('public')->delete($teacher->user->avatar);
         }
@@ -289,18 +299,19 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
         $request->validate([
             'ids'    => ['required', 'array', 'min:1', 'max:200'],
             'ids.*'  => ['integer', 'exists:teachers,id'],
-            'action' => ['required', 'in:activate,deactivate,set_hod,set_teacher'],
+            'action' => ['required', 'in:activate,deactivate'],
         ]);
 
         $count = 0;
         DB::transaction(function () use ($request, &$count) {
-            $teachers = Teacher::whereIn('id', $request->ids)->get();
+            $teachers = Teacher::whereIn('id', $request->ids)
+                ->where('designation', '!=', 'HOD')
+                ->get();
+            
             foreach ($teachers as $teacher) {
                 match ($request->action) {
                     'activate'        => $teacher->update(['is_active' => true]),
                     'deactivate'      => $teacher->update(['is_active' => false]),
-                    'set_hod'         => $teacher->update(['designation' => 'HOD']),
-                    'set_teacher'     => $teacher->update(['designation' => 'Teacher']),
                 };
                 AuditLog::log('teacher.bulk_' . $request->action, $teacher);
                 $count++;

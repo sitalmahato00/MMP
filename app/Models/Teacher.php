@@ -72,6 +72,21 @@ class Teacher extends Model
         return $query->where('department_id', $departmentId);
     }
 
+    public function scopeExcludeHods($query)
+    {
+        return $query->where('designation', '!=', 'HOD')
+            ->whereDoesntHave('user', function($q) {
+                $q->whereHas('roles', function($r) {
+                    $r->where('name', 'hod');
+                });
+            });
+    }
+
+    public function scopeOnlyTeachers($query)
+    {
+        return $query->excludeHods();
+    }
+
     // ─── Helpers ───────────────────────────────────────────
 
     public function getFullNameAttribute(): string

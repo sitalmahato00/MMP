@@ -136,12 +136,6 @@
             <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
             @endforeach
         </select>
-        <select name="designation" class="rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
-            <option value="">All Roles</option>
-            <option value="Teacher"     {{ request('designation') === 'Teacher'     ? 'selected' : '' }}>Teacher</option>
-            <option value="HOD"         {{ request('designation') === 'HOD'         ? 'selected' : '' }}>HOD</option>
-            <option value="Coordinator" {{ request('designation') === 'Coordinator' ? 'selected' : '' }}>Coordinator</option>
-        </select>
         <select name="employment_type" class="rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
             <option value="">All Types</option>
             <option value="permanent" {{ request('employment_type') === 'permanent' ? 'selected' : '' }}>Permanent</option>
@@ -177,9 +171,6 @@
                     <span class="text-sm font-bold text-slate-800" x-text="selected.length + ' selected'"></span>
                     <button type="button" @click="confirmBulk('activate')"      class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition">Activate</button>
                     <button type="button" @click="confirmBulk('deactivate')"    class="rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition">Deactivate</button>
-                    <button type="button" @click="confirmBulk('set_hod')"       class="rounded-lg border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-700 hover:bg-purple-100 transition">Make HOD</button>
-                    <button type="button" @click="confirmBulk('set_coordinator')" class="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition">Make Coordinator</button>
-                    <button type="button" @click="confirmBulk('set_teacher')"   class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Set Teacher</button>
                     <button type="button" @click="selected = []"                class="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition">Clear</button>
                 </div>
             </template>
