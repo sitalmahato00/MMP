@@ -156,84 +156,47 @@
             </div>
         </div>
 
-        {{-- Today's Classes Schedule with Attendance --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        {{-- Recent Notices with Tabs --}}
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeTab: 'department' }">
             <div class="border-b border-slate-100 px-4 sm:px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Today's Classes & Attendance</h2>
-                <p class="text-xs text-slate-500">{{ bsDate(now(), 'Y F d, l') }} - Class schedule with attendance status</p>
+                <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
+                <p class="text-xs text-slate-500">Department announcements</p>
+                
+                {{-- Notice Tabs --}}
+                <div class="mt-3 flex space-x-1 rounded-lg bg-slate-100 p-1">
+                    <button @click="activeTab = 'department'" 
+                            :class="activeTab === 'department' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
+                        Department
+                    </button>
+                </div>
             </div>
-            <div class="p-4 sm:p-5">
-                @if($chartData['todayClasses']->count() > 0)
-                    <div class="space-y-3 max-h-64 sm:max-h-80 overflow-y-auto">
-                        @foreach($chartData['todayClasses'] as $class)
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                        <span class="text-sm font-semibold text-slate-900">{{ $class['subject'] }}</span>
-                                        <span class="text-xs text-slate-500">({{ $class['subject_code'] }})</span>
-                                        @if($class['type'] !== 'Theory')
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                                                {{ $class['type'] }}
-                                            </span>
-                                        @endif
-                                        {{-- Attendance Status Badge --}}
-                                        @if($class['attendance_marked'])
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
-                                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
-                                                </svg>
-                                                Attendance Marked
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/>
-                                                </svg>
-                                                Pending
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <p class="text-xs text-slate-600 mt-0.5">{{ $class['teacher'] }}</p>
-                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
-                                        <p class="text-xs text-slate-500">{{ $class['program'] }}</p>
-                                        @if($class['room'])
-                                            <span class="text-xs text-slate-400">• Room {{ $class['room'] }}</span>
-                                        @endif
-                                    </div>
-                                    {{-- Attendance Details --}}
-                                    @if($class['attendance_marked'])
-                                        <div class="flex items-center gap-3 mt-2 text-xs">
-                                            <span class="text-slate-600">
-                                                <span class="font-medium text-emerald-600">{{ $class['present_count'] }}</span> Present
-                                            </span>
-                                            <span class="text-slate-600">
-                                                <span class="font-medium text-red-600">{{ $class['absent_count'] }}</span> Absent
-                                            </span>
-                                            <span class="text-slate-600">
-                                                Total: <span class="font-medium">{{ $class['total_students_marked'] }}</span>
-                                            </span>
-                                            <span class="text-slate-600">
-                                                Rate: <span class="font-medium text-blue-600">{{ $class['attendance_rate'] }}%</span>
-                                            </span>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="mt-2 sm:mt-0 sm:ml-3 flex-shrink-0">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {{ $class['time'] }}
-                                    </span>
-                                </div>
-                            </div>
-                        @endforeach
+            
+            {{-- Department Notices --}}
+            <div x-show="activeTab === 'department'" class="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                @forelse($recentNotices as $notice)
+                    <div class="flex gap-3 px-4 sm:px-5 py-3.5 transition hover:bg-slate-50">
+                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
+                            <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
+                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}</p>
+                        </div>
+                        @if($department && $notice->department_id == $department->id)
+                            <span class="shrink-0 self-center rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">Dept</span>
+                        @endif
                     </div>
-                @else
-                    <div class="text-center py-8 sm:py-12">
+                @empty
+                    <div class="py-12 text-center">
                         <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <p class="mt-2 text-sm text-slate-400">No classes scheduled for today</p>
+                        <p class="mt-2 text-xs text-slate-400">No department notices</p>
                     </div>
-                @endif
+                @endforelse
             </div>
         </div>
     </section>
@@ -288,62 +251,95 @@
         </section>
     @endif
     
-    <section class="grid gap-5 lg:grid-cols-2">
-        {{-- Recent Notices with Tabs --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeTab: 'department' }">
-            <div class="border-b border-slate-100 px-5 py-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                        <p class="text-xs text-slate-500">Department announcements</p>
-                    </div>
+    {{-- Today's Classes & Attendance - Standalone Section --}}
+    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-5 py-4">
+            <h2 class="text-sm font-semibold text-slate-900">Today's Classes & Attendance</h2>
+            <p class="text-xs text-slate-500">{{ bsDate(now(), 'Y F d, l') }} - Class schedule with attendance status</p>
+        </div>
+        <div class="p-4 sm:p-5">
+            @if(isset($chartData) && $chartData['todayClasses']->count() > 0)
+                <div class="space-y-3 max-h-64 sm:max-h-80 overflow-y-auto">
+                    @foreach($chartData['todayClasses'] as $class)
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                    <span class="text-sm font-semibold text-slate-900">{{ $class['subject'] }}</span>
+                                    <span class="text-xs text-slate-500">({{ $class['subject_code'] }})</span>
+                                    @if($class['type'] !== 'Theory')
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                            {{ $class['type'] }}
+                                        </span>
+                                    @endif
+                                    {{-- Attendance Status Badge --}}
+                                    @if($class['attendance_marked'])
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
+                                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                            </svg>
+                                            Attendance Marked
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/>
+                                            </svg>
+                                            Pending
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-slate-600 mt-0.5">{{ $class['teacher'] }}</p>
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
+                                    <p class="text-xs text-slate-500">{{ $class['program'] }}</p>
+                                    @if($class['room'])
+                                        <span class="text-xs text-slate-400">• Room {{ $class['room'] }}</span>
+                                    @endif
+                                </div>
+                                {{-- Attendance Details --}}
+                                @if($class['attendance_marked'])
+                                    <div class="flex items-center gap-3 mt-2 text-xs">
+                                        <span class="text-slate-600">
+                                            <span class="font-medium text-emerald-600">{{ $class['present_count'] }}</span> Present
+                                        </span>
+                                        <span class="text-slate-600">
+                                            <span class="font-medium text-red-600">{{ $class['absent_count'] }}</span> Absent
+                                        </span>
+                                        <span class="text-slate-600">
+                                            Total: <span class="font-medium">{{ $class['total_students_marked'] }}</span>
+                                        </span>
+                                        <span class="text-slate-600">
+                                            Rate: <span class="font-medium text-blue-600">{{ $class['attendance_rate'] }}%</span>
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="mt-2 sm:mt-0 sm:ml-3 flex-shrink-0">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {{ $class['time'] }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                
-                {{-- Notice Tabs --}}
-                <div class="mt-3 flex space-x-1 rounded-lg bg-slate-100 p-1">
-                    <button @click="activeTab = 'department'" 
-                            :class="activeTab === 'department' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
-                        Department
-                    </button>
-                    </div>
-            </div>
-            
-            {{-- Department Notices --}}
-            <div x-show="activeTab === 'department'" class="divide-y divide-slate-100">
-                @forelse($recentNotices as $notice)
-                    <div class="flex gap-3 px-5 py-3.5 transition hover:bg-slate-50">
-                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
-                            <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
-                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}</p>
-                        </div>
-                        @if($department && $notice->department_id == $department->id)
-                            <span class="shrink-0 self-center rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">Dept</span>
-                        @endif
-                    </div>
-                @empty
-                    <div class="py-12 text-center">
-                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <p class="mt-2 text-xs text-slate-400">No department notices</p>
-                    </div>
-                @endforelse
-            </div>
-            
-            {{-- Quick Actions --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Quick Actions</h2>
-                <p class="text-xs text-slate-500">Common department tasks</p>
-            </div>
-            <div class="p-5">
-                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            @else
+                <div class="text-center py-8 sm:py-12">
+                    <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="mt-2 text-sm text-slate-400">No classes scheduled for today</p>
+                </div>
+            @endif
+        </div>
+    </section>
+    
+    {{-- Quick Actions - Separated into its own section --}}
+    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-5 py-4">
+            <h2 class="text-sm font-semibold text-slate-900">Quick Actions</h2>
+            <p class="text-xs text-slate-500">Common department tasks</p>
+        </div>
+        <div class="p-5">
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     @if($department)
                         <a href="{{ route('hod.students.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -491,7 +487,6 @@
                     @endif
                 </div>
             </div>
-        </div>
     </section>
 </div>
 
