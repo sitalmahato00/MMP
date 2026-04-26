@@ -245,7 +245,7 @@
         window.mmpAppShell = function () {
             return {
                 sidebarOpen: false,
-                sidebarCollapsed: localStorage.getItem('mmp.sidebar.collapsed') === '1',
+                sidebarCollapsed: false,
                 canInstall: false,
                 isStandalone: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
                 installDismissed: localStorage.getItem('mmp.install.dismissed.v2') === '1',
@@ -254,10 +254,6 @@
                 installHelpMessage: '',
                 installHelpTimer: null,
                 init() {
-                    this.$watch('sidebarCollapsed', (value) => {
-                        localStorage.setItem('mmp.sidebar.collapsed', value ? '1' : '0');
-                    });
-
                     if (window.mmpTheme) {
                         this.effectiveTheme = window.mmpTheme.applyTheme(localStorage.getItem('mmp.theme') || 'system');
                     }
