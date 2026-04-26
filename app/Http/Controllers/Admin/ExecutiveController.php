@@ -10,11 +10,31 @@ use Illuminate\Support\Facades\Storage;
 
 class ExecutiveController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $presidents = Executive::presidents()->get();
-        $principals = Executive::principals()->get();
-        return view('admin.executives.index', compact('presidents', 'principals'));
+        $query = Executive::query();
+
+        // Search filter
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('designation', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Type filter
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('is_current', $request->status === '1');
+        }
+
+        $executives = $query->orderBy('order')->paginate(15)->withQueryString();
+
+        return view('admin.executives.index', compact('executives'));
     }
 
     public function create()
