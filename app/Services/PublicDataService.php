@@ -108,7 +108,7 @@ class PublicDataService
         return Cache::remember("public:department:{$slug}", self::CACHE_TTL, function () use ($slug) {
             return Department::where('slug', $slug)
                 ->with(['programs:id,department_id,name,code,total_semesters,duration_years'])
-                ->with(['hod:id,name'])
+                ->with(['hod:id,name,avatar'])
                 ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity', 'hod_id']);
         });
     }

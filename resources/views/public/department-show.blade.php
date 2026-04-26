@@ -4,7 +4,13 @@
 
 @section('content')
 @php
-    $programIcons = ['??','??','??','??','???','??','??','??','??','??'];
+    $programIcons = [
+        '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
+        '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>',
+        '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>',
+        '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
+        '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>',
+    ];
 @endphp
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -44,14 +50,16 @@
             </div>
 
             {{-- Programs Section --}}
-            <div class="section-header" style="background-color: #003D82;">?? Programs Offered</div>
+            <div class="section-header" style="background-color: #003D82;">📚 Programs Offered</div>
 
             @forelse($department->programs as $program)
                 @php $icon = $programIcons[$loop->index % count($programIcons)]; @endphp
                 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                     <div class="p-6">
                         <div class="flex items-start gap-4">
-                            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100 text-3xl">{{ $icon }}</div>
+                            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100">
+                                {!! $icon !!}
+                            </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
@@ -104,7 +112,7 @@
                 </div>
             @empty
                 <div class="bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
-                    <div class="text-4xl mb-3">??</div>
+                    <div class="text-4xl mb-3">📚</div>
                     <p class="font-semibold text-gray-700">No programs listed yet.</p>
                     <p class="text-sm text-gray-500 mt-1">Program details will appear here once published.</p>
                 </div>
@@ -117,7 +125,9 @@
                     <div class="section-header" style="background-color: #003D82;">👨‍💼 Head of Department</div>
                     <div class="bg-white border border-gray-200 border-t-0 p-5">
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-full bg-blue-50 border-2 flex items-center justify-center text-3xl flex-shrink-0" style="border-color: #003D82;">?????</div>
+                            <div class="w-16 h-16 rounded-full bg-blue-50 border-2 flex items-center justify-center overflow-hidden flex-shrink-0" style="border-color: #003D82;">
+                                <img src="{{ $department->hod->avatar_url }}" alt="{{ $department->hod->name }}" class="w-full h-full object-cover">
+                            </div>
                             <div>
                                 <div class="font-bold text-gray-900">{{ $department->hod->name }}</div>
                                 <div class="text-sm text-blue-700">Head of Department</div>
