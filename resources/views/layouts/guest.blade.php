@@ -66,14 +66,16 @@
         $courseMenu = collect($publicCourses ?? []);
         $publicMobileNav = [
             ['label' => 'Home', 'href' => route('home'), 'icon' => 'home', 'active' => request()->routeIs('home')],
+            ['label' => 'Departments', 'href' => route('public.departments'), 'icon' => 'building', 'active' => request()->routeIs('public.departments') || request()->routeIs('public.department.show')],
             ['label' => 'Notices', 'href' => route('public.notices'), 'icon' => 'bell', 'active' => request()->routeIs('public.notices') || request()->routeIs('public.notice.show')],
-            ['label' => 'About', 'href' => route('public.page', 'what-is-mmp'), 'icon' => 'info', 'active' => request()->routeIs('public.page') && request()->route('slug') === 'what-is-mmp'],
+            ['label' => 'Gallery', 'href' => route('public.gallery'), 'icon' => 'photo', 'active' => request()->routeIs('public.gallery')],
             ['label' => 'Login', 'href' => route('login'), 'icon' => 'login', 'active' => request()->routeIs('login')],
         ];
         $publicIconPaths = [
             'home' => 'M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5.5v-6h-5v6H4a1 1 0 01-1-1v-9.5z',
+            'building' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
             'bell' => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
-            'info' => 'M13 16h-1v-4h-1m1-4h.01M12 21a9 9 0 100-18 9 9 0 000 18z',
+            'photo' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
             'login' => 'M15 3h3a2 2 0 012 2v14a2 2 0 01-2 2h-3M10 17l5-5-5-5M15 12H3',
         ];
     @endphp
@@ -180,6 +182,24 @@
                         News & Events
                     </a>
                     
+                    <div x-data="{ peopleOpen: false }">
+                        <button @click="peopleOpen = !peopleOpen" class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                People
+                            </span>
+                            <svg class="h-4 w-4 transition-transform" :class="peopleOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="peopleOpen" x-cloak class="ml-8 mt-1 space-y-1">
+                            <a href="{{ route('public.staff') }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Administrative Staff</a>
+                            <a href="{{ route('public.leadership') }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Presidents & Principals</a>
+                        </div>
+                    </div>
+                    
                     <div x-data="{ featuresOpen: false }">
                         <button @click="featuresOpen = !featuresOpen" class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
                             <span class="flex items-center gap-3">
@@ -220,6 +240,24 @@
                         Alumni
                     </a>
                     
+                    <div x-data="{ peopleOpen: false }">
+                        <button @click="peopleOpen = !peopleOpen" class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                                People
+                            </span>
+                            <svg class="h-4 w-4 transition-transform" :class="peopleOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="peopleOpen" x-cloak class="ml-8 mt-1 space-y-1">
+                            <a href="{{ route('public.staff') }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Administrative Staff</a>
+                            <a href="{{ route('public.leadership') }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Presidents & Principals</a>
+                        </div>
+                    </div>
+                    
                     <a href="{{ route('public.result') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 {{ request()->routeIs('public.result') ? 'bg-[#003D82] text-white dark:bg-[#003D82]' : '' }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -246,6 +284,13 @@
                             <a href="{{ route('public.question-bank') }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Question Bank</a>
                         </div>
                     </div>
+                    
+                    <a href="{{ route('public.contact') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 {{ request()->routeIs('public.contact') ? 'bg-[#003D82] text-white dark:bg-[#003D82]' : '' }}">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Contact Us
+                    </a>
                     
                     <a href="{{ route('login') }}" class="flex items-center gap-3 rounded-xl border-2 border-[#003D82] px-4 py-3 text-sm font-semibold text-[#003D82] transition hover:bg-[#003D82] hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-white">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
