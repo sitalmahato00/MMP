@@ -16,7 +16,7 @@
         </tr>
     </table>
 
-    <a href="{{ $actionUrl }}" style="display:inline-block;padding:13px 22px;border-radius:999px;background:#003d82;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">
-        {{ $actionLabel }}
+    <a href="{{ $actionUrl }}" style="display:inline-block;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,#003d82,#002a5c);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(0,61,130,0.3);transition:all 0.3s ease;">
+        {{ $actionLabel }} →
     </a>
 @endsection

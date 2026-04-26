@@ -22,6 +22,8 @@ class Department extends Model
         'seat_capacity' => 'integer',
     ];
 
+    protected $appends = ['photo_url'];
+
     // ─── Boot Method ───────────────────────────────────────
 
     protected static function boot()

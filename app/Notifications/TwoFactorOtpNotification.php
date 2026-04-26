@@ -28,15 +28,10 @@ class TwoFactorOtpNotification extends Notification
     {
         return (new MailMessage)
             ->subject('🔐 Your Login Verification Code')
-            ->greeting('Hello ' . $notifiable->name . '!')
-            ->line('Your two-factor authentication code is:')
-            ->line('## **' . $this->otp . '**')
-            ->line('This code will expire in **' . $this->expiryMinutes . ' minutes**.')
-            ->line('---')
-            ->line('🔒 **Security Notice:**')
-            ->line('If you did not attempt to log in, please ignore this email or contact support immediately if you have concerns about your account security.')
-            ->line('Never share this code with anyone. Our team will never ask for your verification code.')
-            ->salutation('Best regards,  
-' . config('app.name') . ' Team');
+            ->view('emails.auth.two-factor-otp', [
+                'user' => $notifiable,
+                'otp' => $this->otp,
+                'expiryMinutes' => $this->expiryMinutes,
+            ]);
     }
 }

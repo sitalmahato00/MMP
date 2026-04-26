@@ -60,8 +60,8 @@
             @foreach($departments as $index => $dept)
                 <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.12)]">
                     <div class="relative h-28">
-                        @if($dept->photo_url)
-                            <img src="{{ $dept->photo_url }}" alt="{{ $dept->name }}" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover">
+                        @if($dept->photo)
+                            <img src="{{ asset('storage/' . $dept->photo) }}" alt="{{ $dept->name }}" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover">
                         @else
                             <div class="absolute inset-0 {{ $gradients[$index % count($gradients)] }}"></div>
                         @endif

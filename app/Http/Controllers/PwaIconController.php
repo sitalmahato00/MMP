@@ -78,19 +78,41 @@ class PwaIconController extends Controller
             imagealphablending($newImage, false);
             imagesavealpha($newImage, true);
             
-            // Fill with transparent background
-            $transparent = imagecolorallocatealpha($newImage, 0, 0, 0, 127);
-            imagefill($newImage, 0, 0, $transparent);
+            // Fill with white background (for better visibility on all backgrounds)
+            $white = imagecolorallocate($newImage, 255, 255, 255);
+            imagefill($newImage, 0, 0, $white);
             
             // Get source dimensions
             $sourceWidth = imagesx($sourceImage);
             $sourceHeight = imagesy($sourceImage);
             
-            // Copy and resize
+            // Calculate dimensions with padding (15% padding on each side = 70% of target size)
+            $padding = (int)($size * 0.15);
+            $targetSize = $size - ($padding * 2);
+            
+            // Calculate aspect ratio
+            $aspectRatio = $sourceWidth / $sourceHeight;
+            
+            // Calculate new dimensions maintaining aspect ratio
+            if ($aspectRatio > 1) {
+                // Wider than tall
+                $newWidth = $targetSize;
+                $newHeight = (int)($targetSize / $aspectRatio);
+            } else {
+                // Taller than wide or square
+                $newHeight = $targetSize;
+                $newWidth = (int)($targetSize * $aspectRatio);
+            }
+            
+            // Center the image
+            $destX = (int)(($size - $newWidth) / 2);
+            $destY = (int)(($size - $newHeight) / 2);
+            
+            // Copy and resize with padding
             imagecopyresampled(
                 $newImage, $sourceImage,
-                0, 0, 0, 0,
-                $size, $size,
+                $destX, $destY, 0, 0,
+                $newWidth, $newHeight,
                 $sourceWidth, $sourceHeight
             );
 

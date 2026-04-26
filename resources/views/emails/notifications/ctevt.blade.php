@@ -13,7 +13,7 @@
         <p style="margin:0 0 22px;font-size:13px;color:#64748b;"><strong>Updated:</strong> {{ $updatedDate }}</p>
     @endif
 
-    <a href="{{ $actionUrl }}" style="display:inline-block;padding:13px 22px;border-radius:999px;background:#003d82;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">
-        {{ $actionLabel }}
+    <a href="{{ $actionUrl }}" style="display:inline-block;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(245,158,11,0.3);transition:all 0.3s ease;">
+        {{ $actionLabel }} →
     </a>
 @endsection
