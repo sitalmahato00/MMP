@@ -55,8 +55,6 @@ class DashboardController extends Controller
                 'department',
                 'session',
                 'recentNotices',
-                'ctevtGeneralNotices',
-                'ctevtResultNotices',
                 'greeting',
                 'lastUpdated'
             ));
@@ -126,8 +124,6 @@ class DashboardController extends Controller
             'department',
             'session',
             'recentNotices',
-            'ctevtGeneralNotices',
-            'ctevtResultNotices',
             'greeting',
             'lastUpdated'
         ));

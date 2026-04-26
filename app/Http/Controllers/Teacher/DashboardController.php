@@ -70,8 +70,6 @@ class DashboardController extends Controller
             'todayClasses',
             'myClasses',
             'notices',
-            'ctevtGeneralNotices',
-            'ctevtResultNotices',
             'attendanceData',
             'greeting'
         ));

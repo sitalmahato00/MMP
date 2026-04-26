@@ -53,8 +53,6 @@ class DashboardController extends Controller
             'student',
             'session',
             'notices',
-            'ctevtGeneralNotices',
-            'ctevtResultNotices',
             'kpiData',
             'chartData',
             'upcomingAssignments',

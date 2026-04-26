@@ -132,8 +132,6 @@ class DashboardController extends Controller
             'childrenSummaries',
             'session',
             'recentNotices',
-            'ctevtGeneralNotices',
-            'ctevtResultNotices',
             'greeting',
             'lastUpdated'
         ));
