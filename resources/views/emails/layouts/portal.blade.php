@@ -16,7 +16,7 @@
                         <td style="padding:36px 32px;background:linear-gradient(135deg,#003d82 0%,#002a5c 50%,#001f4d 100%);color:#ffffff;position:relative;">
                             <!-- Logo -->
                             <div style="margin-bottom:20px;text-align:center;">
-                                <img src="{{ config('app.url') }}/storage/seeded/site/logo.png" alt="MMP Logo" style="width:80px;height:80px;border-radius:16px;background:#ffffff;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:inline-block;">
+                                <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP Logo" style="width:80px;height:80px;border-radius:16px;background:#ffffff;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:inline-block;">
                             </div>
                             <!-- Brand Name -->
                             <div style="margin-bottom:16px;text-align:center;">
@@ -44,7 +44,7 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td style="padding-bottom:16px;text-align:center;">
-                                        <img src="{{ config('app.url') }}/storage/seeded/site/logo.png" alt="MMP Logo" style="width:48px;height:48px;border-radius:12px;display:inline-block;">
+                                        <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP Logo" style="width:48px;height:48px;border-radius:12px;display:inline-block;">
                                     </td>
                                 </tr>
                                 <tr>
