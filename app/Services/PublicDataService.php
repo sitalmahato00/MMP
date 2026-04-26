@@ -640,8 +640,8 @@ class PublicDataService
                 : config('services.ctevt_notice.general_url', 'https://itms.ctevt.org.np:5580/notices');
             
             try {
-                $response = Http::timeout(10)
-                    ->retry(2, 500)
+                $response = Http::timeout(30)
+                    ->retry(3, 1000)
                     ->withoutVerifying()
                     ->accept('application/json,text/javascript,*/*;q=0.1')
                     ->withHeaders([
