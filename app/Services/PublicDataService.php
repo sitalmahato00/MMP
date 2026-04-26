@@ -938,11 +938,6 @@ class PublicDataService
                     ['label' => 'Phone', 'value' => $hod->phone],
                     ['label' => 'Address', 'value' => $hod->address],
                 ]),
-                $this->buildProfileSection('Personal Details', [
-                    ['label' => 'Gender', 'value' => $hod->gender],
-                    ['label' => 'Date of Birth', 'value' => $this->formatDisplayDate($hod->dob)],
-                    ['label' => 'Account Status', 'value' => $hod->is_active ? 'Active' : 'Inactive'],
-                ]),
                 $this->buildProfileSection('Department Details', [
                     ['label' => 'Department Name', 'value' => $department->name],
                     ['label' => 'Department Code', 'value' => $department->code],
@@ -1001,11 +996,6 @@ class PublicDataService
                     ['label' => 'Phone', 'value' => $user?->phone],
                     ['label' => 'Address', 'value' => $user?->address],
                 ]),
-                $this->buildProfileSection('Personal Details', [
-                    ['label' => 'Gender', 'value' => $user?->gender],
-                    ['label' => 'Date of Birth', 'value' => $this->formatDisplayDate($user?->dob)],
-                    ['label' => 'Account Status', 'value' => $user?->is_active ? 'Active' : 'Inactive'],
-                ]),
                 $this->buildProfileSection('Professional Details', [
                     ['label' => 'Designation', 'value' => $teacher->designation],
                     ['label' => 'Employee ID', 'value' => $teacher->employee_id],
@@ -1058,11 +1048,6 @@ class PublicDataService
                     ['label' => 'Email', 'value' => $staff->email ?: $user?->email],
                     ['label' => 'Phone', 'value' => $staff->phone ?: $user?->phone],
                     ['label' => 'Address', 'value' => $user?->address],
-                ]),
-                $this->buildProfileSection('Personal Details', [
-                    ['label' => 'Gender', 'value' => $user?->gender],
-                    ['label' => 'Date of Birth', 'value' => $this->formatDisplayDate($user?->dob)],
-                    ['label' => 'Account Status', 'value' => $user?->is_active ? 'Active' : 'Inactive'],
                 ]),
                 $this->buildProfileSection('Professional Details', [
                     ['label' => 'Designation', 'value' => $staff->designation],
