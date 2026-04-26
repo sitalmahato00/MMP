@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 class PublicDataService
 {
     /** Cache TTL in seconds */
-    private const CACHE_TTL = 600; // 10 minutes
+    private const CACHE_TTL = 120; // 2 minutes
 
     public function getHomepageData(): array
     {
@@ -633,15 +633,15 @@ class PublicDataService
     {
         $feedKey = 'public:ctevt_notices:' . ($isResult ? 'result' : 'general') . ':' . $limit;
 
-        return Cache::remember($feedKey, 3600, function () use ($isResult, $limit) {
+        return Cache::remember($feedKey, 600, function () use ($isResult, $limit) {
             $feedUrl = config('services.ctevt_notice.feed_url', 'https://itms.ctevt.org.np:5580/notices/get-ajax-notices');
             $pageUrl = $isResult
                 ? config('services.ctevt_notice.result_url', 'https://itms.ctevt.org.np:5580/notices/result')
                 : config('services.ctevt_notice.general_url', 'https://itms.ctevt.org.np:5580/notices');
             
             try {
-                $response = Http::timeout(3)
-                    ->retry(1, 100)
+                $response = Http::timeout(10)
+                    ->retry(2, 500)
                     ->withoutVerifying()
                     ->accept('application/json,text/javascript,*/*;q=0.1')
                     ->withHeaders([
