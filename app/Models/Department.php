@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Department extends Model
 {
@@ -20,6 +21,41 @@ class Department extends Model
         'is_active' => 'boolean',
         'seat_capacity' => 'integer',
     ];
+
+    // ─── Boot Method ───────────────────────────────────────
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($department) {
+            if (empty($department->slug)) {
+                $department->slug = Str::slug($department->name);
+                
+                // Ensure unique slug
+                $originalSlug = $department->slug;
+                $count = 1;
+                while (static::where('slug', $department->slug)->exists()) {
+                    $department->slug = $originalSlug . '-' . $count;
+                    $count++;
+                }
+            }
+        });
+
+        static::updating(function ($department) {
+            if ($department->isDirty('name') && empty($department->slug)) {
+                $department->slug = Str::slug($department->name);
+                
+                // Ensure unique slug
+                $originalSlug = $department->slug;
+                $count = 1;
+                while (static::where('slug', $department->slug)->where('id', '!=', $department->id)->exists()) {
+                    $department->slug = $originalSlug . '-' . $count;
+                    $count++;
+                }
+            }
+        });
+    }
 
     // ─── Relationships ─────────────────────────────────────
 
