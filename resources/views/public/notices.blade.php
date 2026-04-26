@@ -38,34 +38,46 @@
                 </button>
             </div>
 
-            <div x-show="activeCtevtTab === 'general'" x-cloak class="divide-y">
-                @forelse($ctevtGeneralItems as $notice)
-                    <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'ctevt-general']) }}" target="_blank" rel="noopener noreferrer" class="block p-4 hover:bg-gray-50">
-                        <div class="font-semibold text-gray-900 mb-2">{{ $notice['title'] ?? 'Notice' }}</div>
-                        <div class="flex items-center gap-2 text-xs text-gray-500">
-                            @if(!empty($notice['updated_date']))
-                                <span>{{ $notice['updated_date'] }}</span>
-                            @endif
-                            @if(!empty($notice['publisher']))
-                                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">{{ $notice['publisher'] }}</span>
-                            @endif
+            <div x-show="activeCtevtTab === 'general'" x-cloak>
+                @php $ctevtGeneralState = $ctevtGeneralNotices['source_state'] ?? 'unavailable'; @endphp
+                
+                {{-- Connection Warning Banner --}}
+                @if($ctevtGeneralState === 'cached' && $ctevtGeneralItems->isNotEmpty())
+                    <div class="bg-amber-50 border-l-4 border-amber-400 p-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-amber-800">CTEVT API Temporarily Unavailable</p>
+                                <p class="text-xs text-amber-700 mt-1">Unable to fetch live results from CTEVT server. Showing cached notices from database.</p>
+                            </div>
                         </div>
-                    </a>
-                @empty
-                    @php $ctevtGeneralState = $ctevtGeneralNotices['source_state'] ?? 'unavailable'; @endphp
-                    @if($ctevtGeneralState === 'cached')
-                        <div class="py-16 text-center">
-                            <p class="text-4xl mb-4">📦</p>
-                            <p class="font-semibold text-amber-600 mb-2">Showing Cached Notices</p>
-                            <p class="text-sm text-gray-500">Live API unavailable, displaying stored notices</p>
-                        </div>
-                    @else
+                    </div>
+                @endif
+
+                <div class="divide-y">
+                    @forelse($ctevtGeneralItems as $notice)
+                        <a href="{{ $notice['url'] ?? route('public.notices', ['type' => 'ctevt-general']) }}" target="_blank" rel="noopener noreferrer" class="block p-4 hover:bg-gray-50">
+                            <div class="font-semibold text-gray-900 mb-2">{{ $notice['title'] ?? 'Notice' }}</div>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                @if(!empty($notice['updated_date']))
+                                    <span>{{ $notice['updated_date'] }}</span>
+                                @endif
+                                @if(!empty($notice['publisher']))
+                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">{{ $notice['publisher'] }}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @empty
                         <div class="py-16 text-center">
                             <p class="text-4xl mb-4">📋</p>
                             <p class="font-semibold text-gray-500">No CTEVT general notices found.</p>
                         </div>
-                    @endif
-                @endforelse
+                    @endforelse
+                </div>
             </div>
 
             <div x-show="activeCtevtTab === 'result'" x-cloak class="divide-y">

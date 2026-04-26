@@ -284,7 +284,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                 </div>
 
                 {{-- CTEVT Notices Tab --}}
-                <div x-show="activeNoticeTab === 'ctevt'" x-cloak x-data="{ ctevtSubTab: 'general' }">
+                <div x-show="activeNoticeTab === 'ctevt'" x-cloak x-data="{ ctevtSubTab: 'general', isSyncing: false, syncMessage: '' }">
                     <div class="flex gap-1 bg-slate-50 p-2">
                         <button @click="ctevtSubTab = 'general'" :class="ctevtSubTab === 'general' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
                             General ({{ $ctevtGeneralItems->count() }})
@@ -292,7 +292,19 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                         <button @click="ctevtSubTab = 'result'" :class="ctevtSubTab === 'result' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:bg-white/50'" class="flex-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition">
                             Results ({{ $ctevtResultItems->count() }})
                         </button>
+                        @if(config('services.ctevt_sync.external_url'))
+                            <button @click="syncCtevtNotices()" :disabled="isSyncing" class="rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition" :class="isSyncing ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'">
+                                <span x-show="!isSyncing">🔄 Sync</span>
+                                <span x-show="isSyncing">⏳ Syncing...</span>
+                            </button>
+                        @endif
                     </div>
+
+                    @if(config('services.ctevt_sync.external_url'))
+                        <div x-show="syncMessage" x-cloak class="px-4 py-2 text-[10px]" :class="syncMessage.includes('successfully') ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'">
+                            <span x-text="syncMessage"></span>
+                        </div>
+                    @endif
 
                     <div x-show="ctevtSubTab === 'general'" class="divide-y divide-slate-100 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
                         @forelse($ctevtGeneralItems as $notice)
@@ -607,6 +619,45 @@ document.addEventListener('DOMContentLoaded', function() {
         gradeCtx.parentElement.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">No grade data available for this period</div>';
     }
 });
+</script>
+
+<script>
+// CTEVT Sync Function
+function syncCtevtNotices() {
+    const syncButton = event.target.closest('button');
+    const container = syncButton.closest('[x-data]');
+    
+    // Set loading state
+    container.__x.$data.isSyncing = true;
+    container.__x.$data.syncMessage = '';
+    
+    fetch('{{ route("admin.ctevt.sync") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        container.__x.$data.isSyncing = false;
+        
+        if (data.success) {
+            container.__x.$data.syncMessage = `✓ Synced successfully! Added: ${data.data.notices_added}, Updated: ${data.data.notices_updated}`;
+            
+            // Reload page after 2 seconds to show updated notices
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            container.__x.$data.syncMessage = `✗ Sync failed: ${data.message}`;
+        }
+    })
+    .catch(error => {
+        container.__x.$data.isSyncing = false;
+        container.__x.$data.syncMessage = `✗ Error: ${error.message}`;
+    });
+}
 </script>
 @endpush
 

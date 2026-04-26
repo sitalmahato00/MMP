@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\WebControlController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\ExecutiveController;
+use App\Http\Controllers\Admin\CtevtSyncController;
 // Application feature removed
 use App\Http\Controllers\Admin\RolePermissionController;
 
@@ -109,6 +110,12 @@ Route::get('roles-permissions', [RolePermissionController::class, 'index'])->nam
 
 // ── Resources (alias for Downloads with resource category) ─
 Route::get('resources', [DownloadController::class, 'resources'])->name('resources.index');
+
+// ── CTEVT Notices Sync ─────────────────────────────────────
+Route::prefix('ctevt')->name('ctevt.')->group(function () {
+    Route::post('sync', [CtevtSyncController::class, 'sync'])->name('sync');
+    Route::get('sync-status', [CtevtSyncController::class, 'status'])->name('sync.status');
+});
 
 // ── Web Control / Settings ─────────────────────────────────
 Route::get('web-control', [WebControlController::class, 'index'])->name('web-control.index');

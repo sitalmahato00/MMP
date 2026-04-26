@@ -46,4 +46,9 @@ return [
         'feed_url' => env('CTEVT_NOTICE_FEED_URL', 'https://itms.ctevt.org.np:5580/notices/get-ajax-notices'),
     ],
 
+    'ctevt_sync' => [
+        'external_url' => env('CTEVT_SYNC_EXTERNAL_URL'),
+        'api_token' => env('CTEVT_SYNC_API_TOKEN'),
+    ],
+
 ];

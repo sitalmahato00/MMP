@@ -29,12 +29,13 @@ The platform is designed for Principal/Admin, HOD, Teacher, Student, Parent, and
 9. [Public API](#public-api)
 10. [Storage, Media, and Branding](#storage-media-and-branding)
 11. [Caching, Queues, and Rate Limits](#caching-queues-and-rate-limits)
-12. [Project Structure](#project-structure)
-13. [Local Setup](#local-setup)
-14. [Environment Configuration](#environment-configuration)
-15. [Testing and Verification](#testing-and-verification)
-16. [Deployment Notes](#deployment-notes)
-17. [Known Notes](#known-notes)
+12. [CTEVT External Sync Service](#ctevt-external-sync-service)
+13. [Project Structure](#project-structure)
+14. [Local Setup](#local-setup)
+15. [Environment Configuration](#environment-configuration)
+16. [Testing and Verification](#testing-and-verification)
+17. [Deployment Notes](#deployment-notes)
+18. [Known Notes](#known-notes)
 
 ## Technology Stack
 
@@ -496,6 +497,37 @@ Authenticated API:
 - `apply`: 10 attempts per hour per email/IP
 - `result-check`: 30 requests per minute per IP
 - `public-api`: 120 requests per minute per IP
+
+## CTEVT External Sync Service
+
+### Overview
+
+The system includes an external sync service for CTEVT notices that solves the cPanel firewall issue (port 5580 blocked). The service fetches notices from an external server and syncs them to the production database.
+
+### Architecture
+
+- **Admin Dashboard**: "🔄 Sync CTEVT Notices" button in CTEVT tab
+- **CtevtSyncController**: Handles sync requests, rate limiting, and logging
+- **External Service**: Standalone PHP endpoint that fetches from CTEVT API
+- **Database**: `ctevt_sync_logs` table tracks all sync operations
+
+### Setup
+
+1. Deploy external service (see `external-sync-service/README.md`)
+2. Add to `.env`:
+   ```env
+   CTEVT_SYNC_EXTERNAL_URL=https://your-external-service.com/sync-endpoint.php
+   CTEVT_SYNC_API_TOKEN=your-secret-token-here
+   ```
+3. Run: `php artisan migrate`
+4. Test sync button in admin dashboard
+
+### Files
+
+- `app/Http/Controllers/Admin/CtevtSyncController.php` - Admin controller
+- `app/Models/CtevtSyncLog.php` - Sync log model
+- `external-sync-service/sync-endpoint.php` - External service endpoint
+- `external-sync-service/README.md` - Deployment guide
 
 ## Project Structure
 
