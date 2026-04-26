@@ -3,6 +3,11 @@
 
 @section('content')
 
+<div x-data="{
+    view: localStorage.getItem('mmp_users_view') ?? 'table',
+    setView(v) { this.view = v; localStorage.setItem('mmp_users_view', v); },
+}" class="space-y-5">
+
 <x-page-header title="User Management" subtitle="Manage all system accounts and role assignments.">
     <x-slot name="actions">
         <x-btn href="{{ route('admin.users.create') }}">
@@ -27,7 +32,7 @@
         <x-input name="search" value="{{ request('search') }}" placeholder="Search name or email…" class="flex-1 min-w-[200px]"/>
         <x-select name="role">
             <option value="">All Roles</option>
-            @foreach(['principal','hod','teacher','student','parent','alumni'] as $r)
+            @foreach(['principal','teacher','student','parent','alumni'] as $r)
                 <option value="{{ $r }}" {{ request('role') === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
             @endforeach
         </x-select>
@@ -44,7 +49,35 @@
 </div>
 
 {{-- Table --}}
-<x-data-table :paginator="$users">
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-3.5">
+        <p class="text-sm text-gray-500">
+            @if($users->total() > 0)
+                Showing <span class="font-semibold text-gray-700">{{ $users->firstItem() }}–{{ $users->lastItem() }}</span>
+                of <span class="font-semibold text-gray-700">{{ number_format($users->total()) }}</span> users
+            @else
+                No users match your filters
+            @endif
+        </p>
+        <div class="flex items-center rounded-xl border border-gray-200 p-1 gap-0.5 flex-shrink-0">
+            <button type="button" @click="setView('table')"
+                    :class="view === 'table' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-700'"
+                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
+                Table
+            </button>
+            <button type="button" @click="setView('cards')"
+                    :class="view === 'cards' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-700'"
+                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 6v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                Cards
+            </button>
+        </div>
+    </div>
+
+    {{-- TABLE VIEW --}}
+    <div x-show="view === 'table'" x-cloak>
+    <x-data-table :paginator="$users">
     <x-slot name="head">
         <tr>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-10">#</th>
@@ -104,5 +137,69 @@
     </tr>
     @endforelse
 </x-data-table>
+    </div>
+
+    {{-- CARD VIEW --}}
+    <div x-show="view === 'cards'" x-cloak class="p-5">
+        @if($users->isEmpty())
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+            <p class="text-sm font-medium text-gray-500">No users found.</p>
+        </div>
+        @else
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            @foreach($users as $user)
+            @php
+                $gradients = ['from-blue-500 to-indigo-600','from-violet-500 to-purple-600','from-emerald-500 to-teal-600','from-amber-500 to-orange-600','from-rose-500 to-pink-600','from-cyan-500 to-sky-600'];
+                $grad = $gradients[$user->id % 6];
+            @endphp
+            <div class="group relative rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-all">
+                <div class="flex flex-col items-center text-center">
+                    @if($user->avatar)
+                        <img src="{{ asset('storage/'.$user->avatar) }}" alt="{{ $user->name }}"
+                             class="h-16 w-16 rounded-2xl object-cover ring-2 ring-white shadow"/>
+                    @else
+                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br {{ $grad }} text-2xl font-black text-white shadow">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <h3 class="mt-3 text-sm font-bold text-gray-900">{{ $user->name }}</h3>
+                    <p class="mt-0.5 text-xs text-gray-500">{{ $user->email }}</p>
+                </div>
+                <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                    @foreach($user->roles as $role)
+                        @php $roleColor = ['principal'=>'red','hod'=>'blue','teacher'=>'green','student'=>'purple','parent'=>'yellow','alumni'=>'gray'][$role->name] ?? 'gray'; @endphp
+                        <span class="rounded-lg bg-{{ $roleColor }}-50 px-2 py-0.5 text-[11px] font-bold text-{{ $roleColor }}-700">{{ $role->name }}</span>
+                    @endforeach
+                </div>
+                <div class="mt-3 flex items-center justify-center">
+                    @if($user->is_active)
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
+                            <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Active
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+                            <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>Inactive
+                        </span>
+                    @endif
+                </div>
+                <div class="mt-3 space-y-0.5 text-center">
+                    <p class="text-xs text-gray-600">{{ $user->phone ?? '—' }}</p>
+                    <p class="text-[11px] text-gray-400">Joined {{ bsDate($user->created_at, 'Y, F d') }}</p>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <a href="{{ route('admin.users.show', $user) }}" class="rounded-lg border border-gray-200 py-1.5 text-center text-xs font-semibold text-gray-600 hover:bg-gray-50 transition">View</a>
+                    <a href="{{ route('admin.users.edit', $user) }}" class="rounded-lg bg-gray-900 py-1.5 text-center text-xs font-bold text-white hover:bg-gray-700 transition">Edit</a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        <div class="border-t border-gray-100 mt-5 pt-4">
+            {{ $users->links() }}
+        </div>
+        @endif
+    </div>
+</div>
+
+</div>
 
 @endsection

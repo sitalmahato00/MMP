@@ -17,7 +17,10 @@
     $gradients = ['from-blue-500 to-indigo-600', 'from-violet-500 to-purple-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-rose-500 to-pink-600', 'from-cyan-500 to-sky-600'];
 @endphp
 
-<div class="space-y-5">
+<div x-data="{
+    view: localStorage.getItem('mmp_staff_view') ?? 'table',
+    setView(v) { this.view = v; localStorage.setItem('mmp_staff_view', v); },
+}" class="space-y-5">
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black tracking-tight text-slate-900">Administrative Staff</h1>
@@ -154,9 +157,27 @@
                 <h2 class="text-lg font-semibold text-slate-900">Staff directory</h2>
                 <p class="text-sm text-slate-500">Review records, toggle visibility, and jump to documents.</p>
             </div>
-            <div class="text-sm text-slate-500">{{ $staff->total() }} records</div>
+            <div class="flex items-center gap-3">
+                <div class="text-sm text-slate-500">{{ $staff->total() }} records</div>
+                <div class="flex items-center rounded-xl border border-slate-200 p-1 gap-0.5 flex-shrink-0">
+                    <button type="button" @click="setView('table')"
+                            :class="view === 'table' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700'"
+                            class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
+                        Table
+                    </button>
+                    <button type="button" @click="setView('cards')"
+                            :class="view === 'cards' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700'"
+                            class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                        Cards
+                    </button>
+                </div>
+            </div>
         </div>
 
+        {{-- TABLE VIEW --}}
+        <div x-show="view === 'table'" x-cloak>
         <div class="mmp-table-wrap">
             <table class="mmp-table divide-y divide-slate-200 text-left">
                 <thead class="bg-slate-50/80">
@@ -245,6 +266,62 @@
 
         <div class="border-t border-slate-200 px-6 py-4">
             {{ $staff->links() }}
+        </div>
+        </div>
+
+        {{-- CARD VIEW --}}
+        <div x-show="view === 'cards'" x-cloak class="p-5">
+            @if($staff->isEmpty())
+            <div class="flex flex-col items-center justify-center py-16 text-center">
+                <p class="text-sm font-medium text-slate-500">No staff records found.</p>
+            </div>
+            @else
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                @foreach($staff as $member)
+                    @php
+                        $employment = $employmentMap[$member->employment_type] ?? ['label' => ucfirst(str_replace('_', ' ', (string) $member->employment_type)) ?: 'Unspecified', 'cls' => 'bg-slate-100 text-slate-600'];
+                        $status = $statusMap[$member->employment_status] ?? ['label' => ucfirst((string) $member->employment_status) ?: 'Active', 'cls' => 'bg-slate-100 text-slate-600'];
+                        $gradient = $gradients[$member->id % count($gradients)];
+                    @endphp
+                    <div class="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="h-16 w-16 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                                @if($member->photo_url)
+                                    <img src="{{ $member->photo_url }}" alt="{{ $member->name }}" class="h-full w-full object-cover">
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center bg-gradient-to-br {{ $gradient }} text-xl font-black text-white">
+                                        {{ strtoupper(substr($member->name ?? 'S', 0, 1)) }}
+                                    </div>
+                                @endif
+                            </div>
+                            <h3 class="mt-3 text-sm font-bold text-slate-900">{{ $member->name }}</h3>
+                            <p class="mt-0.5 text-xs text-slate-500">{{ $member->staff_code }}</p>
+                            <p class="mt-1 text-xs font-medium text-[#8B0000]">{{ $member->designation ?? 'Staff' }}</p>
+                        </div>
+                        <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                            <span class="rounded-lg px-2 py-0.5 text-[11px] font-semibold {{ $employment['cls'] }}">{{ $employment['label'] }}</span>
+                            <span class="rounded-lg px-2 py-0.5 text-[11px] font-semibold {{ $status['cls'] }}">{{ $status['label'] }}</span>
+                        </div>
+                        <div class="mt-3 space-y-0.5 text-center">
+                            <p class="text-xs text-slate-600">{{ $member->department ?: 'General Administration' }}</p>
+                            <p class="text-[11px] text-slate-400">{{ $member->email ?: '—' }}</p>
+                            <p class="text-[11px] text-slate-400">{{ $member->phone ?: '—' }}</p>
+                        </div>
+                        <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                            <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold {{ $member->public_visible ? 'bg-sky-50 text-sky-700' : 'bg-slate-100 text-slate-500' }}">{{ $member->public_visible ? 'Public' : 'Hidden' }}</span>
+                            <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold {{ $member->featured ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }}">{{ $member->featured ? 'Featured' : 'Standard' }}</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-2">
+                            <a href="{{ route('admin.staff.show', $member) }}" class="rounded-lg border border-slate-200 py-1.5 text-center text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">View</a>
+                            <a href="{{ route('admin.staff.edit', $member) }}" class="rounded-lg bg-slate-900 py-1.5 text-center text-xs font-bold text-white hover:bg-slate-700 transition">Edit</a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="border-t border-slate-100 mt-5 pt-4">
+                {{ $staff->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </div>

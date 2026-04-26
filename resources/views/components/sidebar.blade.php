@@ -49,164 +49,261 @@
 
     $adminGroups = [
         [
-            'label' => 'Dashboards',
+            'label' => 'Dashboard',
+            'standalone' => true,
             'items' => [
                 ['label' => 'Overview', 'iconName' => 'home', 'href' => route('admin.dashboard'), 'isActive' => $active('admin.dashboard')],
             ],
         ],
         [
-            'label' => 'Configurations',
+            'label' => 'User Management',
+            'items' => [
+                ['label' => 'System Users', 'iconName' => 'user-group', 'href' => route('admin.users.index'), 'isActive' => $active('admin.users.*')],
+                ['label' => 'HODs', 'iconName' => 'user-circle', 'href' => route('admin.hods.index'), 'isActive' => $active('admin.hods.*')],
+                ['label' => 'Executives', 'iconName' => 'star', 'href' => route('admin.executives.index'), 'isActive' => $active('admin.executives.*')],
+                ['label' => 'Students', 'iconName' => 'academic-cap', 'href' => route('admin.students.index'), 'isActive' => $active('admin.students.*')],
+                ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => route('admin.teachers.index'), 'isActive' => $active('admin.teachers.*')],
+                ['label' => 'Parents', 'iconName' => 'heart', 'href' => route('admin.parents.index'), 'isActive' => $active('admin.parents.*')],
+                ['label' => 'Alumni', 'iconName' => 'graduation-cap', 'href' => route('admin.alumni.index'), 'isActive' => $active('admin.alumni.*')],
+                ['label' => 'Staff', 'iconName' => 'users', 'href' => route('admin.staff.index'), 'isActive' => $active('admin.staff.*')],
+            ],
+        ],
+        [
+            'label' => 'Academic Operations',
+            'items' => [
+                ['label' => 'Programs', 'iconName' => 'book-open', 'href' => route('admin.programs.index'), 'isActive' => $active('admin.programs.*')],
+                ['label' => 'Attendance Tracking', 'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'), 'isActive' => $active('admin.attendance.*')],
+                ['label' => 'Examination & Results', 'iconName' => 'chart-bar', 'href' => route('admin.exams.index'), 'isActive' => $active('admin.exams.*')],
+            ],
+        ],
+        [
+            'label' => 'System Configuration',
             'items' => [
                 ['label' => 'Academic Sessions', 'iconName' => 'calendar', 'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
                 ['label' => 'Departments', 'iconName' => 'office-building', 'href' => route('admin.departments.index'), 'isActive' => $active('admin.departments.*')],
             ],
         ],
         [
-            'label' => 'Academic',
-            'items' => [
-                ['label' => 'Students', 'iconName' => 'user-group', 'href' => route('admin.students.index'), 'isActive' => $active('admin.students.*')],
-                ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => route('admin.teachers.index'), 'isActive' => $active('admin.teachers.*')],
-                ['label' => 'Parents', 'iconName' => 'heart', 'href' => route('admin.parents.index'), 'isActive' => $active('admin.parents.*')],
-                ['label' => 'Programs', 'iconName' => 'academic-cap', 'href' => route('admin.programs.index'), 'isActive' => $active('admin.programs.*')],
-                ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'), 'isActive' => $active('admin.attendance.*')],
-                ['label' => 'Exams & Results', 'iconName' => 'doc-text', 'href' => route('admin.exams.index'), 'isActive' => $active('admin.exams.*')],
-            ],
-        ],
-        [
-            'label' => 'People',
-            'items' => [
-                ['label' => 'Alumni', 'iconName' => 'graduation-cap', 'href' => route('admin.alumni.index'), 'isActive' => $active('admin.alumni.*')],
-                ['label' => 'Staff', 'iconName' => 'users', 'href' => route('admin.staff.index'), 'isActive' => $active('admin.staff.*')],
-            ],
-        ],
-        // Application section removed
-        [
-            'label' => 'Communication',
+            'label' => 'Communication Hub',
             'items' => [
                 ['label' => 'Notices', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
                 ['label' => 'News & Events', 'iconName' => 'collection', 'href' => route('admin.news-events.index'), 'isActive' => $active('admin.news-events.*')],
             ],
         ],
         [
-            'label' => 'CMS',
+            'label' => 'Content Management',
             'items' => [
-                ['label' => 'Pages', 'iconName' => 'doc-text', 'href' => route('admin.web-control.index', ['tab' => 2]), 'isActive' => $active('admin.web-control.*') && (int) request('tab', 0) === 2],
-                ['label' => 'Media', 'iconName' => 'photo', 'href' => route('admin.media.index'), 'isActive' => $active('admin.media.*')],
-                ['label' => 'Resources', 'iconName' => 'download', 'href' => route('admin.downloads.index'), 'isActive' => $active('admin.downloads.*')],
-                ['label' => 'Banners', 'iconName' => 'collection', 'href' => route('admin.banners.index'), 'isActive' => $active('admin.banners.*')],
+                ['label' => 'Web Pages', 'iconName' => 'doc-text', 'href' => route('admin.web-control.index', ['tab' => 2]), 'isActive' => $active('admin.web-control.*') && (int) request('tab', 0) === 2],
+                ['label' => 'Media Library', 'iconName' => 'photo', 'href' => route('admin.media.index'), 'isActive' => $active('admin.media.*')],
+                ['label' => 'File Repository', 'iconName' => 'download', 'href' => route('admin.downloads.index'), 'isActive' => $active('admin.downloads.*')],
+                ['label' => 'Banner Management', 'iconName' => 'collection', 'href' => route('admin.banners.index'), 'isActive' => $active('admin.banners.*')],
             ],
         ],
         [
-            'label' => 'System',
+            'label' => 'System Administration',
             'items' => [
-                ['label' => 'Account Settings', 'iconName' => 'user-circle', 'href' => route('admin.settings.index'), 'isActive' => $active('admin.settings.*')],
-                ['label' => 'Roles & Permissions', 'iconName' => 'shield', 'href' => route('admin.roles-permissions.index'), 'isActive' => $active('admin.roles-permissions.*')],
-                ['label' => 'Audit Logs', 'iconName' => 'doc-report', 'href' => route('admin.audit-logs.index'), 'isActive' => $active('admin.audit-logs.*')],
+                ['label' => 'Account Settings', 'iconName' => 'cog', 'href' => route('admin.settings.index'), 'isActive' => $active('admin.settings.*')],
+                ['label' => 'Access Control', 'iconName' => 'shield', 'href' => route('admin.roles-permissions.index'), 'isActive' => $active('admin.roles-permissions.*')],
+                ['label' => 'Activity Logs', 'iconName' => 'doc-report', 'href' => route('admin.audit-logs.index'), 'isActive' => $active('admin.audit-logs.*')],
             ],
         ],
     ];
 
     $hodGroups = [
-        ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('hod.dashboard'), 'isActive' => $active('hod.dashboard')]]],
-        ['label' => 'Department', 'items' => [
-            ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('hod.students.index', 'hod.dashboard'), 'isActive' => $active('hod.students.*')],
-            ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => $portalRoute('hod.teachers.index', 'hod.dashboard'), 'isActive' => $active('hod.teachers.*')],
-        ]],
-        ['label' => 'Academic', 'items' => [
-            ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('hod.subjects.index', 'hod.dashboard'), 'isActive' => $active('hod.subjects.*')],
-            ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('hod.attendance.index', 'hod.dashboard'), 'isActive' => $active('hod.attendance.*')],
-            ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('hod.exams.index', 'hod.dashboard'), 'isActive' => $active('hod.exams.*')],
-            ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('hod.timetable.index', 'hod.dashboard'), 'isActive' => $active('hod.timetable.*')],
-        ]],
-        ['label' => 'Communication', 'items' => [
-            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('hod.notices.index', 'hod.dashboard'), 'isActive' => $active('hod.notices.*')],
-            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('hod.news-events.index', 'hod.dashboard'), 'isActive' => $active('hod.news-events.*')],
-        ]],
-        ['label' => 'Resources', 'items' => [
-            ['label' => 'Facilities', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
-            ['label' => 'Gallery', 'iconName' => 'photo', 'href' => $portalRoute('hod.media.index', 'hod.dashboard'), 'isActive' => $active('hod.media.*')],
-            ['label' => 'Resources', 'iconName' => 'download', 'href' => $portalRoute('hod.downloads.index', 'hod.dashboard'), 'isActive' => $active('hod.downloads.*')],
-        ]],
-        ['label' => 'Alumni', 'items' => [
-            ['label' => 'Alumni Preparation', 'iconName' => 'graduation-cap', 'href' => $portalRoute('hod.alumni.index', 'hod.dashboard'), 'isActive' => $active('hod.alumni.*')],
-        ]],
-        ['label' => 'Account', 'items' => [
-            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('hod.settings.index', 'hod.dashboard'), 'isActive' => $active('hod.settings.*')],
-        ]],
+        [
+            'label' => 'Dashboard',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Overview', 'iconName' => 'home', 'href' => route('hod.dashboard'), 'isActive' => $active('hod.dashboard')],
+            ],
+        ],
+        [
+            'label' => 'Department Management',
+            'items' => [
+                ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('hod.students.index', 'hod.dashboard'), 'isActive' => $active('hod.students.*')],
+                ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => $portalRoute('hod.teachers.index', 'hod.dashboard'), 'isActive' => $active('hod.teachers.*')],
+            ],
+        ],
+        [
+            'label' => 'Academic Operations',
+            'items' => [
+                ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('hod.subjects.index', 'hod.dashboard'), 'isActive' => $active('hod.subjects.*')],
+                ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('hod.attendance.index', 'hod.dashboard'), 'isActive' => $active('hod.attendance.*')],
+                ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('hod.exams.index', 'hod.dashboard'), 'isActive' => $active('hod.exams.*')],
+                ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('hod.timetable.index', 'hod.dashboard'), 'isActive' => $active('hod.timetable.*')],
+            ],
+        ],
+        [
+            'label' => 'Communication',
+            'items' => [
+                ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('hod.notices.index', 'hod.dashboard'), 'isActive' => $active('hod.notices.*')],
+                ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('hod.news-events.index', 'hod.dashboard'), 'isActive' => $active('hod.news-events.*')],
+            ],
+        ],
+        [
+            'label' => 'Resources',
+            'items' => [
+                ['label' => 'Facilities', 'iconName' => 'doc-text', 'href' => $portalRoute('hod.facilities.index', 'hod.dashboard'), 'isActive' => $active('hod.facilities.*')],
+                ['label' => 'Media Gallery', 'iconName' => 'photo', 'href' => $portalRoute('hod.media.index', 'hod.dashboard'), 'isActive' => $active('hod.media.*')],
+                ['label' => 'Downloads', 'iconName' => 'download', 'href' => $portalRoute('hod.downloads.index', 'hod.dashboard'), 'isActive' => $active('hod.downloads.*')],
+            ],
+        ],
+        [
+            'label' => 'Alumni Management',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Alumni Preparation', 'iconName' => 'graduation-cap', 'href' => $portalRoute('hod.alumni.index', 'hod.dashboard'), 'isActive' => $active('hod.alumni.*')],
+            ],
+        ],
+        [
+            'label' => 'Account',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('hod.settings.index', 'hod.dashboard'), 'isActive' => $active('hod.settings.*')],
+            ],
+        ],
     ];
 
     $teacherGroups = [
-        ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('teacher.dashboard'), 'isActive' => $active('teacher.dashboard')]]],
-        ['label' => 'Classroom', 'items' => [
-            ['label' => 'My Classes', 'iconName' => 'book-open', 'href' => $portalRoute('teacher.classes.index', 'teacher.dashboard'), 'isActive' => $active('teacher.classes.*')],
-            ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('teacher.students.index', 'teacher.dashboard'), 'isActive' => $active('teacher.students.*')],
-            ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('teacher.attendance.index', 'teacher.dashboard'), 'isActive' => $active('teacher.attendance.*')],
-            ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('teacher.assignments.index', 'teacher.dashboard'), 'isActive' => $active('teacher.assignments.*')],
-            ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('teacher.timetable.index', 'teacher.dashboard'), 'isActive' => $active('teacher.timetable.*')],
-        ]],
-        ['label' => 'Evaluation', 'items' => [
-            ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('teacher.exams.index', 'teacher.dashboard'), 'isActive' => $active('teacher.exams.*')],
-        ]],
-        ['label' => 'General', 'items' => [
-            ['label' => 'Resources', 'iconName' => 'download', 'href' => $portalRoute('teacher.downloads.index', 'teacher.dashboard'), 'isActive' => $active('teacher.downloads.*')],
-            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('teacher.notices.index', 'teacher.dashboard'), 'isActive' => $active('teacher.notices.*')],
-            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('teacher.news-events.index', 'teacher.dashboard'), 'isActive' => $active('teacher.news-events.*')],
-            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('teacher.settings.index', 'teacher.dashboard'), 'isActive' => $active('teacher.settings.*')],
-        ]],
+        [
+            'label' => 'Dashboard',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Overview', 'iconName' => 'home', 'href' => route('teacher.dashboard'), 'isActive' => $active('teacher.dashboard')],
+            ],
+        ],
+        [
+            'label' => 'Classroom Management',
+            'items' => [
+                ['label' => 'My Classes', 'iconName' => 'book-open', 'href' => $portalRoute('teacher.classes.index', 'teacher.dashboard'), 'isActive' => $active('teacher.classes.*')],
+                ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('teacher.students.index', 'teacher.dashboard'), 'isActive' => $active('teacher.students.*')],
+                ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('teacher.attendance.index', 'teacher.dashboard'), 'isActive' => $active('teacher.attendance.*')],
+                ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('teacher.assignments.index', 'teacher.dashboard'), 'isActive' => $active('teacher.assignments.*')],
+                ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('teacher.timetable.index', 'teacher.dashboard'), 'isActive' => $active('teacher.timetable.*')],
+            ],
+        ],
+        [
+            'label' => 'Evaluation',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('teacher.exams.index', 'teacher.dashboard'), 'isActive' => $active('teacher.exams.*')],
+            ],
+        ],
+        [
+            'label' => 'Resources & Settings',
+            'items' => [
+                ['label' => 'Downloads', 'iconName' => 'download', 'href' => $portalRoute('teacher.downloads.index', 'teacher.dashboard'), 'isActive' => $active('teacher.downloads.*')],
+                ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('teacher.notices.index', 'teacher.dashboard'), 'isActive' => $active('teacher.notices.*')],
+                ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('teacher.news-events.index', 'teacher.dashboard'), 'isActive' => $active('teacher.news-events.*')],
+                ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('teacher.settings.index', 'teacher.dashboard'), 'isActive' => $active('teacher.settings.*')],
+            ],
+        ],
     ];
 
     $studentGroups = [
-        ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('student.dashboard'), 'isActive' => $active('student.dashboard')]]],
-        ['label' => 'Academics', 'items' => [
-            ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('student.timetable.index', 'student.dashboard'), 'isActive' => $active('student.timetable.*')],
-            ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('student.subjects.index', 'student.dashboard'), 'isActive' => $active('student.subjects.*')],
-            ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('student.attendance.index', 'student.dashboard'), 'isActive' => $active('student.attendance.*')],
-            ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('student.assignments.index', 'student.dashboard'), 'isActive' => $active('student.assignments.*')],
-            ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('student.marks.index', 'student.dashboard'), 'isActive' => $active('student.marks.*')],
-        ]],
-        ['label' => 'Resources', 'items' => [
-            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('student.notices.index', 'student.dashboard'), 'isActive' => $active('student.notices.*')],
-            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('student.news-events.index', 'student.dashboard'), 'isActive' => $active('student.news-events.*')],
-            ['label' => 'Downloads', 'iconName' => 'download', 'href' => $portalRoute('student.downloads.index', 'student.dashboard'), 'isActive' => $active('student.downloads.*')],
-        ]],
-        ['label' => 'Account', 'items' => [
-            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('student.settings.index', 'student.dashboard'), 'isActive' => $active('student.settings.*')],
-        ]],
+        [
+            'label' => 'Dashboard',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Overview', 'iconName' => 'home', 'href' => route('student.dashboard'), 'isActive' => $active('student.dashboard')],
+            ],
+        ],
+        [
+            'label' => 'My Academics',
+            'items' => [
+                ['label' => 'Timetable', 'iconName' => 'calendar', 'href' => $portalRoute('student.timetable.index', 'student.dashboard'), 'isActive' => $active('student.timetable.*')],
+                ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('student.subjects.index', 'student.dashboard'), 'isActive' => $active('student.subjects.*')],
+                ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('student.attendance.index', 'student.dashboard'), 'isActive' => $active('student.attendance.*')],
+                ['label' => 'Assignments', 'iconName' => 'doc-text', 'href' => $portalRoute('student.assignments.index', 'student.dashboard'), 'isActive' => $active('student.assignments.*')],
+                ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('student.marks.index', 'student.dashboard'), 'isActive' => $active('student.marks.*')],
+            ],
+        ],
+        [
+            'label' => 'Resources & Updates',
+            'items' => [
+                ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('student.notices.index', 'student.dashboard'), 'isActive' => $active('student.notices.*')],
+                ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('student.news-events.index', 'student.dashboard'), 'isActive' => $active('student.news-events.*')],
+                ['label' => 'Downloads', 'iconName' => 'download', 'href' => $portalRoute('student.downloads.index', 'student.dashboard'), 'isActive' => $active('student.downloads.*')],
+            ],
+        ],
+        [
+            'label' => 'Account',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('student.settings.index', 'student.dashboard'), 'isActive' => $active('student.settings.*')],
+            ],
+        ],
     ];
 
     $parentGroups = [
-        ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('parent.dashboard'), 'isActive' => $active('parent.dashboard')]]],
-        ['label' => 'Child Progress', 'items' => [
-            ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('parent.subjects.index', 'parent.dashboard'), 'isActive' => $active('parent.subjects.*')],
-            ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('parent.attendance.index', 'parent.dashboard'), 'isActive' => $active('parent.attendance.*')],
-            ['label' => 'Assignments', 'iconName' => 'document-text', 'href' => $portalRoute('parent.assignments.index', 'parent.dashboard'), 'isActive' => $active('parent.assignments.*')],
-            ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('parent.results.index', 'parent.dashboard'), 'isActive' => $active('parent.results.*')],
-        ]],
-        ['label' => 'Communication', 'items' => [
-            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('parent.notices.index', 'parent.dashboard'), 'isActive' => $active('parent.notices.*')],
-            ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('parent.news-events.index', 'parent.dashboard'), 'isActive' => $active('parent.news-events.*')],
-        ]],
-        ['label' => 'Account', 'items' => [
-            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('parent.settings.index', 'parent.dashboard'), 'isActive' => $active('parent.settings.*')],
-        ]],
+        [
+            'label' => 'Dashboard',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Overview', 'iconName' => 'home', 'href' => route('parent.dashboard'), 'isActive' => $active('parent.dashboard')],
+            ],
+        ],
+        [
+            'label' => 'Child Academic Progress',
+            'items' => [
+                ['label' => 'Subjects', 'iconName' => 'book-open', 'href' => $portalRoute('parent.subjects.index', 'parent.dashboard'), 'isActive' => $active('parent.subjects.*')],
+                ['label' => 'Attendance', 'iconName' => 'clipboard-check', 'href' => $portalRoute('parent.attendance.index', 'parent.dashboard'), 'isActive' => $active('parent.attendance.*')],
+                ['label' => 'Assignments', 'iconName' => 'document-text', 'href' => $portalRoute('parent.assignments.index', 'parent.dashboard'), 'isActive' => $active('parent.assignments.*')],
+                ['label' => 'Results', 'iconName' => 'chart-bar', 'href' => $portalRoute('parent.results.index', 'parent.dashboard'), 'isActive' => $active('parent.results.*')],
+            ],
+        ],
+        [
+            'label' => 'Communication',
+            'items' => [
+                ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('parent.notices.index', 'parent.dashboard'), 'isActive' => $active('parent.notices.*')],
+                ['label' => 'News & Events', 'iconName' => 'collection', 'href' => $portalRoute('parent.news-events.index', 'parent.dashboard'), 'isActive' => $active('parent.news-events.*')],
+            ],
+        ],
+        [
+            'label' => 'Account',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('parent.settings.index', 'parent.dashboard'), 'isActive' => $active('parent.settings.*')],
+            ],
+        ],
     ];
 
     $alumniGroups = [
-        ['label' => 'Dashboard', 'items' => [['label' => 'Overview', 'iconName' => 'home', 'href' => route('alumni.dashboard'), 'isActive' => $active('alumni.dashboard')]]],
-        ['label' => 'My Profile', 'items' => [
-            ['label' => 'Profile', 'iconName' => 'users', 'href' => $portalRoute('alumni.profile.index', 'alumni.dashboard'), 'isActive' => $active('alumni.profile.*')],
-            ['label' => 'Career', 'iconName' => 'briefcase', 'href' => $portalRoute('alumni.career.index', 'alumni.dashboard'), 'isActive' => $active('alumni.career.*')],
-        ]],
-        ['label' => 'Portfolio', 'items' => [
-            ['label' => 'Projects', 'iconName' => 'code', 'href' => $portalRoute('alumni.projects.index', 'alumni.dashboard'), 'isActive' => $active('alumni.projects.*')],
-            ['label' => 'Achievements', 'iconName' => 'star', 'href' => $portalRoute('alumni.achievements.index', 'alumni.dashboard'), 'isActive' => $active('alumni.achievements.*')],
-        ]],
-        ['label' => 'Community', 'items' => [
-            ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('alumni.notices.index', 'alumni.dashboard'), 'isActive' => $active('alumni.notices.*')],
-        ]],
-        ['label' => 'Account', 'items' => [
-            ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('alumni.settings.index', 'alumni.dashboard'), 'isActive' => $active('alumni.settings.*')],
-        ]],
+        [
+            'label' => 'Dashboard',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Overview', 'iconName' => 'home', 'href' => route('alumni.dashboard'), 'isActive' => $active('alumni.dashboard')],
+            ],
+        ],
+        [
+            'label' => 'My Profile',
+            'items' => [
+                ['label' => 'Profile', 'iconName' => 'users', 'href' => $portalRoute('alumni.profile.index', 'alumni.dashboard'), 'isActive' => $active('alumni.profile.*')],
+                ['label' => 'Career', 'iconName' => 'briefcase', 'href' => $portalRoute('alumni.career.index', 'alumni.dashboard'), 'isActive' => $active('alumni.career.*')],
+            ],
+        ],
+        [
+            'label' => 'Portfolio',
+            'items' => [
+                ['label' => 'Projects', 'iconName' => 'code', 'href' => $portalRoute('alumni.projects.index', 'alumni.dashboard'), 'isActive' => $active('alumni.projects.*')],
+                ['label' => 'Achievements', 'iconName' => 'star', 'href' => $portalRoute('alumni.achievements.index', 'alumni.dashboard'), 'isActive' => $active('alumni.achievements.*')],
+            ],
+        ],
+        [
+            'label' => 'Community',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Notices', 'iconName' => 'bell', 'href' => $portalRoute('alumni.notices.index', 'alumni.dashboard'), 'isActive' => $active('alumni.notices.*')],
+            ],
+        ],
+        [
+            'label' => 'Account',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'Settings', 'iconName' => 'cog', 'href' => $portalRoute('alumni.settings.index', 'alumni.dashboard'), 'isActive' => $active('alumni.settings.*')],
+            ],
+        ],
     ];
 
     $sidebarExpandedWidth = '17rem';

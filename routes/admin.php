@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\WebControlController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\ExecutiveController;
+use App\Http\Controllers\Admin\HodController;
 // Application feature removed
 use App\Http\Controllers\Admin\RolePermissionController;
 
@@ -29,6 +30,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // ── User Management ────────────────────────────────────────
 Route::resource('users', UserController::class);
+Route::resource('executives', ExecutiveController::class);
+Route::resource('hods', HodController::class);
 
 // ── Academic Structure ─────────────────────────────────────
 Route::resource('academic-sessions', AcademicSessionController::class);
