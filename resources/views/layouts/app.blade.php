@@ -25,18 +25,18 @@
     <script>
         // Prevent access to authenticated pages after logout via back button
         (function() {
-            // Check if page is loaded from bfcache after logout
+            // Force reload when page is loaded from bfcache (back/forward cache)
             window.addEventListener('pageshow', function(event) {
                 if (event.persisted) {
-                    // Page loaded from bfcache - verify authentication is still valid
-                    var img = new Image();
-                    img.onerror = function() {
-                        // If this fails, session is likely invalid, redirect to login
-                        window.location.href = '{{ route("login") }}';
-                    };
-                    // Try to load a small authenticated resource to check session
-                    img.src = '{{ route("dashboard") }}?_check=' + Date.now();
+                    // Page was loaded from bfcache - force a full reload
+                    // This ensures authentication middleware runs and checks session validity
+                    window.location.reload();
                 }
+            });
+            
+            // Also prevent bfcache by using unload event
+            window.addEventListener('unload', function() {
+                // This helps prevent the page from being cached
             });
         })();
 
