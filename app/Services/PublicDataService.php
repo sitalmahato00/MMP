@@ -1474,6 +1474,15 @@ class PublicDataService
 
     private function fallbackCtevtResultForm(string $fallbackAction): array
     {
+        // Generate years dynamically from current BS year down to 2077
+        $currentBsYear = (int) bsDate(now(), 'Y');
+        $yearOptions = [['label' => '-- Select --', 'value' => '']];
+        
+        // Generate years from current year down to 2077
+        for ($year = $currentBsYear; $year >= 2077; $year--) {
+            $yearOptions[] = ['label' => (string) $year, 'value' => (string) $year];
+        }
+        
         return [
             'title' => 'Yearly/Semester Check Results',
             'action' => $fallbackAction,
@@ -1487,15 +1496,7 @@ class PublicDataService
                     'id' => 'src_year',
                     'type' => 'select',
                     'required' => true,
-                    'options' => [
-                        ['label' => '-- Select --', 'value' => ''],
-                        ['label' => '2082', 'value' => '2082'],
-                        ['label' => '2081', 'value' => '2081'],
-                        ['label' => '2080', 'value' => '2080'],
-                        ['label' => '2079', 'value' => '2079'],
-                        ['label' => '2078', 'value' => '2078'],
-                        ['label' => '2077', 'value' => '2077'],
-                    ],
+                    'options' => $yearOptions,
                 ],
                 [
                     'label' => 'Level',
