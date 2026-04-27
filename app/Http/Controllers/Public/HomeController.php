@@ -215,8 +215,7 @@ class HomeController extends Controller
 
     public function result()
     {
-
-        return view('public.result', view('public.result'));
+        return view('public.result');
     }
 
     public function resultSubmit(Request $request)
