@@ -96,7 +96,7 @@
                     <div class="rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] text-sm text-gray-600">
                         Official inputs: <span class="font-semibold text-gray-800">src_year</span>, <span class="font-semibold text-gray-800">src_level</span>, <span class="font-semibold text-gray-800">exam_symbol_number</span>, <span class="font-semibold text-gray-800">dob</span>.
                     </div>
-                    <form name="frmCheckResults" id="frmCheckResults" action="{{ route('public.result.submit') }}" method="post" target="_blank" autocomplete="off" class="space-y-4">
+                    <form name="frmCheckResults" id="frmCheckResults" action="{{ route('public.result.submit') }}" method="post" target="_blank" autocomplete="off" class="space-y-4" data-ctevt-action="{{ $actionUrl ?? config('services.ctevt_result.url', 'https://itms.ctevt.org.np:5580/search_results') }}">
                         @csrf
 
                         @foreach($hiddenFields as $hiddenField)
@@ -178,3 +178,75 @@
 </div>
 @endsection
 
+@push('scripts')
+<script>
+(function() {
+    'use strict';
+    
+    // Detect if running in PWA/standalone mode
+    function isPWA() {
+        return window.matchMedia('(display-mode: standalone)').matches 
+            || window.navigator.standalone === true
+            || document.referrer.includes('android-app://');
+    }
+    
+    // Handle form submission in PWA mode
+    const form = document.getElementById('frmCheckResults');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(e) {
+        // Only intercept if running in PWA mode
+        if (!isPWA()) {
+            return; // Let normal form submission happen
+        }
+        
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(form);
+        const ctevtActionUrl = form.dataset.ctevtAction || 'https://itms.ctevt.org.np:5580/search_results';
+        
+        // Build query string for GET request (CTEVT accepts both GET and POST)
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            if (key !== '_token') { // Skip CSRF token
+                params.append(key, value);
+            }
+        }
+        
+        // Construct full URL with query parameters
+        const fullUrl = ctevtActionUrl + '?' + params.toString();
+        
+        // Try multiple methods to open in external browser
+        // Method 1: Create a temporary link with download attribute (forces external browser on some devices)
+        const link = document.createElement('a');
+        link.href = fullUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer external';
+        
+        // Method 2: Try to use intent URL for Android
+        if (navigator.userAgent.includes('Android')) {
+            // Android intent URL to force external browser
+            const intentUrl = 'intent://' + fullUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;action=android.intent.action.VIEW;end';
+            
+            // Try intent first
+            window.location.href = intentUrl;
+            
+            // Fallback to regular URL after a short delay
+            setTimeout(function() {
+                window.open(fullUrl, '_blank', 'noopener,noreferrer');
+            }, 500);
+        } else {
+            // For iOS and other platforms, use window.open with specific parameters
+            // This should trigger the "Open in Safari" prompt on iOS
+            const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
+            
+            // If window.open was blocked, try location.href as fallback
+            if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                window.location.href = fullUrl;
+            }
+        }
+    });
+})();
+</script>
+@endpush
