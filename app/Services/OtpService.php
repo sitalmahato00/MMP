@@ -13,7 +13,7 @@ class OtpService
     /**
      * OTP expiry time in minutes
      */
-    private const OTP_EXPIRY_MINUTES = 5;
+    private const OTP_EXPIRY_MINUTES = 1;
 
     /**
      * Maximum verification attempts
