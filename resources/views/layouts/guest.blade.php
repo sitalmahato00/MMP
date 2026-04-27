@@ -80,7 +80,7 @@
         ];
     @endphp
 
-    <header class="fixed inset-x-0 top-0 z-50 border-b-2 border-slate-200 bg-white/95 shadow-md backdrop-blur lg:hidden dark:border-slate-700 dark:bg-slate-900/95" x-data="{ mobileMenuOpen: false }">
+    <header class="fixed inset-x-0 top-0 z-50 border-b-2 border-slate-200 bg-white/95 shadow-md backdrop-blur lg:hidden dark:border-slate-700 dark:bg-slate-900/95">
         <div class="flex items-center justify-between gap-2 px-3 sm:px-4 pb-2 sm:pb-3 pt-[max(0.5rem,env(safe-area-inset-top))] sm:pt-[max(0.75rem,env(safe-area-inset-top))]">
             <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                 <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-slate-300 bg-white text-slate-600 shadow-md transition-all duration-200 hover:bg-slate-50 hover:scale-105 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
@@ -111,23 +111,56 @@
                 </button>
             </div>
         </div>
+    </header>
+    
+    {{-- Overlay --}}
+    <div x-show="mobileMenuOpen" 
+         x-cloak
+         @click="mobileMenuOpen = false"
+         x-transition:enter="transition-opacity ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+         style="margin-top: calc(env(safe-area-inset-top) + 3.5rem);">
+    </div>
+    
+    {{-- Mobile Menu Drawer (Left Side) --}}
+    <div x-show="mobileMenuOpen" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="-translate-x-full"
+         x-transition:enter-end="translate-x-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="translate-x-0"
+         x-transition:leave-end="-translate-x-full"
+         class="fixed left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl overflow-hidden z-50 lg:hidden flex flex-col"
+         style="margin-top: calc(env(safe-area-inset-top) + 3.5rem);">
+        {{-- Drawer Header --}}
+        <div class="bg-[#003D82] px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="h-10 w-10 rounded-lg object-cover border-2 border-white/20">
+                <div>
+                    <p class="text-white font-bold text-sm">MMP</p>
+                    <p class="text-blue-200 text-xs">Navigation Menu</p>
+                </div>
+            </div>
+            <button @click="mobileMenuOpen = false" class="text-white hover:bg-white/10 rounded-lg p-2 transition-colors">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
         
-        {{-- Mobile Menu Dropdown --}}
-        <div x-show="mobileMenuOpen" 
-             x-cloak
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 -translate-y-2"
-             x-transition:enter-end="opacity-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 translate-y-0"
-             x-transition:leave-end="opacity-0 -translate-y-2"
-             class="border-t-2 border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900">
-            <div class="max-h-[70vh] overflow-y-auto px-3 sm:px-4 py-3">
-                <nav class="space-y-1">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-100 hover:scale-[1.02] dark:text-slate-200 dark:hover:bg-slate-800 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-700 {{ request()->routeIs('home') ? 'bg-[#003D82] text-white dark:bg-[#003D82] border-[#003D82] shadow-md' : '' }}">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                        </svg>
+        {{-- Drawer Content --}}
+        <div class="flex-1 overflow-y-auto px-3 sm:px-4 py-3">
+            <nav class="space-y-1">
+                <a href="{{ route('home') }}" class="flex items-center gap-3 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-100 hover:scale-[1.02] dark:text-slate-200 dark:hover:bg-slate-800 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-700 {{ request()->routeIs('home') ? 'bg-[#003D82] text-white dark:bg-[#003D82] border-[#003D82] shadow-md' : '' }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
                         Home
                     </a>
                     
@@ -153,6 +186,7 @@
                         </div>
                     </div>
                     
+                    {{-- Departments Dropdown --}}
                     <div x-data="{ deptOpen: false }">
                         <button @click="deptOpen = !deptOpen" class="flex w-full items-center justify-between rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-100 hover:scale-[1.02] dark:text-slate-200 dark:hover:bg-slate-800 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-700">
                             <span class="flex items-center gap-3">
@@ -165,13 +199,21 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
-                        <div x-show="deptOpen" x-cloak class="ml-8 mt-1 space-y-1">
-                            @forelse($courseMenu as $course)
-                                <a href="{{ route('public.department.show', $course->slug) }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">{{ $course->name }}</a>
+                        <div x-show="deptOpen" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 -translate-y-1"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 -translate-y-1"
+                             style="display: none;"
+                             class="ml-6 sm:ml-8 mt-1 space-y-1 border-l-2 border-slate-300 dark:border-slate-600 pl-3">
+                            @forelse($publicCourses ?? [] as $course)
+                                <a href="{{ route('public.department.show', $course->slug) }}" class="block rounded-lg px-3 sm:px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-all duration-200 hover:translate-x-1 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">{{ $course->name }}</a>
                             @empty
-                                <span class="block px-4 py-2 text-sm text-slate-400">No departments</span>
+                                <span class="block px-3 sm:px-4 py-2 text-sm text-slate-400">No departments</span>
                             @endforelse
-                            <a href="{{ route('public.departments') }}" class="block rounded-lg px-4 py-2 text-sm font-semibold text-[#003D82] hover:bg-slate-100 dark:text-blue-300 dark:hover:bg-slate-800">All Departments →</a>
+                            <a href="{{ route('public.departments') }}" class="block rounded-lg px-3 sm:px-4 py-2 text-sm font-semibold text-[#003D82] hover:bg-slate-100 dark:text-blue-300 dark:hover:bg-slate-800 transition-all duration-200 hover:translate-x-1 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">All Departments →</a>
                         </div>
                     </div>
                     
@@ -183,7 +225,7 @@
                     </a>
                     
                     <div x-data="{ peopleOpen: false }">
-                        <button @click="peopleOpen = !peopleOpen" class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                        <button @click="peopleOpen = !peopleOpen" class="flex w-full items-center justify-between rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-100 hover:scale-[1.02] dark:text-slate-200 dark:hover:bg-slate-800 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-700">
                             <span class="flex items-center gap-3">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -194,9 +236,22 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
-                        <div x-show="peopleOpen" x-cloak class="ml-8 mt-1 space-y-1">
-                            <a href="{{ route('public.staff') }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Administrative Staff</a>
-                            <a href="{{ route('public.leadership') }}" class="block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Presidents & Principals</a>
+                        <div x-show="peopleOpen" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 -translate-y-1"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 -translate-y-1"
+                             style="display: none;"
+                             class="ml-6 sm:ml-8 mt-1 space-y-1 border-l-2 border-slate-300 dark:border-slate-600 pl-3">
+                            <a href="{{ route('public.people') }}" class="block rounded-lg px-3 sm:px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-all duration-200 hover:translate-x-1 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">All People</a>
+                            <a href="{{ route('public.staff') }}" class="block rounded-lg px-3 sm:px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-all duration-200 hover:translate-x-1 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">Administrative Staff</a>
+                            <a href="{{ route('public.leadership') }}" class="block rounded-lg px-3 sm:px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-all duration-200 hover:translate-x-1 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">Presidents & Principals</a>
+                            @forelse($publicCourses ?? [] as $dept)
+                                <a href="{{ route('public.people', ['department' => $dept->slug]) }}" class="block rounded-lg px-3 sm:px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-all duration-200 hover:translate-x-1 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">{{ $dept->name }}</a>
+                            @empty
+                            @endforelse
                         </div>
                     </div>
                     
@@ -705,6 +760,7 @@
     <script>
         window.mmpGuestShell = function () {
             return {
+                mobileMenuOpen: false,
                 canInstall: false,
                 isStandalone: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
                 installDismissed: localStorage.getItem('mmp.install.dismissed.v2') === '1',
@@ -727,6 +783,18 @@
                             this.isStandalone = state.isInstalled;
                         });
                     }
+                    
+                    // Handle mobile menu body scroll
+                    this.$watch('mobileMenuOpen', value => {
+                        document.body.style.overflow = value ? 'hidden' : '';
+                    });
+                    
+                    // Close menu on ESC key
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && this.mobileMenuOpen) {
+                            this.mobileMenuOpen = false;
+                        }
+                    });
                 },
                 toggleTheme() {
                     if (!window.mmpTheme) {
