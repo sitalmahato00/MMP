@@ -222,19 +222,77 @@ class HomeController extends Controller
 
     public function resultSubmit(Request $request)
     {
-        $payload = $request->validate([
-            'src_year' => ['required', 'string', 'in:2082,2081,2080,2079,2078,2077'],
-            'src_level' => ['required', 'string', 'in:2,3'],
-            'exam_symbol_number' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9\-]+$/'],
-            'dob' => ['required', 'string', 'regex:/^\d{4}-\d{2}-\d{2}$/'],
-        ]);
-
-        unset($payload);
-
-        return response('', 307)->header(
-            'Location',
-            config('services.ctevt_result.url', 'https://itms.ctevt.org.np:5580/search_results')
-        );
+        // Get the form structure to build dynamic validation rules
+        $resultForm = $this->service->getCtevtResultForm();
+        $fields = collect($resultForm['fields'] ?? []);
+        
+        // Build validation rules dynamically based on the form structure
+        $rules = [];
+        foreach ($fields as $field) {
+            $fieldName = $field['name'] ?? '';
+            if ($fieldName === '') {
+                continue;
+            }
+            
+            $fieldRules = [];
+            
+            // Add required rule if field is required
+            if ($field['required'] ?? false) {
+                $fieldRules[] = 'required';
+            }
+            
+            // Add type-specific rules
+            if ($field['type'] === 'select') {
+                // For select fields, validate against available options
+                $options = collect($field['options'] ?? [])
+                    ->pluck('value')
+                    ->filter(fn($v) => $v !== '')
+                    ->toArray();
+                
+                if (!empty($options)) {
+                    $fieldRules[] = 'in:' . implode(',', $options);
+                }
+            } else {
+                // For input fields
+                $inputType = $field['input_type'] ?? 'text';
+                
+                if ($inputType === 'text') {
+                    $fieldRules[] = 'string';
+                    $fieldRules[] = 'max:100';
+                    
+                    // Special validation for date fields
+                    if ($fieldName === 'dob' || str_contains(strtolower($field['label'] ?? ''), 'date')) {
+                        $fieldRules[] = 'regex:/^\d{4}-\d{2}-\d{2}$/';
+                    }
+                    // Special validation for symbol number
+                    else if ($fieldName === 'exam_symbol_number' || str_contains(strtolower($field['label'] ?? ''), 'symbol')) {
+                        $fieldRules[] = 'regex:/^[A-Za-z0-9\-]+$/';
+                    }
+                }
+            }
+            
+            if (!empty($fieldRules)) {
+                $rules[$fieldName] = $fieldRules;
+            }
+        }
+        
+        // Fallback to basic validation if no rules were generated
+        if (empty($rules)) {
+            $rules = [
+                'src_year' => ['required', 'string'],
+                'src_level' => ['required', 'string'],
+                'exam_symbol_number' => ['required', 'string', 'max:50'],
+                'dob' => ['required', 'string', 'regex:/^\d{4}-\d{2}-\d{2}$/'],
+            ];
+        }
+        
+        $request->validate($rules);
+        
+        // Get the form action URL (use dynamic URL from CTEVT or fallback to config)
+        $actionUrl = $resultForm['action'] ?? config('services.ctevt_result.url', 'https://itms.ctevt.org.np:5580/search_results');
+        
+        // Return a 307 redirect to the CTEVT result page
+        return response('', 307)->header('Location', $actionUrl);
     }
 
     public function questionBank()

@@ -591,7 +591,8 @@ class PublicDataService
 
     public function getCtevtResultForm(): array
     {
-        return Cache::remember('public:ctevt_result_form', self::CACHE_TTL, function () {
+        // Use shorter cache for CTEVT form (5 minutes) to ensure it stays updated
+        return Cache::remember('public:ctevt_result_form', 300, function () {
             $checkUrl = config('services.ctevt_result.check_url', 'https://itms.ctevt.org.np:5580/check_results');
             $fallbackAction = config('services.ctevt_result.url', 'https://itms.ctevt.org.np:5580/search_results');
 

@@ -80,6 +80,16 @@
                     @else
                         <div class="rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-900">
                             This form uses the same official CTEVT field names and opens the result in a new tab.
+                            @if(($form['source'] ?? 'fallback') === 'live')
+                                <span class="inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-semibold">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4"/></svg>
+                                    Live from CTEVT
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded-full bg-amber-600 text-white text-xs font-semibold">
+                                    Fallback Mode
+                                </span>
+                            @endif
                         </div>
                     @endif
 
@@ -93,58 +103,71 @@
                             <input type="hidden" name="{{ $hiddenField['name'] }}" value="{{ $hiddenField['value'] }}">
                         @endforeach
 
-                        @php
-                            $selectedYear = old('src_year', '2082');
-                            $selectedLevel = old('src_level');
-                            $symbolValue = old('exam_symbol_number');
-                            $dobValue = old('dob');
-                        @endphp
+                        @foreach($fields as $field)
+                            @php
+                                $fieldName = $field['name'] ?? '';
+                                $fieldId = $field['id'] ?? $fieldName;
+                                $fieldLabel = $field['label'] ?? ucfirst(str_replace('_', ' ', $fieldName));
+                                $fieldType = $field['type'] ?? 'input';
+                                $isRequired = $field['required'] ?? false;
+                                $oldValue = old($fieldName);
+                            @endphp
 
-                        <div class="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-3 md:gap-6 items-start md:items-center rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                            <label for="src_year" class="text-sm md:text-base font-semibold text-gray-700 leading-snug">Examination Year:</label>
-                            <div class="w-full">
-                                <select name="src_year" id="src_year" required class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] transition-all duration-150 {{ $errors->has('src_year') ? 'border-blue-400 bg-blue-50' : '' }}">
-                                    <option value="">-- Select --</option>
-                                    @foreach(['2082', '2081', '2080', '2079', '2078', '2077'] as $year)
-                                        <option value="{{ $year }}" @selected($selectedYear === $year)>{{ $year }}</option>
-                                    @endforeach
-                                </select>
-                                @error('src_year')<p class="mt-1 text-xs text-blue-600">{{ $message }}</p>@enderror
+                            <div class="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-3 md:gap-6 items-start md:items-center rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                                <label for="{{ $fieldId }}" class="text-sm md:text-base font-semibold text-gray-700 leading-snug">
+                                    {{ $fieldLabel }}@if($isRequired)<span class="text-red-500">*</span>@endif:
+                                </label>
+                                <div class="w-full">
+                                    @if($fieldType === 'select')
+                                        <select 
+                                            name="{{ $fieldName }}" 
+                                            id="{{ $fieldId }}" 
+                                            @if($isRequired) required @endif
+                                            class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] transition-all duration-150 {{ $errors->has($fieldName) ? 'border-blue-400 bg-blue-50' : '' }}"
+                                        >
+                                            @foreach($field['options'] ?? [] as $option)
+                                                @php
+                                                    $optionValue = $option['value'] ?? '';
+                                                    $optionLabel = $option['label'] ?? $optionValue;
+                                                    $isSelected = $oldValue ? ($oldValue === $optionValue) : ($option['selected'] ?? false);
+                                                @endphp
+                                                <option value="{{ $optionValue }}" @if($isSelected) selected @endif>{{ $optionLabel }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        @php
+                                            $inputType = $field['input_type'] ?? 'text';
+                                            $placeholder = $field['placeholder'] ?? '';
+                                        @endphp
+                                        
+                                        @if($fieldName === 'dob' || str_contains(strtolower($fieldLabel), 'date of birth'))
+                                            <x-bs-date-picker 
+                                                name="{{ $fieldName }}" 
+                                                :value="$oldValue" 
+                                                placeholder="{{ $placeholder ?: 'YYYY-MM-DD' }}" 
+                                                :required="$isRequired"
+                                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] transition-all duration-150"
+                                            />
+                                        @else
+                                            <input 
+                                                type="{{ $inputType }}" 
+                                                name="{{ $fieldName }}" 
+                                                id="{{ $fieldId }}" 
+                                                value="{{ $oldValue }}" 
+                                                placeholder="{{ $placeholder }}" 
+                                                @if($isRequired) required @endif
+                                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] transition-all duration-150 {{ $errors->has($fieldName) ? 'border-blue-400 bg-blue-50' : '' }}"
+                                            >
+                                        @endif
+                                    @endif
+                                    @error($fieldName)<p class="mt-1 text-xs text-blue-600">{{ $message }}</p>@enderror
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-3 md:gap-6 items-start md:items-center rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                            <label for="src_level" class="text-sm md:text-base font-semibold text-gray-700 leading-snug">Level :</label>
-                            <div class="w-full">
-                                <select name="src_level" id="src_level" required class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] transition-all duration-150 {{ $errors->has('src_level') ? 'border-blue-400 bg-blue-50' : '' }}">
-                                    <option value="">-- Select --</option>
-                                    <option value="2" @selected($selectedLevel === '2')>Pre-diploma</option>
-                                    <option value="3" @selected($selectedLevel === '3')>Diploma/PCL</option>
-                                </select>
-                                @error('src_level')<p class="mt-1 text-xs text-blue-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-3 md:gap-6 items-start md:items-center rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                            <label for="exam_symbol_number" class="text-sm md:text-base font-semibold text-gray-700 leading-snug">Symbol Number :</label>
-                            <div class="w-full">
-                                <input type="text" name="exam_symbol_number" id="exam_symbol_number" value="{{ $symbolValue }}" placeholder="e.g. 1000234" required class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] transition-all duration-150 {{ $errors->has('exam_symbol_number') ? 'border-blue-400 bg-blue-50' : '' }}">
-                                @error('exam_symbol_number')<p class="mt-1 text-xs text-blue-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-3 md:gap-6 items-start md:items-center rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                            <label for="dob" class="text-sm md:text-base font-semibold text-gray-700 leading-snug">Date of Birth (B.S.) :</label>
-                            <div class="w-full">
-                                <x-bs-date-picker name="dob" :value="$dobValue" placeholder="YYYY-MM-DD" :required="true"
-                                                  class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#003D82]/25 focus:border-[#003D82] transition-all duration-150"/>
-                                @error('dob')<p class="mt-1 text-xs text-blue-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
+                        @endforeach
 
                         <div class="pt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start">
-                            <button type="submit" name="submit" value="Search" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#003D82] px-6 py-3 text-white font-semibold shadow-sm hover:bg-[#001F4D] transition-colors">
-                                Search
+                            <button type="submit" name="submit" value="{{ $form['submit']['label'] ?? 'Search' }}" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#003D82] px-6 py-3 text-white font-semibold shadow-sm hover:bg-[#001F4D] transition-colors">
+                                {{ $form['submit']['label'] ?? 'Search' }}
                             </button>
                         </div>
                     </form>
