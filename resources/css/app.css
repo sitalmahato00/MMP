@@ -161,7 +161,10 @@ html.dark .program-card:hover {
 }
 /* Card footer link bar for 'View More'/'View All' links */
 .card-footer-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   width: 100%;
   background: #074ea2; /* blue-800 or your preferred blue */
   color: #fff;
@@ -581,4 +584,3 @@ html.dark a.text-slate-800,
 html.dark a:not([class*="text-"]):not([class*="bg-"]) {
   color: #60a5fa !important;
 }
-

@@ -194,10 +194,10 @@
 
 {{-- ── MAIN CONTENT TOP (3 COLUMNS) ────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-10 bg-[#f9f9f9] dark:bg-slate-900">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
 
         {{-- LEFT COLUMN (Quick Links & Officials) --}}
-        <div class="order-2 lg:order-none lg:col-span-3 space-y-6">
+        <div class="order-2 flex flex-col gap-6 lg:order-none lg:col-span-3 lg:h-full">
             {{-- Quick Links Card --}}
             <div class="dashboard-card hover:shadow-xl transition-shadow duration-300">
                 <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
@@ -221,27 +221,27 @@
             </div>
 
             {{-- People/Officials (Dynamic) --}}
-            <div class="dashboard-card text-sm hover:shadow-xl transition-shadow duration-300">
+            <div class="dashboard-card flex min-h-0 flex-1 flex-col text-sm hover:shadow-xl transition-shadow duration-300">
                 <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Managements
                 </div>
-                <div class="p-4 space-y-5">
+                <div class="flex-1 p-4 space-y-5">
                     @php
                         $currentPrincipal = isset($leadership['principals']) ? $leadership['principals']->firstWhere('is_current', true) : null;
                         $currentPresident = isset($leadership['presidents']) ? $leadership['presidents']->firstWhere('is_current', true) : null;
                     @endphp
                     @foreach(array_filter([$currentPresident, $currentPrincipal]) as $exec)
-                    <div class="flex gap-4 items-center">
-                        <div class="w-14 h-16 bg-gray-200 dark:bg-slate-700 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
+                    <div class="flex min-h-[5.25rem] gap-4 items-stretch">
+                        <div class="w-16 h-20 bg-gray-200 dark:bg-slate-700 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
                             @if($exec->avatar)
                                 <img src="{{ asset('storage/' . $exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-2xl font-bold" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
                             @endif
                         </div>
-                        <div>
-                            <div class="font-bold text-[#003D82] dark:text-blue-400 text-[13px]">{{ $exec->name ?? 'N/A' }}</div>
+                        <div class="flex min-h-[5rem] flex-col justify-center">
+                            <div class="font-bold text-[#003D82] dark:text-blue-400 text-[13px] leading-snug">{{ $exec->name ?? 'N/A' }}</div>
                             <div class="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">{{ $exec->designation ?? ucfirst($exec->type ?? 'N/A') }}</div>
                         </div>
                     </div>
@@ -286,20 +286,18 @@
             </div>
 
             {{-- Notice Board Tabs --}}
-            @php
-            @endphp
-            <div class="dashboard-card flex flex-col min-h-[520px] h-[520px] hover:shadow-xl transition-shadow duration-300" x-data="{ activeNoticeTab: 'general' }">
-                <div class="flex">
-                    <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] dark:bg-slate-700 text-gray-700 dark:text-slate-300 border-transparent hover:bg-[#e9e9e9] dark:hover:bg-slate-600'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] relative">
+            <div class="dashboard-card flex h-[520px] min-h-[520px] flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300" x-data="{ activeNoticeTab: 'general' }">
+                <div class="grid grid-cols-2 divide-x divide-white/10 bg-[#003D82]">
+                    <button type="button" @click="activeNoticeTab = 'general'" :class="activeNoticeTab === 'general' ? 'border-yellow-400 bg-[#0b4a92] text-white' : 'border-transparent bg-[#0f4d98] text-white/95 hover:text-white'" class="flex-1 border-x-0 border-b border-b-black/5 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] shadow-none outline-none focus:outline-none focus-visible:outline-none">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                         Notice Board
                     </button>
-                    <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#003D82] text-white border-yellow-500' : 'bg-[#f5f5f5] dark:bg-slate-700 text-gray-700 dark:text-slate-300 border-transparent hover:bg-[#e9e9e9] dark:hover:bg-slate-600'" class="flex-1 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px]">
+                    <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'border-yellow-400 bg-[#0b4a92] text-white' : 'border-transparent bg-[#0f4d98] text-white/95 hover:text-white'" class="flex-1 border-x-0 border-b border-b-black/5 py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-colors border-t-[3px] shadow-none outline-none focus:outline-none focus-visible:outline-none">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Exam Results
                     </button>
-                    </div>
-                <div class="p-0 overflow-y-auto flex-1"
+                </div>
+                <div class="flex-1 overflow-y-auto bg-white dark:bg-slate-800">
                     <ul class="divide-y divide-gray-100 dark:divide-slate-700" x-show="activeNoticeTab === 'general'" x-cloak>
                         @forelse(($notices ?? collect())->take(6) as $notice)
                         <li>
@@ -393,19 +391,22 @@
                         @endforelse
                     </ul>
                 </div>
-                <div class="flex-1"></div>
-                <div class="px-0 pt-0 pb-0 mt-auto border-0 bg-transparent rounded-b-2xl flex items-end">
-                    <a href="{{ route('public.notices') }}" class="card-footer-link w-full text-left bg-[#074ea2] hover:bg-[#003D82] text-white font-bold py-3 px-6 rounded-b-sm transition-colors flex items-center justify-between">
-                        <span>View All Notices</span>
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <div class="mt-auto">
+                    <a
+                        :href="activeNoticeTab === 'exam' ? '{{ route('public.notices', ['type' => 'exam']) }}' : '{{ route('public.notices') }}'"
+                        class="card-footer-link bg-[#003D82] text-left text-white font-bold transition-colors"
+                        style="display:flex;align-items:center;justify-content:space-between;"
+                    >
+                        <span class="whitespace-nowrap" x-text="activeNoticeTab === 'exam' ? 'View Exam Results' : 'View All Notices'"></span>
+                        <svg class="ml-3 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 </div>
             </div>
         </div>
 
         {{-- RIGHT COLUMN (News & Events - Dynamic) --}}
-        <div class="order-3 lg:order-none lg:col-span-3 space-y-6 flex flex-col">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden flex-1 flex flex-col hover:shadow-xl transition-shadow duration-300">
+        <div class="order-3 flex flex-col lg:order-none lg:col-span-3 lg:h-full">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden flex min-h-[520px] flex-col hover:shadow-xl transition-shadow duration-300 lg:min-h-0 lg:flex-1">
                 <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     News & Events
