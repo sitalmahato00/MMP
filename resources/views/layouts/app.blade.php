@@ -23,23 +23,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
-        // Prevent access to authenticated pages after logout via back button
-        (function() {
-            // Force reload when page is loaded from bfcache (back/forward cache)
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted) {
-                    // Page was loaded from bfcache - force a full reload
-                    // This ensures authentication middleware runs and checks session validity
-                    window.location.reload();
-                }
-            });
-            
-            // Also prevent bfcache by using unload event
-            window.addEventListener('unload', function() {
-                // This helps prevent the page from being cached
-            });
-        })();
-
         (() => {
             const themeChoice = localStorage.getItem('mmp.theme') || 'system';
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
