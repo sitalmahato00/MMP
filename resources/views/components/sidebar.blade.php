@@ -56,7 +56,7 @@
             ],
         ],
         [
-            'label' => 'User Management',
+            'label' => 'Users',
             'items' => [
                 ['label' => 'System Users', 'iconName' => 'user-group', 'href' => route('admin.users.index'), 'isActive' => $active('admin.users.*')],
                 ['label' => 'HODs', 'iconName' => 'user-circle', 'href' => route('admin.hods.index'), 'isActive' => $active('admin.hods.*')],
@@ -69,7 +69,7 @@
             ],
         ],
         [
-            'label' => 'Academic Operations',
+            'label' => 'Academics',
             'items' => [
                 ['label' => 'Programs', 'iconName' => 'book-open', 'href' => route('admin.programs.index'), 'isActive' => $active('admin.programs.*')],
                 ['label' => 'Attendance Tracking', 'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'), 'isActive' => $active('admin.attendance.*')],
@@ -77,21 +77,21 @@
             ],
         ],
         [
-            'label' => 'System Configuration',
+            'label' => 'Configurations',
             'items' => [
                 ['label' => 'Academic Sessions', 'iconName' => 'calendar', 'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
                 ['label' => 'Departments', 'iconName' => 'office-building', 'href' => route('admin.departments.index'), 'isActive' => $active('admin.departments.*')],
             ],
         ],
         [
-            'label' => 'Communication Hub',
+            'label' => 'Communications',
             'items' => [
                 ['label' => 'Notices', 'iconName' => 'bell', 'href' => route('admin.notices.index'), 'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
                 ['label' => 'News & Events', 'iconName' => 'collection', 'href' => route('admin.news-events.index'), 'isActive' => $active('admin.news-events.*')],
             ],
         ],
         [
-            'label' => 'Content Management',
+            'label' => 'Web Content',
             'items' => [
                 ['label' => 'Web Pages', 'iconName' => 'doc-text', 'href' => route('admin.web-control.index', ['tab' => 2]), 'isActive' => $active('admin.web-control.*') && (int) request('tab', 0) === 2],
                 ['label' => 'Media Library', 'iconName' => 'photo', 'href' => route('admin.media.index'), 'isActive' => $active('admin.media.*')],
@@ -100,7 +100,7 @@
             ],
         ],
         [
-            'label' => 'System Administration',
+            'label' => 'Control',
             'items' => [
                 ['label' => 'Account Settings', 'iconName' => 'cog', 'href' => route('admin.settings.index'), 'isActive' => $active('admin.settings.*')],
                 ['label' => 'Access Control', 'iconName' => 'shield', 'href' => route('admin.roles-permissions.index'), 'isActive' => $active('admin.roles-permissions.*')],
@@ -118,7 +118,7 @@
             ],
         ],
         [
-            'label' => 'Department Management',
+            'label' => 'User',
             'items' => [
                 ['label' => 'Students', 'iconName' => 'user-group', 'href' => $portalRoute('hod.students.index', 'hod.dashboard'), 'isActive' => $active('hod.students.*')],
                 ['label' => 'Teachers', 'iconName' => 'briefcase', 'href' => $portalRoute('hod.teachers.index', 'hod.dashboard'), 'isActive' => $active('hod.teachers.*')],
@@ -183,7 +183,7 @@
             ],
         ],
         [
-            'label' => 'Evaluation',
+            'label' => 'Exams & Results',
             'standalone' => true,
             'items' => [
                 ['label' => 'Exams & Marks', 'iconName' => 'chart-bar', 'href' => $portalRoute('teacher.exams.index', 'teacher.dashboard'), 'isActive' => $active('teacher.exams.*')],
@@ -317,9 +317,9 @@
     x-cloak>
 
     {{-- Brand --}}
-    <div class="flex h-16 items-center justify-between gap-3 border-b border-white/10 px-4 lg:px-5">
+    <div class="flex h-16 items-center justify-between gap-3 border-b border-white/10 bg-white/[0.04] px-4 lg:px-5">
         <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-3 overflow-hidden">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-lg">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 shadow-lg">
                 <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="h-8 w-8 rounded-xl object-cover" onerror="this.style.display='none'">
             </div>
             <div x-show="!sidebarCollapsed" x-cloak class="min-w-0">
@@ -330,7 +330,7 @@
 
         <button type="button"
             @click="sidebarCollapsed = !sidebarCollapsed"
-            class="hidden rounded-xl border border-white/10 bg-white/5 p-2 text-white/60 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white lg:inline-flex">
+            class="hidden rounded-xl border border-white/15 bg-white/10 p-2 text-white/70 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/15 hover:text-white lg:inline-flex">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path x-show="!sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 <path x-show="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -451,8 +451,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                     </svg>
                 </span>
-                <span x-show="!sidebarCollapsed" x-cloak class="truncate">View Public Site</span>
-                <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-2xl ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 lg:block">View Public Site</span>
+                <span x-show="!sidebarCollapsed" x-cloak class="truncate">Public Site</span>
+                <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-2xl ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 lg:block">Public Site</span>
             </a>
         </div>
     </nav>

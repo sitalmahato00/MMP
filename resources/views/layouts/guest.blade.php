@@ -396,7 +396,7 @@
     @unless(request()->routeIs('home'))
     {{-- slim spacer for non-home pages --}}
     @else
-    <div class="hidden border-b border-gray-200 bg-white py-2.5 shadow-sm lg:block md:py-3">
+    <div class="guest-logo-bar hidden border-b border-gray-200 bg-white py-2.5 shadow-sm lg:block md:py-3">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center justify-between gap-3">
             <a href="{{ route('home') }}" class="flex min-w-0 flex-1 items-center gap-3">
                 {{-- MMP Seal/Emblem --}}
@@ -419,12 +419,12 @@
     @endunless
 
     {{-- ── MAIN NAVIGATION (CTEVT Blue) ──────────────────────────── --}}
-    <nav style="background-color: #003D82;" class="hidden sticky top-0 z-50 shadow-md lg:block" x-data="{ mobileOpen: false }">
+    <nav style="background-color: #003D82;" class="guest-desktop-nav hidden sticky top-0 z-50 shadow-md lg:block" x-data="{ mobileOpen: false }">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto">
             <div class="flex items-center justify-between">
 
                 {{-- Desktop Nav Links --}}
-                <div class="hidden xl:flex items-center flex-1">
+                <div class="guest-desktop-nav-links hidden xl:flex items-center flex-1">
                     {{-- Active state uses pb-1, border-b-[4px] for the thick white underline --}}
                     <a href="{{ route('home') }}" class="text-white text-xs font-semibold uppercase px-2.5 py-3 hover:bg-white/10 transition-colors border-b-4 {{ request()->routeIs('home') ? 'border-white bg-white/10' : 'border-transparent hover:border-white' }}">HOME</a>
 

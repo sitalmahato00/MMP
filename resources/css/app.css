@@ -511,6 +511,19 @@ html.dark div[class*="rounded-xl"][class*="bg-white"] {
   border-color: #334155 !important;
 }
 
+/* Keep the public desktop header flat in dark mode. */
+html.dark .guest-logo-bar,
+html.dark .guest-desktop-nav {
+  border-radius: 0 !important;
+}
+
+/* Remove the desktop navigation underline/baseline in dark mode. */
+html.dark .guest-desktop-nav-links > a,
+html.dark .guest-desktop-nav-links > div > button {
+  border-bottom-width: 0 !important;
+  border-bottom-color: transparent !important;
+}
+
 /* Target nested white backgrounds */
 html.dark .bg-white .bg-white,
 html.dark .bg-white > div,
