@@ -215,7 +215,9 @@ class HomeController extends Controller
 
     public function result()
     {
-        return view('public.result');
+        $resultForm = $this->service->getCtevtResultForm();
+
+        return view('public.result', compact('resultForm'));
     }
 
     public function resultSubmit(Request $request)
