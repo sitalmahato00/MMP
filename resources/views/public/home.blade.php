@@ -226,23 +226,23 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Managements
                 </div>
-                <div class="flex-1 p-4 space-y-5">
+                <div class="flex flex-1 flex-col justify-center gap-5 p-4">
                     @php
                         $currentPrincipal = isset($leadership['principals']) ? $leadership['principals']->firstWhere('is_current', true) : null;
                         $currentPresident = isset($leadership['presidents']) ? $leadership['presidents']->firstWhere('is_current', true) : null;
                     @endphp
                     @foreach(array_filter([$currentPresident, $currentPrincipal]) as $exec)
-                    <div class="flex min-h-[5.25rem] gap-4 items-stretch">
-                        <div class="w-16 h-20 bg-gray-200 dark:bg-slate-700 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
+                    <div class="flex min-h-[6.25rem] gap-4 items-center">
+                        <div class="h-24 w-20 bg-gray-200 dark:bg-slate-700 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
                             @if($exec->avatar)
                                 <img src="{{ asset('storage/' . $exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-2xl font-bold" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
                             @endif
                         </div>
-                        <div class="flex min-h-[5rem] flex-col justify-center">
-                            <div class="font-bold text-[#003D82] dark:text-blue-400 text-[13px] leading-snug">{{ $exec->name ?? 'N/A' }}</div>
-                            <div class="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">{{ $exec->designation ?? ucfirst($exec->type ?? 'N/A') }}</div>
+                        <div class="flex min-h-[6rem] flex-1 flex-col justify-center pr-1">
+                            <div class="font-bold text-[#003D82] dark:text-blue-400 text-[15px] leading-tight">{{ $exec->name ?? 'N/A' }}</div>
+                            <div class="mt-1 text-[13px] text-gray-500 dark:text-slate-400">{{ $exec->designation ?? ucfirst($exec->type ?? 'N/A') }}</div>
                         </div>
                     </div>
                     @endforeach
