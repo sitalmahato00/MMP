@@ -198,8 +198,8 @@
 
         {{-- LEFT COLUMN (Quick Links & Officials) --}}
         <div class="order-2 flex flex-col gap-6 lg:order-none lg:col-span-3 lg:h-full">
-            {{-- Quick Links Card --}}
-            <div class="dashboard-card hover:shadow-xl transition-shadow duration-300">
+            {{-- Quick Links Card - Full Size (No Scrolling) --}}
+            <div class="dashboard-card hover:shadow-xl transition-shadow duration-300 flex-1">
                 <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                     Quick Links
@@ -220,37 +220,51 @@
                 </ul>
             </div>
 
-            {{-- People/Officials (Dynamic) --}}
-            <div class="dashboard-card flex min-h-0 flex-1 flex-col text-sm hover:shadow-xl transition-shadow duration-300">
-                <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
+            {{-- People/Officials (Dynamic) - Equal Height with Balanced Padding --}}
+            <div class="dashboard-card flex flex-col text-sm hover:shadow-xl transition-shadow duration-300 flex-1">
+                <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600 flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Managements
                 </div>
-                <div class="flex flex-1 flex-col justify-center gap-5 p-4">
-                    @php
-                        $currentPrincipal = isset($leadership['principals']) ? $leadership['principals']->firstWhere('is_current', true) : null;
-                        $currentPresident = isset($leadership['presidents']) ? $leadership['presidents']->firstWhere('is_current', true) : null;
-                    @endphp
-                    @foreach(array_filter([$currentPresident, $currentPrincipal]) as $exec)
-                    <div class="flex min-h-[6.25rem] gap-4 items-center">
-                        <div class="h-24 w-20 bg-gray-200 dark:bg-slate-700 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
-                            @if($exec->avatar)
-                                <img src="{{ asset('storage/' . $exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-2xl font-bold" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
-                            @endif
+                <div class="flex-1 overflow-y-auto py-6 px-4">
+                    <div class="flex flex-col gap-5">
+                        @php
+                            // Get current president and principal based on end_date_bs being null or empty
+                            $currentPresident = isset($leadership['presidents']) 
+                                ? $leadership['presidents']->first(function($exec) {
+                                    return empty($exec->end_date_bs) || is_null($exec->end_date_bs);
+                                })
+                                : null;
+                            
+                            $currentPrincipal = isset($leadership['principals']) 
+                                ? $leadership['principals']->first(function($exec) {
+                                    return empty($exec->end_date_bs) || is_null($exec->end_date_bs);
+                                })
+                                : null;
+                            
+                            // President first, then principal
+                            $executives = array_filter([$currentPresident, $currentPrincipal]);
+                        @endphp
+                        @forelse($executives as $exec)
+                        <div class="flex min-h-[6.25rem] gap-4 items-center">
+                            <div class="h-24 w-20 bg-gray-200 dark:bg-slate-700 border shadow-sm flex-shrink-0 overflow-hidden -ml-1">
+                                @if($exec->avatar)
+                                    <img src="{{ asset('storage/' . $exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-2xl font-bold" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
+                                @endif
+                            </div>
+                            <div class="flex min-h-[6rem] flex-1 flex-col justify-center pr-1">
+                                <div class="font-bold text-[#003D82] dark:text-blue-400 text-[15px] leading-tight">{{ $exec->name ?? 'N/A' }}</div>
+                                <div class="mt-1 text-[13px] text-gray-500 dark:text-slate-400">{{ $exec->designation ?? ucfirst($exec->type ?? 'N/A') }}</div>
+                            </div>
                         </div>
-                        <div class="flex min-h-[6rem] flex-1 flex-col justify-center pr-1">
-                            <div class="font-bold text-[#003D82] dark:text-blue-400 text-[15px] leading-tight">{{ $exec->name ?? 'N/A' }}</div>
-                            <div class="mt-1 text-[13px] text-gray-500 dark:text-slate-400">{{ $exec->designation ?? ucfirst($exec->type ?? 'N/A') }}</div>
-                        </div>
+                        @empty
+                            <p class="text-xs text-gray-400 dark:text-slate-500 text-center py-2">Management details coming soon.</p>
+                        @endforelse
                     </div>
-                    @endforeach
-                    @if(empty(array_filter([$currentPresident ?? null, $currentPrincipal ?? null])))
-                        <p class="text-xs text-gray-400 dark:text-slate-500 text-center py-2">Management details coming soon.</p>
-                    @endif
                 </div>
-                <a href="{{ route('public.leadership') }}" class="card-footer-link">View All Presidents & Principals »</a>
+                <a href="{{ route('public.leadership') }}" class="card-footer-link flex-shrink-0">View All Presidents & Principals »</a>
             </div>
         </div>
 
@@ -404,14 +418,14 @@
             </div>
         </div>
 
-        {{-- RIGHT COLUMN (News & Events - Dynamic) --}}
+        {{-- RIGHT COLUMN (News & Events - Dynamic) - Equal Height with Balanced Padding --}}
         <div class="order-3 flex flex-col lg:order-none lg:col-span-3 lg:h-full">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden flex min-h-[520px] flex-col hover:shadow-xl transition-shadow duration-300 lg:min-h-0 lg:flex-1">
-                <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300 flex-1">
+                <div class="bg-[#003D82] dark:bg-slate-700 text-white font-normal p-3.5 flex items-center gap-2 border-b-2 border-yellow-500 dark:border-yellow-600 flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     News & Events
                 </div>
-                <div class="p-0 flex-1 overflow-y-auto">
+                <div class="p-0 flex-1 overflow-y-auto py-6">
                     @forelse(($newsEvents ?? collect())->take(5) as $event)
                         @php 
                             $eventDate = $event->published_at ?? $event->created_at;
@@ -420,7 +434,7 @@
                         @endphp
                         
                         {{-- All items as list with thumbnail --}}
-                        <a href="{{ route('public.news-events.show', $event->slug) }}" class="flex gap-3 p-4 hover:bg-blue-50 dark:hover:bg-slate-700 group transition-colors border-b border-gray-100 dark:border-slate-700 last:border-b-0">
+                        <a href="{{ route('public.news-events.show', $event->slug) }}" class="flex gap-3 px-4 py-3 hover:bg-blue-50 dark:hover:bg-slate-700 group transition-colors border-b border-gray-100 dark:border-slate-700 last:border-b-0">
                             @if($firstImage)
                                 {{-- Show thumbnail image --}}
                                 <div class="w-20 h-20 flex-shrink-0 rounded overflow-hidden bg-gray-100 dark:bg-slate-700">
@@ -451,7 +465,7 @@
                         </div>
                     @endforelse
                 </div>
-                <a href="{{ route('public.news-events') }}" class="block p-2.5 bg-[#003D82] dark:bg-blue-600 text-white text-xs font-bold text-left hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors px-4">
+                <a href="{{ route('public.news-events') }}" class="block p-2.5 bg-[#003D82] dark:bg-blue-600 text-white text-xs font-bold text-left hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors px-4 flex-shrink-0">
                     View All News & Events »
                 </a>
             </div>
