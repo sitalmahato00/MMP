@@ -49,10 +49,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'active.session' => \App\Http\Middleware\EnsureActiveSession::class,
             'department.isolation' => \App\Http\Middleware\DepartmentIsolation::class,
             'audit' => \App\Http\Middleware\AuditActivity::class,
+            'prevent.back' => \App\Http\Middleware\PreventBackHistory::class,
         ]);
 
         // Apply audit middleware to all web routes
         $middleware->appendToGroup('web', \App\Http\Middleware\AuditActivity::class);
+        
+        // Prevent browser back button cache for authenticated routes
+        $middleware->appendToGroup('web', \App\Http\Middleware\PreventBackHistory::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
