@@ -226,7 +226,12 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        $response = redirect()->route('login');
+        
+        // Add headers to prevent caching after logout
+        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                        ->header('Pragma', 'no-cache')
+                        ->header('Expires', '0');
     }
 
     /**

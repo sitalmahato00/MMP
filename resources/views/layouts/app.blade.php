@@ -23,13 +23,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
-        // Prevent bfcache (back/forward cache) security issue
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                // Page was loaded from bfcache, force reload to check authentication
-                window.location.reload();
-            }
-        });
+        // Prevent access to authenticated pages after logout via back button
+        (function() {
+            // Check if page is loaded from bfcache after logout
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    // Page loaded from bfcache - verify authentication is still valid
+                    var img = new Image();
+                    img.onerror = function() {
+                        // If this fails, session is likely invalid, redirect to login
+                        window.location.href = '{{ route("login") }}';
+                    };
+                    // Try to load a small authenticated resource to check session
+                    img.src = '{{ route("dashboard") }}?_check=' + Date.now();
+                }
+            });
+        })();
 
         (() => {
             const themeChoice = localStorage.getItem('mmp.theme') || 'system';
