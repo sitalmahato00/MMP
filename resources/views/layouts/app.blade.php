@@ -23,6 +23,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
+        // Prevent bfcache (back/forward cache) security issue
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                // Page was loaded from bfcache, force reload to check authentication
+                window.location.reload();
+            }
+        });
+
         (() => {
             const themeChoice = localStorage.getItem('mmp.theme') || 'system';
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
