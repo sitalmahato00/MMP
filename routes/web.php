@@ -17,24 +17,31 @@ Route::get('/pwa-icon-{size}.png', [PwaIconController::class, 'icon'])
     ->name('pwa.icon');
 
 // ─── Public Routes (SEO-optimized) ────────────────────────
+
 Route::get('/brand-logo', function () {
+    // PNG placeholder (1x1 red pixel, base64-encoded)
+    $placeholder = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAn8B9nQn2wAAAABJRU5ErkJggg==');
     $fallbackPath = public_path('favicon.ico');
 
     if (! Schema::hasTable('site_settings')) {
-        return response()->file($fallbackPath);
+        return response($placeholder, 200, ['Content-Type' => 'image/png']);
     }
 
     $siteLogoPath = Cache::remember('brand:site_logo', 600, function () {
         return SiteSetting::query()->where('key', 'site_logo')->value('value');
     });
 
+
+    // Always use the latest logo uploaded from the admin branding page
+    // If logo is missing, return a visible PNG placeholder
+
     if (! is_string($siteLogoPath) || trim($siteLogoPath) === '' || ! Storage::disk('public')->exists($siteLogoPath)) {
-        return response()->file($fallbackPath);
+        // Return a visible PNG placeholder for debugging
+        return response($placeholder, 200, ['Content-Type' => 'image/png']);
     }
 
     // Get file modification time for proper cache busting
     $lastModified = Storage::disk('public')->lastModified($siteLogoPath);
-    
     return Storage::disk('public')
         ->response($siteLogoPath)
         ->setLastModified(new \DateTime('@' . $lastModified))

@@ -393,8 +393,12 @@
                         @endforelse
                     </ul>
                 </div>
-                <div class="px-0 pt-0 pb-0 mt-0 border-0 bg-transparent rounded-b-2xl">
-                    <a href="{{ route('public.notices') }}" class="card-footer-link">View All Notices »</a>
+                <div class="flex-1"></div>
+                <div class="px-0 pt-0 pb-0 mt-auto border-0 bg-transparent rounded-b-2xl flex items-end">
+                    <a href="{{ route('public.notices') }}" class="card-footer-link w-full text-left bg-[#074ea2] hover:bg-[#003D82] text-white font-bold py-3 px-6 rounded-b-sm transition-colors flex items-center justify-between">
+                        <span>View All Notices</span>
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
                 </div>
             </div>
         </div>
