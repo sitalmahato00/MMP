@@ -88,7 +88,7 @@
                             @if($banner->subtitle)
                                 <span class="rounded-none bg-[#e74c3c] text-[9px] sm:text-[10px] md:text-[0.7rem] font-bold px-2 sm:px-3 py-1 sm:py-1.5 mb-2 sm:mb-4 inline-block uppercase text-white tracking-wider">{{ $banner->subtitle }}</span>
                             @endif
-                            <h2 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-[3.8rem] font-black leading-tight uppercase text-white drop-shadow-2xl mb-2 sm:mb-4 md:mb-5">
+                            <h2 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-[3.8rem] font-bold leading-tight uppercase text-white drop-shadow-2xl mb-2 sm:mb-4 md:mb-5">
                                 {{ $banner->title }}
                             </h2>
                             {{-- Department program list --}}
@@ -127,7 +127,7 @@
             <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
                 <div class="max-w-3xl pl-4 md:pl-10">
                     <span class="bg-[#e74c3c] text-[10px] font-bold px-3 py-1 mb-3 inline-block uppercase text-white shadow-sm tracking-wide">New Admission</span>
-                    <h1 class="text-3xl md:text-5xl lg:text-[50px] font-bold font-serif leading-[1.15] mb-4 text-white drop-shadow-lg">
+                    <h1 class="text-3xl md:text-5xl lg:text-[50px] font-semibold leading-[1.15] mb-4 text-white drop-shadow-lg">
                         ADMISSION OPEN FOR DIPLOMA<br>COURSES
                     </h1>
                     <div class="text-sm md:text-[15px] mb-8 text-gray-200 drop-shadow flex flex-wrap items-center gap-1 md:gap-2 tracking-wide font-light">
@@ -237,7 +237,7 @@
                             @if($exec->avatar)
                                 <img src="{{ asset('storage/' . $exec->avatar) }}" class="w-full h-full object-cover" alt="{{ $exec->name }}">
                             @else
-                                <div class="w-full h-full flex items-center justify-center text-2xl font-black" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
+                                <div class="w-full h-full flex items-center justify-center text-2xl font-bold" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($exec->name ?? 'N',0,1)) }}</div>
                             @endif
                         </div>
                         <div>
@@ -267,7 +267,7 @@
                         ->values();
                 @endphp
                 <div class="relative z-10">
-                    <h2 class="font-serif text-2xl font-semibold mb-3">Welcome to MMP</h2>
+                    <h2 class="text-2xl font-semibold mb-3">Welcome to MMP</h2>
                     <div class="mx-auto max-w-3xl px-4">
                         <div class="max-h-[180px] md:max-h-[220px] overflow-y-auto pr-2 text-left">
                             <div class="space-y-3 text-[13px] leading-relaxed text-gray-100">
@@ -307,7 +307,7 @@
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
                                 <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
                                     <span class="text-[8px] font-bold leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
-                                    <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
+                                    <span class="text-sm font-bold leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                     <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -354,7 +354,7 @@
                                 @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
                                 <div class="flex-shrink-0 w-11 h-14 text-white flex flex-col items-center justify-center rounded text-center" style="background-color: #003D82;">
                                     <span class="text-[8px] font-bold leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
-                                    <span class="text-sm font-black leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
+                                    <span class="text-sm font-bold leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
                                     <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -425,7 +425,7 @@
                                 {{-- Show date badge if no image --}}
                                 <div class="w-12 h-12 flex-shrink-0 text-white flex flex-col items-center justify-center rounded text-center shadow-sm" style="background-color: #003D82;">
                                     <span class="text-[8px] font-bold leading-none">{{ bsDate($eventDate, 'Y') }}</span>
-                                    <span class="text-sm font-black leading-tight">{{ bsDate($eventDate, 'd') }}</span>
+                                    <span class="text-sm font-bold leading-tight">{{ bsDate($eventDate, 'd') }}</span>
                                     <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($eventDate, 'F') }}</span>
                                 </div>
                             @endif
@@ -462,7 +462,7 @@
     </div>
 
     <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-200 dark:border-slate-700">
-        <h2 class="text-2xl font-bold font-serif text-[#003D82] dark:text-blue-400 border-l-[3px] border-[#003D82] dark:border-blue-400 pl-3 leading-none">
+        <h2 class="text-2xl font-bold text-[#003D82] dark:text-blue-400 border-l-[3px] border-[#003D82] dark:border-blue-400 pl-3 leading-none">
             Principal's Message
         </h2>
     </div>
@@ -483,7 +483,7 @@
                 @if($currentPrincipal?->avatar)
                     <img src="{{ asset('storage/'.$currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover object-top">
                 @else
-                    <div class="w-full h-full flex items-center justify-center text-7xl font-black" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($currentPrincipal?->name ?? 'P',0,1)) }}</div>
+                    <div class="w-full h-full flex items-center justify-center text-7xl font-bold" style="background:#f3f4f6;color:#003D82;">{{ strtoupper(substr($currentPrincipal?->name ?? 'P',0,1)) }}</div>
                 @endif
             </div>
             <div class="mt-4 text-center">
@@ -540,7 +540,7 @@
 {{-- ── DIPLOMA PROGRAMS (GRID) ───────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12 bg-white dark:bg-slate-950 border-t border-[#f9f9f9] dark:border-slate-800">
     <div class="flex justify-between items-center mb-8 pb-3 border-b border-gray-100 dark:border-slate-800">
-        <h2 class="text-2xl font-bold font-serif text-[#003D82] dark:text-blue-400 border-l-[3px] border-[#003D82] dark:border-blue-400 pl-3 leading-none">
+        <h2 class="text-2xl font-bold text-[#003D82] dark:text-blue-400 border-l-[3px] border-[#003D82] dark:border-blue-400 pl-3 leading-none">
             Our Diploma Programs
         </h2>
         <a href="{{ route('public.departments') }}" class="text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-[#003D82] dark:hover:text-blue-400 flex items-center gap-1 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-sm hover:border-[#003D82] dark:hover:border-blue-400 transition-colors">
@@ -601,7 +601,7 @@
                     <div class="w-14 h-14 mx-auto border-2 border-blue-400/30 rounded-full flex items-center justify-center mb-3 bg-blue-900/40 text-yellow-400">
                         {!! $stat['icon'] !!}
                     </div>
-                    <div class="text-2xl lg:text-3xl font-black mb-1 drop-shadow">{{ $stat['value'] }}</div>
+                    <div class="text-2xl lg:text-3xl font-bold mb-1 drop-shadow">{{ $stat['value'] }}</div>
                     <div class="text-[10px] sm:text-xs font-bold text-blue-100 uppercase tracking-widest">{{ $stat['label'] }}</div>
                 </div>
             @endforeach
@@ -702,7 +702,7 @@
 {{-- ── FIND US / MAP ───────────────────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto pt-10 pb-16 bg-white dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800">
     <div class="flex justify-between items-center mb-6 pb-2 border-b border-gray-100 dark:border-slate-800">
-        <h2 class="text-2xl font-bold font-serif text-[#003D82] dark:text-blue-400 border-l-[3px] border-[#003D82] dark:border-blue-400 pl-3 leading-none">
+        <h2 class="text-2xl font-bold text-[#003D82] dark:text-blue-400 border-l-[3px] border-[#003D82] dark:border-blue-400 pl-3 leading-none">
             Find Us
         </h2>
         <a href="{{ route('public.page', 'contact-us') }}" class="text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-[#003D82] dark:hover:text-blue-400 flex items-center gap-1 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-sm hover:border-[#003D82] dark:hover:border-blue-400 transition-colors">

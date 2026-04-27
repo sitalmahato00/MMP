@@ -6,7 +6,7 @@
 <div class="bg-[#f9f9f9] dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 min-h-screen">
     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-12">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold font-serif text-[#003D82] dark:text-blue-400">Campus Facilities & Resources</h1>
+            <h1 class="text-3xl font-bold text-[#003D82] dark:text-blue-400">Campus Facilities & Resources</h1>
             <p class="text-gray-600 dark:text-slate-400 mt-2">State-of-the-art infrastructure facilitating excellence in technical education.</p>
         </div>
 

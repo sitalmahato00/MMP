@@ -39,7 +39,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <h1 class="text-2xl sm:text-3xl font-bold font-serif text-gray-900">{{ $profile['name'] }}</h1>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $profile['name'] }}</h1>
                             <p class="text-gray-600 text-sm sm:text-base mt-1">{{ $profile['designation'] }}</p>
                             @if(!empty($profile['summary']))
                                 <p class="mt-4 text-sm leading-relaxed text-gray-600 max-w-3xl">{{ $profile['summary'] }}</p>
@@ -149,7 +149,7 @@
 
         <div class="space-y-6">
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                <h3 class="font-bold font-serif text-lg text-gray-900 mb-4">Quick Actions</h3>
+                <h3 class="font-bold text-lg text-gray-900 mb-4">Quick Actions</h3>
                 <div class="space-y-2">
                     @foreach($actionLinks as $link)
                         <a href="{{ $link['href'] }}" class="flex items-center justify-between gap-3 rounded-lg border border-gray-100 px-4 py-3 text-sm text-gray-700 hover:border-[#003D82]/20 hover:bg-blue-50 hover:text-[#003D82] transition-colors">
@@ -161,7 +161,7 @@
             </div>
 
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                <h3 class="font-bold font-serif text-lg text-gray-900 mb-4">Contact</h3>
+                <h3 class="font-bold text-lg text-gray-900 mb-4">Contact</h3>
                 @if($contactSection && !empty($contactSection['rows']))
                     <div class="space-y-3">
                         @foreach($contactSection['rows'] as $row)
@@ -177,7 +177,7 @@
             </div>
 
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                <h3 class="font-bold font-serif text-lg text-gray-900 mb-4">Directory Links</h3>
+                <h3 class="font-bold text-lg text-gray-900 mb-4">Directory Links</h3>
                 <div class="space-y-2 text-sm">
                     <a href="{{ route('public.people') }}" class="flex items-center gap-2 text-gray-700 hover:text-[#003D82] transition-colors">
                         <span class="text-[#003D82] font-bold">›</span> Department Wise People

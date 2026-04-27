@@ -21,7 +21,7 @@
                         Official CTEVT Portal
                     </div>
                     <div class="space-y-3">
-                        <h1 class="font-serif text-3xl md:text-4xl font-black leading-tight">Online Result Search</h1>
+                        <h1 class="text-3xl md:text-4xl font-bold leading-tight">Online Result Search</h1>
                         <p class="text-blue-50/90 leading-relaxed text-sm md:text-base max-w-xl">
                             Use the exact CTEVT inputs below. The form validates on MMP and then opens the official result page in a new tab.
                         </p>

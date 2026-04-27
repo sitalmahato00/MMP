@@ -19,7 +19,7 @@
                         @if($president->avatar)
                             <img src="{{ asset('storage/' . $president->avatar) }}" alt="{{ $president->name }}" class="w-full h-full object-cover">
                         @else
-                            <div class="w-full h-full flex items-center justify-center text-4xl font-black" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
+                            <div class="w-full h-full flex items-center justify-center text-4xl font-bold" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
                                 {{ strtoupper(substr($president->name, 0, 1)) }}
                             </div>
                         @endif
@@ -54,7 +54,7 @@
                         @if($principal->avatar)
                             <img src="{{ asset('storage/' . $principal->avatar) }}" alt="{{ $principal->name }}" class="w-full h-full object-cover">
                         @else
-                            <div class="w-full h-full flex items-center justify-center text-3xl font-black" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
+                            <div class="w-full h-full flex items-center justify-center text-3xl font-bold" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #64748b;">
                                 {{ strtoupper(substr($principal->name, 0, 1)) }}
                             </div>
                         @endif

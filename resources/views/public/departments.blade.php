@@ -30,7 +30,7 @@
                         <span class="text-2xl">{{ $deptIcons[$dept->code] ?? '🏛️' }}</span>
                         <span class="rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 px-2 py-0.5 text-[10px] font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wide">{{ $dept->code }}</span>
                     </div>
-                    <h3 class="font-bold text-lg text-gray-900 dark:text-slate-100 font-serif mb-2 leading-tight group-hover:text-[#003D82] dark:group-hover:text-blue-400 transition-colors duration-300">{{ $dept->name }}</h3>
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-slate-100 mb-2 leading-tight group-hover:text-[#003D82] dark:group-hover:text-blue-400 transition-colors duration-300">{{ $dept->name }}</h3>
                     <p class="text-sm text-gray-500 dark:text-slate-400 mb-4 leading-relaxed line-clamp-2">{{ $dept->description ?? 'CTEVT approved diploma engineering program.' }}</p>
 
                     <div class="grid grid-cols-3 gap-2 mb-4 text-center">

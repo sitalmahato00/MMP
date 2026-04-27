@@ -23,26 +23,26 @@
                 @endif
                 <div class="p-8">
                     <div class="flex items-center gap-3 mb-4">
-                        <h2 class="text-2xl font-black font-serif text-gray-900">{{ $department->name }}</h2>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ $department->name }}</h2>
                         <span class="rounded-md bg-blue-50 border border-blue-100 px-2 py-0.5 text-xs font-bold text-blue-800 uppercase">{{ $department->code }}</span>
                     </div>
                     <p class="text-gray-600 leading-relaxed mb-6">{{ $department->description ?? 'This department offers a comprehensive CTEVT-approved 3-year diploma program designed to equip students with hands-on technical skills required in today\'s industry.' }}</p>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">{{ $department->programs->count() }}</div>
+                            <div class="text-2xl font-bold text-blue-800">{{ $department->programs->count() }}</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Programs</div>
                         </div>
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">3</div>
+                            <div class="text-2xl font-bold text-blue-800">3</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Years Duration</div>
                         </div>
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">6</div>
+                            <div class="text-2xl font-bold text-blue-800">6</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Semesters</div>
                         </div>
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">CTEVT</div>
+                            <div class="text-2xl font-bold text-blue-800">CTEVT</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Affiliated</div>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-bold text-gray-900 font-serif">{{ $program->name }}</h3>
+                                        <h3 class="text-lg font-bold text-gray-900">{{ $program->name }}</h3>
                                         <p class="text-xs text-gray-500 mt-0.5">
                                             {{ $program->code }}
                                             @if($program->ctevt_code) • CTEVT: {{ $program->ctevt_code }} @endif

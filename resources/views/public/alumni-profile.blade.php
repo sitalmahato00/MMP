@@ -96,13 +96,13 @@
                     @if($alumnus->user?->avatar)
                         <img src="{{ asset('storage/'.$alumnus->user->avatar) }}" alt="" class="h-24 w-24 rounded-2xl object-cover ring-4 ring-white shadow-lg"/>
                     @else
-                        <div class="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br {{ $grad }} text-4xl font-black text-white ring-4 ring-white shadow-lg">
+                        <div class="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br {{ $grad }} text-4xl font-bold text-white ring-4 ring-white shadow-lg">
                             {{ strtoupper(substr($alumnus->user?->name ?? 'A', 0, 1)) }}
                         </div>
                     @endif
                     <div class="flex-1 min-w-0 pt-12">
                         <div class="flex flex-wrap items-center gap-2">
-                            <h1 class="text-3xl font-black text-slate-900">{{ $alumnus->user?->name }}</h1>
+                            <h1 class="text-3xl font-bold text-slate-900">{{ $alumnus->user?->name }}</h1>
                             @if($alumnus->is_featured)
                                 <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200">Featured</span>
                             @endif
@@ -145,7 +145,7 @@
                     @foreach($stats as $stat)
                         <div class="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
                             <div class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $stat['label'] }}</div>
-                            <div class="mt-1 text-lg font-black text-slate-900">{{ $stat['value'] }}</div>
+                            <div class="mt-1 text-lg font-bold text-slate-900">{{ $stat['value'] }}</div>
                         </div>
                     @endforeach
                 </div>
@@ -200,7 +200,7 @@
                                         <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] {{ $projectTypeBadge['cls'] }}">{{ $projectTypeBadge['label'] }}</span>
                                         <span class="rounded-full px-2.5 py-1 text-[10px] font-bold ring-1 {{ $projectStatusBadge['cls'] }}">{{ $projectStatusBadge['label'] }}</span>
                                     </div>
-                                    <h3 class="text-xl font-black text-slate-900">{{ $project->title }}</h3>
+                                    <h3 class="text-xl font-bold text-slate-900">{{ $project->title }}</h3>
                                 </div>
                                 @if($project->year)
                                     <span class="text-xs font-semibold text-slate-500">{{ $project->year }}</span>

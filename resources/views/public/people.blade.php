@@ -56,7 +56,7 @@
                         <section class="bg-white border border-gray-200 shadow-sm overflow-hidden">
                             <div class="bg-[#003D82] px-5 py-3 text-white flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <h2 class="font-serif text-lg font-bold">{{ $section->department->name }}</h2>
+                                    <h2 class="text-lg font-bold">{{ $section->department->name }}</h2>
                                     <p class="text-xs text-blue-100">Department-wise people list</p>
                                 </div>
                                 <a href="{{ route('public.department.show', $section->department->slug) }}" class="text-xs font-semibold uppercase tracking-wide text-yellow-300 hover:text-yellow-200 transition-colors">View Department</a>
@@ -130,7 +130,7 @@
                 <section class="bg-white border border-gray-200 shadow-sm overflow-hidden">
                     <div class="bg-gray-800 px-5 py-3 text-white flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h2 class="font-serif text-lg font-bold">Other / Unassigned</h2>
+                            <h2 class="text-lg font-bold">Other / Unassigned</h2>
                             <p class="text-xs text-gray-300">People not matched to a department</p>
                         </div>
                         <span class="text-xs text-gray-300">{{ $otherCount }} people</span>

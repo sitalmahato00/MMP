@@ -16,7 +16,7 @@
                         <span class="text-xs text-gray-500">{{ $program->name }}</span>
                     </div>
                     <div class="flex items-center gap-3 mb-6">
-                        <h1 class="text-2xl font-black font-serif text-gray-900">{{ $program->name }}</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">{{ $program->name }}</h1>
                         <span class="rounded-md bg-blue-50 border border-blue-100 px-2 py-0.5 text-xs font-bold text-blue-800 uppercase">{{ $program->code }}</span>
                         @if($program->is_active)
                             <span class="rounded-md bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Active</span>
@@ -25,19 +25,19 @@
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">{{ $program->duration_years }}</div>
+                            <div class="text-2xl font-bold text-blue-800">{{ $program->duration_years }}</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Years Duration</div>
                         </div>
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">{{ $program->total_semesters }}</div>
+                            <div class="text-2xl font-bold text-blue-800">{{ $program->total_semesters }}</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Semesters</div>
                         </div>
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">{{ $program->subjects->count() }}</div>
+                            <div class="text-2xl font-bold text-blue-800">{{ $program->subjects->count() }}</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Subjects</div>
                         </div>
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-black text-blue-800">{{ $program->subjects->sum('credit_hours') ?: '—' }}</div>
+                            <div class="text-2xl font-bold text-blue-800">{{ $program->subjects->sum('credit_hours') ?: '—' }}</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">Credit Hours</div>
                         </div>
                     </div>

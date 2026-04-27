@@ -7,7 +7,7 @@
 
         {{-- Header --}}
         <div class="mb-8 text-center">
-            <h1 class="text-3xl font-black text-slate-900 lg:text-4xl">Alumni Directory</h1>
+            <h1 class="text-3xl font-bold text-slate-900 lg:text-4xl">Alumni Directory</h1>
             <p class="mx-auto mt-3 max-w-2xl text-base text-slate-600">Explore our growing network of graduates making an impact across Nepal and beyond.</p>
         </div>
 
@@ -65,7 +65,7 @@
                         @if($a->user?->avatar)
                             <img src="{{ asset('storage/'.$a->user->avatar) }}" alt="" class="h-20 w-20 rounded-full object-cover ring-4 ring-slate-100 shadow-md"/>
                         @else
-                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br {{ $grad }} text-2xl font-black text-white ring-4 ring-slate-100 shadow-md">
+                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br {{ $grad }} text-2xl font-bold text-white ring-4 ring-slate-100 shadow-md">
                                 {{ strtoupper(substr($a->user?->name ?? 'A', 0, 1)) }}
                             </div>
                         @endif

@@ -45,7 +45,7 @@
                     {{-- Date badge --}}
                     <div class="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1.5 rounded-lg shadow-lg">
                         <div class="text-xs font-bold">{{ bsDate($noticeDate, 'F') }}</div>
-                        <div class="text-2xl font-black leading-none">{{ bsDate($noticeDate, 'd') }}</div>
+                        <div class="text-2xl font-bold leading-none">{{ bsDate($noticeDate, 'd') }}</div>
                     </div>
                     
                     {{-- Type badge --}}
