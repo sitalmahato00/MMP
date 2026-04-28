@@ -258,12 +258,12 @@
                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             <span class="text-xs font-semibold text-slate-600">{{ $program->students_count }} students</span>
                         </div>
-                        @if($program->coordinator?->user)
+                        @if($program->department?->hod)
                         <div class="flex items-center gap-1.5">
                             <div class="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br {{ $grad }} text-[9px] font-black text-white">
-                                {{ strtoupper(substr($program->coordinator->user->name, 0, 1)) }}
+                                {{ strtoupper(substr($program->department->hod->name, 0, 1)) }}
                             </div>
-                            <span class="max-w-[80px] truncate text-[10px] text-slate-500">{{ explode(' ', $program->coordinator->user->name)[0] }}</span>
+                            <span class="max-w-[80px] truncate text-[10px] text-slate-500">{{ explode(' ', $program->department->hod->name)[0] }}</span>
                         </div>
                         @endif
                     </div>
@@ -340,7 +340,7 @@
                             <th class="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Sem.</th>
                             <th class="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Subjects</th>
                             <th class="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Students</th>
-                            <th class="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Coordinator</th>
+                            <th class="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">HOD</th>
                             <th class="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Syllabus</th>
                             <th class="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">Status</th>
                             <th class="px-4 py-3.5"></th>
@@ -373,12 +373,16 @@
                             <td class="px-4 py-3.5 text-sm font-bold text-slate-900">{{ $program->subjects_count }}</td>
                             <td class="px-4 py-3.5 text-sm font-bold text-slate-900">{{ $program->students_count }}</td>
                             <td class="px-4 py-3.5">
-                                @if($program->coordinator?->user)
+                                @if($program->department?->hod)
                                 <div class="flex items-center gap-2">
+                                    @if($program->department->hod->avatar)
+                                    <img src="{{ asset('storage/'.$program->department->hod->avatar) }}" class="h-6 w-6 rounded-full object-cover ring-1 ring-slate-200"/>
+                                    @else
                                     <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br {{ $grad }} text-[9px] font-black text-white">
-                                        {{ strtoupper(substr($program->coordinator->user->name, 0, 1)) }}
+                                        {{ strtoupper(substr($program->department->hod->name, 0, 1)) }}
                                     </div>
-                                    <span class="text-xs text-slate-600">{{ explode(' ',$program->coordinator->user->name)[0] }}</span>
+                                    @endif
+                                    <span class="text-xs text-slate-600">{{ explode(' ',$program->department->hod->name)[0] }}</span>
                                 </div>
                                 @else
                                 <span class="text-xs text-slate-300">—</span>

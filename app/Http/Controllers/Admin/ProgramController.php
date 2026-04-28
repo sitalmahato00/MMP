@@ -22,7 +22,7 @@ class ProgramController extends Controller
     // ── Index ──────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
-        $query = Program::with(['department', 'coordinator.user'])
+        $query = Program::with(['department.hod'])
             ->withCount(['subjects', 'students'])
             ->when($request->search, fn($q) => $q->where(fn($i) =>
                 $i->where('name', 'like', "%{$request->search}%")
@@ -69,7 +69,6 @@ class ProgramController extends Controller
             'department_id'    => 'required|exists:departments,id',
             'duration_years'   => 'required|integer|min:1|max:6',
             'total_semesters'  => 'required|integer|min:1|max:12',
-            'coordinator_id'   => 'nullable|exists:teachers,id',
             'ctevt_code'       => 'nullable|string|max:50',
             'affiliation_type' => 'nullable|string|max:50',
             'description'      => 'nullable|string',
@@ -97,8 +96,7 @@ class ProgramController extends Controller
     public function show(Program $program)
     {
         $program->load([
-            'department',
-            'coordinator.user',
+            'department.hod',
             'subjects'  => fn($q) => $q->orderBy('semester')->orderBy('name'),
             'students.user',
             'timetables',
@@ -191,7 +189,6 @@ class ProgramController extends Controller
             'department_id'    => 'required|exists:departments,id',
             'duration_years'   => 'required|integer|min:1|max:6',
             'total_semesters'  => 'required|integer|min:1|max:12',
-            'coordinator_id'   => 'nullable|exists:teachers,id',
             'ctevt_code'       => 'nullable|string|max:50',
             'affiliation_type' => 'nullable|string|max:50',
             'description'      => 'nullable|string',

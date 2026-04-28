@@ -81,15 +81,6 @@
                                 <div class="text-sm font-bold text-gray-900">{{ $department->name }}</div>
                             </div>
                         </div>
-                        @if($program->coordinator)
-                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                <span class="text-lg">👨‍🏫</span>
-                                <div>
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase">Coordinator</div>
-                                    <div class="text-sm font-bold text-gray-900">{{ $program->coordinator->user->name ?? $program->coordinator->full_name }}</div>
-                                </div>
-                            </div>
-                        @endif
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                             <span class="text-lg">⏱️</span>
                             <div>
@@ -164,15 +155,20 @@
                 </div>
             </div>
 
-            @if($program->coordinator)
+            @if($department->hod)
                 <div>
-                    <div class="section-header" style="background-color: #003D82;">👨‍🏫 Program Coordinator</div>
+                    <div class="section-header" style="background-color: #003D82;">👔 Head of Department</div>
                     <div class="bg-white border border-gray-200 border-t-0 p-5 rounded-b-lg shadow-md">
                         <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-full bg-blue-50 border-2 flex items-center justify-center text-2xl flex-shrink-0" style="border-color: #003D82;">👨‍💼</div>
+                            @if($department->hod->avatar)
+                                <img src="{{ $department->hod->avatar_url }}" alt="{{ $department->hod->name }}" class="w-14 h-14 rounded-full object-cover border-2 flex-shrink-0" style="border-color: #003D82;">
+                            @else
+                                <div class="w-14 h-14 rounded-full bg-blue-50 border-2 flex items-center justify-center text-2xl flex-shrink-0" style="border-color: #003D82;">👔</div>
+                            @endif
                             <div>
-                                <div class="font-bold text-gray-900">{{ $program->coordinator->user->name ?? $program->coordinator->full_name }}</div>
-                                <div class="text-xs text-blue-700">Program Coordinator</div>
+                                <div class="font-bold text-gray-900">{{ $department->hod->name }}</div>
+                                <div class="text-xs text-blue-700">Head of Department</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ $department->name }}</div>
                             </div>
                         </div>
                     </div>

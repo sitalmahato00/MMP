@@ -162,20 +162,6 @@
                 </h3>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {{-- Coordinator --}}
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Program Coordinator <span class="text-slate-400 font-normal">(optional)</span></label>
-                        <select name="coordinator_id"
-                                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20">
-                            <option value="">— None —</option>
-                            @foreach($teachers as $teacher)
-                            <option value="{{ $teacher->id }}" {{ old('coordinator_id') == $teacher->id ? 'selected' : '' }}>
-                                {{ $teacher->user?->name }} {{ $teacher->designation ? '('.$teacher->designation.')' : '' }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-
                     {{-- Affiliation Type --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Affiliation Type</label>

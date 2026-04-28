@@ -118,7 +118,8 @@ class PublicDataService
         return Cache::remember("public:program:{$departmentSlug}:{$programSlug}", self::CACHE_TTL, function () use ($departmentSlug, $programSlug) {
             $department = Department::where('slug', $departmentSlug)
                 ->active()
-                ->firstOrFail(['id', 'name', 'code', 'slug']);
+                ->with(['hod:id,name,email,avatar'])
+                ->firstOrFail(['id', 'name', 'code', 'slug', 'hod_id']);
 
             // Try to find program by slug first, then fallback to generating slug from name
             $program = Program::where('department_id', $department->id)
@@ -128,7 +129,7 @@ class PublicDataService
                         ->orWhereRaw('LOWER(REPLACE(REPLACE(name, " ", "-"), "/", "-")) = ?', [strtolower($programSlug)]);
                 })
                 ->with([
-                    'department:id,name,code,slug',
+                    'department:id,name,code,slug,hod_id',
                     'coordinator:id,user_id',
                     'coordinator.user:id,name,email,phone,avatar',
                     'subjects' => function ($query) {

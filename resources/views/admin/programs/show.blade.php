@@ -58,8 +58,8 @@
                         {{ $program->department?->name ?? 'No Department' }} &bull;
                         {{ $program->duration_years }} {{ Str::plural('Year', $program->duration_years) }} &bull;
                         {{ $program->total_semesters }} Semesters
-                        @if($program->coordinator?->user)
-                        &bull; Coordinator: <strong class="text-white">{{ $program->coordinator->user->name }}</strong>
+                        @if($program->department?->hod)
+                        &bull; HOD: <strong class="text-white">{{ $program->department->hod->name }}</strong>
                         @endif
                     </p>
 
@@ -257,16 +257,20 @@
                             <dd class="text-xs font-bold text-slate-800 text-right truncate">{{ $d['v'] }}</dd>
                         </div>
                         @endforeach
-                        @if($program->coordinator?->user)
+                        @if($program->department?->hod)
                         <div class="pt-2 border-t border-slate-100">
-                            <p class="text-xs font-semibold text-slate-500 mb-2">Coordinator</p>
+                            <p class="text-xs font-semibold text-slate-500 mb-2">Head of Department</p>
                             <div class="flex items-center gap-2">
+                                @if($program->department->hod->avatar)
+                                <img src="{{ asset('storage/'.$program->department->hod->avatar) }}" class="h-8 w-8 rounded-full object-cover ring-2 ring-slate-100"/>
+                                @else
                                 <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br {{ $grad }} text-xs font-black text-white">
-                                    {{ strtoupper(substr($program->coordinator->user->name, 0, 1)) }}
+                                    {{ strtoupper(substr($program->department->hod->name, 0, 1)) }}
                                 </div>
+                                @endif
                                 <div>
-                                    <p class="text-xs font-bold text-slate-800">{{ $program->coordinator->user->name }}</p>
-                                    <p class="text-[11px] text-slate-400">{{ $program->coordinator->designation ?? 'Teacher' }}</p>
+                                    <p class="text-xs font-bold text-slate-800">{{ $program->department->hod->name }}</p>
+                                    <p class="text-[11px] text-slate-400">{{ $program->department->name }} HOD</p>
                                 </div>
                             </div>
                         </div>
