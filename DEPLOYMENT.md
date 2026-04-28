@@ -1,74 +1,107 @@
-# Production Deployment Checklist
+# cPanel Production Deployment Guide
 
-## Pre-Deployment Cleanup ✅
-- [x] Removed development documentation files
-- [x] Removed test scripts and mockups
-- [x] Removed development database (database.sqlite)
-- [x] Cleared all Laravel caches
-- [x] Removed .env.testing file
+## Pre-Deployment (Local Machine Only)
 
-## Production Server Setup
+### 1. Build Assets Locally
+**IMPORTANT:** Since cPanel doesn't support Node.js, build assets on your local machine first:
 
-### 1. Environment Configuration
 ```bash
-# Copy .env.example to .env
-cp .env.example .env
+# On your local development machine
+npm install
+npm run build
+```
 
-# Update these values in .env:
+This creates the `public/build/` folder with compiled assets.
+
+### 2. Prepare Files for Upload
+- Copy `.env.example` to `.env` and configure for production
+- Ensure `public/build/` folder exists from step 1
+- Remove development files if needed
+
+## cPanel Deployment Steps
+
+### 1. Upload Files to cPanel
+
+**Directory Structure:**
+```
+/home/username/
+├── public_html/ (web root)
+│   ├── index.php (from Laravel's public folder)
+│   ├── .htaccess (from Laravel's public folder)
+│   ├── build/ (from npm run build)
+│   ├── manifest.json
+│   ├── sw.js
+│   ├── offline.html
+│   └── favicon.ico
+├── laravel_app/ (Laravel app - outside public_html)
+│   ├── app/
+│   ├── bootstrap/
+│   ├── config/
+│   ├── database/
+│   ├── resources/
+│   ├── routes/
+│   ├── storage/
+│   ├── vendor/
+│   ├── .env
+│   ├── artisan
+│   └── composer.json
+```
+
+**Upload Steps:**
+1. Create `laravel_app` folder outside `public_html`
+2. Upload Laravel files to `laravel_app/`
+3. Move contents of `public/` folder to `public_html/`
+4. Update `public_html/index.php`:
+   ```php
+   require __DIR__.'/../laravel_app/vendor/autoload.php';
+   $app = require_once __DIR__.'/../laravel_app/bootstrap/app.php';
+   ```
+
+### 2. Configure Environment
+
+Create `.env` file in `laravel_app/`:
+```bash
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://yourdomain.com
 
-# Database credentials
 DB_CONNECTION=mysql
-DB_HOST=your_db_host
-DB_DATABASE=your_db_name
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_DATABASE=cpanel_database_name
+DB_USERNAME=cpanel_db_user
+DB_PASSWORD=cpanel_db_password
 
-# Mail configuration
 MAIL_MAILER=smtp
-MAIL_HOST=your_mail_host
+MAIL_HOST=mail.yourdomain.com
 MAIL_PORT=587
-MAIL_USERNAME=your_mail_username
-MAIL_PASSWORD=your_mail_password
+MAIL_USERNAME=noreply@yourdomain.com
+MAIL_PASSWORD=your_email_password
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@yourdomain.com
+
+# AWS S3 (Optional)
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_DEFAULT_REGION=your_aws_region
+AWS_BUCKET=your_s3_bucket_name
 ```
 
-### 2. Install Dependencies
+### 3. Install Dependencies
+
+Via cPanel Terminal:
 ```bash
-# Install PHP dependencies (production only)
+cd ~/laravel_app
 composer install --optimize-autoloader --no-dev
-
-# If your production server supports Node:
-npm install
-npm run build
 ```
 
-### 2A. No-Node Production Deploy
-If your production server does not support Node, build locally and upload the generated assets:
+**If Composer not available:** Upload `vendor/` folder from local machine.
+
+### 4. Setup Application
 
 ```bash
-# Run this on your local machine before deploy
-npm install
-npm run build
-```
+cd ~/laravel_app
 
-Then deploy these generated files with your code:
-- `public/build/`
-- `public/manifest.json`
-- `public/sw.js`
-- `public/offline.html`
-
-Important:
-- Do not upload `public/hot`
-- `public/build` is the compiled Vite output used by Laravel in production
-- After upload, clear Laravel caches with `php artisan optimize:clear`
-
-### 3. Application Setup
-```bash
-# Generate application key
+# Generate key
 php artisan key:generate
 
 # Run migrations
@@ -77,86 +110,42 @@ php artisan migrate --force
 # Create storage link
 php artisan storage:link
 
-# Optimize for production
+# Optimize
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-php artisan event:cache
 ```
 
-### 4. File Permissions
+### 5. Set Permissions
+
 ```bash
-# Set correct permissions
 chmod -R 755 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+chmod 644 .env
 ```
 
-### 5. PWA Configuration
-- Ensure HTTPS is enabled (required for PWA)
-- Verify manifest.json is accessible at: https://yourdomain.com/manifest.json
-- Verify service worker is accessible at: https://yourdomain.com/sw.js
-- Test PWA installation on mobile and desktop browsers
+### 6. Test Deployment
 
-### 6. Security Checklist
-- [ ] APP_DEBUG=false in .env
-- [ ] Strong APP_KEY generated
-- [ ] Database credentials secured
-- [ ] HTTPS/SSL certificate installed
-- [ ] File permissions set correctly
-- [ ] .env file not accessible via web
-- [ ] Remove any test/demo accounts
-
-### 7. Testing on Production
-- [ ] Test login with 2FA (email OTP)
-- [ ] Test all user roles (Admin, HOD, Teacher, Student, Parent, Alumni)
-- [ ] Test PWA installation (requires HTTPS)
-- [ ] Test offline functionality
+- [ ] Visit your domain
+- [ ] Test login with 2FA
 - [ ] Test file uploads
-- [ ] Test email notifications
-- [ ] Test database connections
-- [ ] Check error logs
+- [ ] Check PWA installation (requires HTTPS)
+- [ ] Verify all user roles work
 
-### 8. Performance Optimization
-```bash
-# Enable OPcache in php.ini
-opcache.enable=1
-opcache.memory_consumption=256
-opcache.max_accelerated_files=20000
+## Troubleshooting
 
-# Queue workers (if using queues)
-php artisan queue:work --daemon
+**500 Error:**
+- Check file permissions
+- Verify `.htaccess` in `public_html`
+- Check cPanel error logs
 
-# Schedule cron job
-* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
-```
+**Database Issues:**
+- Use `localhost` as DB_HOST
+- Verify database credentials in cPanel
 
-## Post-Deployment
+**Missing Assets:**
+- Ensure `public/build/` folder uploaded
+- Check `manifest.json` exists
 
-### Monitor These:
-- Application logs: `storage/logs/laravel.log`
-- Web server error logs
-- Database performance
-- Disk space usage
-- SSL certificate expiry
-
-### Backup Strategy:
-- Database: Daily automated backups
-- Files: Weekly backups of storage/app
-- .env file: Secure backup
-
-## Rollback Plan
-If issues occur:
-1. Revert to previous git commit
-2. Restore database backup
-3. Clear all caches
-4. Restart web server
-
-## Support Contacts
+## Support
 - Technical Support: info@mmp.edu.np
 - Phone: +977 21 590696
-
----
-
-**Deployment Date:** _____________
-**Deployed By:** _____________
-**Version:** _____________
