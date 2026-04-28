@@ -24,6 +24,13 @@ Route::get('/brand-logo', function () {
     $fallbackPath = public_path('favicon.ico');
 
     if (! Schema::hasTable('site_settings')) {
+        // If no database table exists, serve static favicon.ico if available
+        if (file_exists($fallbackPath)) {
+            return response()->file($fallbackPath, [
+                'Content-Type' => 'image/x-icon',
+                'Cache-Control' => 'public, max-age=3600',
+            ]);
+        }
         return response($placeholder, 200, ['Content-Type' => 'image/png']);
     }
 
@@ -33,10 +40,18 @@ Route::get('/brand-logo', function () {
 
 
     // Always use the latest logo uploaded from the admin branding page
-    // If logo is missing, return a visible PNG placeholder
+    // If logo is missing, fallback to static favicon.ico
 
     if (! is_string($siteLogoPath) || trim($siteLogoPath) === '' || ! Storage::disk('public')->exists($siteLogoPath)) {
-        // Return a visible PNG placeholder for debugging
+        // Fallback to static favicon.ico file if it exists
+        if (file_exists($fallbackPath)) {
+            return response()->file($fallbackPath, [
+                'Content-Type' => 'image/x-icon',
+                'Cache-Control' => 'public, max-age=3600',
+            ]);
+        }
+        
+        // If no favicon.ico exists either, return placeholder as last resort
         return response($placeholder, 200, ['Content-Type' => 'image/png']);
     }
 

@@ -92,7 +92,9 @@ Via cPanel Terminal:
 ```bash
 cd ~/laravel_app
 composer install --optimize-autoloader --no-dev
-```
+composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
+
+
 
 **If Composer not available:** Upload `vendor/` folder from local machine.
 
