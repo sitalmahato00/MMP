@@ -80,16 +80,6 @@
                     @else
                         <div class="rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-900">
                             This form uses the same official CTEVT field names and opens the result in a new tab.
-                            @if(($form['source'] ?? 'fallback') === 'live')
-                                <span class="inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-semibold">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4"/></svg>
-                                    Live from CTEVT
-                                </span>
-                            @else
-                                <span class="inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded-full bg-amber-600 text-white text-xs font-semibold">
-                                    Fallback Mode
-                                </span>
-                            @endif
                         </div>
                     @endif
 
