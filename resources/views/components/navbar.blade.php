@@ -5,17 +5,6 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
 
-        <button type="button"
-            @click="sidebarCollapsed = !sidebarCollapsed"
-            class="hidden lg:inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#8B0000]/20 hover:text-[#8B0000]">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path x-show="!sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                <path x-show="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-            <span x-show="!sidebarCollapsed" x-cloak>Collapse</span>
-            <span x-show="sidebarCollapsed" x-cloak>Expand</span>
-        </button>
-        
         @php
             $user = auth()->user();
             $department = null;

@@ -632,7 +632,7 @@
             {{-- Edit button --}}
             <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
                 <h3 class="text-sm font-black text-slate-900 mb-1">Edit Program Details</h3>
-                <p class="text-xs text-slate-500 mb-4">Update the program name, code, coordinator, syllabus, and other details.</p>
+                <p class="text-xs text-slate-500 mb-4">Update the program name, code, syllabus, and other details.</p>
                 <a href="{{ route('admin.programs.edit', $program) }}"
                    class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#7a0000] transition">
                     Open Edit Form →

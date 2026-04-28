@@ -8,7 +8,7 @@
     setView(v) { this.view = v; localStorage.setItem('mmp_users_view', v); },
 }" class="space-y-5">
 
-<x-page-header title="User Management" subtitle="Manage all system accounts and role assignments.">
+<x-page-header title="User Management" subtitle="Manage all system accounts, role assignments, and department affiliations across the institution.">
     <x-slot name="actions">
         <x-btn href="{{ route('admin.users.create') }}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,10 +20,10 @@
 </x-page-header>
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <x-stat-card title="Total Users" value="{{ \App\Models\User::count() }}" color="blue" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'/></svg>"/>
-    <x-stat-card title="Active Students" value="{{ \App\Models\User::role('student')->active()->count() }}" color="purple" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 14l9-5-9-5-9 5 9 5z'/><path d='M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z'/></svg>"/>
-    <x-stat-card title="Active Teachers" value="{{ \App\Models\User::role('teacher')->active()->count() }}" color="green" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'/></svg>"/>
-    <x-stat-card title="Inactive Users" value="{{ \App\Models\User::where('is_active', false)->count() }}" color="red" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'/></svg>"/>
+    <x-stat-card title="Total Users" value="{{ number_format($totalUsers) }}" color="blue" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'/></svg>"/>
+    <x-stat-card title="Active Users" value="{{ number_format($activeUsers) }}" color="green" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 14l9-5-9-5-9 5 9 5z'/><path d='M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z'/></svg>"/>
+    <x-stat-card title="Students" value="{{ number_format($usersByRole['students']) }}" color="purple" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'/></svg>"/>
+    <x-stat-card title="Teachers" value="{{ number_format($usersByRole['teachers']) }}" color="indigo" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'/></svg>"/>
 </div>
 
 {{-- Search / Filter Bar --}}
@@ -46,6 +46,14 @@
             <x-btn href="{{ route('admin.users.index') }}" variant="ghost" size="sm">Clear</x-btn>
         @endif
     </form>
+</div>
+
+{{-- Additional Statistics Row --}}
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <x-stat-card title="Parents" value="{{ number_format($usersByRole['parents']) }}" color="amber" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 919.288 0M15 7a3 3 0 11-6 0 3 3 0 616 0z'/></svg>"/>
+    <x-stat-card title="Alumni" value="{{ number_format($usersByRole['alumni']) }}" color="emerald" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/></svg>"/>
+    <x-stat-card title="With Departments" value="{{ number_format($usersWithDepartments) }}" color="violet" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/></svg>"/>
+    <x-stat-card title="Inactive Users" value="{{ number_format($inactiveUsers) }}" color="red" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 715.636 5.636m12.728 12.728L5.636 5.636'/></svg>"/>
 </div>
 
 {{-- Table --}}
@@ -83,6 +91,7 @@
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-10">#</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Role</th>
+            <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Department</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
             <th class="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Joined</th>
@@ -109,6 +118,21 @@
                 <x-badge :color="$roleColor">{{ $role->name }}</x-badge>
             @endforeach
         </td>
+        <td class="px-5 py-3.5">
+            @php
+                $department = null;
+                if($user->hasRole('teacher') && $user->teacher?->department) {
+                    $department = $user->teacher->department->name;
+                } elseif($user->hasRole('hod') && $user->hodDepartment) {
+                    $department = $user->hodDepartment->name;
+                }
+            @endphp
+            @if($department)
+                <span class="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">{{ $department }}</span>
+            @else
+                <span class="text-xs text-gray-400">—</span>
+            @endif
+        </td>
         <td class="px-5 py-3.5 text-gray-500 text-xs">{{ $user->phone ?? '—' }}</td>
         <td class="px-5 py-3.5">
             <x-badge :color="$user->is_active ? 'green' : 'red'" :dot="true">
@@ -127,7 +151,7 @@
     </tr>
     @empty
     <tr>
-        <td colspan="7" class="px-5 py-14 text-center">
+        <td colspan="8" class="px-5 py-14 text-center">
             <svg class="mx-auto w-10 h-10 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
             </svg>
@@ -171,6 +195,19 @@
                         <span class="rounded-lg bg-{{ $roleColor }}-50 px-2 py-0.5 text-[11px] font-bold text-{{ $roleColor }}-700">{{ $role->name }}</span>
                     @endforeach
                 </div>
+                @php
+                    $department = null;
+                    if($user->hasRole('teacher') && $user->teacher?->department) {
+                        $department = $user->teacher->department->name;
+                    } elseif($user->hasRole('hod') && $user->hodDepartment) {
+                        $department = $user->hodDepartment->name;
+                    }
+                @endphp
+                @if($department)
+                <div class="mt-2 flex items-center justify-center">
+                    <span class="rounded-lg bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">{{ $department }}</span>
+                </div>
+                @endif
                 <div class="mt-3 flex items-center justify-center">
                     @if($user->is_active)
                         <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">

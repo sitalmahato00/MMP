@@ -14,7 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::with('roles')
+        $users = User::with(['roles', 'teacher.department', 'hodDepartment'])
             ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['hod', 'executive']))
             ->when($request->search, fn($q) =>
                 $q->where('name', 'like', "%{$request->search}%")
@@ -24,7 +24,28 @@ class UserController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.users.index', compact('users'));
+        // Get additional statistics for header
+        $totalUsers = User::count();
+        $activeUsers = User::where('is_active', true)->count();
+        $inactiveUsers = User::where('is_active', false)->count();
+        $usersByRole = [
+            'students' => User::role('student')->count(),
+            'teachers' => User::role('teacher')->count(),
+            'parents' => User::role('parent')->count(),
+            'alumni' => User::role('alumni')->count(),
+        ];
+        $usersWithDepartments = User::whereHas('teacher.department')
+            ->orWhereHas('hodDepartment')
+            ->count();
+
+        return view('admin.users.index', compact(
+            'users', 
+            'totalUsers', 
+            'activeUsers', 
+            'inactiveUsers', 
+            'usersByRole',
+            'usersWithDepartments'
+        ));
     }
 
     public function create()

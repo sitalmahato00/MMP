@@ -42,7 +42,7 @@
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black text-slate-900">Programs</h1>
-            <p class="mt-0.5 text-sm text-slate-500">Manage academic programs, syllabi, coordinators, and curriculum structure.</p>
+            <p class="mt-0.5 text-sm text-slate-500">Manage academic programs, syllabi, and curriculum structure.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('admin.programs.create') }}"
