@@ -32,7 +32,7 @@
         <x-input name="search" value="{{ request('search') }}" placeholder="Search name or email…" class="flex-1 min-w-[200px]"/>
         <x-select name="role">
             <option value="">All Roles</option>
-            @foreach(['principal','teacher','student','parent','alumni'] as $r)
+            @foreach(['admin','principal','hod','executive','teacher','student','parent','alumni'] as $r)
                 <option value="{{ $r }}" {{ request('role') === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
             @endforeach
         </x-select>

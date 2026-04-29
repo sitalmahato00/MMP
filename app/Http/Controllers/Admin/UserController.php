@@ -15,7 +15,6 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = User::with(['roles', 'teacher.department', 'hodDepartment'])
-            ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['hod', 'executive']))
             ->when($request->search, fn($q) =>
                 $q->where('name', 'like', "%{$request->search}%")
                   ->orWhere('email', 'like', "%{$request->search}%"))
