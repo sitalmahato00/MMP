@@ -28,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::defaultView('vendor.pagination.custom');
 
+        // API rate limiter (default for API routes)
+        RateLimiter::for('api', function (Request $request): Limit {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
         RateLimiter::for('login', function (Request $request): Limit {
             $email = strtolower(trim((string) $request->input('email')));
 

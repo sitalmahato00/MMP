@@ -143,6 +143,19 @@ class User extends Authenticatable
         return $this->getRoleNames()->first();
     }
 
+    public function getPanelType(): string
+    {
+        return match (true) {
+            $this->hasRole('principal') => 'admin',
+            $this->hasRole('hod') => 'hod',
+            $this->hasRole('teacher') => 'teacher',
+            $this->hasRole('student') => 'student',
+            $this->hasRole('parent') => 'parent',
+            $this->hasRole('alumni') => 'alumni',
+            default => 'guest',
+        };
+    }
+
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new CustomResetPasswordNotification($token));

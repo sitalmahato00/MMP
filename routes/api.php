@@ -5,10 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Public\PublicApiController;
 use App\Http\Controllers\Api\AuthController;
 
-// ─── OTP Authentication Routes ───────────
+// ─── Authentication Routes ───────────
 Route::prefix('auth')->middleware('throttle:3,1')->group(function () {
-    Route::post('/send-otp', [AuthController::class, 'sendOtp']);
-    Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 
@@ -35,9 +33,7 @@ Route::prefix('v1')->group(function () {
 
     // Authenticated API (future mobile/PWA use)
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/user', function (Request $request) {
-            return $request->user()->load('student', 'teacher', 'parentProfile', 'alumnus');
-        });
+        Route::get('/user', [AuthController::class, 'user']);
     });
 
     // Subject API (authenticated users only)

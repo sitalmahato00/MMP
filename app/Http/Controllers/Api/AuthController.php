@@ -109,13 +109,7 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Login successful',
             'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'avatar' => $user->avatar,
-                ],
+                'user' => $this->formatUserResponse($user),
                 'token' => $token,
                 'token_type' => 'Bearer',
             ],
@@ -123,21 +117,25 @@ class AuthController extends Controller
     }
 
     /**
-     * Login with password or OTP
+     * Login with email/password or email/OTP
      * 
      * @param LoginRequest $request
      * @return JsonResponse
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $phone = $request->phone;
+        $email = $request->email;
         $password = $request->password;
         $otp = $request->otp;
 
-        // Find user
-        $user = User::where('phone', $phone)->first();
+        // Find user by email
+        $user = User::where('email', $email)->first();
 
         if (!$user) {
+            Log::warning("Failed login attempt - user not found", [
+                'email' => $email,
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
@@ -146,6 +144,8 @@ class AuthController extends Controller
 
         // Check if user is active
         if (!$user->is_active) {
+            Log::warning("Login attempt for inactive account: {$user->id}");
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Your account is inactive. Please contact support.',
@@ -157,25 +157,59 @@ class AuthController extends Controller
         // Try password authentication
         if ($password) {
             if (Hash::check($password, $user->password)) {
+                // Check if 2FA is enabled
+                if ($user->two_factor_enabled && !$otp) {
+                    // Send OTP for 2FA
+                    $identifier = $user->two_factor_method === 'email' ? $user->email : $user->phone;
+                    $result = $this->otpService->sendOtp($identifier, $user->two_factor_method, $user);
+                    
+                    Log::info("2FA OTP sent for user: {$user->id}");
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Two-factor authentication required',
+                        'requires_2fa' => true,
+                        'two_factor_method' => $user->two_factor_method,
+                        'data' => [
+                            'otp_sent' => true,
+                            'expires_in' => $result['expires_in'] ?? 60,
+                        ],
+                    ], 200);
+                }
+                
+                // If 2FA is enabled and OTP is provided, verify it
+                if ($user->two_factor_enabled && $otp) {
+                    $identifier = $user->two_factor_method === 'email' ? $user->email : $user->phone;
+                    $otpResult = $this->otpService->verifyOtp($identifier, $otp);
+                    
+                    if (!$otpResult['success']) {
+                        Log::warning("2FA OTP verification failed for user: {$user->id}");
+                        return response()->json($otpResult, 401);
+                    }
+                }
+                
                 $authenticated = true;
                 Log::info("User logged in via password: {$user->id}");
             }
         }
 
-        // Try OTP authentication if password failed or not provided
-        if (!$authenticated && $otp) {
-            $result = $this->otpService->verifyOtp($phone, $otp);
+        // Try OTP authentication if password failed or not provided (email-based OTP)
+        if (!$authenticated && $otp && $email) {
+            $result = $this->otpService->verifyOtp($email, $otp);
             
             if ($result['success']) {
                 $authenticated = true;
-                Log::info("User logged in via OTP: {$user->id}");
+                Log::info("User logged in via email OTP: {$user->id}");
             } else {
-                return response()->json($result, 400);
+                return response()->json($result, 401);
             }
         }
 
         if (!$authenticated) {
-            Log::warning("Failed login attempt for phone: {$phone}");
+            Log::warning("Failed login attempt", [
+                'user_id' => $user->id,
+                'email' => $email,
+            ]);
             
             return response()->json([
                 'success' => false,
@@ -190,13 +224,7 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Login successful',
             'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'avatar' => $user->avatar,
-                ],
+                'user' => $this->formatUserResponse($user),
                 'token' => $token,
                 'token_type' => 'Bearer',
             ],
@@ -220,5 +248,56 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Logged out successfully',
         ], 200);
+    }
+
+    /**
+     * Get authenticated user profile
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        // Eager load relationships
+        $user->load(['student', 'teacher', 'parentProfile', 'alumnus']);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => $this->formatUserResponse($user),
+            ],
+        ], 200);
+    }
+
+    /**
+     * Get panel type based on user role
+     * 
+     * @param User $user
+     * @return string
+     */
+    private function getPanelType(User $user): string
+    {
+        return $user->getPanelType();
+    }
+
+    /**
+     * Format user response data
+     * 
+     * @param User $user
+     * @return array
+     */
+    private function formatUserResponse(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'avatar_url' => $user->avatar_url,
+            'role' => $user->primaryRole(),
+            'panel_type' => $this->getPanelType($user),
+        ];
     }
 }

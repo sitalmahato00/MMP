@@ -22,10 +22,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => [
+            'email' => [
                 'required',
-                'string',
-                'regex:/^[0-9]{10,15}$/',
+                'email',
+                'exists:users,email',
             ],
             'password' => [
                 'nullable',
@@ -46,8 +46,9 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.required' => 'Phone number is required',
-            'phone.regex' => 'Phone number must be between 10-15 digits',
+            'email.required' => 'Email is required',
+            'email.email' => 'Please provide a valid email address',
+            'email.exists' => 'No account found with this email address',
             'password.min' => 'Password must be at least 6 characters',
             'otp.digits' => 'OTP must be exactly 6 digits',
         ];
@@ -60,7 +61,7 @@ class LoginRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             // At least one of password or OTP must be provided
-            if (!$this->password && !$this->otp) {
+            if (!$this->filled('password') && !$this->filled('otp')) {
                 $validator->errors()->add('auth', 'Either password or OTP is required');
             }
         });
