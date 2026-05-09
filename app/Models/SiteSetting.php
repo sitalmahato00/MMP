@@ -14,6 +14,8 @@ class SiteSetting extends Model
     {
         return [
             ['key' => 'site_logo', 'group' => 'about', 'label' => 'Site Logo (Public + Admin)', 'type' => 'image', 'value' => ''],
+            ['key' => 'college_name', 'group' => 'about', 'label' => 'College / Institution Full Name', 'type' => 'text', 'value' => 'Manmohan Memorial Polytechnic'],
+            ['key' => 'college_affiliation', 'group' => 'about', 'label' => 'Affiliated To (e.g. CTEVT)', 'type' => 'text', 'value' => 'CTEVT'],
             ['key' => 'what_is_mmp', 'group' => 'about', 'label' => 'What is MMP', 'type' => 'richtext', 'value' => 'Manmohan Memorial Polytechnic...'],
             ['key' => 'objectives', 'group' => 'about', 'label' => 'Objectives', 'type' => 'richtext', 'value' => 'Our objectives are...'],
             ['key' => 'welcome_message', 'group' => 'about', 'label' => 'Welcome Message', 'type' => 'richtext', 'value' => 'Welcome to MMP...'],

@@ -5,199 +5,312 @@
     <title>{{ $config['title'] }}</title>
     <style>
         @page {
-            margin: 15mm;
+            margin: 12mm 10mm 15mm 10mm;
             size: A4 landscape;
         }
+        * { box-sizing: border-box; }
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 10px;
+            font-size: 9px;
             margin: 0;
-            line-height: 1.3;
-            color: #333;
+            line-height: 1.4;
+            color: #000;
+            background: #fff;
         }
-        .header {
+
+        /* ── LETTERHEAD ──────────────────────────── */
+        .letterhead {
+            display: table;
+            width: 100%;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 4px;
+        }
+        .letterhead-logo {
+            display: table-cell;
+            width: 70px;
+            vertical-align: middle;
+            text-align: left;
+        }
+        .letterhead-logo img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+        .letterhead-center {
+            display: table-cell;
+            vertical-align: middle;
             text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #2563eb;
-            padding-bottom: 10px;
         }
-        .college-name {
-            font-size: 16px;
+        .letterhead-right {
+            display: table-cell;
+            width: 120px;
+            vertical-align: middle;
+            text-align: right;
+        }
+        .college-name-main {
+            font-size: 17px;
             font-weight: bold;
-            margin-bottom: 3px;
-            color: #2563eb;
+            color: #000;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
         }
-        .college-address {
+        .college-address-line {
+            font-size: 8.5px;
+            color: #333;
+            margin-top: 2px;
+        }
+        .college-contact-line {
+            font-size: 7.5px;
+            color: #555;
+            margin-top: 1px;
+        }
+        .affiliation-badge {
+            font-size: 7px;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 2px;
+            padding: 1px 5px;
+            display: inline-block;
+            margin-top: 3px;
+        }
+        .dept-label {
+            font-size: 8px;
+            color: #222;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+
+        /* ── TITLE BAND ──────────────────────────── */
+        .title-band {
+            border: 1px solid #000;
+            border-left: 4px solid #000;
+            padding: 4px 10px;
+            margin: 6px 0 4px 0;
+        }
+        .title-band .report-title {
             font-size: 12px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        .report-title {
-            font-size: 14px;
             font-weight: bold;
-            margin: 8px 0 3px 0;
-            color: #1f2937;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #000;
         }
-        .report-subtitle {
-            font-size: 10px;
-            color: #6b7280;
-            margin-bottom: 10px;
+        .title-band .report-subtitle {
+            font-size: 8px;
+            margin-top: 2px;
+            color: #444;
         }
-        .metadata {
-            margin: 15px 0;
-            background-color: #f8fafc;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #e2e8f0;
-        }
-        .metadata table {
+
+        /* ── METADATA GRID ───────────────────────── */
+        .meta-grid {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9px;
+            margin: 6px 0;
+            font-size: 8px;
         }
-        .metadata td {
-            padding: 3px 8px;
-            border: 1px solid #cbd5e1;
+        .meta-grid td {
+            padding: 3px 7px;
+            border: 1px solid #999;
         }
-        .metadata .label {
+        .meta-grid .meta-label {
             font-weight: bold;
-            background-color: #e2e8f0;
-            width: 120px;
+            background: #f0f0f0;
+            color: #000;
+            white-space: nowrap;
+            width: 1%;
         }
+        .meta-grid .meta-value {
+            color: #000;
+        }
+
+        /* ── DATA TABLE ──────────────────────────── */
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 8px;
+            margin-top: 8px;
+            font-size: 7.5px;
         }
-        .data-table th,
-        .data-table td {
-            border: 1px solid #374151;
+        .data-table thead tr {
+            background: #e0e0e0;
+        }
+        .data-table th {
+            border: 1px solid #333;
             padding: 4px 3px;
             text-align: center;
             vertical-align: middle;
-        }
-        .data-table th {
-            background-color: #e5e7eb;
-            font-weight: bold;
             font-size: 7px;
-            color: #1f2937;
-        }
-        .data-table .text-left {
-            text-align: left;
-        }
-        .data-table .student-name {
-            text-align: left;
             font-weight: bold;
-            max-width: 80px;
-            font-size: 7px;
+            color: #000;
         }
-        .data-table .number {
-            text-align: right;
-            font-family: 'Courier New', monospace;
-        }
-        .pass { 
-            color: #059669; 
-            font-weight: bold; 
-        }
-        .fail { 
-            color: #dc2626; 
-            font-weight: bold; 
-        }
-        .absent { 
-            color: #d97706; 
-            font-weight: bold; 
-        }
-        .footer {
-            margin-top: 20px;
+        .data-table td {
+            border: 1px solid #aaa;
+            padding: 3.5px 3px;
             text-align: center;
-            font-size: 8px;
-            color: #6b7280;
-            border-top: 1px solid #e5e7eb;
+            vertical-align: middle;
+            color: #000;
+        }
+        .data-table tbody tr:nth-child(even) td {
+            background: #f7f7f7;
+        }
+        .text-left  { text-align: left !important; }
+        .text-right { text-align: right !important; }
+        .student-name { font-weight: bold; font-size: 7.5px; }
+        .num { font-family: 'DejaVu Sans Mono', 'Courier New', monospace; text-align: right; }
+        .result-pass   { font-weight: bold; }
+        .result-fail   { font-weight: bold; }
+        .result-absent { font-weight: bold; }
+        .col-sn   { width: 22px; }
+        .col-name { width: 90px; }
+        .col-roll { width: 45px; }
+        .col-prog { width: 75px; }
+        .col-sem  { width: 28px; }
+        .col-subj { width: 75px; }
+        .col-code { width: 45px; }
+        .col-mark { width: 36px; }
+        .col-pct  { width: 36px; }
+        .col-res  { width: 34px; }
+        .col-stat { width: 40px; }
+        .col-rem  { width: 65px; }
+
+        /* ── SUMMARY BAR ─────────────────────────── */
+        .summary-bar td {
+            padding: 3px 8px;
+            border: 1px solid #999;
+            background: #f0f0f0;
+            font-weight: bold;
+            font-size: 7.5px;
+        }
+
+        /* ── SIGNATURES ──────────────────────────── */
+        .signature-area {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+            border-top: 1px solid #555;
             padding-top: 10px;
         }
-        .page-break {
-            page-break-before: always;
-        }
-        
-        /* Column width adjustments */
-        .col-sn { width: 30px; }
-        .col-name { width: 100px; }
-        .col-program { width: 80px; }
-        .col-subject { width: 80px; }
-        .col-code { width: 50px; }
-        .col-marks { width: 45px; }
-        .col-result { width: 40px; }
-        .col-status { width: 50px; }
-        .col-remarks { width: 80px; }
-        
-        @media print {
-            body { margin: 0; }
-            .header { margin-bottom: 15px; }
-            .footer { 
-                position: fixed; 
-                bottom: 0; 
-                width: 100%; 
-                background: white;
-            }
+        .sig-cell { display: table-cell; width: 33.33%; text-align: center; }
+        .sig-line { border-top: 1px solid #000; margin: 0 20px 3px 20px; }
+        .sig-title { font-size: 7.5px; font-weight: bold; color: #000; }
+        .sig-name  { font-size: 7px; color: #555; margin-top: 1px; }
+
+        /* ── FOOTER ──────────────────────────────── */
+        .doc-footer {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 7px;
+            color: #555;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        @if($collegeLogo)
-            <img src="{{ $collegeLogo }}" alt="College Logo" style="height: 60px; margin-bottom: 10px; max-width: 200px; object-fit: contain;">
-        @endif
-        <div class="college-name">{{ $collegeName }}</div>
-        <div class="college-address">{{ $collegeAddress }}</div>
+
+    {{-- ═══════════════ LETTERHEAD ═══════════════ --}}
+    <div class="letterhead">
+        {{-- Logo --}}
+        <div class="letterhead-logo">
+            @if($collegeLogo && file_exists($collegeLogo))
+                <img src="{{ $collegeLogo }}" alt="Logo">
+            @else
+                <table style="width:56px;height:56px;border:2px solid #000;border-radius:2px;">
+                    <tr><td style="text-align:center;vertical-align:middle;font-size:7px;color:#000;font-weight:bold;letter-spacing:1px;">LOGO</td></tr>
+                </table>
+            @endif
+        </div>
+
+        {{-- Centre: College name + address --}}
+        <div class="letterhead-center">
+            <div class="college-name-main">{{ strtoupper($collegeName) }}</div>
+            @if($collegeAddress)
+                <div class="college-address-line">{{ $collegeAddress }}</div>
+            @endif
+            @if($collegePhone || $collegeEmail)
+                <div class="college-contact-line">
+                    @if($collegePhone) Tel: {{ $collegePhone }} @endif
+                    @if($collegePhone && $collegeEmail) &nbsp;|&nbsp; @endif
+                    @if($collegeEmail) Email: {{ $collegeEmail }} @endif
+                    @if($collegeWebsite) &nbsp;|&nbsp; {{ $collegeWebsite }} @endif
+                </div>
+            @endif
+            @if($collegeAffiliation)
+                <div style="margin-top:4px;">
+                    <span class="affiliation-badge">Affiliated to: {{ $collegeAffiliation }}</span>
+                </div>
+            @endif
+        </div>
+
+        {{-- Right: Estd + Department --}}
+        <div class="letterhead-right">
+            @if($collegeEstd)
+                <div class="estd-line">Est. {{ $collegeEstd }}</div>
+            @endif
+            @if(isset($config['department']))
+                <div style="font-size:8px; color:#000; margin-top:4px; font-weight:bold;">{{ $config['department'] }}</div>
+                <div style="font-size:7px; color:#555;">Department</div>
+            @endif
+        </div>
+    </div>
+
+    {{-- ═══════════════ TITLE BAND ═══════════════ --}}
+    <div class="title-band">
         <div class="report-title">{{ $config['title'] }}</div>
         @if(isset($config['subtitle']))
             <div class="report-subtitle">{{ $config['subtitle'] }}</div>
         @endif
     </div>
 
+    {{-- ═══════════════ METADATA ═══════════════ --}}
     @if(isset($config['metadata']) && count($config['metadata']) > 0)
-        <div class="metadata">
-            <table>
-                @foreach(array_chunk($config['metadata'], 2, true) as $chunk)
-                    <tr>
-                        @foreach($chunk as $key => $value)
-                            <td class="label">{{ $key }}:</td>
-                            <td>{{ $value }}</td>
-                        @endforeach
-                        @if(count($chunk) == 1)
-                            <td class="label">Export Date:</td>
-                            <td>{{ date('Y-m-d H:i:s') }}</td>
-                        @endif
-                    </tr>
-                @endforeach
-            </table>
-        </div>
+    @php
+        $metaItems = collect($config['metadata'])->map(fn($v, $k) => [$k, $v])->values()->chunk(2)->all();
+    @endphp
+    <table class="meta-grid">
+        @foreach($metaItems as $pair)
+        <tr>
+            @foreach($pair as $item)
+                <td class="meta-label">{{ $item[0] }}</td>
+                <td class="meta-value">{{ $item[1] }}</td>
+            @endforeach
+            @if(count($pair) === 1)
+                <td class="meta-label">Export Date</td>
+                <td class="meta-value">{{ now()->format('Y-m-d H:i:s') }}</td>
+            @endif
+        </tr>
+        @endforeach
+    </table>
     @endif
 
+    {{-- ═══════════════ DATA TABLE ═══════════════ --}}
     <table class="data-table">
         <thead>
             <tr>
                 <th class="col-sn">S.N.</th>
                 @foreach($config['columns'] as $key => $label)
                     @php
-                        $colClass = match($key) {
-                            'student.user.name', 'name' => 'col-name',
-                            'student.program.name', 'program.name' => 'col-program',
-                            'subject.name' => 'col-subject',
-                            'subject.code' => 'col-code',
-                            'assessment_obtained_marks', 'internal_theory_marks', 'external_theory_marks',
-                            'internal_practical_marks', 'external_practical_marks', 'total_marks',
-                            'assessment_attendance_percent' => 'col-marks',
-                            'result_remark' => 'col-result',
-                            'status' => 'col-status',
-                            'remarks' => 'col-remarks',
-                            default => 'col-marks'
+                        $thClass = match(true) {
+                            in_array($key, ['student.user.name','name']) => 'col-name text-left',
+                            in_array($key, ['student.roll_number','roll_number']) => 'col-roll',
+                            in_array($key, ['student.program.name','program.name']) => 'col-prog',
+                            $key === 'semester' => 'col-sem',
+                            $key === 'subject.name' => 'col-subj',
+                            $key === 'subject.code' => 'col-code',
+                            $key === 'assessment_attendance_percent' => 'col-pct',
+                            in_array($key, ['assessment_obtained_marks','internal_theory_marks','external_theory_marks',
+                                'internal_practical_marks','external_practical_marks','total_marks',
+                                'assessment_full_marks','assessment_pass_marks',
+                                'ctevt_full_marks_internal_theory','ctevt_pass_marks_internal_theory',
+                                'ctevt_full_marks_external_theory','ctevt_pass_marks_external_theory',
+                                'ctevt_full_marks_internal_practical','ctevt_pass_marks_internal_practical',
+                                'ctevt_full_marks_external_practical','ctevt_pass_marks_external_practical']) => 'col-mark',
+                            $key === 'result_remark' => 'col-res',
+                            $key === 'status' => 'col-stat',
+                            $key === 'remarks' => 'col-rem text-left',
+                            default => 'col-mark'
                         };
                     @endphp
-                    <th class="{{ $colClass }} {{ in_array($key, ['student.user.name', 'name']) ? 'text-left' : '' }}">
-                        {{ $label }}
-                    </th>
+                    <th class="{{ $thClass }}">{{ $label }}</th>
                 @endforeach
             </tr>
         </thead>
@@ -207,58 +320,121 @@
                     <td class="col-sn">{{ $index + 1 }}</td>
                     @foreach($config['columns'] as $key => $label)
                         @php
-                            $value = '';
-                            if (is_array($row)) {
-                                $value = $row[$key] ?? '';
-                            } elseif (is_object($row)) {
-                                $value = data_get($row, $key, '');
-                            }
-                            
-                            // Format specific values
-                            if (in_array($key, ['assessment_attendance_percent'])) {
+                            $value = is_array($row) ? ($row[$key] ?? '') : data_get($row, $key, '');
+
+                            if ($key === 'assessment_attendance_percent')
                                 $value = number_format((float)($value ?? 0), 1) . '%';
-                            } elseif (in_array($key, ['assessment_obtained_marks', 'internal_theory_marks', 'external_theory_marks', 'internal_practical_marks', 'external_practical_marks', 'total_marks'])) {
-                                $value = number_format((float)($value ?? 0), 1);
-                            } elseif ($key === 'was_present_on_exam_date') {
+                            elseif (in_array($key, ['assessment_obtained_marks','internal_theory_marks','external_theory_marks',
+                                'internal_practical_marks','external_practical_marks','total_marks',
+                                'assessment_full_marks','assessment_pass_marks',
+                                'ctevt_full_marks_internal_theory','ctevt_pass_marks_internal_theory',
+                                'ctevt_full_marks_external_theory','ctevt_pass_marks_external_theory',
+                                'ctevt_full_marks_internal_practical','ctevt_pass_marks_internal_practical',
+                                'ctevt_full_marks_external_practical','ctevt_pass_marks_external_practical']))
+                                $value = $value !== '' && $value !== null ? number_format((float)$value, 1) : '—';
+                            elseif (in_array($key, ['was_present_on_exam_date','is_present']))
                                 $value = $value ? 'Present' : 'Absent';
-                            } elseif ($key === 'is_present') {
-                                $value = $value ? 'Present' : 'Absent';
-                            } elseif ($key === 'status') {
+                            elseif ($key === 'status')
                                 $value = ucfirst($value ?? '');
-                            } elseif ($key === 'result_remark') {
-                                $value = $value ?? '';
+
+                            $resultClass = '';
+                            if ($key === 'result_remark') {
+                                $resultClass = match(strtolower((string)$value)) {
+                                    'pass'    => 'result-pass',
+                                    'fail'    => 'result-fail',
+                                    'absent'  => 'result-absent',
+                                    default   => ''
+                                };
                             }
 
-                            $colClass = match($key) {
-                                'student.user.name', 'name' => 'col-name student-name text-left',
-                                'student.program.name', 'program.name' => 'col-program',
-                                'subject.name' => 'col-subject',
-                                'subject.code' => 'col-code',
-                                'assessment_obtained_marks', 'internal_theory_marks', 'external_theory_marks',
-                                'internal_practical_marks', 'external_practical_marks', 'total_marks',
-                                'assessment_attendance_percent' => 'col-marks number',
-                                'result_remark' => 'col-result ' . strtolower($value),
-                                'status' => 'col-status',
-                                'remarks' => 'col-remarks text-left',
-                                default => 'col-marks'
+                            $tdClass = match(true) {
+                                in_array($key, ['student.user.name','name'])      => 'col-name student-name text-left',
+                                in_array($key, ['student.roll_number','roll_number']) => 'col-roll',
+                                in_array($key, ['student.program.name','program.name']) => 'col-prog',
+                                $key === 'semester'                               => 'col-sem',
+                                $key === 'subject.name'                           => 'col-subj text-left',
+                                $key === 'subject.code'                           => 'col-code',
+                                $key === 'assessment_attendance_percent'          => 'col-pct num',
+                                in_array($key, ['assessment_obtained_marks','internal_theory_marks','external_theory_marks',
+                                    'internal_practical_marks','external_practical_marks','total_marks',
+                                    'assessment_full_marks','assessment_pass_marks',
+                                    'ctevt_full_marks_internal_theory','ctevt_pass_marks_internal_theory',
+                                    'ctevt_full_marks_external_theory','ctevt_pass_marks_external_theory',
+                                    'ctevt_full_marks_internal_practical','ctevt_pass_marks_internal_practical',
+                                    'ctevt_full_marks_external_practical','ctevt_pass_marks_external_practical']) => 'col-mark num',
+                                $key === 'result_remark'                          => "col-res $resultClass",
+                                $key === 'status'                                 => 'col-stat',
+                                $key === 'remarks'                                => 'col-rem text-left',
+                                default => 'col-mark'
                             };
                         @endphp
-                        
-                        <td class="{{ $colClass }}">
-                            {{ $value ?: 'N/A' }}
-                        </td>
+                        <td class="{{ $tdClass }}">{{ $value ?: '—' }}</td>
                     @endforeach
                 </tr>
             @endforeach
+            @if(count($config['data']) === 0)
+                <tr><td colspan="{{ count($config['columns']) + 1 }}" style="text-align:center;color:#9ca3af;padding:12px;">No records found.</td></tr>
+            @endif
         </tbody>
     </table>
 
-    <div class="footer">
-        <p>Generated on {{ date('F d, Y \a\t H:i:s') }} | {{ $collegeName }}</p>
-        @if(isset($config['department']))
-            <p>{{ $config['department'] }} Department</p>
-        @endif
-        <p>This is a computer-generated report. No signature required.</p>
+    {{-- ═══════════════ SUMMARY ROW ═══════════════ --}}
+    @if(count($config['data']) > 0)
+    @php
+        $total   = count($config['data']);
+        $passed  = collect($config['data'])->where('result_remark', 'Pass')->count();
+        $failed  = collect($config['data'])->where('result_remark', 'Fail')->count();
+        $absent  = collect($config['data'])->where('result_remark', 'Absent')->count();
+        $passRate = $total > 0 ? round(($passed / $total) * 100, 1) : 0;
+    @endphp
+    <table style="width:100%;margin-top:6px;font-size:7.5px;border-collapse:collapse;">
+        <tr>
+            <td style="padding:3px 8px;background:#f0f0f0;border:1px solid #999;color:#000;font-weight:bold;">
+                Total Students: {{ $total }}
+            </td>
+            <td style="padding:3px 8px;background:#f0f0f0;border:1px solid #999;color:#000;font-weight:bold;">
+                Passed: {{ $passed }}
+            </td>
+            <td style="padding:3px 8px;background:#f0f0f0;border:1px solid #999;color:#000;font-weight:bold;">
+                Failed: {{ $failed }}
+            </td>
+            <td style="padding:3px 8px;background:#f0f0f0;border:1px solid #999;color:#000;font-weight:bold;">
+                Absent: {{ $absent }}
+            </td>
+            <td style="padding:3px 8px;background:#f0f0f0;border:1px solid #999;color:#000;font-weight:bold;">
+                Pass Rate: {{ $passRate }}%
+            </td>
+        </tr>
+    </table>
+    @endif
+
+    {{-- ═══════════════ SIGNATURES ═══════════════ --}}
+    <div class="signature-area">
+        <div class="sig-cell">
+            <div class="sig-line"></div>
+            <div class="sig-title">Exam Coordinator</div>
+            <div class="sig-name">Signature &amp; Date</div>
+        </div>
+        <div class="sig-cell">
+            <div class="sig-line"></div>
+            <div class="sig-title">Head of Department</div>
+            <div class="sig-name">Signature &amp; Date</div>
+        </div>
+        <div class="sig-cell">
+            <div class="sig-line"></div>
+            <div class="sig-title">Principal</div>
+            <div class="sig-name">Signature &amp; Date</div>
+        </div>
     </div>
+
+    {{-- ═══════════════ FOOTER ═══════════════ --}}
+    <div class="doc-footer">
+        <strong>{{ $collegeName }}</strong>
+        &nbsp;|&nbsp; Generated: {{ now()->format('F d, Y \a\t H:i') }}
+        @if(isset($config['department'])) &nbsp;|&nbsp; {{ $config['department'] }} Department @endif
+        <br>
+        This is a computer-generated official document. Any alteration renders it invalid.
+    </div>
+
 </body>
 </html>

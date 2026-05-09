@@ -10,18 +10,30 @@ class ExportService
     protected $collegeName;
     protected $collegeAddress;
     protected $collegeLogo;
+    protected $collegePhone;
+    protected $collegeEmail;
+    protected $collegeWebsite;
+    protected $collegeEstd;
+    protected $collegeAffiliation;
 
     public function __construct()
     {
-        $this->collegeName = config('app.name', 'Technical College');
-        
-        // Get college address from site settings
-        $addressSetting = \App\Models\SiteSetting::where('key', 'contact_address')->first();
-        $this->collegeAddress = $addressSetting?->value ?? 'Nepal';
-        
-        // Get college logo from site settings
-        $logoSetting = \App\Models\SiteSetting::where('key', 'site_logo')->first();
-        $this->collegeLogo = $logoSetting?->value ? asset('storage/' . $logoSetting->value) : null;
+        $settings = \App\Models\SiteSetting::whereIn('key', [
+            'college_name', 'college_affiliation', 'site_logo',
+            'contact_address', 'contact_phone', 'contact_email',
+            'principal_name',
+        ])->pluck('value', 'key');
+
+        $this->collegeName        = $settings->get('college_name') ?: config('app.name', 'Technical College');
+        $this->collegeAddress     = $settings->get('contact_address', '');
+        $this->collegePhone       = $settings->get('contact_phone', '');
+        $this->collegeEmail       = $settings->get('contact_email', '');
+        $this->collegeWebsite     = '';
+        $this->collegeEstd        = '';
+        $this->collegeAffiliation = $settings->get('college_affiliation', 'CTEVT');
+
+        $logoPath = $settings->get('site_logo');
+        $this->collegeLogo = $logoPath ? public_path('storage/' . $logoPath) : null;
     }
 
     /**
@@ -113,187 +125,181 @@ class ExportService
         $xml .= '<DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">' . "\n";
         $xml .= '<Title>' . htmlspecialchars($config['title']) . '</Title>' . "\n";
         $xml .= '<Author>' . htmlspecialchars($this->collegeName) . '</Author>' . "\n";
+        $xml .= '<Company>' . htmlspecialchars($this->collegeName) . '</Company>' . "\n";
         $xml .= '<Created>' . date('Y-m-d\TH:i:s\Z') . '</Created>' . "\n";
         $xml .= '</DocumentProperties>' . "\n";
 
         // Styles
         $xml .= '<Styles>' . "\n";
-        
-        // Default style
-        $xml .= '<Style ss:ID="Default" ss:Name="Normal">' . "\n";
-        $xml .= '<Alignment ss:Vertical="Bottom"/>' . "\n";
-        $xml .= '<Borders/>' . "\n";
-        $xml .= '<Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>' . "\n";
-        $xml .= '<Interior/>' . "\n";
-        $xml .= '<NumberFormat/>' . "\n";
-        $xml .= '<Protection/>' . "\n";
-        $xml .= '</Style>' . "\n";
 
-        // Header style
-        $xml .= '<Style ss:ID="HeaderStyle">' . "\n";
-        $xml .= '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
-        $xml .= '<Borders>' . "\n";
-        $xml .= '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>' . "\n";
-        $xml .= '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>' . "\n";
-        $xml .= '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>' . "\n";
-        $xml .= '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>' . "\n";
-        $xml .= '</Borders>' . "\n";
-        $xml .= '<Font ss:FontName="Calibri" ss:Size="12" ss:Color="#000000" ss:Bold="1"/>' . "\n";
-        $xml .= '<Interior ss:Color="#E6E6FA" ss:Pattern="Solid"/>' . "\n";
-        $xml .= '</Style>' . "\n";
+        // Default
+        $xml .= '<Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="10" ss:Color="#000000"/></Style>' . "\n";
 
-        // Title style
-        $xml .= '<Style ss:ID="TitleStyle">' . "\n";
-        $xml .= '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
-        $xml .= '<Font ss:FontName="Calibri" ss:Size="16" ss:Color="#000080" ss:Bold="1"/>' . "\n";
-        $xml .= '</Style>' . "\n";
+        // College name row (large bold, black on white)
+        $xml .= '<Style ss:ID="CollegeNameStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="16" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/></Style>' . "\n";
 
-        // Subtitle style
-        $xml .= '<Style ss:ID="SubtitleStyle">' . "\n";
-        $xml .= '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
-        $xml .= '<Font ss:FontName="Calibri" ss:Size="12" ss:Color="#666666" ss:Bold="1"/>' . "\n";
-        $xml .= '</Style>' . "\n";
+        // Address row
+        $xml .= '<Style ss:ID="AddressStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Color="#333333"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/></Style>' . "\n";
 
-        // Data style
-        $xml .= '<Style ss:ID="DataStyle">' . "\n";
-        $xml .= '<Alignment ss:Vertical="Center"/>' . "\n";
-        $xml .= '<Borders>' . "\n";
-        $xml .= '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '</Borders>' . "\n";
-        $xml .= '<Font ss:FontName="Calibri" ss:Size="10"/>' . "\n";
-        $xml .= '</Style>' . "\n";
+        // Affiliation row
+        $xml .= '<Style ss:ID="AffiliationStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="8" ss:Italic="1" ss:Color="#333333"/><Interior ss:Color="#F5F5F5" ss:Pattern="Solid"/></Style>' . "\n";
 
-        // Number style
-        $xml .= '<Style ss:ID="NumberStyle">' . "\n";
-        $xml .= '<Alignment ss:Horizontal="Right" ss:Vertical="Center"/>' . "\n";
-        $xml .= '<Borders>' . "\n";
-        $xml .= '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>' . "\n";
-        $xml .= '</Borders>' . "\n";
-        $xml .= '<Font ss:FontName="Calibri" ss:Size="10"/>' . "\n";
-        $xml .= '<NumberFormat ss:Format="0.00"/>' . "\n";
-        $xml .= '</Style>' . "\n";
+        // Report title (bold, black on light grey)
+        $xml .= '<Style ss:ID="TitleStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="13" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#E0E0E0" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#000000"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#000000"/></Borders></Style>' . "\n";
+
+        // Subtitle
+        $xml .= '<Style ss:ID="SubtitleStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Color="#555555"/><Interior ss:Color="#F5F5F5" ss:Pattern="Solid"/></Style>' . "\n";
+
+        // Metadata label
+        $xml .= '<Style ss:ID="MetaLabel"><Alignment ss:Horizontal="Left" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#EEEEEE" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/></Borders></Style>' . "\n";
+
+        // Metadata value
+        $xml .= '<Style ss:ID="MetaValue"><Alignment ss:Horizontal="Left" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Color="#000000"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#AAAAAA"/></Borders></Style>' . "\n";
+
+        // Column header (bold black on mid grey)
+        $xml .= '<Style ss:ID="HeaderStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Calibri" ss:Size="9" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#CCCCCC" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#000000"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#666666"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#666666"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#000000"/></Borders></Style>' . "\n";
+
+        // Data — odd rows (white)
+        $xml .= '<Style ss:ID="DataOdd"><Alignment ss:Vertical="Center" ss:WrapText="0"/><Font ss:FontName="Calibri" ss:Size="9" ss:Color="#000000"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/></Borders></Style>' . "\n";
+
+        // Data — even rows (very light grey)
+        $xml .= '<Style ss:ID="DataEven"><Alignment ss:Vertical="Center" ss:WrapText="0"/><Font ss:FontName="Calibri" ss:Size="9" ss:Color="#000000"/><Interior ss:Color="#F5F5F5" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/></Borders></Style>' . "\n";
+
+        // Number odd
+        $xml .= '<Style ss:ID="NumOdd"><Alignment ss:Horizontal="Right" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Color="#000000"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/></Borders><NumberFormat ss:Format="0.0"/></Style>' . "\n";
+
+        // Number even
+        $xml .= '<Style ss:ID="NumEven"><Alignment ss:Horizontal="Right" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Color="#000000"/><Interior ss:Color="#F5F5F5" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/></Borders><NumberFormat ss:Format="0.0"/></Style>' . "\n";
+
+        // Pass / Fail / Absent — plain bold black (no color backgrounds)
+        $xml .= '<Style ss:ID="PassStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/></Borders></Style>' . "\n";
+
+        $xml .= '<Style ss:ID="FailStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#F5F5F5" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/></Borders></Style>' . "\n";
+
+        $xml .= '<Style ss:ID="AbsentStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Bold="1" ss:Color="#555555"/><Interior ss:Color="#F5F5F5" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBBBBB"/></Borders></Style>' . "\n";
+
+        // Summary footer
+        $xml .= '<Style ss:ID="SummaryStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="9" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#DDDDDD" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#000000"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#666666"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#666666"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#000000"/></Borders></Style>' . "\n";
+
+        // Footer note
+        $xml .= '<Style ss:ID="FooterStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="8" ss:Italic="1" ss:Color="#6B7280"/><Interior ss:Color="#F9FAFB" ss:Pattern="Solid"/></Style>' . "\n";
 
         $xml .= '</Styles>' . "\n";
 
         // Worksheet
-        $xml .= '<Worksheet ss:Name="' . htmlspecialchars($config['title']) . '">' . "\n";
-        
-        // Column definitions for proper width
+        $sheetName = mb_substr(preg_replace('/[\\\\\/\*\?\[\]:]+/', '-', $config['title']), 0, 31);
+        $xml .= '<Worksheet ss:Name="' . htmlspecialchars($sheetName) . '">' . "\n";
         $xml .= '<Table>' . "\n";
-        $columnCount = count($config['columns']) + 1; // +1 for S.N. column
-        
-        // Define column widths
-        $xml .= '<Column ss:Width="40"/>' . "\n"; // S.N. column
+
+        $columnCount = count($config['columns']) + 1; // +1 for S.N.
+
+        // Column widths
+        $xml .= '<Column ss:Width="30"/>' . "\n"; // S.N.
         foreach ($config['columns'] as $key => $label) {
-            $width = $this->getColumnWidth($key, $label);
-            $xml .= '<Column ss:Width="' . $width . '"/>' . "\n";
+            $xml .= '<Column ss:Width="' . $this->getColumnWidth($key, $label) . '"/>' . "\n";
         }
 
-        $currentRow = 1;
+        // ── ROW 1: College Name ──
+        $xml .= '<Row ss:Height="28"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="CollegeNameStyle"><Data ss:Type="String">' . htmlspecialchars($this->collegeName) . '</Data></Cell></Row>' . "\n";
 
-        // College header
-        $xml .= '<Row ss:Height="25">' . "\n";
-        $xml .= '<Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="TitleStyle">' . "\n";
-        $xml .= '<Data ss:Type="String">' . htmlspecialchars($this->collegeName) . '</Data>' . "\n";
-        $xml .= '</Cell>' . "\n";
-        $xml .= '</Row>' . "\n";
-        $currentRow++;
+        // ── ROW 2: Address + Phone ──
+        $addrLine = implode('  |  ', array_filter([$this->collegeAddress, $this->collegePhone, $this->collegeEmail]));
+        $xml .= '<Row ss:Height="18"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="AddressStyle"><Data ss:Type="String">' . htmlspecialchars($addrLine ?: ' ') . '</Data></Cell></Row>' . "\n";
 
-        // College address
-        $xml .= '<Row ss:Height="20">' . "\n";
-        $xml .= '<Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="SubtitleStyle">' . "\n";
-        $xml .= '<Data ss:Type="String">' . htmlspecialchars($this->collegeAddress) . '</Data>' . "\n";
-        $xml .= '</Cell>' . "\n";
-        $xml .= '</Row>' . "\n";
-        $currentRow++;
-
-        // Department
-        if (isset($config['department'])) {
-            $xml .= '<Row ss:Height="18">' . "\n";
-            $xml .= '<Cell ss:MergeAcross="' . ($columnCount - 1) . '">' . "\n";
-            $xml .= '<Data ss:Type="String">Department: ' . htmlspecialchars($config['department']) . '</Data>' . "\n";
-            $xml .= '</Cell>' . "\n";
-            $xml .= '</Row>' . "\n";
-            $currentRow++;
+        // ── ROW 3: Affiliation / Website ──
+        $affLine = implode('  |  ', array_filter([$this->collegeAffiliation ? 'Affiliated to: ' . $this->collegeAffiliation : '', $this->collegeWebsite, $this->collegeEstd ? 'Est. ' . $this->collegeEstd : '']));
+        if ($affLine) {
+            $xml .= '<Row ss:Height="15"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="AffiliationStyle"><Data ss:Type="String">' . htmlspecialchars($affLine) . '</Data></Cell></Row>' . "\n";
         }
 
-        // Report title
-        $xml .= '<Row ss:Height="20">' . "\n";
-        $xml .= '<Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="TitleStyle">' . "\n";
-        $xml .= '<Data ss:Type="String">' . htmlspecialchars($config['title']) . '</Data>' . "\n";
-        $xml .= '</Cell>' . "\n";
-        $xml .= '</Row>' . "\n";
-        $currentRow++;
+        // ── ROW 4: Blank separator ──
+        $xml .= '<Row ss:Height="5"><Cell ss:MergeAcross="' . ($columnCount - 1) . '"><Data ss:Type="String"></Data></Cell></Row>' . "\n";
 
-        // Subtitle
+        // ── ROW 5: Report Title ──
+        $xml .= '<Row ss:Height="22"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="TitleStyle"><Data ss:Type="String">' . htmlspecialchars($config['title']) . '</Data></Cell></Row>' . "\n";
+
+        // ── ROW 6: Subtitle ──
         if (isset($config['subtitle'])) {
-            $xml .= '<Row ss:Height="18">' . "\n";
-            $xml .= '<Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="SubtitleStyle">' . "\n";
-            $xml .= '<Data ss:Type="String">' . htmlspecialchars($config['subtitle']) . '</Data>' . "\n";
-            $xml .= '</Cell>' . "\n";
-            $xml .= '</Row>' . "\n";
-            $currentRow++;
+            $xml .= '<Row ss:Height="16"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="SubtitleStyle"><Data ss:Type="String">' . htmlspecialchars($config['subtitle']) . '</Data></Cell></Row>' . "\n";
         }
 
-        // Metadata
-        if (isset($config['metadata']) && count($config['metadata']) > 0) {
-            foreach ($config['metadata'] as $key => $value) {
-                $xml .= '<Row>' . "\n";
-                $xml .= '<Cell ss:MergeAcross="' . ($columnCount - 1) . '">' . "\n";
-                $xml .= '<Data ss:Type="String">' . htmlspecialchars($key . ': ' . $value) . '</Data>' . "\n";
-                $xml .= '</Cell>' . "\n";
+        // ── ROW 7: Department ──
+        if (isset($config['department'])) {
+            $xml .= '<Row ss:Height="14"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="SubtitleStyle"><Data ss:Type="String">Department: ' . htmlspecialchars($config['department']) . '</Data></Cell></Row>' . "\n";
+        }
+
+        // ── Metadata rows (2 items per row) ──
+        if (!empty($config['metadata'])) {
+            $xml .= '<Row ss:Height="5"><Cell ss:MergeAcross="' . ($columnCount - 1) . '"><Data ss:Type="String"></Data></Cell></Row>' . "\n";
+            $metaItems = array_map(null, array_keys($config['metadata']), array_values($config['metadata']));
+            $metaPairs = array_chunk($metaItems, 2);
+            $halfCols = intval($columnCount / 2) - 1;
+            foreach ($metaPairs as $pair) {
+                $xml .= '<Row ss:Height="14">' . "\n";
+                $xml .= '<Cell ss:MergeAcross="' . $halfCols . '" ss:StyleID="MetaLabel"><Data ss:Type="String">' . htmlspecialchars($pair[0][0] ?? '') . '</Data></Cell>' . "\n";
+                $xml .= '<Cell ss:MergeAcross="' . ($columnCount - $halfCols - 2) . '" ss:StyleID="MetaValue"><Data ss:Type="String">' . htmlspecialchars((string)($pair[0][1] ?? '')) . '</Data></Cell>' . "\n";
+                if (isset($pair[1])) {
+                    // second pair occupies nothing (already used all columns in this row)
+                }
                 $xml .= '</Row>' . "\n";
-                $currentRow++;
             }
+            // Export date
+            $xml .= '<Row ss:Height="14"><Cell ss:MergeAcross="' . $halfCols . '" ss:StyleID="MetaLabel"><Data ss:Type="String">Export Date</Data></Cell><Cell ss:MergeAcross="' . ($columnCount - $halfCols - 2) . '" ss:StyleID="MetaValue"><Data ss:Type="String">' . date('Y-m-d H:i:s') . '</Data></Cell></Row>' . "\n";
         }
 
-        // Export date
-        $xml .= '<Row>' . "\n";
-        $xml .= '<Cell ss:MergeAcross="' . ($columnCount - 1) . '">' . "\n";
-        $xml .= '<Data ss:Type="String">Export Date: ' . date('Y-m-d H:i:s') . '</Data>' . "\n";
-        $xml .= '</Cell>' . "\n";
-        $xml .= '</Row>' . "\n";
-        $currentRow++;
+        // ── Blank before headers ──
+        $xml .= '<Row ss:Height="8"><Cell ss:MergeAcross="' . ($columnCount - 1) . '"><Data ss:Type="String"></Data></Cell></Row>' . "\n";
 
-        // Empty row
-        $xml .= '<Row/>' . "\n";
-        $currentRow++;
-
-        // Column headers
-        $xml .= '<Row ss:Height="25">' . "\n";
+        // ── Column Headers ──
+        $xml .= '<Row ss:Height="28">' . "\n";
         $xml .= '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">S.N.</Data></Cell>' . "\n";
         foreach ($config['columns'] as $key => $label) {
             $xml .= '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . htmlspecialchars($label) . '</Data></Cell>' . "\n";
         }
         $xml .= '</Row>' . "\n";
-        $currentRow++;
 
-        // Data rows
+        // ── Data Rows ──
         foreach ($config['data'] as $index => $row) {
-            $xml .= '<Row>' . "\n";
-            
-            // S.N. column
-            $xml .= '<Cell ss:StyleID="DataStyle"><Data ss:Type="Number">' . ($index + 1) . '</Data></Cell>' . "\n";
-            
+            $isEven   = ($index % 2 === 1);
+            $baseStyle = $isEven ? 'DataEven' : 'DataOdd';
+            $numStyle  = $isEven ? 'NumEven'  : 'NumOdd';
+
+            $xml .= '<Row ss:Height="16">' . "\n";
+            $xml .= '<Cell ss:StyleID="' . $baseStyle . '"><Data ss:Type="Number">' . ($index + 1) . '</Data></Cell>' . "\n";
+
             foreach ($config['columns'] as $key => $label) {
-                $value = $this->getNestedProperty($row, $key);
-                $formattedValue = $this->formatValue($value);
+                $value    = $this->getNestedProperty($row, $key);
                 $dataType = $this->getExcelDataType($key, $value);
-                $styleId = $this->getExcelStyleId($key, $value);
-                
-                $xml .= '<Cell ss:StyleID="' . $styleId . '">' . "\n";
-                $xml .= '<Data ss:Type="' . $dataType . '">' . htmlspecialchars($formattedValue) . '</Data>' . "\n";
-                $xml .= '</Cell>' . "\n";
+
+                // Choose cell style
+                if ($key === 'result_remark') {
+                    $lower = strtolower((string)$value);
+                    $styleId = match($lower) { 'pass' => 'PassStyle', 'fail' => 'FailStyle', 'absent' => 'AbsentStyle', default => $baseStyle };
+                } elseif ($this->getExcelStyleId($key, $value) === 'NumberStyle') {
+                    $styleId = $numStyle;
+                } else {
+                    $styleId = $baseStyle;
+                }
+
+                $formatted = $this->formatValue($value);
+                $xml .= '<Cell ss:StyleID="' . $styleId . '"><Data ss:Type="' . $dataType . '">' . htmlspecialchars($formatted) . '</Data></Cell>' . "\n";
             }
-            
             $xml .= '</Row>' . "\n";
         }
+
+        // ── Summary row ──
+        $total  = count($config['data']);
+        $passed = collect($config['data'])->filter(fn($r) => strtolower((string)data_get($r,'result_remark')) === 'pass')->count();
+        $failed = collect($config['data'])->filter(fn($r) => strtolower((string)data_get($r,'result_remark')) === 'fail')->count();
+        $absent = collect($config['data'])->filter(fn($r) => strtolower((string)data_get($r,'result_remark')) === 'absent')->count();
+        $passRate = $total > 0 ? round(($passed / $total) * 100, 1) . '%' : 'N/A';
+
+        $xml .= '<Row ss:Height="18"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="SummaryStyle"><Data ss:Type="String">' .
+            "Total: $total  |  Pass: $passed  |  Fail: $failed  |  Absent: $absent  |  Pass Rate: $passRate" .
+            '</Data></Cell></Row>' . "\n";
+
+        // ── Footer note ──
+        $xml .= '<Row ss:Height="14"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="FooterStyle"><Data ss:Type="String">This is a computer-generated official report from ' . htmlspecialchars($this->collegeName) . '. Generated on ' . date('F d, Y \a\t H:i') . '</Data></Cell></Row>' . "\n";
 
         $xml .= '</Table>' . "\n";
         $xml .= '</Worksheet>' . "\n";
@@ -391,10 +397,15 @@ class ExportService
         $filename = $this->generateFilename($config['title'], 'pdf');
         
         $html = view('components.export-pdf-template', [
-            'config' => $config,
-            'collegeName' => $this->collegeName,
-            'collegeAddress' => $this->collegeAddress,
-            'collegeLogo' => $this->collegeLogo,
+            'config'             => $config,
+            'collegeName'        => $this->collegeName,
+            'collegeAddress'     => $this->collegeAddress,
+            'collegeLogo'        => $this->collegeLogo,
+            'collegePhone'       => $this->collegePhone,
+            'collegeEmail'       => $this->collegeEmail,
+            'collegeWebsite'     => $this->collegeWebsite,
+            'collegeEstd'        => $this->collegeEstd,
+            'collegeAffiliation' => $this->collegeAffiliation,
         ])->render();
 
         // Use DomPDF for proper PDF generation
@@ -516,78 +527,76 @@ class ExportService
     {
         // Get semester information from exam programs
         $semesters = $exam->programs->pluck('pivot.semester')->filter()->unique()->sort()->values();
-        $semesterText = $semesters->count() > 0 
+        $semesterText = $semesters->count() > 0
             ? ($semesters->count() === 1 ? 'Semester ' . $semesters->first() : 'Semesters ' . $semesters->implode(', '))
             : 'All Semesters';
-        
-        // Get program names
-        $programNames = $exam->programs->pluck('name')->unique()->implode(', ');
-        
+
+        // Single subject? (per-subject export)
+        $singleSubject = $marks->pluck('subject_id')->unique()->count() === 1
+            ? $marks->first()?->subject
+            : null;
+
+        // Single semester?
+        $singleSemester = $marks->pluck('semester')->filter()->unique()->count() === 1
+            ? $marks->first()?->semester
+            : null;
+
+        // Build compact metadata — only what's needed to understand the report
+        $metadata = [
+            'Exam'             => $exam->name,
+            'Academic Session' => $exam->academicSession->name ?? 'N/A',
+            'Department'       => $department ? $department->name : ($exam->department->name ?? 'N/A'),
+        ];
+        if ($singleSubject) {
+            $metadata['Subject'] = $singleSubject->name . ($singleSubject->code ? ' (' . $singleSubject->code . ')' : '');
+        }
+        if ($singleSemester) {
+            $metadata['Semester'] = 'Semester ' . $singleSemester;
+        } else {
+            $metadata['Semester(s)'] = $semesterText;
+        }
+        $metadata['Date']           = bsDate($exam->start_date, 'F d, Y');
+        $metadata['Total Students'] = $marks->count();
+
         $config = [
-            'title' => $exam->name . ' - Marks Report',
-            'subtitle' => $exam->category_label . ' • ' . $semesterText . ' • ' . bsDate($exam->start_date, 'F d, Y'),
+            'title'      => $exam->name . ' — Marks Report',
+            'subtitle'   => ($singleSubject ? $singleSubject->name . ' • ' : '') . $exam->category_label . ' • ' . ($singleSemester ? 'Semester ' . $singleSemester : $semesterText),
             'department' => $department ? $department->name : ($exam->department->name ?? 'N/A'),
-            'metadata' => [
-                'Exam Name' => $exam->name,
-                'Academic Session' => $exam->academicSession->name ?? 'N/A',
-                'Department' => $department ? $department->name : ($exam->department->name ?? 'N/A'),
-                'Exam Type' => $exam->type ? ucfirst($exam->type) : 'N/A',
-                'Exam Category' => $exam->category_label,
-                'Programs' => $programNames ?: 'N/A',
-                'Semester(s)' => $semesterText,
-                'Start Date' => bsDate($exam->start_date, 'Y-m-d'),
-                'End Date' => bsDate($exam->end_date, 'Y-m-d'),
-                'Total Students' => $marks->count(),
-                'Status' => $exam->status_label ?? 'N/A',
-            ],
-            'data' => $marks,
+            'metadata'   => $metadata,
+            'data'       => $marks,
         ];
 
         if ($exam->category === 'monthly_assessment') {
-            $config['columns'] = [
-                'student.user.name' => 'Student Name',
-                'student.roll_number' => 'Roll No',
-                'student.program.name' => 'Program',
-                'semester' => 'Semester',
-                'subject.name' => 'Subject',
-                'subject.code' => 'Subject Code',
-                'assessment_attendance_percent' => 'Attendance %',
-                'assessment_obtained_marks' => 'Obtained Marks',
-                'assessment_full_marks' => 'Full Marks',
-                'assessment_pass_marks' => 'Pass Marks',
-                'was_present_on_exam_date' => 'Exam Attendance',
-                'result_remark' => 'Result',
-                'status' => 'Status',
-                'remarks' => 'Remarks',
-            ];
-            
-            $config['metadata']['Assessment Full Marks'] = $exam->assessment_full_marks ?? 100;
-            $config['metadata']['Assessment Pass Marks'] = $exam->assessment_pass_marks ?? 40;
+            $fullMarks = $exam->assessment_full_marks ?? 100;
+            $passMarks = $exam->assessment_pass_marks ?? 40;
+            $config['metadata']['Full Marks'] = $fullMarks;
+            $config['metadata']['Pass Marks'] = $passMarks;
+
+            // Only show subject/semester columns when data spans multiple subjects/semesters
+            $columns = ['student.user.name' => 'Student Name', 'student.roll_number' => 'Roll No'];
+            if (!$singleSubject) {
+                $columns['semester']      = 'Sem';
+                $columns['subject.name']  = 'Subject';
+            }
+            $columns['assessment_obtained_marks'] = 'Obtained (' . $fullMarks . '/' . $passMarks . ')';
+            $columns['result_remark']             = 'Result';
+            $columns['remarks']                   = 'Remarks';
+            $config['columns'] = $columns;
         } else {
-            $config['columns'] = [
-                'student.user.name' => 'Student Name',
-                'student.roll_number' => 'Roll No',
-                'student.program.name' => 'Program',
-                'semester' => 'Semester',
-                'subject.name' => 'Subject',
-                'subject.code' => 'Subject Code',
-                'internal_theory_marks' => 'Internal Theory',
-                'ctevt_full_marks_internal_theory' => 'IT Full',
-                'ctevt_pass_marks_internal_theory' => 'IT Pass',
-                'external_theory_marks' => 'External Theory',
-                'ctevt_full_marks_external_theory' => 'ET Full',
-                'ctevt_pass_marks_external_theory' => 'ET Pass',
-                'internal_practical_marks' => 'Internal Practical',
-                'ctevt_full_marks_internal_practical' => 'IP Full',
-                'ctevt_pass_marks_internal_practical' => 'IP Pass',
-                'external_practical_marks' => 'External Practical',
-                'ctevt_full_marks_external_practical' => 'EP Full',
-                'ctevt_pass_marks_external_practical' => 'EP Pass',
-                'total_marks' => 'Total Marks',
-                'result_remark' => 'Result',
-                'status' => 'Status',
-                'remarks' => 'Remarks',
-            ];
+            // Only show subject/semester columns when data spans multiple subjects/semesters
+            $columns = ['student.user.name' => 'Student Name', 'student.roll_number' => 'Roll No'];
+            if (!$singleSubject) {
+                $columns['semester']     = 'Sem';
+                $columns['subject.name'] = 'Subject';
+            }
+            $columns['internal_theory_marks']   = 'Int. Theory';
+            $columns['external_theory_marks']   = 'Ext. Theory';
+            $columns['internal_practical_marks']  = 'Int. Practical';
+            $columns['external_practical_marks']  = 'Ext. Practical';
+            $columns['total_marks']              = 'Total';
+            $columns['result_remark']            = 'Result';
+            $columns['remarks']                  = 'Remarks';
+            $config['columns'] = $columns;
         }
 
         return $config;

@@ -112,6 +112,22 @@
                         </div>
                     </x-form-field>
                 </x-card>
+
+                {{-- ── College / Institution Info (used in PDF & Excel exports) ── --}}
+                <x-card>
+                    <div class="mb-4">
+                        <h3 class="text-sm font-semibold text-gray-800">College / Institution Information</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">These fields appear on exported PDF and Excel marksheets. Address, phone and email are pulled from the Contact section automatically.</p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        @foreach(['college_name','college_affiliation'] as $ck)
+                            @php $cs = $allSettings->get($ck); @endphp
+                            <x-form-field :label="$cs?->label ?? ucwords(str_replace('_',' ',$ck))" :name="$ck" span="1">
+                                <x-input :name="$ck" :value="old($ck, $cs?->value)" :placeholder="$cs?->label ?? ''" />
+                            </x-form-field>
+                        @endforeach
+                    </div>
+                </x-card>
             </div>
         </div>
 
