@@ -125,6 +125,7 @@ class SubjectController extends HodController
         }
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['credit_hours'] = $validated['credit_hours'] ?? 0;
         $validated['details'] = filled($validated['details'] ?? null)
             ? trim((string) $validated['details'])
             : null;
@@ -456,5 +457,26 @@ class SubjectController extends HodController
             ->detach($teacher->id);
 
         return back()->with('success', 'Teacher assignment removed successfully.');
+    }
+
+    /**
+     * Delete the specified subject (department-scoped)
+     */
+    public function destroy(Request $request, Subject $subject)
+    {
+        $department = $this->currentDepartment($request);
+
+        if ($subject->program->department_id !== $department->id) {
+            abort(403, 'This subject does not belong to your department.');
+        }
+
+        if ($subject->syllabus) {
+            Storage::disk('public')->delete($subject->syllabus);
+        }
+
+        $subject->delete();
+
+        return redirect()->route('hod.subjects.index')
+            ->with('success', "Subject '{$subject->name}' deleted successfully.");
     }
 }

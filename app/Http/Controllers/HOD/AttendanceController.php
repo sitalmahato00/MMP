@@ -451,4 +451,27 @@ class AttendanceController extends HodController
             ->route('hod.attendance.index')
             ->with('success', 'Attendance updated successfully.');
     }
+
+    // ── Destroy ────────────────────────────────────────────────────────────
+    public function destroy(Request $request, AttendanceSession $attendanceSession)
+    {
+        $department = $this->currentDepartment($request);
+        $deptId = $department->id;
+
+        // Verify session belongs to department
+        $belongsToDept = $attendanceSession->subject()
+            ->whereHas('program', fn ($q) => $q->where('department_id', $deptId))
+            ->exists();
+
+        if (!$belongsToDept) {
+            abort(403, 'This attendance session does not belong to your department.');
+        }
+
+        // Delete child attendance records then the session
+        $attendanceSession->attendances()->delete();
+        $attendanceSession->delete();
+
+        return redirect()->route('hod.attendance.index')
+            ->with('success', 'Attendance session deleted successfully.');
+    }
 }

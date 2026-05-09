@@ -22,6 +22,7 @@ Route::prefix('attendance')->name('attendance.')->group(function () {
     Route::get('/reports', [\App\Http\Controllers\HOD\AttendanceController::class, 'reports'])->name('reports');
     Route::get('/{attendanceSession}/edit', [\App\Http\Controllers\HOD\AttendanceController::class, 'edit'])->name('edit');
     Route::put('/{attendanceSession}', [\App\Http\Controllers\HOD\AttendanceController::class, 'update'])->name('update');
+    Route::delete('/{attendanceSession}', [\App\Http\Controllers\HOD\AttendanceController::class, 'destroy'])->name('destroy');
 });
 
 // Exam & Marks Management
@@ -130,6 +131,7 @@ Route::prefix('subjects')->name('subjects.')->group(function () {
     Route::get('/{subject}/drawer', [\App\Http\Controllers\HOD\SubjectController::class, 'drawer'])->name('drawer');
     Route::get('/{subject}/edit', [\App\Http\Controllers\HOD\SubjectController::class, 'edit'])->name('edit');
     Route::put('/{subject}', [\App\Http\Controllers\HOD\SubjectController::class, 'update'])->name('update');
+    Route::delete('/{subject}', [\App\Http\Controllers\HOD\SubjectController::class, 'destroy'])->name('destroy');
     Route::post('/{subject}/assign-teacher', [\App\Http\Controllers\HOD\SubjectController::class, 'assignTeacher'])->name('assign-teacher');
     Route::delete('/{subject}/teachers/{teacher}', [\App\Http\Controllers\HOD\SubjectController::class, 'removeTeacher'])->name('remove-teacher');
 });

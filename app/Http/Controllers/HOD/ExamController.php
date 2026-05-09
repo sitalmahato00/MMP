@@ -302,28 +302,38 @@ class ExamController extends HodController
             ->with(['academicSession:id,name', 'programs'])
             ->findOrFail($examId);
 
-        // Get marks for this exam with status filter
-        $marks = Mark::where('exam_id', $examId)
+        // Get marks for this exam with filters — grouped display, no pagination
+        $marksQuery = Mark::where('exam_id', $examId)
             ->with([
                 'student.user:id,name,email',
                 'student.program:id,name',
-                'subject:id,name,code'
+                'subject:id,name,code',
             ])
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
                 $q->whereHas('student.user', fn ($uq) => $uq->where('name', 'like', "%{$term}%"));
             })
             ->when($request->subject_id, fn ($q) => $q->where('subject_id', $request->subject_id))
+            ->when($request->semester,   fn ($q) => $q->where('semester', $request->semester))
             ->when($request->program_id, function ($q) use ($request) {
                 $q->whereHas('student', fn ($sq) => $sq->where('program_id', $request->program_id));
             })
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->paginate(20)
-            ->withQueryString();
+            ->orderBy('semester')
+            ->orderBy('subject_id')
+            ->orderBy('student_id');
+
+        $allMarks = $marksQuery->get();
+
+        // Group: semester → subject_id → marks collection
+        $groupedMarks = $allMarks
+            ->groupBy('semester')
+            ->map(fn ($semMarks) => $semMarks->groupBy('subject_id'));
 
         // Subjects for filter
         $subjects = Subject::whereHas('program', fn ($q) => $q->where('department_id', $deptId))
-            ->select('id', 'name', 'code')
+            ->select('id', 'name', 'code', 'semester')
+            ->orderBy('semester')
             ->orderBy('name')
             ->get();
 
@@ -334,14 +344,20 @@ class ExamController extends HodController
             ->orderBy('name')
             ->get();
 
+        // Available semesters in this exam's marks
+        $semesters = Mark::where('exam_id', $examId)
+            ->distinct()
+            ->orderBy('semester')
+            ->pluck('semester');
+
         // Stats
-        $totalMarks = Mark::where('exam_id', $examId)->count();
-        $pendingMarks = Mark::where('exam_id', $examId)->where('status', 'draft')->count();
+        $totalMarks   = Mark::where('exam_id', $examId)->count();
+        $pendingMarks  = Mark::where('exam_id', $examId)->where('status', 'draft')->count();
         $submittedMarks = Mark::where('exam_id', $examId)->where('status', 'submitted')->count();
-        $approvedMarks = Mark::where('exam_id', $examId)->where('status', 'approved')->count();
+        $approvedMarks  = Mark::where('exam_id', $examId)->where('status', 'approved')->count();
 
         return view('hod.exams.marks', compact(
-            'exam', 'marks', 'department', 'subjects', 'programs',
+            'exam', 'groupedMarks', 'department', 'subjects', 'programs', 'semesters',
             'totalMarks', 'pendingMarks', 'submittedMarks', 'approvedMarks'
         ));
     }

@@ -268,12 +268,14 @@
                                 
                                 <div>
                                     <label class="block text-xs font-medium text-slate-700 mb-1">Role *</label>
-                                    <input type="text" 
-                                           x-model="teacher.role"
-                                           :name="'teachers[' + index + '][role]'"
-                                           required
-                                           placeholder="e.g., Theory Teacher, Lab Tech, Project Supervisor"
-                                           class="w-full rounded-lg border-slate-300 text-sm">
+                                    <select x-model="teacher.role"
+                                            :name="'teachers[' + index + '][role]'"
+                                            required
+                                            class="w-full rounded-lg border-slate-300 text-sm">
+                                        <option value="">Select Role</option>
+                                        <option value="Theory Teacher">Theory Teacher</option>
+                                        <option value="Lab Tech">Lab Technician</option>
+                                    </select>
                                 </div>
                                 
                                 <div>
