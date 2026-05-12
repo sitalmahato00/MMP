@@ -70,22 +70,22 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
             {{-- Row 1: Greeting + Quick Actions --}}
             <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <p class="text-\[10px\] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Principal Dashboard</p>
+                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Principal Dashboard</p>
                     <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
                         {{ $greeting }}, {{ auth()->user()->name ?? 'Principal' }}
                     </h1>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="{{ route('admin.students.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 sm:px-3.5 py-1.5 sm:py-2 text-\[11px\] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                    <a href="{{ route('admin.students.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800">
                         <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         Add Student
                     </a>
-                    <a href="{{ route('admin.notices.create') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-\[11px\] sm:text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+                    <a href="{{ route('admin.notices.create') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
                         Create Notice
                     </a>
                     {{-- Manage Admissions button removed --}}
-                    <a href="{{ route('admin.attendance.index') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 sm:px-3.5 py-1.5 sm:py-2 text-\[11px\] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                    <a href="{{ route('admin.attendance.index') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
                         <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         Attendance Overview
                     </a>
@@ -94,20 +94,20 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
 
             {{-- Row 2: Session + Semester Chips + Date Range --}}
             <div class="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 sm:gap-3 border-t border-slate-100 pt-4">
-                <div class="flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 sm:px-3 py-1 sm:py-1.5 text-\[11px\] sm:text-xs font-medium text-slate-600">
+                <div class="flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium text-slate-600">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                     <span data-dashboard-session-display>{{ $sessionName }}</span>
                 </div>
 
                 @foreach($semesters as $sem)
                     @php $semColor = $semesterStatusColors[$sem['status']] ?? $semesterStatusColors['running']; @endphp
-                    <span class="inline-flex items-center gap-1.5 rounded-lg {{ $semColor['bg'] }} px-2 sm:px-2.5 py-0.5 sm:py-1 text-\[10px\] sm:text-\[11px\] font-semibold {{ $semColor['text'] }}">
+                    <span class="inline-flex items-center gap-1.5 rounded-lg {{ $semColor['bg'] }} px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold {{ $semColor['text'] }}">
                         <span class="h-1.5 w-1.5 rounded-full {{ $semColor['dot'] }}"></span>
                         Sem {{ $sem['number'] }}
                     </span>
                 @endforeach
 
-                <div class="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-\[11px\] sm:text-xs text-slate-500">
+                <div class="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[11px] sm:text-xs text-slate-500">
                     @if($rangeLabel)
                         <span data-dashboard-range-display>{{ $rangeLabel }}</span>
                         <span class="text-slate-300">|</span>

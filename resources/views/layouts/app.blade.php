@@ -61,8 +61,8 @@
     <!-- Structured data (JSON-LD) for College/Organization -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "CollegeOrUniversity",
+      "@@context": "https://schema.org",
+      "@@type": "CollegeOrUniversity",
       "name": "{{ $collegeName }}",
       "url": "{{ $siteUrl }}",
       "logo": "{{ $logoUrl }}"

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
+<html lang="en" class="h-full bg-gray-50 dark:bg-slate-900">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Two-Factor Authentication - {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full">
+<body class="h-full dark:bg-slate-900">
     <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
             <!-- Logo -->
@@ -21,23 +21,23 @@
                 </div>
             </div>
 
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
                 Two-Factor Authentication
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
+            <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
                 Enter the verification code sent to your {{ session('2fa_method', 'email') }}
             </p>
             
             <!-- Countdown Timer -->
             <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
                     Code expires in: <span id="countdown" class="font-bold text-red-600">60</span> seconds
                 </p>
             </div>
         </div>
 
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 dark:bg-slate-800">
                 @if (session('success'))
                     <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
                         {{ session('success') }}
@@ -58,7 +58,7 @@
                     @csrf
 
                     <div>
-                        <label for="otp" class="block text-sm font-medium text-gray-700">
+                        <label for="otp" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Verification Code
                         </label>
                         <div class="mt-1">
@@ -71,7 +71,7 @@
                                 maxlength="6"
                                 required 
                                 autofocus
-                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('otp') border-red-300 @enderror"
+                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#003D82] focus:border-[#003D82] sm:text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400 @error('otp') border-red-300 @enderror"
                                 placeholder="Enter 6-digit code"
                             >
                         </div>
@@ -84,7 +84,11 @@
                         <button 
                             type="submit" 
                             id="verifyBtn"
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            class="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium text-white transition-all focus:outline-none"
+                            style="background-color: #003D82; box-shadow: 0 2px 4px rgba(0,0,0,0.15);"
+                            onmouseover="this.style.backgroundColor=document.documentElement.classList.contains('dark')?'#1d4ed8':'#001F4D'"
+                            onmouseout="this.style.backgroundColor=document.documentElement.classList.contains('dark')?'#2563eb':'#003D82'"
+                            x-data x-init="$el.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#2563eb' : '#003D82'"
                         >
                             Verify Code
                         </button>
@@ -97,7 +101,11 @@
                         <button 
                             type="submit" 
                             id="resendBtn"
-                            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            class="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium transition-all focus:outline-none"
+                            style="background-color: transparent; color: #003D82; border: 1px solid #003D82;"
+                            onmouseover="if(document.documentElement.classList.contains('dark')){this.style.backgroundColor='#2563eb';this.style.color='#fff';this.style.borderColor='#2563eb';}else{this.style.backgroundColor='#003D82';this.style.color='#fff';this.style.borderColor='#003D82';}"
+                            onmouseout="if(document.documentElement.classList.contains('dark')){this.style.backgroundColor='transparent';this.style.color='#60a5fa';this.style.borderColor='#60a5fa';}else{this.style.backgroundColor='transparent';this.style.color='#003D82';this.style.borderColor='#003D82';}"
+                            x-data x-init="if(document.documentElement.classList.contains('dark')){$el.style.color='#60a5fa';$el.style.borderColor='#60a5fa';}"
                         >
                             Resend Code
                         </button>
@@ -105,7 +113,7 @@
                 </div>
 
                 <div class="mt-6 text-center">
-                    <a href="{{ route('login') }}" class="text-sm text-indigo-600 hover:text-indigo-500">
+                    <a href="{{ route('login') }}" class="text-sm text-[#003D82] hover:text-[#001F4D] dark:text-blue-400 dark:hover:text-blue-300">
                         Back to Login
                     </a>
                 </div>

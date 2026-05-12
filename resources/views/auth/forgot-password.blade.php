@@ -6,8 +6,8 @@
     <title>Forgot Password | Manmohan Memorial Polytechnic</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-50 flex min-h-screen items-center justify-center p-4" style="background-image: url('{{ asset('assets/bg-pattern.png') }}'); background-blend-mode: overlay; background-color: #f9fafb;">
-    <div class="w-full max-w-md overflow-hidden rounded-md border-t-4 border-[#003D82] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+<body class="bg-gray-50 dark:bg-slate-900 flex min-h-screen items-center justify-center p-4" style="background-image: url('{{ asset('assets/bg-pattern.png') }}'); background-blend-mode: overlay; background-color: #f9fafb;">
+    <div class="w-full max-w-md overflow-hidden rounded-md border-t-4 border-[#003D82] bg-white dark:bg-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
         <div class="p-8">
             <div class="mb-8 text-center">
                 <a href="{{ route('home') }}" class="inline-block transition-opacity hover:opacity-90">
@@ -20,8 +20,8 @@
                         @endif
                     </div>
                 </a>
-                <h1 class="font-serif text-2xl font-black tracking-tight text-[#003D82]">Reset Password</h1>
-                <p class="mt-1 text-sm font-medium text-gray-500">We will email you a secure reset link</p>
+                <h1 class="font-serif text-2xl font-black tracking-tight text-[#003D82] dark:text-blue-400">Reset Password</h1>
+                <p class="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">We will email you a secure reset link</p>
             </div>
 
             @if (session('status'))
@@ -36,18 +36,23 @@
                 @csrf
 
                 <div>
-                    <label class="mb-1.5 block text-sm font-bold text-gray-700">Email Address</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus class="w-full rounded border border-gray-300 px-3 py-2.5 text-sm shadow-sm outline-none transition-colors focus:border-[#003D82] focus:ring-[#003D82]">
-                    <p class="mt-2 text-xs text-gray-500">Use the same email address you use to sign in to the portal.</p>
+                    <label class="mb-1.5 block text-sm font-bold text-gray-700 dark:text-gray-300">Email Address</label>
+                    <input type="email" name="email" value="{{ old('email') }}" required autofocus class="w-full rounded border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2.5 text-sm shadow-sm outline-none transition-colors focus:border-[#003D82] focus:ring-[#003D82]">
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Use the same email address you use to sign in to the portal.</p>
                 </div>
 
-                <button type="submit" class="mt-2 w-full rounded bg-[#003D82] px-4 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#001F4D] focus:ring-2 focus:ring-[#003D82] focus:ring-offset-2">
+                <button type="submit"
+                    class="mt-2 w-full rounded text-sm font-bold uppercase tracking-wider text-white transition-all"
+                    style="background-color: #003D82; padding: 0.75rem 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.15);"
+                    onmouseover="this.style.backgroundColor='#001F4D'"
+                    onmouseout="this.style.backgroundColor=document.documentElement.classList.contains('dark') ? '#2563eb' : '#003D82'"
+                    x-data x-init="$el.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#2563eb' : '#003D82'">
                     Email Reset Link
                 </button>
             </form>
 
-            <div class="mt-8 flex items-center justify-between border-t border-gray-100 pt-6">
-                <a href="{{ route('login') }}" class="flex items-center gap-1 text-xs font-bold text-gray-500 transition-colors hover:text-[#003D82]">
+            <div class="mt-8 flex items-center justify-between border-t border-gray-100 dark:border-slate-700 pt-6">
+                <a href="{{ route('login') }}" class="flex items-center gap-1 text-xs font-bold text-gray-500 dark:text-gray-400 transition-colors hover:text-[#003D82] dark:hover:text-blue-400">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     Back to Login
                 </a>
