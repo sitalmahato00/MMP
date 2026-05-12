@@ -5,11 +5,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\Public\HomeController;
-use App\Http\Controllers\Public\MobilePreviewController;
-use App\Http\Controllers\PwaIconController;
+use App\Modules\User\Controllers\Auth\AuthController;
+use App\Modules\Notification\Controllers\NotificationController;
+use App\Modules\Public\Controllers\HomeController;
+use App\Modules\Public\Controllers\MobilePreviewController;
+use App\Modules\CMS\Controllers\PwaIconController;
 
 // ─── PWA Icon Routes ────────────────────────
 Route::get('/pwa-icon-{size}.png', [PwaIconController::class, 'icon'])

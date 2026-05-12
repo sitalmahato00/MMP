@@ -2,49 +2,49 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/dashboard', [\App\Http\Controllers\Student\DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [\App\Modules\Student\Controllers\Web\DashboardController::class, 'index'])->name('dashboard');
 
 // My Attendance
-Route::resource('attendance', \App\Http\Controllers\Student\AttendanceController::class)->only(['index', 'show']);
+Route::resource('attendance', \App\Modules\Student\Controllers\Web\AttendanceController::class)->only(['index', 'show']);
 
 // My Marks / Results
-Route::resource('marks', \App\Http\Controllers\Student\MarksController::class)->only(['index', 'show']);
+Route::resource('marks', \App\Modules\Student\Controllers\Web\MarksController::class)->only(['index', 'show']);
 
 // My Subjects
-Route::get('subjects', [\App\Http\Controllers\Student\SubjectsController::class, 'index'])->name('subjects.index');
+Route::get('subjects', [\App\Modules\Student\Controllers\Web\SubjectsController::class, 'index'])->name('subjects.index');
 
 // My Assignments
-Route::resource('assignments', \App\Http\Controllers\Student\AssignmentsController::class)->only(['index', 'show']);
-Route::post('assignments/{assignment}/submit', [\App\Http\Controllers\Student\AssignmentsController::class, 'submit'])->name('assignments.submit');
+Route::resource('assignments', \App\Modules\Student\Controllers\Web\AssignmentsController::class)->only(['index', 'show']);
+Route::post('assignments/{assignment}/submit', [\App\Modules\Student\Controllers\Web\AssignmentsController::class, 'submit'])->name('assignments.submit');
 
 // My Timetable
-Route::resource('timetable', \App\Http\Controllers\Student\TimetableController::class)->only(['index']);
+Route::resource('timetable', \App\Modules\Student\Controllers\Web\TimetableController::class)->only(['index']);
 
 // Downloads/Resources
-Route::resource('downloads', \App\Http\Controllers\Student\DownloadController::class)->only(['index', 'show']);
-Route::get('downloads/{download}/file', [\App\Http\Controllers\Student\DownloadController::class, 'file'])->name('downloads.file');
+Route::resource('downloads', \App\Modules\Student\Controllers\Web\DownloadController::class)->only(['index', 'show']);
+Route::get('downloads/{download}/file', [\App\Modules\Student\Controllers\Web\DownloadController::class, 'file'])->name('downloads.file');
 
 // Notices
-Route::resource('notices', \App\Http\Controllers\Student\NoticesController::class)->only(['index', 'show']);
-Route::get('news-events', [\App\Http\Controllers\Student\NoticesController::class, 'newsEvents'])->name('news-events.index');
-Route::get('news-events/{notice}', [\App\Http\Controllers\Student\NoticesController::class, 'showNewsEvent'])->name('news-events.show');
+Route::resource('notices', \App\Modules\Student\Controllers\Web\NoticesController::class)->only(['index', 'show']);
+Route::get('news-events', [\App\Modules\Student\Controllers\Web\NoticesController::class, 'newsEvents'])->name('news-events.index');
+Route::get('news-events/{notice}', [\App\Modules\Student\Controllers\Web\NoticesController::class, 'showNewsEvent'])->name('news-events.show');
 
 // Profile
-Route::get('profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile.show');
-Route::get('profile/edit', [\App\Http\Controllers\Student\ProfileController::class, 'edit'])->name('profile.edit');
-Route::put('profile', [\App\Http\Controllers\Student\ProfileController::class, 'update'])->name('profile.update');
-Route::get('profile/change-password', [\App\Http\Controllers\Student\ProfileController::class, 'changePassword'])->name('profile.change-password');
-Route::post('profile/change-password', [\App\Http\Controllers\Student\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+Route::get('profile', [\App\Modules\Student\Controllers\Web\ProfileController::class, 'show'])->name('profile.show');
+Route::get('profile/edit', [\App\Modules\Student\Controllers\Web\ProfileController::class, 'edit'])->name('profile.edit');
+Route::put('profile', [\App\Modules\Student\Controllers\Web\ProfileController::class, 'update'])->name('profile.update');
+Route::get('profile/change-password', [\App\Modules\Student\Controllers\Web\ProfileController::class, 'changePassword'])->name('profile.change-password');
+Route::post('profile/change-password', [\App\Modules\Student\Controllers\Web\ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
 // Settings & Account Management
 Route::prefix('settings')->name('settings.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Student\SettingsController::class, 'index'])->name('index');
-    Route::patch('/profile', [\App\Http\Controllers\Student\SettingsController::class, 'updateProfile'])->name('profile.update');
-    Route::patch('/password', [\App\Http\Controllers\Student\SettingsController::class, 'updatePassword'])->name('password.update');
-    Route::patch('/two-factor', [\App\Http\Controllers\Student\SettingsController::class, 'updateTwoFactor'])->name('two-factor.update');
-    Route::patch('/preferences', [\App\Http\Controllers\Student\SettingsController::class, 'updatePreferences'])->name('preferences.update');
-    Route::patch('/notifications', [\App\Http\Controllers\Student\SettingsController::class, 'updateNotifications'])->name('notifications.update');
-    Route::post('/logout-all', [\App\Http\Controllers\Student\SettingsController::class, 'logoutAllDevices'])->name('logout-all');
-    Route::post('/reset-dashboard', [\App\Http\Controllers\Student\SettingsController::class, 'resetDashboard'])->name('reset-dashboard');
-    Route::post('/clear-preferences', [\App\Http\Controllers\Student\SettingsController::class, 'clearPreferences'])->name('clear-preferences');
+    Route::get('/', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'index'])->name('index');
+    Route::patch('/profile', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'updateProfile'])->name('profile.update');
+    Route::patch('/password', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'updatePassword'])->name('password.update');
+    Route::patch('/two-factor', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'updateTwoFactor'])->name('two-factor.update');
+    Route::patch('/preferences', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'updatePreferences'])->name('preferences.update');
+    Route::patch('/notifications', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'updateNotifications'])->name('notifications.update');
+    Route::post('/logout-all', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'logoutAllDevices'])->name('logout-all');
+    Route::post('/reset-dashboard', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'resetDashboard'])->name('reset-dashboard');
+    Route::post('/clear-preferences', [\App\Modules\Student\Controllers\Web\SettingsController::class, 'clearPreferences'])->name('clear-preferences');
 });

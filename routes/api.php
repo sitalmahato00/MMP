@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Public\PublicApiController;
-use App\Http\Controllers\Api\AuthController;
+use App\Modules\Public\Controllers\PublicApiController;
+use App\Modules\Api\Controllers\AuthController;
 
 // ─── Authentication Routes ───────────
 Route::prefix('auth')->middleware('throttle:3,1')->group(function () {
@@ -37,5 +37,5 @@ Route::prefix('v1')->group(function () {
     });
 
     // Subject API (authenticated users only)
-    Route::middleware('auth:sanctum')->get('/subjects/{subject}/students', [\App\Http\Controllers\Api\SubjectController::class, 'students']);
+    Route::middleware('auth:sanctum')->get('/subjects/{subject}/students', [\App\Modules\Api\Controllers\SubjectController::class, 'students']);
 });

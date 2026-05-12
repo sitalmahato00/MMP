@@ -1,29 +1,30 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\DepartmentController;
-use App\Http\Controllers\Admin\ProgramController;
-use App\Http\Controllers\Admin\StudentController;
-use App\Http\Controllers\Admin\TeacherController;
-use App\Http\Controllers\Admin\ParentController;
-use App\Http\Controllers\Admin\AlumniController;
-use App\Http\Controllers\Admin\StaffController;
-use App\Http\Controllers\Admin\AcademicSessionController;
-use App\Http\Controllers\Admin\AttendanceController;
-use App\Http\Controllers\Admin\ExamController;
-use App\Http\Controllers\Admin\NoticeController;
-use App\Http\Controllers\Admin\AuditLogController;
-use App\Http\Controllers\Admin\MediaController;
-use App\Http\Controllers\Admin\DownloadController;
-use App\Http\Controllers\Admin\BannerController;
-use App\Http\Controllers\Admin\WebControlController;
-use App\Http\Controllers\Admin\FacilityController;
-use App\Http\Controllers\Admin\ExecutiveController;
-use App\Http\Controllers\Admin\HodController;
-// Application feature removed
-use App\Http\Controllers\Admin\RolePermissionController;
+use App\Modules\Admin\Controllers\DashboardController;
+use App\Modules\User\Controllers\Admin\UserController;
+use App\Modules\Department\Controllers\Admin\DepartmentController;
+use App\Modules\Academic\Controllers\Admin\ProgramController;
+use App\Modules\Student\Controllers\Admin\StudentController;
+use App\Modules\Teacher\Controllers\Admin\TeacherController;
+use App\Modules\Parent\Controllers\Admin\ParentController;
+use App\Modules\Alumni\Controllers\Admin\AlumniController;
+use App\Modules\Staff\Controllers\Admin\StaffController;
+use App\Modules\Academic\Controllers\Admin\AcademicSessionController;
+use App\Modules\Attendance\Controllers\Admin\AttendanceController;
+use App\Modules\Exam\Controllers\Admin\ExamController;
+use App\Modules\CMS\Controllers\Admin\NoticeController;
+use App\Modules\AuditLog\Controllers\Admin\AuditLogController;
+use App\Modules\CMS\Controllers\Admin\MediaController;
+use App\Modules\CMS\Controllers\Admin\DownloadController;
+use App\Modules\CMS\Controllers\Admin\BannerController;
+use App\Modules\CMS\Controllers\Admin\WebControlController;
+use App\Modules\CMS\Controllers\Admin\FacilityController;
+use App\Modules\CMS\Controllers\Admin\ExecutiveController;
+use App\Modules\HOD\Controllers\Admin\HodController;
+use App\Modules\User\Controllers\Admin\RolePermissionController;
+use App\Modules\Settings\Controllers\Admin\SettingsController;
+use App\Modules\Settings\Controllers\Admin\CacheController;
 
 // ── Dashboard ──────────────────────────────────────────────
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -124,12 +125,12 @@ Route::delete('web-control/file/{key}', [WebControlController::class, 'clearFile
 Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 
 // ── Admin Settings (Personal Account) ─────────────────────
-Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
-Route::patch('settings/profile', [\App\Http\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
-Route::patch('settings/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('settings.password.update');
-Route::patch('settings/two-factor', [\App\Http\Controllers\Admin\SettingsController::class, 'updateTwoFactor'])->name('settings.two-factor.update');
-Route::patch('settings/preferences', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
-Route::patch('settings/notifications', [\App\Http\Controllers\Admin\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
-Route::post('settings/logout-all', [\App\Http\Controllers\Admin\SettingsController::class, 'logoutAllDevices'])->name('settings.logout-all');
-Route::post('settings/reset-dashboard', [\App\Http\Controllers\Admin\SettingsController::class, 'resetDashboard'])->name('settings.reset-dashboard');
-Route::post('settings/clear-preferences', [\App\Http\Controllers\Admin\SettingsController::class, 'clearPreferences'])->name('settings.clear-preferences');
+Route::get('settings', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
+Route::patch('settings/profile', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+Route::patch('settings/password', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('settings.password.update');
+Route::patch('settings/two-factor', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'updateTwoFactor'])->name('settings.two-factor.update');
+Route::patch('settings/preferences', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
+Route::patch('settings/notifications', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
+Route::post('settings/logout-all', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'logoutAllDevices'])->name('settings.logout-all');
+Route::post('settings/reset-dashboard', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'resetDashboard'])->name('settings.reset-dashboard');
+Route::post('settings/clear-preferences', [\App\Modules\Settings\Controllers\Admin\SettingsController::class, 'clearPreferences'])->name('settings.clear-preferences');
