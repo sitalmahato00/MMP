@@ -16,6 +16,71 @@
     <link rel="shortcut icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
     <link rel="apple-touch-icon" href="{{ route('public.brand-logo') }}?v={{ logoVersion() }}">
 
+    @php
+        use App\Models\SiteSetting;
+        use Illuminate\Support\Facades\Cache;
+
+        $siteSettings = Cache::remember('public:site_settings', 600, function () {
+            SiteSetting::ensureDefaults();
+            return SiteSetting::all()->pluck('value', 'key')->toArray();
+        });
+
+        $collegeName = $siteSettings['college_name'] ?? config('app.name');
+        $siteUrl = config('app.url') ?: url('/');
+        $logoUrl = route('public.brand-logo') . '?v=' . logoVersion();
+        $contactPhone = $siteSettings['contact_phone'] ?? null;
+        $contactAddress = $siteSettings['contact_address'] ?? null;
+        $mapsIframe = $siteSettings['google_maps_iframe'] ?? null;
+
+        $socialKeys = ['facebook_url','twitter_url','instagram_url','youtube_url','linkedin_url'];
+        $sameAs = [];
+        foreach ($socialKeys as $k) {
+            if (! empty($siteSettings[$k])) {
+                $sameAs[] = $siteSettings[$k];
+            }
+        }
+    @endphp
+
+    <meta name="description" content="Official website of {{ $collegeName }}.">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="{{ $collegeName }}">
+    <meta property="og:title" content="@yield('title', $collegeName)">
+    <meta property="og:description" content="Official website of {{ $collegeName }}.">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ $logoUrl }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', $collegeName)">
+    <meta name="twitter:description" content="Official website of {{ $collegeName }}.">
+    <meta name="twitter:image" content="{{ $logoUrl }}">
+
+    <!-- Structured data (JSON-LD) for College/Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollegeOrUniversity",
+      "name": "{{ $collegeName }}",
+      "url": "{{ $siteUrl }}",
+      "logo": "{{ $logoUrl }}"
+      @if(!empty($sameAs)),
+      "sameAs": {!! json_encode($sameAs) !!}
+      @endif
+      @if(!empty($contactPhone)),
+      "telephone": "{{ $contactPhone }}"
+      @endif
+      @if(!empty($contactAddress)),
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{ addslashes($contactAddress) }}"
+      }
+      @endif
+    }
+    </script>
+
     <title>@yield('title', 'MMP CMS') | {{ config('app.name') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
