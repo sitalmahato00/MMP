@@ -33,6 +33,11 @@ class SiteSetting extends Model
             ['key' => 'contact_email', 'group' => 'contact', 'label' => 'Contact Email', 'type' => 'text', 'value' => 'info@mmp.edu.np'],
             ['key' => 'contact_phone', 'group' => 'contact', 'label' => 'Contact Phone', 'type' => 'text', 'value' => '+977-1-444444'],
             ['key' => 'contact_address', 'group' => 'contact', 'label' => 'Contact Address', 'type' => 'text', 'value' => 'Kathmandu, Nepal'],
+            ['key' => 'facebook_url', 'group' => 'contact', 'label' => 'Facebook URL', 'type' => 'text', 'value' => ''],
+            ['key' => 'twitter_url', 'group' => 'contact', 'label' => 'Twitter URL', 'type' => 'text', 'value' => ''],
+            ['key' => 'instagram_url', 'group' => 'contact', 'label' => 'Instagram URL', 'type' => 'text', 'value' => ''],
+            ['key' => 'youtube_url', 'group' => 'contact', 'label' => 'YouTube URL', 'type' => 'text', 'value' => ''],
+            ['key' => 'linkedin_url', 'group' => 'contact', 'label' => 'LinkedIn URL', 'type' => 'text', 'value' => ''],
             ['key' => 'google_maps_iframe', 'group' => 'contact', 'label' => 'Google Maps Embed', 'type' => 'textarea', 'value' => '<iframe...></iframe>'],
         ];
     }
