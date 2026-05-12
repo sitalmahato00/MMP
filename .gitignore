@@ -21,7 +21,7 @@
 !/public/manifest.json
 !/public/sw.js
 !/public/offline.html
-!/public/build/
+!/public/.htaccess
 /storage/*.key
 /storage/pail
 /storage/framework/views-test
