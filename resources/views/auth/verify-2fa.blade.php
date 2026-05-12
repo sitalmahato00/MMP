@@ -12,9 +12,9 @@
             <!-- Logo -->
             <div class="flex justify-center mb-6">
                 @php $brandLogoUrl = route('public.brand-logo') . '?v=' . logoVersion(); @endphp
-                <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center shadow-md border-[3px] border-[#DAA520]" style="background: radial-gradient(circle, #003D82, #001F4D);">
+                <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center shadow-md mb-4 border-[3px] border-[#DAA520]" style="background: radial-gradient(circle, #003D82, #001F4D);">
                     @if($brandLogoUrl)
-                        <img src="{{ $brandLogoUrl }}" alt="Logo" class="w-12 h-12 object-contain">
+                        <img src="{{ $brandLogoUrl }}" alt="MMP Logo" class="w-full h-full object-cover rounded-full">
                     @else
                         <span class="text-2xl font-bold text-white">MMP</span>
                     @endif

@@ -318,7 +318,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                         <p class="mt-0.5 text-xs text-slate-500">{{ $alert['message'] }}</p>
                     </div>
                     @if(!empty($alert['actionHref']))
-                        <a href="{{ $alert['actionHref'] }}" class="shrink-0 rounded-md border border-slate-200 px-2 sm:px-2.5 py-0.5 sm:py-1 text-\[10px\] sm:text-\[11px\] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
+                        <a href="{{ $alert['actionHref'] }}" class="shrink-0 rounded-md border border-slate-200 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
                             {{ $alert['actionLabel'] ?? 'View' }}
                         </a>
                     @endif
