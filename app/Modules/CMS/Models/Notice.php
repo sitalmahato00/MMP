@@ -2,6 +2,12 @@
 
 namespace App\Modules\CMS\Models;
 
+
+use App\Modules\Academic\Models\Program;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

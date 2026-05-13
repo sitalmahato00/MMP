@@ -2,21 +2,25 @@
 
 namespace App\Modules\HOD\Controllers;
 
-use App\Models\AttendanceSession;
-use App\Models\Attendance;
-use App\Models\Student;
-use App\Models\Subject;
-use App\Models\Teacher;
-use App\Models\Program;
-use App\Models\AcademicSession;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * HOD attendance management (department-scoped).
  * 
  * HODs can view attendance data for their department only.
  */
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 class AttendanceController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────

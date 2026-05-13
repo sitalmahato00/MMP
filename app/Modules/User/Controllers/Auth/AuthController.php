@@ -2,10 +2,17 @@
 
 namespace App\Modules\User\Controllers\Auth;
 
+
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\PasswordReset;
-use App\Models\User;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\CMS\Models\Page;
+use App\Modules\Staff\Models\Staff;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\Otp;
+use App\Modules\User\Models\User;
 use App\Services\OtpService;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -191,7 +198,7 @@ class AuthController extends Controller
         $request->session()->forget(['2fa_user_id', '2fa_remember']);
         \App\Models\AuditLog::log('login');
 
-        return redirect()->intended($this->redirectByRole());
+        return redirect($this->redirectByRole($user));
     }
 
     public function resend2fa(Request $request)
@@ -237,18 +244,19 @@ class AuthController extends Controller
     /**
      * Redirect user to their role-specific dashboard.
      */
-    protected function redirectByRole(): string
+    protected function redirectByRole(?User $user = null): string
     {
-        $user = auth()->user();
+        $user ??= auth()->user();
 
         return match (true) {
             $user->hasRole('principal') => route('admin.dashboard'),
-            $user->hasRole('hod') => route('hod.dashboard'),
-            $user->hasRole('teacher') => route('teacher.dashboard'),
-            $user->hasRole('student') => route('student.dashboard'),
-            $user->hasRole('parent') => route('parent.dashboard'),
-            $user->hasRole('alumni') => route('alumni.dashboard'),
-            default => route('home'),
+            $user->hasRole('hod')       => route('hod.dashboard'),
+            $user->hasRole('teacher')   => route('teacher.dashboard'),
+            $user->hasRole('student')   => route('student.dashboard'),
+            $user->hasRole('parent')    => route('parent.dashboard'),
+            $user->hasRole('alumni')    => route('alumni.dashboard'),
+            $user->hasRole('staff')     => route('admin.dashboard'),
+            default                     => route('home'),
         };
     }
 

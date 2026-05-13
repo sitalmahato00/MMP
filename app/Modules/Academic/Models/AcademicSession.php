@@ -2,6 +2,9 @@
 
 namespace App\Modules\Academic\Models;
 
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Student\Models\Student;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

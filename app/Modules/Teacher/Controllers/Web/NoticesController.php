@@ -2,10 +2,14 @@
 
 namespace App\Modules\Teacher\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AcademicSession;
-use App\Models\Notice;
-use App\Models\Program;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Department\Models\Department;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 
 class NoticesController extends Controller

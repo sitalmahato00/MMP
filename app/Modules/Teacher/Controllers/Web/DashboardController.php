@@ -2,11 +2,21 @@
 
 namespace App\Modules\Teacher\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\{AcademicSession, Teacher, TimetableSlot, Notice, AttendanceSession, Attendance, Program};
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Models\Timetable;
+use App\Modules\Academic\Models\TimetableSlot;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use App\Services\PublicDataService;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {

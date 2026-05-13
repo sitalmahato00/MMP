@@ -2,17 +2,21 @@
 
 namespace App\Modules\Exam\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AcademicSessionSemester;
-use App\Models\AcademicSession;
-use App\Models\Department;
-use App\Models\Exam;
-use App\Models\ExamSubjectMarkingScheme;
-use App\Models\Mark;
-use App\Models\Program;
-use App\Models\Student;
-use App\Models\Subject;
-use App\Models\Teacher;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\CMS\Models\Download;
+use App\Modules\CMS\Models\Page;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Exam\Models\ExamSubjectMarkingScheme;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;

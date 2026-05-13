@@ -2,8 +2,16 @@
 
 namespace App\Modules\Parent\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Student;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Models\Timetable;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class ChildController extends Controller

@@ -2,16 +2,19 @@
 
 namespace App\Modules\Academic\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+
 use App\Helpers\NepaliDateHelper;
-use App\Models\AcademicSession;
-use App\Models\AcademicSessionSemester;
-use App\Models\Department;
-use App\Models\Student;
+use App\Http\Controllers\Controller;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\AcademicSessionSemester;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Student\Models\Student;
 use App\Services\SessionService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Http\Request;
 
 class AcademicSessionController extends Controller
 {

@@ -2,8 +2,10 @@
 
 namespace App\Modules\AuditLog\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
+use App\Modules\AuditLog\Models\AuditLog;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 
 class AuditLogController extends Controller

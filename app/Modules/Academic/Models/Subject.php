@@ -2,6 +2,10 @@
 
 namespace App\Modules\Academic\Models;
 
+use App\Modules\Assignment\Models\Assignment;
+use App\Modules\Exam\Models\ExamSubjectMarkingScheme;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Teacher\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;

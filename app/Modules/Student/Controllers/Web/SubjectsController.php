@@ -2,8 +2,11 @@
 
 namespace App\Modules\Student\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AcademicSession;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use App\Services\StudentRecordService;
 
 class SubjectsController extends Controller

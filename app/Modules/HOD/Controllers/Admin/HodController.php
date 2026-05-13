@@ -2,14 +2,16 @@
 
 namespace App\Modules\HOD\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+
 use App\Helpers\NepaliDateHelper;
-use App\Models\User;
-use App\Models\Department;
+use App\Http\Controllers\Controller;
+use App\Modules\Assignment\Models\Assignment;
+use App\Modules\Department\Models\Department;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class HodController extends Controller
 {
@@ -41,7 +43,7 @@ class HodController extends Controller
     {
         $data = $request->validate([
             'name'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users',
+            'email'         => ['required', 'email', Rule::unique('users')->whereNull('deleted_at')],
             'phone'         => 'nullable|string|max:20',
             'gender'        => 'nullable|in:male,female,other',
             'dob'           => 'nullable|string|max:10',
@@ -189,7 +191,7 @@ class HodController extends Controller
             Storage::disk('public')->delete($hod->avatar);
         }
         
-        $hod->delete();
+        $hod->forceDelete();
         
         return redirect()->route('admin.hods.index')
             ->with('success', 'HOD deleted successfully.');

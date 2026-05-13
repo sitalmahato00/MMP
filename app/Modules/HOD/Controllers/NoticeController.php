@@ -2,18 +2,20 @@
 
 namespace App\Modules\HOD\Controllers;
 
-use App\Models\Notice;
-use App\Models\Program;
-use App\Services\PublicDataService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * HOD notice management (department-scoped).
  * 
  * HODs can manage notices for their department only.
  */
+use App\Modules\Academic\Models\Program;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Department\Models\Department;
+use App\Services\PublicDataService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 class NoticeController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────

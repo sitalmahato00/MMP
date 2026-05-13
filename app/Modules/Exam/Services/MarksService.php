@@ -2,13 +2,13 @@
 
 namespace App\Modules\Exam\Services;
 
-use App\Models\{Mark, Student, Subject, Exam};
-use Illuminate\Support\Facades\Cache;
 
 /**
  * MarksService — Handles CTEVT mark entry, validation, and result computation.
  * Marks Flow: Teacher(draft) → HOD(approved) → Principal(published)
  */
+use Illuminate\Support\Facades\Cache;use App\Modules\Student\Models\Student; use App\Modules\Teacher\Models\Teacher; use App\Modules\Academic\Models\Subject; use App\Modules\Exam\Models\Mark; use App\Modules\User\Models\User; use App\Modules\Exam\Models\Exam;
+
 class MarksService
 {
     /**

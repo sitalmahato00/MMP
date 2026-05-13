@@ -2,8 +2,12 @@
 
 namespace App\Modules\HOD\Controllers;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Download;
+use App\Modules\CMS\Models\Download;
+use App\Modules\Department\Models\Department;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

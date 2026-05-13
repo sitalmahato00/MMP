@@ -2,12 +2,24 @@
 
 namespace App\Modules\HOD\Controllers;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\{Student, Teacher, Department, AcademicSession, Notice, Attendance, AttendanceSession, Mark, Program};
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {

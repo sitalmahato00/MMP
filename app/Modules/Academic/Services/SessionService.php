@@ -2,16 +2,24 @@
 
 namespace App\Modules\Academic\Services;
 
-use App\Helpers\NepaliDateHelper;
-use App\Models\{AcademicSession, AcademicSessionSemester, AuditLog, Program, Student};
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * SessionService — Manages academic session lifecycle.
  * Central engine controlling the entire system state.
  */
+use App\Helpers\NepaliDateHelper;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\AcademicSessionSemester;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Alumni\Services\AlumniService;
+use App\Modules\AuditLog\Models\AuditLog;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
 class SessionService
 {
     public function __construct(private AlumniService $alumniService) {}

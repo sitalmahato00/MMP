@@ -2,8 +2,10 @@
 
 namespace App\Modules\Notification\Controllers;
 
-use App\Http\Controllers\Controller;
 
+
+use App\Http\Controllers\Controller;
+use App\Modules\User\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;

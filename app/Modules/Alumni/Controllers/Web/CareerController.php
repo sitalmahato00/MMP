@@ -2,8 +2,11 @@
 
 namespace App\Modules\Alumni\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AlumniEmployment;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Alumni\Models\AlumniEmployment;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 
 class CareerController extends Controller

@@ -2,8 +2,18 @@
 
 namespace App\Modules\FileManager\Services;
 
-use Illuminate\Support\Collection;
+
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\CMS\Models\Download;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class ExportService
 {

@@ -2,12 +2,16 @@
 
 namespace App\Modules\Teacher\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AcademicSession;
-use App\Models\Exam;
-use App\Models\Mark;
-use App\Models\Student;
-use App\Models\Subject;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

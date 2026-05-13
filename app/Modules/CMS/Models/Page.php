@@ -2,6 +2,7 @@
 
 namespace App\Modules\CMS\Models;
 
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

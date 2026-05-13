@@ -2,20 +2,22 @@
 
 namespace App\Modules\Alumni\Controllers\Admin;
 
-use App\Modules\HOD\Controllers\HodController;
-use App\Models\Student;
-use App\Models\Alumni;
-use App\Models\User;
-use App\Models\Program;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * HOD alumni preparation management (department-scoped).
  * 
  * HODs can prepare graduating students for alumni status.
  */
+use App\Modules\Academic\Models\Program;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Department\Models\Department;
+use App\Modules\HOD\Controllers\HodController;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+
 class HodAlumniController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────

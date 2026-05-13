@@ -2,13 +2,15 @@
 
 namespace App\Modules\Teacher\Models;
 
-use App\Models\Assignment;
-use App\Models\AttendanceSession;
-use App\Models\Department;
-use App\Models\Mark;
-use App\Models\Subject;
-use App\Models\TimetableSlot;
-use App\Models\User;
+
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Models\TimetableSlot;
+use App\Modules\Assignment\Models\Assignment;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

@@ -2,13 +2,13 @@
 
 namespace App\Modules\Alumni\Services;
 
-use App\Models\{AcademicSession, Student};
-use Illuminate\Support\Facades\DB;
 
 /**
  * AlumniService — Handles the automated Student → Alumni conversion
  * triggered when an academic session ends.
  */
+use Illuminate\Support\Facades\DB;use App\Modules\Academic\Models\AcademicSession; use App\Modules\Student\Models\Student; use App\Modules\Alumni\Models\Alumni; use App\Modules\Academic\Models\Program; use App\Modules\User\Models\User; use App\Modules\CMS\Services\PublicDataService; use App\Modules\Department\Models\Department;
+
 class AlumniService
 {
     /**

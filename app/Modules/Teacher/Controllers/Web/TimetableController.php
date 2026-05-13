@@ -2,9 +2,15 @@
 
 namespace App\Modules\Teacher\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AcademicSession;
-use App\Models\TimetableSlot;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Models\Timetable;
+use App\Modules\Academic\Models\TimetableSlot;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 
 class TimetableController extends Controller

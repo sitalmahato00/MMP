@@ -2,8 +2,13 @@
 
 namespace App\Modules\Student\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Notice;
+use App\Modules\Academic\Models\Program;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Department\Models\Department;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 

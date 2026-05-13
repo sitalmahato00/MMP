@@ -2,8 +2,8 @@
 
 namespace App\Modules\Alumni\Controllers\Web;
 
-use App\Http\Controllers\Controller;
-use App\Models\Notice;
+
+use App\Http\Controllers\Controller;use App\Modules\CMS\Models\Notice; use App\Modules\Alumni\Models\Alumni;
 
 class NoticeController extends Controller
 {

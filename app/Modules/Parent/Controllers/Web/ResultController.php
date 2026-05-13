@@ -2,9 +2,14 @@
 
 namespace App\Modules\Parent\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Exam;
-use App\Models\Student;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use App\Services\StudentRecordService;
 use Illuminate\Support\Facades\Auth;
 

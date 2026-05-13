@@ -2,14 +2,17 @@
 
 namespace App\Modules\CMS\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Banner;
-use App\Models\Download;
-use App\Models\Executive;
-use App\Models\Facility;
-use App\Models\Media;
-use App\Models\Notice;
-use App\Models\SiteSetting;
+use App\Modules\Academic\Models\Program;
+use App\Modules\CMS\Models\Banner;
+use App\Modules\CMS\Models\Download;
+use App\Modules\CMS\Models\Executive;
+use App\Modules\CMS\Models\Facility;
+use App\Modules\CMS\Models\Media;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Department\Models\Department;
+use App\Modules\Settings\Models\SiteSetting;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;

@@ -2,10 +2,16 @@
 
 namespace App\Modules\Teacher\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AcademicSession;
-use App\Models\Subject;
-use App\Models\TimetableSlot;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\Department\Models\Department;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 

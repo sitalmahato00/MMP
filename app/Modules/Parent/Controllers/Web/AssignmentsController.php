@@ -2,9 +2,14 @@
 
 namespace App\Modules\Parent\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Assignment;
-use App\Models\Student;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Assignment\Models\Assignment;
+use App\Modules\Department\Models\Department;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class AssignmentsController extends Controller

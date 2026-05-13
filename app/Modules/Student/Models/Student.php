@@ -2,15 +2,15 @@
 
 namespace App\Modules\Student\Models;
 
-use App\Models\AcademicSession;
-use App\Models\Alumni;
-use App\Models\AssignmentSubmission;
-use App\Models\Attendance;
-use App\Models\Department;
-use App\Models\Mark;
-use App\Models\ParentModel;
-use App\Models\Program;
-use App\Models\User;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Assignment\Models\AssignmentSubmission;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Parent\Models\ParentModel;
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

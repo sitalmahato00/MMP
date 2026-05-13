@@ -2,9 +2,12 @@
 
 namespace App\Modules\HOD\Controllers;
 
+
 use App\Http\Controllers\Controller;
+use App\Modules\Department\Models\Department;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use App\Services\NotificationPreferenceService;
-use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

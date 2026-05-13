@@ -2,6 +2,8 @@
 
 namespace App\Modules\Parent\Models;
 
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

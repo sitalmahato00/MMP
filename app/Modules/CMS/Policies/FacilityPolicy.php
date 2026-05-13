@@ -2,9 +2,8 @@
 
 namespace App\Modules\CMS\Policies;
 
-use App\Models\Facility;
-use App\Models\User;
-use Illuminate\Auth\Access\Response;
+
+use Illuminate\Auth\Access\Response;use App\Modules\User\Models\User; use App\Modules\CMS\Models\Facility;
 
 class FacilityPolicy
 {

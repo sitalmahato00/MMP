@@ -2,13 +2,19 @@
 
 namespace App\Modules\User\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+
 use App\Helpers\NepaliDateHelper;
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Department\Models\Department;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -47,9 +53,12 @@ class UserController extends Controller
         ));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('admin.users.create');
+        $defaultRole = in_array($request->query('role'), ['principal','hod','teacher','student','parent','alumni'])
+            ? $request->query('role')
+            : null;
+        return view('admin.users.create', compact('defaultRole'));
     }
 
     public function store(Request $request)
@@ -64,12 +73,14 @@ class UserController extends Controller
             'avatar'   => 'nullable|image|max:2048',
             'role'     => 'required|in:principal,hod,teacher,student,parent,alumni',
             'is_active'=> 'boolean',
-            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($request->hasFile('avatar')) {
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
+
+        // Generate a random secure password and send it to the user
+        $password = \Illuminate\Support\Str::password(12);
 
         $user = User::create([
             'name'      => $data['name'],
@@ -80,16 +91,16 @@ class UserController extends Controller
             'address'   => $data['address'] ?? null,
             'avatar'    => $data['avatar'] ?? null,
             'is_active' => $data['is_active'] ?? true,
-            'password'  => Hash::make($data['password']),
+            'password'  => Hash::make($password),
         ]);
 
         $user->assignRole($data['role']);
 
         app(\App\Services\PortalNotificationService::class)
-            ->sendNewAccountCredentials($user, $data['password'], auth()->user());
+            ->sendNewAccountCredentials($user, $password, auth()->user());
 
         return redirect()->route('admin.users.index')
-            ->with('success', "User {$user->name} created successfully.");
+            ->with('success', "User {$user->name} created. Login credentials sent to {$user->email}.");
     }
 
     public function show(User $user)
@@ -153,7 +164,7 @@ class UserController extends Controller
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }
-        $user->delete();
+        $user->forceDelete();
         return redirect()->route('admin.users.index')
             ->with('success', 'User deleted.');
     }

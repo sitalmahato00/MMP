@@ -2,13 +2,13 @@
 
 namespace App\Modules\Parent\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
-use App\Models\Department;
-use App\Models\ParentModel;
-use App\Models\Program;
-use App\Models\Student;
-use App\Models\User;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Department\Models\Department;
+use App\Modules\Parent\Models\ParentModel;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -224,8 +224,8 @@ class ParentController extends Controller
                 Storage::disk('public')->delete($parent->user->avatar);
             }
             $userName = $parent->user?->name;
-            $parent->user?->delete();
-            $parent->delete();
+            $parent->user?->forceDelete();
+            $parent->forceDelete();
         });
 
         return redirect()->route('admin.parents.index')

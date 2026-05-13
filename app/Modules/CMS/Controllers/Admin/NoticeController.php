@@ -1,13 +1,17 @@
 <?php
 
 namespace App\Modules\CMS\Controllers\Admin;
-use App\Http\Controllers\Controller;
+
 
 
 use App\Helpers\NepaliDateHelper;
-use App\Models\Department;
-use App\Models\Notice;
-use App\Models\NoticeAttachment;
+use App\Http\Controllers\Controller;
+use App\Modules\CMS\Models\Media;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\CMS\Models\NoticeAttachment;
+use App\Modules\CMS\Models\Page;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

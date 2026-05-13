@@ -2,15 +2,20 @@
 
 namespace App\Modules\HOD\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Department;
-use Illuminate\Http\Request;
 
 /**
  * Base controller for all HOD controllers.
  * 
  * Provides common functionality for department-scoped operations.
  */
+use App\Http\Controllers\Controller;
+use App\Modules\Assignment\Models\Assignment;
+use App\Modules\Department\Models\Department;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
+use Illuminate\Http\Request;
+
 abstract class HodController extends Controller
 {
     /**

@@ -2,18 +2,35 @@
 
 namespace App\Modules\CMS\Services;
 
-use App\Helpers\NepaliDateHelper;
-use App\Models\{Department, Notice, Banner, Alumni, Download, Page, Program, Staff, Student, SiteSetting, Facility, Executive, Media, Teacher};
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 /**
  * PublicDataService — The ONLY authorized pathway for public pages to access institutional data.
  * Public pages MUST use this service. They must NEVER query the database directly.
  */
+use App\Helpers\NepaliDateHelper;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\CMS\Models\Banner;
+use App\Modules\CMS\Models\Download;
+use App\Modules\CMS\Models\Executive;
+use App\Modules\CMS\Models\Facility;
+use App\Modules\CMS\Models\Media;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\CMS\Models\Page;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Settings\Models\SiteSetting;
+use App\Modules\Staff\Models\Staff;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+
 class PublicDataService
 {
     /** Cache TTL in seconds */

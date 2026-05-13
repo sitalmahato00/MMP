@@ -2,9 +2,13 @@
 
 namespace App\Modules\Alumni\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Alumni as Alumnus;
-use App\Models\{Department, Program, User};
+use App\Modules\Academic\Models\Program;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Department\Models\Department;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Storage};
 use Illuminate\Validation\Rule;
@@ -240,8 +244,8 @@ class AlumniController extends Controller
             $alumnus->projects()->delete();
             $alumnus->achievementRecords()->delete();
             $alumnus->employmentHistory()->delete();
-            $alumnus->delete();
-            $user?->delete();
+            $alumnus->forceDelete();
+            $user?->forceDelete();
         });
 
         return redirect()->route('admin.alumni.index')->with('success', 'Alumni record deleted.');

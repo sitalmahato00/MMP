@@ -2,7 +2,9 @@
 
 namespace App\Modules\Parent\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
+use App\Modules\User\Models\User;
 use App\Services\NotificationPreferenceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

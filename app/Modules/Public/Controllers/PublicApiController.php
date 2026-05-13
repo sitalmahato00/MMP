@@ -2,15 +2,20 @@
 
 namespace App\Modules\Public\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Services\PublicDataService;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 /**
  * PublicApiController — the ONLY authorized gateway for public pages to access data.
  * All public pages must call these endpoints. Direct DB access from public pages is forbidden.
  */
+use App\Http\Controllers\Controller;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\CMS\Models\Page;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Staff\Models\Staff;
+use App\Services\PublicDataService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
 class PublicApiController extends Controller
 {
     public function __construct(private PublicDataService $service) {}

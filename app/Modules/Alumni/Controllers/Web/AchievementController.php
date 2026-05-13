@@ -2,8 +2,11 @@
 
 namespace App\Modules\Alumni\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AlumniAchievement;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\Alumni\Models\AlumniAchievement;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

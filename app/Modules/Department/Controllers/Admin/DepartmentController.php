@@ -2,9 +2,10 @@
 
 namespace App\Modules\Department\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Department;
-use App\Models\User;
+use App\Modules\Department\Models\Department;
+use App\Modules\User\Models\User;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

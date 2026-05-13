@@ -2,20 +2,25 @@
 
 namespace App\Modules\HOD\Controllers;
 
-use App\Models\Timetable;
-use App\Models\TimetableSlot;
-use App\Models\Program;
-use App\Models\Subject;
-use App\Models\Teacher;
-use App\Models\AcademicSession;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * HOD timetable management (department-scoped).
  * 
  * HODs can manage timetables for their department programs only.
  */
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Models\Timetable;
+use App\Modules\Academic\Models\TimetableSlot;
+use App\Modules\CMS\Models\Download;
+use App\Modules\Department\Models\Department;
+use App\Modules\FileManager\Services\ExportService;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 class TimetableController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────

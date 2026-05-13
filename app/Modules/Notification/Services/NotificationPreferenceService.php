@@ -2,10 +2,13 @@
 
 namespace App\Modules\Notification\Services;
 
-use App\Models\Exam;
-use App\Models\Notice;
-use App\Models\Student;
-use App\Models\User;
+
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 
 class NotificationPreferenceService
 {

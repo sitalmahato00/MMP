@@ -2,8 +2,16 @@
 
 namespace App\Modules\Student\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\{AcademicSession, Assignment, Attendance, Notice};
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Assignment\Models\Assignment;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use App\Services\PublicDataService;
 use App\Services\StudentRecordService;
 use Carbon\Carbon;

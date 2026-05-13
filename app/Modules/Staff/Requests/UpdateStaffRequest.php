@@ -2,6 +2,8 @@
 
 namespace App\Modules\Staff\Requests;
 
+
+use App\Modules\User\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 

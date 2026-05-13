@@ -2,10 +2,15 @@
 
 namespace App\Modules\Alumni\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Notice;
-use Illuminate\Support\Facades\Cache;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Department\Models\Department;
+use App\Modules\User\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {

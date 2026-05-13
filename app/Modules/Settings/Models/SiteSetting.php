@@ -2,7 +2,8 @@
 
 namespace App\Modules\Settings\Models;
 
-use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Database\Eloquent\Model;use App\Modules\CMS\Models\Media; use App\Modules\CMS\Models\Facility;
 
 class SiteSetting extends Model
 {

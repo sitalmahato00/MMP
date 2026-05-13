@@ -2,16 +2,19 @@
 
 namespace App\Modules\HOD\Controllers;
 
-use App\Models\Page;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * HOD facility management for department pages.
  * 
  * HODs can manage facility pages related to their department.
  */
+use App\Modules\CMS\Models\Facility;
+use App\Modules\CMS\Models\Page;
+use App\Modules\Department\Models\Department;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 class FacilityController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────

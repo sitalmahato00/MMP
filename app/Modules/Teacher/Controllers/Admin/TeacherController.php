@@ -2,14 +2,17 @@
 
 namespace App\Modules\Teacher\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+
 use App\Helpers\NepaliDateHelper;
-use App\Models\AcademicSession;
-use App\Models\AuditLog;
-use App\Models\Department;
-use App\Models\Mark;
-use App\Models\Teacher;
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Models\Timetable;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\AuditLog\Models\AuditLog;
+use App\Modules\Department\Models\Department;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -279,8 +282,8 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
         if ($teacher->user->avatar && Storage::disk('public')->exists($teacher->user->avatar)) {
             Storage::disk('public')->delete($teacher->user->avatar);
         }
-        $teacher->user->delete();
-        $teacher->delete();
+        $teacher->user->forceDelete();
+        $teacher->forceDelete();
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher removed.');
     }
 

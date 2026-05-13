@@ -2,10 +2,12 @@
 
 namespace App\Modules\Settings\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
+use App\Modules\CMS\Models\Page;
 use App\Services\PublicDataService;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 
 class CacheController extends Controller
 {

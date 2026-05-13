@@ -2,6 +2,8 @@
 
 namespace App\Modules\CMS\Models;
 
+use App\Modules\Academic\Models\Program;
+use App\Modules\Department\Models\Department;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 

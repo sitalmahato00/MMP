@@ -2,22 +2,25 @@
 
 namespace App\Modules\Teacher\Controllers\Admin;
 
-use App\Modules\HOD\Controllers\HodController;
-use App\Helpers\NepaliDateHelper;
-use App\Models\Department;
-use App\Models\Teacher;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 /**
  * HOD teacher management (department-scoped).
  * 
  * HODs can manage teachers within their department only.
  */
+use App\Helpers\NepaliDateHelper;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Department\Models\Department;
+use App\Modules\HOD\Controllers\HodController;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+
 class HodTeacherController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────
@@ -394,8 +397,8 @@ class HodTeacherController extends HodController
             Storage::disk('public')->delete($teacher->user->avatar);
         }
 
-        $teacher->user?->delete();
-        $teacher->delete();
+        $teacher->user?->forceDelete();
+        $teacher->forceDelete();
 
         return redirect()
             ->route('hod.teachers.index')

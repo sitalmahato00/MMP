@@ -2,17 +2,22 @@
 
 namespace App\Modules\Student\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+
 use App\Helpers\NepaliDateHelper;
-use App\Models\AcademicSession;
-use App\Models\Attendance;
-use App\Models\AuditLog;
-use App\Models\Department;
-use App\Models\Mark;
-use App\Models\ParentModel;
-use App\Models\Program;
-use App\Models\Student;
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Assignment\Models\Assignment;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\AuditLog\Models\AuditLog;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Parent\Models\ParentModel;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -345,8 +350,8 @@ class StudentController extends Controller
         if ($student->user->avatar && Storage::disk('public')->exists($student->user->avatar)) {
             Storage::disk('public')->delete($student->user->avatar);
         }
-        $student->user->delete();
-        $student->delete();
+        $student->user->forceDelete();
+        $student->forceDelete();
         return redirect()->route('admin.students.index')->with('success', 'Student deleted.');
     }
 

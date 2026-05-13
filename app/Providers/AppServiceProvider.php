@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Modules\CMS\Services\PublicDataService;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -123,6 +124,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ── Morph map: keep DB model_type strings pointing to their new module classes.
+        // Spatie permissions stores 'App\Models\User' in model_has_roles / model_has_permissions.
+        // Without this map, getMorphClass() returns the new FQCN and hasRole() finds nothing.
+        Relation::morphMap([
+            'App\Models\User'    => \App\Modules\User\Models\User::class,
+            'App\Models\Student' => \App\Modules\Student\Models\Student::class,
+            'App\Models\Teacher' => \App\Modules\Teacher\Models\Teacher::class,
+            'App\Models\Alumni'  => \App\Modules\Alumni\Models\Alumni::class,
+            'App\Models\Staff'   => \App\Modules\Staff\Models\Staff::class,
+        ]);
+
         Paginator::defaultView('vendor.pagination.custom');
 
         // API rate limiter (default for API routes)

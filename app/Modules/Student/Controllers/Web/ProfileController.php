@@ -2,7 +2,10 @@
 
 namespace App\Modules\Student\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;

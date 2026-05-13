@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Modules\Staff\Controllers\Admin;
-use App\Http\Controllers\Controller;
+
 
 
 use App\Helpers\NepaliDateHelper;
-use App\Models\Staff;
-use App\Models\StaffAttendance;
-use App\Models\StaffDocument;
+use App\Http\Controllers\Controller;
+use App\Modules\CMS\Models\Download;
+use App\Modules\Department\Models\Department;
+use App\Modules\Staff\Models\Staff;
+use App\Modules\Staff\Models\StaffDocument;
 use App\Services\PublicDataService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;

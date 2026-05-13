@@ -2,12 +2,12 @@
 
 namespace App\Modules\Attendance\Services;
 
-use App\Models\{Student, AttendanceSession, Attendance};
-use Illuminate\Support\Facades\Cache;
 
 /**
  * AttendanceService — Class-level and student-level attendance logic.
  */
+use Illuminate\Support\Facades\Cache;use App\Modules\Attendance\Models\Attendance; use App\Modules\Student\Models\Student; use App\Modules\Attendance\Models\AttendanceSession; use App\Modules\Academic\Models\Subject; use App\Modules\Exam\Models\Mark;
+
 class AttendanceService
 {
     /**

@@ -2,6 +2,9 @@
 
 namespace App\Modules\Notification\Models;
 
+
+use App\Modules\Academic\Models\Subject;
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Communication extends Model

@@ -2,6 +2,7 @@
 
 namespace App\Modules\AuditLog\Models;
 
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class AuditLog extends Model

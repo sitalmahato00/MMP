@@ -2,8 +2,9 @@
 
 namespace App\Modules\CMS\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Download;
+use App\Modules\CMS\Models\Download;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

@@ -2,9 +2,10 @@
 
 namespace App\Modules\Settings\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
+use App\Modules\User\Models\User;
 use App\Services\NotificationPreferenceService;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

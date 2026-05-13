@@ -2,8 +2,10 @@
 
 namespace App\Modules\Notification\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Communication;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Notification\Models\Communication;
 use Illuminate\Http\Request;
 
 class CommunicationController extends Controller

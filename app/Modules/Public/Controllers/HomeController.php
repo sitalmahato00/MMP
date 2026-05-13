@@ -2,14 +2,26 @@
 
 namespace App\Modules\Public\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Services\PublicDataService;
-use Illuminate\Http\Request;
 /**
  * HomeController — renders public Blade views.
  * NEVER queries the database directly.
  * ALL data flows through: HomeController → PublicDataService → DB
  */
+use App\Http\Controllers\Controller;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\CMS\Models\Download;
+use App\Modules\CMS\Models\Media;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\CMS\Models\Page;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Staff\Models\Staff;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
+use App\Services\PublicDataService;
+use Illuminate\Http\Request;
+
 class HomeController extends Controller
 {
     public function __construct(private PublicDataService $service) {}

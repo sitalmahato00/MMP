@@ -2,11 +2,12 @@
 
 namespace App\Modules\User\Services;
 
-use App\Models\Otp;
-use App\Models\User;
+
+use App\Modules\User\Models\Otp;
+use App\Modules\User\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class OtpService
 {

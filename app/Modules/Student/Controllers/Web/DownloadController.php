@@ -2,9 +2,12 @@
 
 namespace App\Modules\Student\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Download;
-use App\Models\Subject;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\CMS\Models\Download;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

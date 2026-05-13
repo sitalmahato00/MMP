@@ -2,9 +2,8 @@
 
 namespace App\Modules\Staff\Policies;
 
-use App\Models\Staff;
-use App\Models\User;
-use Illuminate\Auth\Access\Response;
+
+use Illuminate\Auth\Access\Response;use App\Modules\User\Models\User; use App\Modules\Staff\Models\Staff;
 
 class StaffPolicy
 {

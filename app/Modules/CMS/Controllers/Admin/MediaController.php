@@ -2,8 +2,9 @@
 
 namespace App\Modules\CMS\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Media;
+use App\Modules\CMS\Models\Media;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

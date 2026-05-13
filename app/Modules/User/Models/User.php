@@ -2,14 +2,24 @@
 
 namespace App\Modules\User\Models;
 
+
+use App\Modules\Alumni\Models\Alumni;
+use App\Modules\AuditLog\Models\AuditLog;
+use App\Modules\CMS\Models\Notice;
+use App\Modules\Department\Models\Department;
+use App\Modules\Notification\Models\Communication;
+use App\Modules\Parent\Models\ParentModel;
+use App\Modules\Staff\Models\Staff;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
 use App\Notifications\CustomResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {

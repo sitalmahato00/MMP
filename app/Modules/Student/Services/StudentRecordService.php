@@ -2,12 +2,17 @@
 
 namespace App\Modules\Student\Services;
 
-use App\Models\AcademicSession;
-use App\Models\Attendance;
-use App\Models\Exam;
-use App\Models\Mark;
-use App\Models\Student;
-use App\Models\Subject;
+
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;

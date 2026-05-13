@@ -2,14 +2,16 @@
 
 namespace App\Modules\Academic\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
-use App\Models\Department;
-use App\Models\Mark;
-use App\Models\Program;
-use App\Models\Student;
-use App\Models\Subject;
-use App\Models\Teacher;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\AuditLog\Models\AuditLog;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

@@ -2,6 +2,9 @@
 
 namespace App\Modules\Staff\Models;
 
+
+use App\Modules\Department\Models\Department;
+use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;

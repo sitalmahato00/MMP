@@ -2,19 +2,6 @@
 
 namespace App\Modules\Student\Controllers\Admin;
 
-use App\Modules\HOD\Controllers\HodController;
-use App\Helpers\NepaliDateHelper;
-use App\Models\AcademicSession;
-use App\Models\ParentModel;
-use App\Models\Program;
-use App\Models\Student;
-use App\Models\User;
-use App\Traits\ExportableTrait;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 /**
  * HOD student management (department-scoped).
@@ -24,6 +11,23 @@ use Illuminate\Validation\Rule;
  * `roll_number` (which is reserved for HODs and not admin-fillable on the
  * Student model).
  */
+use App\Helpers\NepaliDateHelper;
+use App\Modules\Academic\Models\AcademicSession;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\HOD\Controllers\HodController;
+use App\Modules\Parent\Models\ParentModel;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
+use App\Traits\ExportableTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+
 class HodStudentController extends HodController
 {
     use ExportableTrait;
@@ -442,8 +446,8 @@ class HodStudentController extends HodController
             Storage::disk('public')->delete($student->user->avatar);
         }
 
-        $student->user?->delete();
-        $student->delete();
+        $student->user?->forceDelete();
+        $student->forceDelete();
 
         return redirect()
             ->route('hod.students.index')

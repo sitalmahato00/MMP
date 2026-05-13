@@ -2,10 +2,11 @@
 
 namespace App\Modules\CMS\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Facility;
-use App\Models\Department;
-use App\Models\Program;
+use App\Modules\Academic\Models\Program;
+use App\Modules\CMS\Models\Facility;
+use App\Modules\Department\Models\Department;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

@@ -2,20 +2,26 @@
 
 namespace App\Modules\HOD\Controllers;
 
-use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\Attendance;
-use App\Models\Mark;
-use App\Models\AttendanceSession;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
 
 /**
  * HOD reports and analytics (department-scoped).
  * 
  * HODs can generate reports for their department only.
  */
+use App\Modules\Academic\Models\Program;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\Department\Models\Department;
+use App\Modules\Exam\Models\Exam;
+use App\Modules\Exam\Models\Mark;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+
 class ReportController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────

@@ -2,16 +2,18 @@
 
 namespace App\Modules\HOD\Controllers;
 
-use App\Models\Media;
-use App\Services\PublicDataService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * HOD media management (department-scoped).
  * 
  * HODs can manage media files for their department only.
  */
+use App\Modules\CMS\Models\Media;
+use App\Modules\Department\Models\Department;
+use App\Services\PublicDataService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 class MediaController extends HodController
 {
     // ── Index ──────────────────────────────────────────────────────────────

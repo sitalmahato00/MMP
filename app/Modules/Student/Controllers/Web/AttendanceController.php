@@ -2,8 +2,14 @@
 
 namespace App\Modules\Student\Controllers\Web;
 
+
 use App\Http\Controllers\Controller;
-use App\Models\Subject;
+use App\Modules\Academic\Models\Subject;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\AttendanceSession;
+use App\Modules\CMS\Models\Download;
+use App\Modules\Student\Models\Student;
+use App\Modules\User\Models\User;
 use App\Services\StudentRecordService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;

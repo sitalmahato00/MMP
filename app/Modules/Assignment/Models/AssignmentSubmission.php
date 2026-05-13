@@ -2,6 +2,7 @@
 
 namespace App\Modules\Assignment\Models;
 
+use App\Modules\Student\Models\Student;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

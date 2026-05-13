@@ -2,11 +2,15 @@
 
 namespace App\Modules\Api\Controllers;
 
+
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\SendOtpRequest;
 use App\Http\Requests\VerifyOtpRequest;
-use App\Http\Requests\LoginRequest;
-use App\Models\User;
+use App\Modules\Student\Models\Student;
+use App\Modules\Teacher\Models\Teacher;
+use App\Modules\User\Models\Otp;
+use App\Modules\User\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

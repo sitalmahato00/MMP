@@ -2,8 +2,11 @@
 
 namespace App\Modules\User\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+
+use App\Modules\User\Models\Otp;
+use App\Modules\User\Models\User;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class VerifyOtpRequest extends FormRequest
