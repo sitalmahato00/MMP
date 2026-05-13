@@ -810,11 +810,18 @@ class PublicDataService
 
     public function getSiteSettings(): \Illuminate\Database\Eloquent\Collection
     {
-        return Cache::remember('public:site_settings', self::CACHE_TTL, function () {
+        $result = Cache::remember('public:site_settings', self::CACHE_TTL, function () {
             SiteSetting::ensureDefaults();
 
             return SiteSetting::all();
         });
+
+        if (is_array($result)) {
+            Cache::forget('public:site_settings');
+            return SiteSetting::all();
+        }
+
+        return $result;
     }
 
     public function getLeadership(): array
