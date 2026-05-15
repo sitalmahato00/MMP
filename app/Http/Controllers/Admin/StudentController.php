@@ -289,8 +289,8 @@ class StudentController extends Controller
             'avatar'              => 'nullable|image|max:2048',
             'student_no'          => ['required', 'string', 'max:50', Rule::unique('students')->ignore($student->id)],
             'registration_number' => 'nullable|string|max:50',
-            'program_id'          => 'required|exists:programs,id',
-            'current_semester'    => 'required|integer|min:1|max:6',
+            'program_id'          => 'nullable|exists:programs,id',
+            'current_semester'    => 'nullable|integer|min:1|max:6',
             'section'             => 'nullable|string|max:10',
             'batch'               => 'nullable|string|max:20',
             'admission_date'      => 'nullable|string|max:10',
@@ -300,7 +300,8 @@ class StudentController extends Controller
             'guardian_phone'      => 'nullable|string|max:20',
         ]);
 
-        $program = Program::with('department')->findOrFail($data['program_id']);
+        $programId = $data['program_id'] ?? $student->program_id;
+        $program = Program::with('department')->findOrFail($programId);
 
         abort_if(!$program->department_id, 422, 'Selected program must belong to a department before saving this student.');
 
@@ -324,10 +325,10 @@ class StudentController extends Controller
 
         $student->update([
             'department_id'       => $program->department_id,
-            'program_id'          => $data['program_id'],
+            'program_id'          => $programId,
             'student_no'          => $data['student_no'],
             'registration_number' => $data['registration_number'] ?? null,
-            'current_semester'    => $data['current_semester'],
+            'current_semester'    => $data['current_semester'] ?? $student->current_semester,
             'section'             => $data['section'] ?? null,
             'batch'               => $data['batch'] ?? null,
             'admission_date'      => NepaliDateHelper::toAD($data['admission_date'] ?? null),

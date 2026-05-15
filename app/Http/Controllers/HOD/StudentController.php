@@ -341,7 +341,7 @@ class StudentController extends HodController
     public function update(Request $request, Student $student)
     {
         $this->authorizeDepartment($request, $student);
-        $deptId = (int) $request->input('department_id');
+        $deptId = $student->department_id;
 
         $data = $request->validate([
             'name'                => 'required|string|max:255',
@@ -355,10 +355,10 @@ class StudentController extends HodController
             'roll_number'         => ['nullable', 'string', 'max:20'],
             'registration_number' => 'nullable|string|max:50',
             'program_id'          => [
-                'required',
+                'nullable',
                 Rule::exists('programs', 'id')->where(fn ($q) => $q->where('department_id', $deptId)),
             ],
-            'current_semester'    => 'required|integer|min:1|max:6',
+            'current_semester'    => 'nullable|integer|min:1|max:6',
             'section'             => 'nullable|string|max:10',
             'batch'               => 'nullable|string|max:20',
             'admission_date'      => 'nullable|string|max:10',
@@ -388,10 +388,10 @@ class StudentController extends HodController
 
         $student->fill([
             // department_id is NOT changeable from HOD (always stays in own dept)
-            'program_id'          => $data['program_id'],
+            'program_id'          => $data['program_id'] ?? $student->program_id,
             'student_no'          => $data['student_no'],
             'registration_number' => $data['registration_number'] ?? null,
-            'current_semester'    => $data['current_semester'],
+            'current_semester'    => $data['current_semester'] ?? $student->current_semester,
             'section'             => $data['section']        ?? null,
             'batch'               => $data['batch']          ?? null,
             'admission_date'      => NepaliDateHelper::toAD($data['admission_date'] ?? null),

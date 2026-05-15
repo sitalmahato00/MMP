@@ -11,7 +11,7 @@
           programs: {{ $programs->map(fn($p) => ['id'=>$p->id,'name'=>$p->name,'dept'=>$p->department?->name,'semesters'=>$p->total_semesters])->toJson() }},
           programInfo() { return this.programs.find(p => p.id == this.selectedProgram) ?? null; }
       }"
-      class="max-w-4xl space-y-6">
+      class="w-full mx-auto space-y-6">
     @csrf @method('PUT')
 
     {{-- ── 1. PERSONAL INFORMATION ──────────────────────── --}}
@@ -60,12 +60,12 @@
             <x-form-field label="Registration Number" name="registration_number">
                 <x-input name="registration_number" :value="old('registration_number', $student->registration_number)" placeholder="CTEVT reg. number"/>
             </x-form-field>
-            <x-form-field label="Program" name="program_id" :required="true">
-                <x-select name="program_id" :required="true" x-model="selectedProgram">
+            <x-form-field label="Program" name="program_id">
+                <x-select name="program_id" x-model="selectedProgram">
                     <option value="">Select Program</option>
                     @foreach($programs as $program)
                         <option value="{{ $program->id }}" @selected(old('program_id', $student->program_id) == $program->id)>
-                            {{ $program->name }} — {{ $program->department?->name }}
+                            {{ $program->name }}
                         </option>
                     @endforeach
                 </x-select>
@@ -74,8 +74,8 @@
                        x-text="programInfo().semesters + '-semester program · ' + programInfo().dept"></p>
                 </template>
             </x-form-field>
-            <x-form-field label="Current Semester" name="current_semester" :required="true">
-                <x-select name="current_semester" :required="true">
+            <x-form-field label="Current Semester" name="current_semester">
+                <x-select name="current_semester">
                     @for($i = 1; $i <= 6; $i++)
                         <option value="{{ $i }}" @selected(old('current_semester', $student->current_semester) == $i)>Semester {{ $i }}</option>
                     @endfor

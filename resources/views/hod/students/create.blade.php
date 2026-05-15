@@ -12,7 +12,7 @@
           programs: {{ $programs->map(fn($p) => ['id'=>$p->id,'name'=>$p->name,'dept'=>$p->department?->name,'semesters'=>$p->total_semesters])->toJson() }},
           programInfo() { return this.programs.find(p => p.id == this.selectedProgram) ?? null; }
       }"
-      class="max-w-4xl space-y-6">
+      class="w-full mx-auto space-y-6">
     @csrf
 
     {{-- ── 1. PERSONAL INFORMATION ──────────────────────── --}}
@@ -75,7 +75,7 @@
                     <option value="">Select Program</option>
                     @foreach($programs as $program)
                         <option value="{{ $program->id }}" @selected(old('program_id') == $program->id)>
-                            {{ $program->name }} — {{ $program->department?->name }}
+                            {{ $program->name }}
                         </option>
                     @endforeach
                 </x-select>
