@@ -50,15 +50,59 @@
         </x-form-row>
     </x-form-section>
 
-    <x-form-section title="Content" subtitle="Write the full update and upload an attachment if needed.">
+    <x-form-section title="Content" subtitle="Write the full update and upload attachments if needed.">
         <x-form-row>
             <x-form-field label="Content" name="content" :required="true" span="full">
                 <x-textarea name="content" rows="8" :required="true" placeholder="Write the update here...">{{ old('content') }}</x-textarea>
             </x-form-field>
 
-            <x-form-field label="Attachment" name="attachment" span="full">
-                <x-file-input name="attachment" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" label="Upload attachment (optional)"/>
-                <p class="mt-1.5 text-xs text-slate-500">Supported: PDF, DOC, DOCX, JPG, PNG</p>
+            {{-- Multiple attachments --}}
+            <x-form-field label="Attachments" name="attachments" span="full">
+                <div x-data="filePreview()" class="space-y-3">
+                    <label
+                        class="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50"
+                        @dragover.prevent @drop.prevent="handleDrop($event)">
+                        <svg class="mb-2 h-8 w-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <span class="text-sm font-medium text-slate-600">Click to browse or drag & drop</span>
+                        <span class="mt-1 text-xs text-slate-400">PDF, DOC, DOCX, JPG, PNG · max 10 MB each · up to 10 files</span>
+                        <input type="file" name="attachments[]" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp"
+                               class="hidden" @change="handleFiles($event.target.files)">
+                    </label>
+
+                    {{-- Preview grid --}}
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3" x-show="files.length > 0">
+                        <template x-for="(f, i) in files" :key="i">
+                            <div class="relative rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
+                                {{-- Image thumbnail --}}
+                                <div class="mb-1.5 flex h-24 items-center justify-center overflow-hidden rounded bg-slate-100">
+                                    <img x-show="f.isImage" :src="f.url" class="h-full w-full object-cover rounded"/>
+                                    <div x-show="!f.isImage" class="flex flex-col items-center gap-1 text-slate-400">
+                                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <span class="text-xs uppercase font-semibold" x-text="f.ext"></span>
+                                    </div>
+                                </div>
+                                <p class="truncate text-xs text-slate-600" x-text="f.name"></p>
+                                <p class="text-xs text-slate-400" x-text="f.size"></p>
+                                <button type="button"
+                                        class="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600"
+                                        @click="remove(i)">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                @error('attachments.*')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
             </x-form-field>
         </x-form-row>
     </x-form-section>
@@ -68,4 +112,46 @@
         <x-btn href="{{ route('hod.news-events.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+
+@push('scripts')
+<script>
+function filePreview() {
+    return {
+        files: [],
+        dataTransfer: new DataTransfer(),
+
+        handleFiles(fileList) {
+            Array.from(fileList).forEach(f => this.addFile(f));
+        },
+        handleDrop(e) {
+            this.handleFiles(e.dataTransfer.files);
+        },
+        addFile(f) {
+            if (this.files.length >= 10) return;
+            const ext = f.name.split('.').pop().toLowerCase();
+            const isImage = ['jpg','jpeg','png','gif','webp'].includes(ext);
+            const url = isImage ? URL.createObjectURL(f) : null;
+            const size = f.size > 1048576
+                ? (f.size / 1048576).toFixed(1) + ' MB'
+                : (f.size / 1024).toFixed(0) + ' KB';
+            this.files.push({ name: f.name, ext, isImage, url, size, file: f });
+            this.dataTransfer.items.add(f);
+            this.syncInput();
+        },
+        remove(i) {
+            if (this.files[i].isImage) URL.revokeObjectURL(this.files[i].url);
+            this.files.splice(i, 1);
+            // Rebuild DataTransfer
+            this.dataTransfer = new DataTransfer();
+            this.files.forEach(f => this.dataTransfer.items.add(f.file));
+            this.syncInput();
+        },
+        syncInput() {
+            const input = this.$el.querySelector('input[type=file]');
+            input.files = this.dataTransfer.files;
+        }
+    };
+}
+</script>
+@endpush
 @endsection

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\HOD;
 
 use App\Models\Notice;
+use App\Models\NoticeAttachment;
 use App\Models\Program;
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
@@ -82,7 +83,6 @@ class NoticeController extends HodController
         $items = Notice::query()
             ->visibleToDepartmentContext($deptId, $programIds)
             ->forNewsEvents()
-            ->where('is_published', true)
             ->with(['author:id,name', 'department:id,name', 'program:id,name', 'attachments'])
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = trim((string) $request->search);
@@ -93,6 +93,9 @@ class NoticeController extends HodController
             })
             ->when(in_array($request->string('type')->toString(), ['news', 'event'], true), function ($q) use ($request) {
                 $q->where('type', $request->string('type')->toString());
+            })
+            ->when(in_array($request->string('status')->toString(), ['published', 'draft'], true), function ($q) use ($request) {
+                $q->where('is_published', $request->string('status')->toString() === 'published');
             })
             ->latest('published_at')
             ->latest('created_at')
@@ -111,7 +114,6 @@ class NoticeController extends HodController
         $newsEvent = Notice::query()
             ->visibleToDepartmentContext($deptId, $programIds)
             ->forNewsEvents()
-            ->where('is_published', true)
             ->with(['author:id,name', 'department:id,name', 'program:id,name', 'attachments'])
             ->findOrFail($notice->id);
 
@@ -135,13 +137,14 @@ class NoticeController extends HodController
         $deptId = $department->id;
 
         $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'type' => 'required|in:news,event',
-            'program_id' => 'nullable|exists:programs,id',
-            'semester' => 'nullable|integer|min:1|max:8',
-            'attachment' => 'nullable|file|max:10240',
-            'is_published' => 'nullable|boolean',
+            'title'         => 'required|string|max:255',
+            'content'       => 'required|string',
+            'type'          => 'required|in:news,event',
+            'program_id'    => 'nullable|exists:programs,id',
+            'semester'      => 'nullable|integer|min:1|max:8',
+            'attachments'   => 'nullable|array|max:10',
+            'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp',
+            'is_published'  => 'nullable|boolean',
         ]);
 
         if ($data['program_id'] ?? null) {
@@ -150,23 +153,32 @@ class NoticeController extends HodController
                 ->firstOrFail();
         }
 
-        if ($request->hasFile('attachment')) {
-            $data['attachment'] = $request->file('attachment')->store('notices', 'public');
+        $notice = Notice::create([
+            'title'         => $data['title'],
+            'slug'          => Str::slug($data['title']) . '-' . time(),
+            'content'       => $data['content'],
+            'type'          => $data['type'],
+            'department_id' => $deptId,
+            'program_id'    => $data['program_id'] ?? null,
+            'semester'      => $data['semester'] ?? null,
+            'created_by'    => auth()->id(),
+            'is_published'  => $data['is_published'] ?? false,
+            'published_at'  => ($data['is_published'] ?? false) ? now() : null,
+        ]);
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('notices', 'public');
+                NoticeAttachment::create([
+                    'notice_id' => $notice->id,
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => strtolower($file->getClientOriginalExtension()),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
         }
 
-        $notice = Notice::create([
-            'title' => $data['title'],
-            'slug' => Str::slug($data['title']) . '-' . time(),
-            'content' => $data['content'],
-            'type' => $data['type'],
-            'department_id' => $deptId,
-            'program_id' => $data['program_id'] ?? null,
-            'semester' => $data['semester'] ?? null,
-            'attachment' => $data['attachment'] ?? null,
-            'created_by' => auth()->id(),
-            'is_published' => $data['is_published'] ?? false,
-            'published_at' => ($data['is_published'] ?? false) ? now() : null,
-        ]);
         app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
@@ -193,6 +205,8 @@ class NoticeController extends HodController
             ->orderBy('name')
             ->get();
 
+        $notice->load('attachments');
+
         return view('hod.news-events.edit', compact('notice', 'department', 'programs'));
     }
 
@@ -210,13 +224,16 @@ class NoticeController extends HodController
         }
 
         $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'type' => 'required|in:news,event',
-            'program_id' => 'nullable|exists:programs,id',
-            'semester' => 'nullable|integer|min:1|max:8',
-            'attachment' => 'nullable|file|max:10240',
-            'is_published' => 'nullable|boolean',
+            'title'               => 'required|string|max:255',
+            'content'             => 'required|string',
+            'type'                => 'required|in:news,event',
+            'program_id'          => 'nullable|exists:programs,id',
+            'semester'            => 'nullable|integer|min:1|max:8',
+            'attachments'         => 'nullable|array|max:10',
+            'attachments.*'       => 'file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp',
+            'delete_attachments'  => 'nullable|array',
+            'delete_attachments.*'=> 'integer|exists:notice_attachments,id',
+            'is_published'        => 'nullable|boolean',
         ]);
 
         if ($data['program_id'] ?? null) {
@@ -225,26 +242,43 @@ class NoticeController extends HodController
                 ->firstOrFail();
         }
 
-        if ($request->hasFile('attachment')) {
-            if ($notice->attachment && Storage::disk('public')->exists($notice->attachment)) {
-                Storage::disk('public')->delete($notice->attachment);
+        // Delete individually removed attachments
+        if (!empty($data['delete_attachments'])) {
+            $toDelete = NoticeAttachment::whereIn('id', $data['delete_attachments'])
+                ->where('notice_id', $notice->id)
+                ->get();
+            foreach ($toDelete as $att) {
+                Storage::disk('public')->delete($att->file_path);
+                $att->delete();
             }
-            $data['attachment'] = $request->file('attachment')->store('notices', 'public');
-        } else {
-            unset($data['attachment']);
         }
 
         $notice->update([
-            'title' => $data['title'],
-            'slug' => Str::slug($data['title']) . '-' . time(),
-            'content' => $data['content'],
-            'type' => $data['type'],
+            'title'         => $data['title'],
+            'slug'          => Str::slug($data['title']) . '-' . time(),
+            'content'       => $data['content'],
+            'type'          => $data['type'],
             'department_id' => $deptId,
-            'program_id' => $data['program_id'] ?? null,
-            'semester' => $data['semester'] ?? null,
-            'is_published' => $data['is_published'] ?? false,
-            'published_at' => ($data['is_published'] ?? false) && ! $notice->published_at ? now() : $notice->published_at,
-        ] + (isset($data['attachment']) ? ['attachment' => $data['attachment']] : []));
+            'program_id'    => $data['program_id'] ?? null,
+            'semester'      => $data['semester'] ?? null,
+            'is_published'  => $data['is_published'] ?? false,
+            'published_at'  => ($data['is_published'] ?? false) && ! $notice->published_at ? now() : $notice->published_at,
+        ]);
+
+        // Add new attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('notices', 'public');
+                NoticeAttachment::create([
+                    'notice_id' => $notice->id,
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => strtolower($file->getClientOriginalExtension()),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+        }
+
         app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
@@ -266,8 +300,9 @@ class NoticeController extends HodController
             abort(403, 'You can only delete news/events from your department.');
         }
 
-        if ($notice->attachment && Storage::disk('public')->exists($notice->attachment)) {
-            Storage::disk('public')->delete($notice->attachment);
+        foreach ($notice->attachments as $att) {
+            Storage::disk('public')->delete($att->file_path);
+            $att->delete();
         }
 
         $notice->delete();

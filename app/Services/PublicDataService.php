@@ -563,6 +563,7 @@ class PublicDataService
     public function getNewsEvents(int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return Notice::published()
+            ->with('attachments')
             ->whereIn('type', ['news', 'event'])
             ->latest()
             ->paginate($perPage, ['id', 'title', 'slug', 'type', 'content', 'attachment', 'published_at', 'created_at']);
