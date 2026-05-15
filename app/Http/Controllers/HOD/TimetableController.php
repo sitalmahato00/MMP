@@ -311,8 +311,8 @@ class TimetableController extends HodController
         });
 
         return redirect()
-            ->route('hod.timetable.index')
-            ->with('success', 'Timetable updated successfully.');
+            ->route('hod.timetable.edit', $timetable)
+            ->with('success', 'Timetable saved successfully.');
     }
 
     // ── Destroy ────────────────────────────────────────────────────────────

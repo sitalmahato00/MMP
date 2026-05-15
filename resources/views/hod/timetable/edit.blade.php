@@ -318,6 +318,16 @@
                 </table>
             </div>
         </div>
+
+        {{-- Sticky Save Button --}}
+        <div class="sticky bottom-0 z-10 bg-white border-t border-slate-200 px-4 py-3 shadow-lg flex items-center justify-between">
+            <span class="text-sm text-slate-500" x-text="slots.length + ' slot(s) — click Save to persist changes'"></span>
+            <button type="button" @click="saveAll()"
+                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Save Timetable
+            </button>
+        </div>
     </div>
 
     {{-- Edit Modal --}}
@@ -679,6 +689,8 @@ function timetableEditor() {
 
             this.showEditModal = false;
             this.editingSlot = null;
+            // Auto-save to database immediately
+            this.saveAll();
         },
 
         async handleDurationExtension() {
@@ -752,11 +764,12 @@ function timetableEditor() {
                     alert('Failed to delete slot: ' + error.message);
                 });
             } else {
-                // Just remove from local array if not saved yet
+                // Remove from local array and save remaining slots
                 const index = this.slots.indexOf(slot);
                 if (index !== -1) {
                     this.slots.splice(index, 1);
                 }
+                this.saveAll();
             }
         },
         
