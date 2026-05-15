@@ -36,16 +36,20 @@ class DashboardController extends Controller
         $kpiData = $this->getKpiData($student, $marksSummary, $attendanceSummary);
         $notices = $this->getNoticesData($student);
 
-        $upcomingAssignments = Assignment::where('program_id', $student->program_id)
-            ->where('semester', $student->current_semester)
-            ->where('due_date', '>=', now())
-            ->whereDoesntHave('submissions', fn ($query) => $query->where('student_id', $student->id))
-            ->with('subject')
-            ->orderBy('due_date')
-            ->take(5)
-            ->get();
+        $upcomingAssignments = Cache::remember("student_upcoming_assignments_{$student->id}_v1", 180, function () use ($student) {
+            return Assignment::where('program_id', $student->program_id)
+                ->where('semester', $student->current_semester)
+                ->where('due_date', '>=', now())
+                ->whereDoesntHave('submissions', fn ($query) => $query->where('student_id', $student->id))
+                ->with('subject')
+                ->orderBy('due_date')
+                ->take(5)
+                ->get();
+        });
 
-        $chartData = $this->getChartData($student, $marksSummary);
+        $chartData = Cache::remember("student_chart_{$student->id}_v1", 300, function () use ($student, $marksSummary) {
+            return $this->getChartData($student, $marksSummary);
+        });
         $greeting = $this->greeting();
         $lastUpdated = now();
 
@@ -71,41 +75,33 @@ class DashboardController extends Controller
 
     private function getAttendanceChartData($student): array
     {
-        $attendanceData = [];
+        $sevenDaysAgo = Carbon::now()->subDays(6)->toDateString();
 
+        // 1 grouped query instead of 7 separate ones
+        $rows = Attendance::where('student_id', $student->id)
+            ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+            ->where('attendance_sessions.date', '>=', $sevenDaysAgo)
+            ->selectRaw("attendance_sessions.date as att_date,
+                         COUNT(*) as total,
+                         SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+            ->groupBy('attendance_sessions.date')
+            ->get()
+            ->keyBy('att_date');
+
+        $attendanceData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
+            $row  = $rows->get($date->toDateString());
+            $total   = (int) ($row->total   ?? 0);
+            $present = (int) ($row->present ?? 0);
 
-            try {
-                $attendance = Attendance::where('student_id', $student->id)
-                    ->whereHas('attendanceSession', function ($query) use ($date) {
-                        $query->where('date', $date->format('Y-m-d'));
-                    })
-                    ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present")
-                    ->selectRaw('COUNT(*) as total')
-                    ->first();
-
-                $percentage = 0;
-                if ($attendance && $attendance->total > 0) {
-                    $percentage = round(($attendance->present / $attendance->total) * 100, 1);
-                }
-
-                $attendanceData[] = [
-                    'date' => $date->toDateString(),
-                    'date_bs' => bsDate($date, 'Y F d, l'),
-                    'date_bs_short' => bsDate($date, 'F d'),
-                    'date_short' => $date->format('M j'),
-                    'rate' => (float) $percentage,
-                ];
-            } catch (\Exception $e) {
-                $attendanceData[] = [
-                    'date' => $date->toDateString(),
-                    'date_bs' => bsDate($date, 'Y F d, l'),
-                    'date_bs_short' => bsDate($date, 'F d'),
-                    'date_short' => $date->format('M j'),
-                    'rate' => 0.0,
-                ];
-            }
+            $attendanceData[] = [
+                'date'         => $date->toDateString(),
+                'date_bs'      => bsDate($date, 'Y F d, l'),
+                'date_bs_short'=> bsDate($date, 'F d'),
+                'date_short'   => $date->format('M j'),
+                'rate'         => $total > 0 ? round(($present / $total) * 100, 1) : 0.0,
+            ];
         }
 
         return $attendanceData;

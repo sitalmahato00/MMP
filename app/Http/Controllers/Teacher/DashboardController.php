@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\{AcademicSession, Teacher, TimetableSlot, Notice, AttendanceSession, Attendance, Program};
 use App\Services\PublicDataService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -28,7 +29,7 @@ class DashboardController extends Controller
         }
 
         // Get today's classes
-        $today = strtolower(now()->format('l')); // e.g., 'monday', 'tuesday', etc.
+        $today = strtolower(now()->format('l'));
         $todayClasses = TimetableSlot::with(['subject', 'timetable.program', 'timetable'])
             ->where('teacher_id', $teacher->id)
             ->where('day_of_week', $today)
@@ -38,28 +39,27 @@ class DashboardController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        // Debug: Log today's day and class count
-        \Log::info('Teacher Dashboard - Today Classes', [
-            'teacher_id' => $teacher->id,
-            'today' => $today,
-            'today_full' => now()->format('l'),
-            'classes_count' => $todayClasses->count(),
-        ]);
-
         // Get all my classes (subjects)
-        $myClasses = $teacher->subjects()->with('program')->get();
-        $programIds = Program::where('department_id', $teacher->department_id)->pluck('id')->all();
+        $myClasses = Cache::remember("teacher_subjects_{$teacher->id}", 300, function () use ($teacher) {
+            return $teacher->subjects()->with('program')->get();
+        });
+
+        $programIds = Cache::remember("teacher_program_ids_{$teacher->department_id}", 600, function () use ($teacher) {
+            return Program::where('department_id', $teacher->department_id)->pluck('id')->all();
+        });
 
         // Get recent notices
-        $notices = Notice::published()
-            ->visibleToDepartmentContext($teacher->department_id, $programIds)
-            ->forNoticeBoard()
-            ->with('author')
-            ->latest()
-            ->take(5)
-            ->get();
+        $notices = Cache::remember("teacher_notices_{$teacher->department_id}_v1", 300, function () use ($teacher, $programIds) {
+            return Notice::published()
+                ->visibleToDepartmentContext($teacher->department_id, $programIds)
+                ->forNoticeBoard()
+                ->with('author')
+                ->latest()
+                ->take(5)
+                ->get();
+        });
 
-        // Get attendance data for chart (last 30 days)
+        // Get attendance chart data (last 7 days, single grouped query)
         $attendanceData = $this->getAttendanceChartData($teacher->id);
 
         $greeting = $this->getGreeting();
@@ -75,41 +75,39 @@ class DashboardController extends Controller
         ));
     }
 
-    private function getAttendanceChartData($teacherId)
+    private function getAttendanceChartData(int $teacherId): array
     {
-        // Get last 7 days from today
-        $chartData = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i);
-            
-            $sessions = AttendanceSession::where('teacher_id', $teacherId)
-                ->whereDate('date', $date->toDateString())
-                ->get();
+        return Cache::remember("teacher_attendance_chart_{$teacherId}_v1", 300, function () use ($teacherId) {
+            $sevenDaysAgo = Carbon::now()->subDays(6)->toDateString();
 
-            $totalPresent = 0;
-            $totalStudents = 0;
+            // 1 grouped query: join sessions → attendances, filter by teacher + date range
+            $rows = AttendanceSession::where('teacher_id', $teacherId)
+                ->where('date', '>=', $sevenDaysAgo)
+                ->join('attendances', 'attendances.attendance_session_id', '=', 'attendance_sessions.id')
+                ->selectRaw("attendance_sessions.date as att_date,
+                             COUNT(*) as total,
+                             SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+                ->groupBy('attendance_sessions.date')
+                ->get()
+                ->keyBy('att_date');
 
-            foreach ($sessions as $session) {
-                $total = Attendance::where('attendance_session_id', $session->id)->count();
-                $present = Attendance::where('attendance_session_id', $session->id)
-                    ->where('status', 'present')
-                    ->count();
-                
-                $totalStudents += $total;
-                $totalPresent += $present;
+            $chartData = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i);
+                $row  = $rows->get($date->toDateString());
+                $total   = (int) ($row->total   ?? 0);
+                $present = (int) ($row->present ?? 0);
+
+                $chartData[] = [
+                    'date'       => $date->toDateString(),
+                    'date_bs'    => bsDate($date, 'Y F d, l'),
+                    'date_short' => bsDate($date, 'F d'),
+                    'rate'       => $total > 0 ? round(($present / $total) * 100, 1) : 0,
+                ];
             }
-            
-            $rate = $totalStudents > 0 ? round(($totalPresent / $totalStudents) * 100, 1) : 0;
-            
-            $chartData[] = [
-                'date' => $date->format('M d'),
-                'date_bs' => bsDate($date, 'Y F d, l'), // Full BS format
-                'date_short' => bsDate($date, 'F d'), // Short format for chart
-                'rate' => $rate,
-            ];
-        }
 
-        return $chartData;
+            return $chartData;
+        });
     }
 
     private function getGreeting(): string

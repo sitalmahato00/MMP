@@ -100,9 +100,8 @@ class DashboardController extends Controller
             ];
         });
 
-        // Chart data for analytics (disable cache for debugging)
         $chartData = $this->getChartData($deptId);
-        
+
         $recentNotices = Cache::remember("hod_dashboard_notices:{$deptId}_v2", 300, function () use ($deptId) {
             $programIds = Program::where('department_id', $deptId)->pluck('id')->all();
 
@@ -129,175 +128,172 @@ class DashboardController extends Controller
         ));
     }
 
-    private function getChartData($deptId)
+    private function getChartData($deptId): array
     {
-        // Grade distribution for active students (donut chart)
-        $gradeDistribution = [];
-        
-        // Get all marks for active students in this department
-        $marks = Mark::query()
-            ->join('students', 'students.id', '=', 'marks.student_id')
-            ->join('exams', 'exams.id', '=', 'marks.exam_id')
-            ->where('students.department_id', $deptId)
-            ->where('students.is_active', true)
-            ->where('marks.status', 'published')
-            ->with(['exam'])
-            ->get();
-
-        // Debug: Log the marks count
-        \Log::info('Marks Query Results Count:', ['count' => $marks->count()]);
-
-        // Calculate grades using the model's total_marks attribute
-        foreach ($marks as $mark) {
-            $totalMarks = $mark->total_marks; // This uses the getTotalMarksAttribute method
-            
-            $grade = match (true) {
-                $totalMarks >= 90 => 'A+',
-                $totalMarks >= 80 => 'A',
-                $totalMarks >= 70 => 'B+',
-                $totalMarks >= 60 => 'B',
-                $totalMarks >= 50 => 'C',
-                default => 'F'
-            };
-            
-            $gradeDistribution[$grade] = ($gradeDistribution[$grade] ?? 0) + 1;
-        }
-
-        // Debug: Log the grade distribution results
-        \Log::info('Grade Distribution Results:', $gradeDistribution);
-
-        // If no real data, leave gradeDistribution empty (no sample data)
-
-        // Fill missing grades with 0
-        $allGrades = ['A+', 'A', 'B+', 'B', 'C', 'F'];
-        foreach ($allGrades as $grade) {
-            if (!isset($gradeDistribution[$grade])) {
-                $gradeDistribution[$grade] = 0;
-            }
-        }
-
-        // Attendance trend data (last 7 days with BS dates)
-        $attendanceData = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
-            $attendanceStats = Attendance::query()
-                ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
-                ->join('students', 'students.id', '=', 'attendances.student_id')
+        return Cache::remember("hod_chart_{$deptId}_v1", 300, function () use ($deptId) {
+            // ── 1. Grade distribution ─────────────────────────────────────────────
+            // Select only the 6 columns needed; replicate total_marks logic inline
+            // instead of eager-loading full exam objects.
+            $marks = Mark::query()
+                ->join('students', 'students.id', '=', 'marks.student_id')
+                ->join('exams',    'exams.id',    '=', 'marks.exam_id')
                 ->where('students.department_id', $deptId)
-                ->where('attendance_sessions.date', $date->toDateString())
-                ->selectRaw('COUNT(*) as total')
-                ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
-                ->first();
+                ->where('students.is_active', true)
+                ->where('marks.status', 'published')
+                ->select([
+                    'marks.internal_theory_marks',
+                    'marks.external_theory_marks',
+                    'marks.internal_practical_marks',
+                    'marks.external_practical_marks',
+                    'marks.assessment_obtained_marks',
+                    'exams.category as exam_category',
+                ])
+                ->get();
 
-            if ($attendanceStats && $attendanceStats->total > 0) {
-                $attendanceRate = round(($attendanceStats->present / $attendanceStats->total) * 100, 1);
-            } else {
-                $attendanceRate = null; // No data for this day
+            $gradeDistribution = ['A+' => 0, 'A' => 0, 'B+' => 0, 'B' => 0, 'C' => 0, 'F' => 0];
+            foreach ($marks as $mark) {
+                $total = ($mark->exam_category === 'monthly_assessment' && $mark->assessment_obtained_marks !== null)
+                    ? (float) $mark->assessment_obtained_marks
+                    : (($mark->internal_theory_marks   ?? 0)
+                     + ($mark->external_theory_marks   ?? 0)
+                     + ($mark->internal_practical_marks ?? 0)
+                     + ($mark->external_practical_marks ?? 0));
+
+                $grade = match (true) {
+                    $total >= 90 => 'A+',
+                    $total >= 80 => 'A',
+                    $total >= 70 => 'B+',
+                    $total >= 60 => 'B',
+                    $total >= 50 => 'C',
+                    default      => 'F',
+                };
+                $gradeDistribution[$grade]++;
             }
 
-            $attendanceData[] = [
-                'date' => $date->toDateString(),
-                'date_bs' => bsDate($date, 'Y F d, l'),
-                'date_short' => bsDate($date, 'F d'),
-                'rate' => $attendanceRate
-            ];
-        }
+            // ── 2. Attendance trend – 1 grouped query instead of 7 ───────────────
+            $sevenDaysAgo  = Carbon::now()->subDays(6)->toDateString();
+            $rawAttendance = Attendance::query()
+                ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+                ->join('students',            'students.id',            '=', 'attendances.student_id')
+                ->where('students.department_id', $deptId)
+                ->where('attendance_sessions.date', '>=', $sevenDaysAgo)
+                ->selectRaw("attendance_sessions.date as att_date,
+                             COUNT(*) as total,
+                             SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+                ->groupBy('attendance_sessions.date')
+                ->orderBy('attendance_sessions.date')
+                ->get()
+                ->keyBy('att_date');
 
-        // Remove days with no data (rate === null)
-        $attendanceData = array_values(array_filter($attendanceData, fn($d) => $d['rate'] !== null));
-        
-        // Today's classes for the department with attendance information
-        $today = strtolower(Carbon::now()->format('l')); // Day name (monday, tuesday, etc.)
-        $todayDate = Carbon::now()->toDateString();
-        
-        $todayClasses = \App\Models\TimetableSlot::query()
-            ->join('timetables', 'timetables.id', '=', 'timetable_slots.timetable_id')
-            ->join('subjects', 'subjects.id', '=', 'timetable_slots.subject_id')
-            ->join('teachers', 'teachers.id', '=', 'timetable_slots.teacher_id')
-            ->join('users', 'users.id', '=', 'teachers.user_id')
-            ->join('programs', 'programs.id', '=', 'timetables.program_id')
-            ->where('programs.department_id', $deptId)
-            ->where('timetable_slots.day_of_week', $today)
-            ->where('timetables.is_active', true)
-            ->select([
-                'timetable_slots.id as slot_id',
-                'timetable_slots.start_time',
-                'timetable_slots.end_time',
-                'timetable_slots.room_number',
-                'timetable_slots.type',
-                'subjects.id as subject_id',
-                'subjects.name as subject_name',
-                'subjects.code as subject_code',
-                'users.name as teacher_name',
-                'timetables.id as timetable_id',
-                'timetables.semester',
-                'timetables.section',
-                'timetables.program_id',
-                'programs.name as program_name',
-                'programs.code as program_code'
-            ])
-            ->orderBy('timetable_slots.start_time')
-            ->get()
-            ->map(function($class) use ($todayDate) {
-                $startTime = \Carbon\Carbon::parse($class->start_time)->format('g:i A');
-                $endTime = \Carbon\Carbon::parse($class->end_time)->format('g:i A');
-                
-                // Check if attendance has been marked for this class today
-                $attendanceSession = \App\Models\AttendanceSession::where('date', $todayDate)
-                    ->where('program_id', $class->program_id)
-                    ->where('semester', $class->semester)
-                    ->where('subject_id', $class->subject_id)
-                    ->where('section', $class->section)
-                    ->first();
-                
-                $attendanceMarked = false;
-                $totalStudentsMarked = 0;
-                $presentCount = 0;
-                $absentCount = 0;
-                
-                if ($attendanceSession) {
-                    $attendanceStats = \App\Models\Attendance::where('attendance_session_id', $attendanceSession->id)
-                        ->selectRaw('COUNT(*) as total')
-                        ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present")
-                        ->selectRaw("SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END) as absent")
-                        ->first();
-                    
-                    if ($attendanceStats && $attendanceStats->total > 0) {
-                        $attendanceMarked = true;
-                        $totalStudentsMarked = $attendanceStats->total;
-                        $presentCount = $attendanceStats->present ?? 0;
-                        $absentCount = $attendanceStats->absent ?? 0;
-                    }
+            $attendanceData = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i);
+                $row  = $rawAttendance->get($date->toDateString());
+                if ($row && $row->total > 0) {
+                    $attendanceData[] = [
+                        'date'       => $date->toDateString(),
+                        'date_bs'    => bsDate($date, 'Y F d, l'),
+                        'date_short' => bsDate($date, 'F d'),
+                        'rate'       => round(($row->present / $row->total) * 100, 1),
+                    ];
                 }
-                
+            }
+
+            // ── 3. Today's classes – pre-load attendance in 2 queries (no N+1) ───
+            $today     = strtolower(Carbon::now()->format('l'));
+            $todayDate = Carbon::now()->toDateString();
+
+            $slots = \App\Models\TimetableSlot::query()
+                ->join('timetables', 'timetables.id', '=', 'timetable_slots.timetable_id')
+                ->join('subjects',   'subjects.id',   '=', 'timetable_slots.subject_id')
+                ->join('teachers',   'teachers.id',   '=', 'timetable_slots.teacher_id')
+                ->join('users',      'users.id',      '=', 'teachers.user_id')
+                ->join('programs',   'programs.id',   '=', 'timetables.program_id')
+                ->where('programs.department_id',       $deptId)
+                ->where('timetable_slots.day_of_week',  $today)
+                ->where('timetables.is_active',         true)
+                ->select([
+                    'timetable_slots.start_time',
+                    'timetable_slots.end_time',
+                    'timetable_slots.room_number',
+                    'timetable_slots.type',
+                    'subjects.id   as subject_id',
+                    'subjects.name as subject_name',
+                    'subjects.code as subject_code',
+                    'users.name    as teacher_name',
+                    'timetables.semester',
+                    'timetables.section',
+                    'timetables.program_id',
+                    'programs.name as program_name',
+                    'programs.code as program_code',
+                ])
+                ->orderBy('timetable_slots.start_time')
+                ->get();
+
+            // Pre-load all today's attendance sessions for relevant programs (1 query)
+            $programIds = $slots->pluck('program_id')->unique()->filter()->values()->all();
+            $sessions   = collect();
+            $statsMap   = [];
+            if (!empty($programIds)) {
+                $sessions = \App\Models\AttendanceSession::where('date', $todayDate)
+                    ->whereIn('program_id', $programIds)
+                    ->get()
+                    ->keyBy(fn($s) => $s->program_id . '|' . $s->semester . '|' . $s->subject_id . '|' . ($s->section ?? ''));
+
+                // Pre-load attendance stats for those sessions (1 query)
+                $sessionIds = $sessions->pluck('id')->filter()->all();
+                if (!empty($sessionIds)) {
+                    \App\Models\Attendance::whereIn('attendance_session_id', $sessionIds)
+                        ->selectRaw("attendance_session_id,
+                                     COUNT(*) as total,
+                                     SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present,
+                                     SUM(CASE WHEN status = 'absent'  THEN 1 ELSE 0 END) as absent")
+                        ->groupBy('attendance_session_id')
+                        ->get()
+                        ->each(fn($s) => $statsMap[$s->attendance_session_id] = $s);
+                }
+            }
+
+            $todayClasses = $slots->map(function ($class) use ($sessions, $statsMap) {
+                $key     = $class->program_id . '|' . $class->semester . '|' . $class->subject_id . '|' . ($class->section ?? '');
+                $session = $sessions->get($key);
+                $stats   = $session ? ($statsMap[$session->id] ?? null) : null;
+
+                $attendanceMarked    = false;
+                $totalStudentsMarked = 0;
+                $presentCount        = 0;
+                $absentCount         = 0;
+
+                if ($stats && $stats->total > 0) {
+                    $attendanceMarked    = true;
+                    $totalStudentsMarked = $stats->total;
+                    $presentCount        = $stats->present ?? 0;
+                    $absentCount         = $stats->absent  ?? 0;
+                }
+
                 return [
-                    'time' => $startTime . ' - ' . $endTime,
-                    'subject' => $class->subject_name,
-                    'subject_code' => $class->subject_code,
-                    'teacher' => $class->teacher_name,
-                    'room' => $class->room_number,
-                    'type' => ucfirst($class->type),
-                    'program' => $class->program_code . ' - Sem ' . $class->semester . ($class->section ? ' (' . $class->section . ')' : ''),
-                    'program_full' => $class->program_name . ' (Semester ' . $class->semester . ($class->section ? ', Section ' . $class->section : '') . ')',
-                    'attendance_marked' => $attendanceMarked,
+                    'time'                  => Carbon::parse($class->start_time)->format('g:i A') . ' - ' . Carbon::parse($class->end_time)->format('g:i A'),
+                    'subject'               => $class->subject_name,
+                    'subject_code'          => $class->subject_code,
+                    'teacher'               => $class->teacher_name,
+                    'room'                  => $class->room_number,
+                    'type'                  => ucfirst($class->type),
+                    'program'               => $class->program_code . ' - Sem ' . $class->semester . ($class->section ? ' (' . $class->section . ')' : ''),
+                    'program_full'          => $class->program_name . ' (Semester ' . $class->semester . ($class->section ? ', Section ' . $class->section : '') . ')',
+                    'attendance_marked'     => $attendanceMarked,
                     'total_students_marked' => $totalStudentsMarked,
-                    'present_count' => $presentCount,
-                    'absent_count' => $absentCount,
-                    'attendance_rate' => $totalStudentsMarked > 0 ? round(($presentCount / $totalStudentsMarked) * 100, 1) : 0
+                    'present_count'         => $presentCount,
+                    'absent_count'          => $absentCount,
+                    'attendance_rate'       => $totalStudentsMarked > 0 ? round(($presentCount / $totalStudentsMarked) * 100, 1) : 0,
                 ];
             });
 
-        // Debug: Log today's classes query
-        \Log::info('Today\'s Classes Query - Day: ' . $today . ', Department ID: ' . $deptId);
-        \Log::info('Today\'s Classes Count: ' . $todayClasses->count());
-
-        // If no classes today, leave todayClasses empty (no sample data)
-        
-        return [
-            'grades' => $gradeDistribution,
-            'attendance' => $attendanceData,
-            'todayClasses' => $todayClasses
-        ];
+            return [
+                'grades'       => $gradeDistribution,
+                'attendance'   => $attendanceData,
+                'todayClasses' => $todayClasses,
+            ];
+        });
     }
 
     private function greeting(): string

@@ -18,16 +18,16 @@ class DashboardController extends Controller
             abort(403, 'Alumni profile not found');
         }
 
-        $alumnus->load(['projects', 'achievementRecords', 'employmentHistory', 'department', 'program']);
+        $alumnus->load(['department', 'program']);
 
         $profileCompletion = $this->calculateProfileCompletion($alumnus);
 
         $cacheKey = "alumni_dashboard_{$alumnus->id}_v2";
         $data = Cache::remember($cacheKey, 300, function () use ($alumnus) {
             return [
-                'projects_count' => $alumnus->projects()->count(),
+                'projects_count'     => $alumnus->projects()->count(),
                 'achievements_count' => $alumnus->achievementRecords()->count(),
-                'employment_count' => $alumnus->employmentHistory()->count(),
+                'employment_count'   => $alumnus->employmentHistory()->count(),
             ];
         });
 

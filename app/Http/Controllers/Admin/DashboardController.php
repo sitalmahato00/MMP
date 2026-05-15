@@ -725,61 +725,46 @@ class DashboardController extends Controller
     private function buildAttendanceChartData(): array
     {
         $today = Carbon::now();
-        
-        // 7 days data - last 7 days with real attendance
-        $sevenDaysLabels = [];
-        $sevenDaysData = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = $today->copy()->subDays($i);
-            $sevenDaysLabels[] = bsDate($date, 'F d'); // e.g., "Baisakh 15"
-            
-            // Get real attendance data for this date
-            $attendanceRow = DB::table('attendances')
-                ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
-                ->where('attendance_sessions.date', $date->toDateString())
-                ->selectRaw('COUNT(*) as total')
-                ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
-                ->first();
-            
-            $total = (int) ($attendanceRow->total ?? 0);
-            $present = (int) ($attendanceRow->present ?? 0);
-            $rate = $total > 0 ? round(($present / $total) * 100, 1) : 0;
-            
-            $sevenDaysData[] = $rate;
-        }
-        
-        // 30 days data - last 30 days with full date labels (month and day)
+        $thirtyDaysAgo = $today->copy()->subDays(29)->toDateString();
+
+        // Single query for last 30 days (covers both 7-day and 30-day windows)
+        $rows = DB::table('attendances')
+            ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+            ->where('attendance_sessions.date', '>=', $thirtyDaysAgo)
+            ->selectRaw("attendance_sessions.date as att_date,
+                         COUNT(*) as total,
+                         SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+            ->groupBy('attendance_sessions.date')
+            ->orderBy('attendance_sessions.date')
+            ->get()
+            ->keyBy('att_date');
+
+        $sevenDaysLabels  = [];
+        $sevenDaysData    = [];
         $thirtyDaysLabels = [];
-        $thirtyDaysData = [];
-        
+        $thirtyDaysData   = [];
+
         for ($i = 29; $i >= 0; $i--) {
-            $date = $today->copy()->subDays($i);
-            $thirtyDaysLabels[] = bsDate($date, 'F d'); // e.g., "Baisakh 15", "Baisakh 16", etc.
-            
-            // Get real attendance data for this date
-            $attendanceRow = DB::table('attendances')
-                ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
-                ->where('attendance_sessions.date', $date->toDateString())
-                ->selectRaw('COUNT(*) as total')
-                ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
-                ->first();
-            
-            $total = (int) ($attendanceRow->total ?? 0);
-            $present = (int) ($attendanceRow->present ?? 0);
-            $rate = $total > 0 ? round(($present / $total) * 100, 1) : 0;
-            
-            $thirtyDaysData[] = $rate;
+            $date  = $today->copy()->subDays($i);
+            $key   = $date->toDateString();
+            $label = bsDate($date, 'F d');
+            $row   = $rows->get($key);
+            $total   = (int) ($row->total   ?? 0);
+            $present = (int) ($row->present ?? 0);
+            $rate  = $total > 0 ? round(($present / $total) * 100, 1) : 0;
+
+            $thirtyDaysLabels[] = $label;
+            $thirtyDaysData[]   = $rate;
+
+            if ($i <= 6) {
+                $sevenDaysLabels[] = $label;
+                $sevenDaysData[]   = $rate;
+            }
         }
-        
+
         return [
-            '7' => [
-                'labels' => $sevenDaysLabels,
-                'data' => $sevenDaysData,
-            ],
-            '30' => [
-                'labels' => $thirtyDaysLabels,
-                'data' => $thirtyDaysData,
-            ],
+            '7'  => ['labels' => $sevenDaysLabels,  'data' => $sevenDaysData],
+            '30' => ['labels' => $thirtyDaysLabels, 'data' => $thirtyDaysData],
         ];
     }
 
