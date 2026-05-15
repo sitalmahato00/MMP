@@ -834,6 +834,41 @@ class PublicDataService
         });
     }
 
+    public function getPeopleByDepartment(?string $departmentSlug = null): array
+    {
+        $cacheKey = 'public:people:' . ($departmentSlug ?? 'all');
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($departmentSlug) {
+            $departments = Department::active()
+                ->with([
+                    'teachers' => function ($q) {
+                        $q->active()
+                          ->with('user:id,name,avatar')
+                          ->orderBy('designation')
+                          ->orderBy('id');
+                    },
+                    'hod' => function ($q) {
+                        $q->with('user:id,name,avatar');
+                    },
+                ])
+                ->when($departmentSlug, function ($q) use ($departmentSlug) {
+                    $q->where('slug', $departmentSlug);
+                })
+                ->orderBy('name')
+                ->get(['id', 'name', 'code', 'slug', 'hod_id']);
+
+            $staffAll = Staff::publicVisible()
+                ->orderBy('order')
+                ->orderBy('name')
+                ->get(['id', 'name', 'designation', 'department', 'photo_url', 'employment_status', 'show_email_public', 'email', 'show_phone_public', 'phone']);
+
+            return [
+                'departments' => $departments,
+                'other_staff' => $staffAll->filter(fn ($s) => blank($s->department))->values(),
+            ];
+        });
+    }
+
     public function getLeadership(): array
     {
         return Cache::remember('public:leadership', self::CACHE_TTL, function () {

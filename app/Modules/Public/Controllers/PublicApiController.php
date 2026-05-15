@@ -92,4 +92,81 @@ class PublicApiController extends Controller
     {
         return response()->json($this->service->getLeadership());
     }
+
+    /** GET /api/v1/public/gallery */
+    public function gallery(Request $request): JsonResponse
+    {
+        return response()->json($this->service->getGalleryMedia());
+    }
+
+    /** GET /api/v1/public/people */
+    public function people(Request $request): JsonResponse
+    {
+        $department = $request->input('department');
+        return response()->json($this->service->getPeopleByDepartment($department));
+    }
+
+    /** GET /api/v1/public/news-events */
+    public function newsEvents(Request $request): JsonResponse
+    {
+        $perPage = min((int) $request->input('per_page', 12), 50);
+        return response()->json($this->service->getNewsEvents($perPage));
+    }
+
+    /** GET /api/v1/public/news-events/{slug} */
+    public function newsEventShow(string $slug): JsonResponse
+    {
+        return response()->json($this->service->getPublishedItemBySlug($slug));
+    }
+
+    /** GET /api/v1/public/notices/{slug} */
+    public function noticeShow(string $slug): JsonResponse
+    {
+        $notice = $this->service->getPublishedItemBySlug($slug);
+        $related = $this->service->getRelatedItemsByType($notice->type, $notice->id);
+        return response()->json(['notice' => $notice, 'related' => $related]);
+    }
+
+    /** GET /api/v1/public/question-bank */
+    public function questionBank(Request $request): JsonResponse
+    {
+        return response()->json($this->service->getQuestionBankDownloads());
+    }
+
+    /** GET /api/v1/public/alumni-directory */
+    public function alumniDirectory(Request $request): JsonResponse
+    {
+        $perPage = min((int) $request->input('per_page', 12), 50);
+        $result = $this->service->getAlumniDirectory(
+            $request->input('department_id') ? (int) $request->input('department_id') : null,
+            $request->input('search'),
+            $request->input('year'),
+            $perPage,
+        );
+        $years = $this->service->getAlumniGraduationYears();
+        $departments = $this->service->getDepartments();
+        return response()->json([
+            'alumni' => $result,
+            'graduation_years' => $years,
+            'departments' => $departments,
+        ]);
+    }
+
+    /** GET /api/v1/public/alumni/{id} */
+    public function alumniProfile(int $id): JsonResponse
+    {
+        return response()->json($this->service->getAlumniProfile($id));
+    }
+
+    /** GET /api/v1/public/departments/{deptSlug}/programs/{programSlug} */
+    public function programShow(string $deptSlug, string $programSlug): JsonResponse
+    {
+        return response()->json($this->service->getProgramBySlug($deptSlug, $programSlug));
+    }
+
+    /** GET /api/v1/public/result */
+    public function resultForm(): JsonResponse
+    {
+        return response()->json($this->service->getCtevtResultForm());
+    }
 }

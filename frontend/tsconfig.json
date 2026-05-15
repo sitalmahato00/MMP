@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*":           ["src/*"],
+      "@app/*":        ["src/app/*"],
+      "@shared/*":     ["src/shared/*"],
+      "@modules/*":    ["src/modules/*"],
+      "@components/*": ["src/shared/components/*"],
+      "@layouts/*":    ["src/app/layouts/*"],
+      "@services/*":   ["src/shared/services/*"],
+      "@store/*":      ["src/app/store/*"],
+      "@hooks/*":      ["src/shared/hooks/*"],
+      "@auth/*":       ["src/app/router/*"],
+      "@api/*":        ["src/shared/api/*"],
+      "@assets/*":     ["src/assets/*"],
+      "@styles/*":     ["src/styles/*"],
+      "@utils/*":      ["src/shared/utils/*"]
+    }
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
