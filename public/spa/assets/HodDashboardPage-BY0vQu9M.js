@@ -1,0 +1,1 @@
+import{j as a}from"./query-fdX4dixn.js";import"./redux-BA-s2fJG.js";function s(){return a.jsxs("div",{className:"card",children:[a.jsx("h1",{className:"text-xl font-bold",children:"HOD Dashboard"}),a.jsx("p",{className:"mt-2 text-gray-500",children:"Department stats, teacher management, roll number assignment."})]})}export{s as default};

@@ -1,0 +1,1 @@
+import{j as a}from"./query-fdX4dixn.js";import"./redux-BA-s2fJG.js";function e(){return a.jsxs("div",{className:"card",children:[a.jsx("h1",{className:"text-xl font-bold",children:"Exams"}),a.jsx("p",{className:"mt-2 text-gray-500",children:"Exam CRUD — list, create, publish, manage marks."})]})}export{e as default};

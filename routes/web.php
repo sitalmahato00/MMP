@@ -64,6 +64,16 @@ Route::get('/brand-logo', function () {
         ->setPublic();
 })->name('public.brand-logo');
 
+// ─── React SPA: serves built frontend for all page routes ────────────────────
+if (env('REACT_FRONTEND', false)) {
+    $spaPath = public_path('spa/index.html');
+    Route::get('/{any}', function () use ($spaPath) {
+        abort_unless(file_exists($spaPath), 503, 'React frontend not built. Run: cd frontend && npm run build');
+        return response()->file($spaPath);
+    })->where('any', '.*');
+    return; // Skip all blade page routes below
+}
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/notices', [HomeController::class, 'notices'])->name('public.notices');
 Route::get('/notices/{slug}', [HomeController::class, 'noticeShow'])->name('public.notice.show');

@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
+            // Skip blade portal routes when React frontend is active
+            if (env('REACT_FRONTEND', false)) {
+                return;
+            }
+
             // Role-based route files
             Route::middleware(['web', 'auth', 'role:principal'])
                 ->prefix('admin')

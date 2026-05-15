@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useState } from 'react';
 import { getNotices } from '@shared/services/public.service';
 
 export default function NoticesPage() {

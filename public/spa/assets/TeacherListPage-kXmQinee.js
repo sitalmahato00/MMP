@@ -1,0 +1,1 @@
+import{j as e}from"./query-fdX4dixn.js";import"./redux-BA-s2fJG.js";function s(){return e.jsxs("div",{className:"card",children:[e.jsx("h1",{className:"text-xl font-bold",children:"Teachers"}),e.jsx("p",{className:"mt-2 text-gray-500",children:"Teacher CRUD — mirrors StudentListPage pattern using teacherService."})]})}export{s as default};

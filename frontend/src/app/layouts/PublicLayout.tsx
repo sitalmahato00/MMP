@@ -19,9 +19,7 @@ function usePublicTheme() {
     const current = localStorage.getItem('mmp.theme') || 'system';
     const next = current === 'dark' ? 'light' : 'dark';
     localStorage.setItem('mmp.theme', next);
-    const ef = next === 'system'
-      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : next;
+    const ef = next;
     document.documentElement.classList.toggle('dark', ef === 'dark');
     document.documentElement.dataset.theme = ef;
     setEffective(ef);

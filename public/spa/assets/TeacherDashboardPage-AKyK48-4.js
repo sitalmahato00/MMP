@@ -1,0 +1,1 @@
+import{j as e}from"./query-fdX4dixn.js";import"./redux-BA-s2fJG.js";function t(){return e.jsxs("div",{className:"card",children:[e.jsx("h1",{className:"text-xl font-bold",children:"Teacher Dashboard"}),e.jsx("p",{className:"mt-2 text-gray-500",children:"Teacher-specific stats: subjects, class schedules, attendance pending."})]})}export{t as default};
