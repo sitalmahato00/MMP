@@ -204,7 +204,7 @@ class DashboardController extends Controller
         }
 
         // Remove days with no data (rate === null)
-        $attendanceData = array_filter($attendanceData, fn($d) => $d['rate'] !== null);
+        $attendanceData = array_values(array_filter($attendanceData, fn($d) => $d['rate'] !== null));
         
         // Today's classes for the department with attendance information
         $today = strtolower(Carbon::now()->format('l')); // Day name (monday, tuesday, etc.)
