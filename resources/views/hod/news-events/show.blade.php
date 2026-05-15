@@ -47,50 +47,96 @@
         </div>
     </div>
 
-    @if($newsEvent->attachment || $newsEvent->attachments->count() > 0)
+    @php
+        $images   = $newsEvent->attachments->where('is_image', true);
+        $videos   = $newsEvent->attachments->whereIn('file_type', ['mp4', 'webm', 'mov', 'avi']);
+        $otherFiles = $newsEvent->attachments->reject(fn($a) => $a->is_image || in_array($a->file_type, ['mp4','webm','mov','avi']));
+        $legacyFile = $newsEvent->attachment;
+    @endphp
+
+    @if($images->count() > 0 || $videos->count() > 0)
         <div class="rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Attachments</h2>
-            <div class="space-y-3">
-                @if($newsEvent->attachment)
-                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            <h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-800">
+                <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Media Gallery
+            </h2>
+
+            @if($images->count() > 0)
+                <div class="grid grid-cols-2 gap-4 md:grid-cols-3 mb-6">
+                    @foreach($images as $image)
+                        <a href="{{ $image->url }}" target="_blank"
+                           class="group relative aspect-video overflow-hidden rounded-lg bg-slate-200 shadow-md hover:shadow-xl transition-all duration-300">
+                            <img src="{{ $image->url }}" alt="{{ $image->file_name }}"
+                                 class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                                <svg class="h-10 w-10 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                                </svg>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+
+            @if($videos->count() > 0)
+                <div class="space-y-4">
+                    @foreach($videos as $video)
+                        <div class="overflow-hidden rounded-lg bg-black shadow-lg">
+                            <video controls class="w-full" preload="metadata">
+                                <source src="{{ $video->url }}" type="video/{{ $video->file_type }}">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="bg-slate-800 px-4 py-2 text-sm text-slate-300">{{ $video->file_name }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endif
+
+    @if($otherFiles->count() > 0 || $legacyFile)
+        <div class="rounded-2xl border border-slate-200 bg-white p-6">
+            <h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-800">
+                <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                </svg>
+                Downloads
+            </h2>
+            <div class="space-y-2">
+                @if($legacyFile)
+                    <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                            <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-900">Main Attachment</p>
-                            <p class="text-xs text-slate-500">Click to download</p>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-slate-900">Attachment</p>
                         </div>
-                        <a href="{{ asset('storage/'.$newsEvent->attachment) }}" 
-                           class="flex-shrink-0 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
-                           target="_blank">
+                        <a href="{{ asset('storage/'.$legacyFile) }}" target="_blank"
+                           class="flex-shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition">
                             Download
                         </a>
                     </div>
                 @endif
-                
-                @foreach($newsEvent->attachments as $attachment)
-                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @foreach($otherFiles as $file)
+                    <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                            <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-900">{{ $attachment->file_name }}</p>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-semibold text-slate-900">{{ $file->file_name }}</p>
                             <p class="text-xs text-slate-500">
-                                @if($attachment->file_size)
-                                    {{ number_format($attachment->file_size / 1024, 1) }} KB
-                                @endif
-                                @if($attachment->file_type)
-                                    • {{ strtoupper($attachment->file_type) }}
-                                @endif
+                                {{ strtoupper($file->file_type) }}
+                                @if($file->file_size)· {{ number_format($file->file_size / 1024, 1) }} KB @endif
                             </p>
                         </div>
-                        <a href="{{ asset('storage/'.$attachment->file_path) }}" 
-                           class="flex-shrink-0 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
-                           target="_blank">
+                        <a href="{{ $file->url }}" target="_blank"
+                           class="flex-shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition">
                             Download
                         </a>
                     </div>
