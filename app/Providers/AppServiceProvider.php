@@ -33,83 +33,83 @@ class AppServiceProvider extends ServiceProvider
     {
         $aliases = [
             // ── Student ─────────────────────────────────────────────────────
-            \App\Models\Student::class                              => \App\Modules\Student\Models\Student::class,
-            \App\Services\StudentRecordService::class               => \App\Modules\Student\Services\StudentRecordService::class,
+            'App\Models\Student'                              => \App\Modules\Student\Models\Student::class,
+            'App\Services\StudentRecordService'               => \App\Modules\Student\Services\StudentRecordService::class,
 
             // ── Teacher ─────────────────────────────────────────────────────
-            \App\Models\Teacher::class                              => \App\Modules\Teacher\Models\Teacher::class,
+            'App\Models\Teacher'                              => \App\Modules\Teacher\Models\Teacher::class,
 
             // ── Alumni ──────────────────────────────────────────────────────
-            \App\Models\Alumni::class                               => \App\Modules\Alumni\Models\Alumni::class,
-            \App\Models\AlumniAchievement::class                    => \App\Modules\Alumni\Models\AlumniAchievement::class,
-            \App\Models\AlumniEmployment::class                     => \App\Modules\Alumni\Models\AlumniEmployment::class,
-            \App\Models\AlumniProject::class                        => \App\Modules\Alumni\Models\AlumniProject::class,
-            \App\Services\AlumniService::class                      => \App\Modules\Alumni\Services\AlumniService::class,
+            'App\Models\Alumni'                               => \App\Modules\Alumni\Models\Alumni::class,
+            'App\Models\AlumniAchievement'                    => \App\Modules\Alumni\Models\AlumniAchievement::class,
+            'App\Models\AlumniEmployment'                     => \App\Modules\Alumni\Models\AlumniEmployment::class,
+            'App\Models\AlumniProject'                        => \App\Modules\Alumni\Models\AlumniProject::class,
+            'App\Services\AlumniService'                      => \App\Modules\Alumni\Services\AlumniService::class,
 
             // ── Academic ─────────────────────────────────────────────────────
-            \App\Models\AcademicSession::class                      => \App\Modules\Academic\Models\AcademicSession::class,
-            \App\Models\AcademicSessionSemester::class              => \App\Modules\Academic\Models\AcademicSessionSemester::class,
-            \App\Models\Program::class                              => \App\Modules\Academic\Models\Program::class,
-            \App\Models\Subject::class                              => \App\Modules\Academic\Models\Subject::class,
-            \App\Models\Timetable::class                            => \App\Modules\Academic\Models\Timetable::class,
-            \App\Models\TimetableSlot::class                        => \App\Modules\Academic\Models\TimetableSlot::class,
-            \App\Services\SessionService::class                     => \App\Modules\Academic\Services\SessionService::class,
+            'App\Models\AcademicSession'                      => \App\Modules\Academic\Models\AcademicSession::class,
+            'App\Models\AcademicSessionSemester'              => \App\Modules\Academic\Models\AcademicSessionSemester::class,
+            'App\Models\Program'                              => \App\Modules\Academic\Models\Program::class,
+            'App\Models\Subject'                              => \App\Modules\Academic\Models\Subject::class,
+            'App\Models\Timetable'                            => \App\Modules\Academic\Models\Timetable::class,
+            'App\Models\TimetableSlot'                        => \App\Modules\Academic\Models\TimetableSlot::class,
+            'App\Services\SessionService'                     => \App\Modules\Academic\Services\SessionService::class,
 
             // ── Attendance ───────────────────────────────────────────────────
-            \App\Models\Attendance::class                           => \App\Modules\Attendance\Models\Attendance::class,
-            \App\Models\AttendanceSession::class                    => \App\Modules\Attendance\Models\AttendanceSession::class,
-            \App\Services\AttendanceService::class                  => \App\Modules\Attendance\Services\AttendanceService::class,
+            'App\Models\Attendance'                           => \App\Modules\Attendance\Models\Attendance::class,
+            'App\Models\AttendanceSession'                    => \App\Modules\Attendance\Models\AttendanceSession::class,
+            'App\Services\AttendanceService'                  => \App\Modules\Attendance\Services\AttendanceService::class,
 
             // ── Exam / Result ────────────────────────────────────────────────
-            \App\Models\Exam::class                                 => \App\Modules\Exam\Models\Exam::class,
-            \App\Models\ExamSubjectMarkingScheme::class             => \App\Modules\Exam\Models\ExamSubjectMarkingScheme::class,
-            \App\Models\Mark::class                                 => \App\Modules\Exam\Models\Mark::class,
-            \App\Services\MarksService::class                       => \App\Modules\Exam\Services\MarksService::class,
+            'App\Models\Exam'                                 => \App\Modules\Exam\Models\Exam::class,
+            'App\Models\ExamSubjectMarkingScheme'             => \App\Modules\Exam\Models\ExamSubjectMarkingScheme::class,
+            'App\Models\Mark'                                 => \App\Modules\Exam\Models\Mark::class,
+            'App\Services\MarksService'                       => \App\Modules\Exam\Services\MarksService::class,
 
             // ── Assignment ───────────────────────────────────────────────────
-            \App\Models\Assignment::class                           => \App\Modules\Assignment\Models\Assignment::class,
-            \App\Models\AssignmentSubmission::class                 => \App\Modules\Assignment\Models\AssignmentSubmission::class,
+            'App\Models\Assignment'                           => \App\Modules\Assignment\Models\Assignment::class,
+            'App\Models\AssignmentSubmission'                 => \App\Modules\Assignment\Models\AssignmentSubmission::class,
 
             // ── Department ───────────────────────────────────────────────────
-            \App\Models\Department::class                           => \App\Modules\Department\Models\Department::class,
+            'App\Models\Department'                           => \App\Modules\Department\Models\Department::class,
 
             // ── Parent ───────────────────────────────────────────────────────
-            \App\Models\ParentModel::class                          => \App\Modules\Parent\Models\ParentModel::class,
+            'App\Models\ParentModel'                          => \App\Modules\Parent\Models\ParentModel::class,
 
             // ── Staff ────────────────────────────────────────────────────────
-            \App\Models\Staff::class                                => \App\Modules\Staff\Models\Staff::class,
-            \App\Models\StaffAttendance::class                      => \App\Modules\Staff\Models\StaffAttendance::class,
-            \App\Models\StaffDocument::class                        => \App\Modules\Staff\Models\StaffDocument::class,
+            'App\Models\Staff'                                => \App\Modules\Staff\Models\Staff::class,
+            'App\Models\StaffAttendance'                      => \App\Modules\Staff\Models\StaffAttendance::class,
+            'App\Models\StaffDocument'                        => \App\Modules\Staff\Models\StaffDocument::class,
 
             // ── User / Auth ──────────────────────────────────────────────────
-            \App\Models\User::class                                 => \App\Modules\User\Models\User::class,
-            \App\Models\Otp::class                                  => \App\Modules\User\Models\Otp::class,
-            \App\Services\OtpService::class                         => \App\Modules\User\Services\OtpService::class,
+            'App\Models\User'                                 => \App\Modules\User\Models\User::class,
+            'App\Models\Otp'                                  => \App\Modules\User\Models\Otp::class,
+            'App\Services\OtpService'                         => \App\Modules\User\Services\OtpService::class,
 
             // ── CMS ──────────────────────────────────────────────────────────
-            \App\Models\Banner::class                               => \App\Modules\CMS\Models\Banner::class,
-            \App\Models\Download::class                             => \App\Modules\CMS\Models\Download::class,
-            \App\Models\Executive::class                            => \App\Modules\CMS\Models\Executive::class,
-            \App\Models\Facility::class                             => \App\Modules\CMS\Models\Facility::class,
-            \App\Models\Media::class                                => \App\Modules\CMS\Models\Media::class,
-            \App\Models\Notice::class                               => \App\Modules\CMS\Models\Notice::class,
-            \App\Models\NoticeAttachment::class                     => \App\Modules\CMS\Models\NoticeAttachment::class,
-            \App\Models\Page::class                                 => \App\Modules\CMS\Models\Page::class,
-            \App\Services\PublicDataService::class                  => \App\Modules\CMS\Services\PublicDataService::class,
+            'App\Models\Banner'                               => \App\Modules\CMS\Models\Banner::class,
+            'App\Models\Download'                             => \App\Modules\CMS\Models\Download::class,
+            'App\Models\Executive'                            => \App\Modules\CMS\Models\Executive::class,
+            'App\Models\Facility'                             => \App\Modules\CMS\Models\Facility::class,
+            'App\Models\Media'                                => \App\Modules\CMS\Models\Media::class,
+            'App\Models\Notice'                               => \App\Modules\CMS\Models\Notice::class,
+            'App\Models\NoticeAttachment'                     => \App\Modules\CMS\Models\NoticeAttachment::class,
+            'App\Models\Page'                                 => \App\Modules\CMS\Models\Page::class,
+            'App\Services\PublicDataService'                  => \App\Modules\CMS\Services\PublicDataService::class,
 
             // ── Notification ─────────────────────────────────────────────────
-            \App\Models\Communication::class                        => \App\Modules\Notification\Models\Communication::class,
-            \App\Services\PortalNotificationService::class          => \App\Modules\Notification\Services\PortalNotificationService::class,
-            \App\Services\NotificationPreferenceService::class      => \App\Modules\Notification\Services\NotificationPreferenceService::class,
+            'App\Models\Communication'                        => \App\Modules\Notification\Models\Communication::class,
+            'App\Services\PortalNotificationService'          => \App\Modules\Notification\Services\PortalNotificationService::class,
+            'App\Services\NotificationPreferenceService'      => \App\Modules\Notification\Services\NotificationPreferenceService::class,
 
             // ── Settings ─────────────────────────────────────────────────────
-            \App\Models\SiteSetting::class                          => \App\Modules\Settings\Models\SiteSetting::class,
+            'App\Models\SiteSetting'                          => \App\Modules\Settings\Models\SiteSetting::class,
 
             // ── AuditLog ─────────────────────────────────────────────────────
-            \App\Models\AuditLog::class                             => \App\Modules\AuditLog\Models\AuditLog::class,
+            'App\Models\AuditLog'                             => \App\Modules\AuditLog\Models\AuditLog::class,
 
             // ── File Manager ─────────────────────────────────────────────────
-            \App\Services\ExportService::class                      => \App\Modules\FileManager\Services\ExportService::class,
+            'App\Services\ExportService'                      => \App\Modules\FileManager\Services\ExportService::class,
         ];
 
         foreach ($aliases as $old => $new) {
