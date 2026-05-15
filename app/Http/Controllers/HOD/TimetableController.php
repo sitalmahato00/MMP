@@ -336,6 +336,65 @@ class TimetableController extends HodController
             ->with('success', 'Timetable deleted successfully.');
     }
 
+    // ── Store / Update Slot (AJAX) ─────────────────────────────────────────
+    public function storeSlot(Request $request, Timetable $timetable)
+    {
+        if ($timetable->program->department_id !== $this->currentDepartment($request)->id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $data = $request->validate([
+            'slot_id'     => 'nullable|integer',
+            'day_of_week' => 'required|string|in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
+            'start_time'  => 'required|date_format:H:i',
+            'end_time'    => 'required|date_format:H:i',
+            'subject_id'  => 'nullable|exists:subjects,id',
+            'teacher_id'  => 'nullable|exists:teachers,id',
+            'room_number' => 'nullable|string|max:50',
+            'type'        => 'nullable|string|in:theory,practical,lab,library,break',
+            'group'       => 'nullable|string|max:10',
+            'duration'    => 'nullable|integer|min:1|max:4',
+        ]);
+
+        $slotData = [
+            'timetable_id' => $timetable->id,
+            'day_of_week'  => $data['day_of_week'],
+            'start_time'   => $data['start_time'],
+            'end_time'     => $data['end_time'],
+            'subject_id'   => $data['subject_id'] ?? null,
+            'teacher_id'   => $data['teacher_id'] ?? null,
+            'room_number'  => $data['room_number'] ?? null,
+            'type'         => $data['type'] ?? 'theory',
+            'group'        => $data['group'] ?: null,
+            'duration'     => $data['duration'] ?? 1,
+        ];
+
+        if (!empty($data['slot_id'])) {
+            $slot = TimetableSlot::where('id', $data['slot_id'])
+                ->where('timetable_id', $timetable->id)
+                ->firstOrFail();
+            $slot->update($slotData);
+        } else {
+            $slot = TimetableSlot::create($slotData);
+        }
+
+        return response()->json([
+            'success' => true,
+            'slot' => [
+                'id'          => $slot->id,
+                'day_of_week' => $slot->day_of_week,
+                'start_time'  => is_string($slot->start_time) ? substr($slot->start_time, 0, 5) : $slot->start_time->format('H:i'),
+                'end_time'    => is_string($slot->end_time)   ? substr($slot->end_time, 0, 5)   : $slot->end_time->format('H:i'),
+                'subject_id'  => $slot->subject_id,
+                'teacher_id'  => $slot->teacher_id,
+                'room_number' => $slot->room_number,
+                'type'        => $slot->type,
+                'group'       => $slot->group,
+                'duration'    => $slot->duration,
+            ],
+        ]);
+    }
+
     // ── Destroy Slot ───────────────────────────────────────────────────────
     public function destroySlot(Request $request, Timetable $timetable, TimetableSlot $slot)
     {

@@ -55,6 +55,7 @@ Route::prefix('timetable')->name('timetable.')->group(function () {
     Route::put('/{timetable}', [\App\Http\Controllers\HOD\TimetableController::class, 'update'])->name('update');
     Route::delete('/{timetable}', [\App\Http\Controllers\HOD\TimetableController::class, 'destroy'])->name('destroy');
     Route::delete('/{timetable}/slots/{slot}', [\App\Http\Controllers\HOD\TimetableController::class, 'destroySlot'])->name('slots.destroy');
+    Route::post('/{timetable}/slots', [\App\Http\Controllers\HOD\TimetableController::class, 'storeSlot'])->name('slots.store');
     
     // Export functionality
     Route::get('/{timetable}/export', [\App\Http\Controllers\HOD\TimetableController::class, 'export'])->name('export');

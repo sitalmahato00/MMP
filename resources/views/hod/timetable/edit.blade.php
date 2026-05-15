@@ -109,7 +109,7 @@
         </x-form-section>
     </form>
 
-    {{-- Timetable Header --}}
+        {{-- Timetable Header --}}
     <div class="bg-white rounded-lg shadow-sm border border-slate-200">
         <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
             <div class="flex items-center gap-3">
@@ -117,11 +117,18 @@
                 <span class="text-blue-600 text-sm font-medium" x-text="slots.length + ' slots'"></span>
             </div>
             
-            <button type="button" @click="openAddSlotModal('monday', '06:30-07:15', '')"
-                    class="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                Add Slot
-            </button>
+            <div class="flex items-center gap-2">
+                <button type="button" @click="openAddSlotModal('monday', '06:30-07:15', '')"
+                        class="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Add Slot
+                </button>
+                <button type="button" @click="saveAll()"
+                        class="inline-flex items-center gap-1 rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 transition">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Save Timetable
+                </button>
+            </div>
         </div>
 
         {{-- Weekly Schedule --}}
@@ -318,16 +325,6 @@
                 </table>
             </div>
         </div>
-
-        {{-- Sticky Save Button --}}
-        <div class="sticky bottom-0 z-10 bg-white border-t border-slate-200 px-4 py-3 shadow-lg flex items-center justify-between">
-            <span class="text-sm text-slate-500" x-text="slots.length + ' slot(s) — click Save to persist changes'"></span>
-            <button type="button" @click="saveAll()"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Save Timetable
-            </button>
-        </div>
     </div>
 
     {{-- Edit Modal --}}
@@ -364,10 +361,10 @@
                             Cancel
                         </button>
                         <button @click="saveSlotChanges()" 
-                                :disabled="teacherConflicts.length > 0 || durationConflicts.length > 0"
-                                :class="teacherConflicts.length > 0 || durationConflicts.length > 0 ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'"
+                                :disabled="saving || teacherConflicts.length > 0 || durationConflicts.length > 0"
+                                :class="saving || teacherConflicts.length > 0 || durationConflicts.length > 0 ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'"
                                 class="px-4 py-2 text-sm font-semibold text-white rounded-lg transition">
-                            Save Changes
+                            <span x-text="saving ? 'Saving…' : 'Save Changes'"></span>
                         </button>
                     </div>
                 </div>
@@ -387,11 +384,8 @@ function timetableEditor() {
         days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
         showEditModal: false,
         editingSlot: null,
-        availableTeachers: @json($teachers),
-        allTeachers: @json($teachers),
-        teacherConflicts: [],
-        durationConflicts: [],
-        availableGroups: [],
+        saving: false,
+        saveError: null,
         
         init() {
             this.loadAvailableGroups();
@@ -666,31 +660,63 @@ function timetableEditor() {
                 await this.handleDurationExtension();
             }
 
-            // Find existing slot to update or add new one
-            const existingSlotIndex = this.slots.findIndex(slot => {
-                // If both have IDs, match by ID (most reliable)
-                if (this.editingSlot.id && slot.id) {
-                    return slot.id === this.editingSlot.id;
+            this.saving = true;
+            this.saveError = null;
+
+            try {
+                const response = await fetch(`{{ route('hod.timetable.slots.store', $timetable) }}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        slot_id:     this.editingSlot.id   || null,
+                        day_of_week: this.editingSlot.day_of_week,
+                        start_time:  this.editingSlot.start_time,
+                        end_time:    this.editingSlot.end_time,
+                        subject_id:  this.editingSlot.subject_id  || null,
+                        teacher_id:  this.editingSlot.teacher_id  || null,
+                        room_number: this.editingSlot.room_number || null,
+                        type:        this.editingSlot.type        || 'theory',
+                        group:       this.editingSlot.group       || null,
+                        duration:    this.editingSlot.duration    || 1,
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Unknown error');
                 }
-                // Otherwise match by day/time/group (normalize null/''/undefined to '')
-                return slot.day_of_week === this.editingSlot.day_of_week &&
-                    slot.start_time === this.editingSlot.start_time &&
-                    slot.end_time === this.editingSlot.end_time &&
-                    (slot.group ?? '') === (this.editingSlot.group ?? '');
-            });
 
-            if (existingSlotIndex !== -1) {
-                // Update existing slot
-                this.slots[existingSlotIndex] = { ...this.editingSlot };
-            } else {
-                // Add new slot
-                this.slots.push({ ...this.editingSlot });
+                const savedSlot = result.slot;
+
+                // Find and update/add in local array
+                const existingSlotIndex = this.slots.findIndex(slot => {
+                    if (this.editingSlot.id && slot.id) return slot.id === this.editingSlot.id;
+                    return slot.day_of_week === this.editingSlot.day_of_week &&
+                        slot.start_time === this.editingSlot.start_time &&
+                        slot.end_time   === this.editingSlot.end_time &&
+                        (slot.group ?? '') === (this.editingSlot.group ?? '');
+                });
+
+                if (existingSlotIndex !== -1) {
+                    this.slots[existingSlotIndex] = savedSlot;
+                } else {
+                    this.slots.push(savedSlot);
+                }
+
+                this.showEditModal = false;
+                this.editingSlot = null;
+
+            } catch (err) {
+                this.saveError = 'Failed to save slot: ' + err.message;
+                alert(this.saveError);
+            } finally {
+                this.saving = false;
             }
-
-            this.showEditModal = false;
-            this.editingSlot = null;
-            // Auto-save to database immediately
-            this.saveAll();
         },
 
         async handleDurationExtension() {
@@ -764,12 +790,11 @@ function timetableEditor() {
                     alert('Failed to delete slot: ' + error.message);
                 });
             } else {
-                // Remove from local array and save remaining slots
+                // Remove from local array only (no DB record to delete)
                 const index = this.slots.indexOf(slot);
                 if (index !== -1) {
                     this.slots.splice(index, 1);
                 }
-                this.saveAll();
             }
         },
         
