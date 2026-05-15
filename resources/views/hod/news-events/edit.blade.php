@@ -59,7 +59,7 @@
 
             {{-- Existing attachments --}}
             @if($notice->attachments->isNotEmpty())
-            <x-form-field label="Current Attachments" span="full">
+            <x-form-field label="Current Attachments" name="delete_attachments" span="full">
                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     @foreach($notice->attachments as $att)
                     <div class="relative rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
