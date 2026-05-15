@@ -204,11 +204,17 @@ class TimetableController extends HodController
 
         // Transform slots for JavaScript
         $slotsData = $timetable->slots->map(function($slot) {
+            $start = $slot->start_time instanceof \Carbon\Carbon
+                ? $slot->start_time->format('H:i')
+                : substr((string) ($slot->start_time ?? '09:00'), 0, 5);
+            $end = $slot->end_time instanceof \Carbon\Carbon
+                ? $slot->end_time->format('H:i')
+                : substr((string) ($slot->end_time ?? '10:00'), 0, 5);
             return [
                 'id' => $slot->id,
                 'day_of_week' => $slot->day_of_week,
-                'start_time' => $slot->start_time instanceof \Carbon\Carbon ? $slot->start_time->format('H:i') : ($slot->start_time ?? '09:00'),
-                'end_time' => $slot->end_time instanceof \Carbon\Carbon ? $slot->end_time->format('H:i') : ($slot->end_time ?? '10:00'),
+                'start_time' => $start,
+                'end_time' => $end,
                 'subject_id' => $slot->subject_id,
                 'teacher_id' => $slot->teacher_id,
                 'room_number' => $slot->room_number,

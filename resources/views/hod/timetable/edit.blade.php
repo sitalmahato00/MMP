@@ -406,12 +406,15 @@ function timetableEditor() {
             ];
         },
         
+        // Normalize a time value to HH:MM regardless of whether it has seconds
+        hi(t) { return t ? String(t).slice(0, 5) : ''; },
+
         getSlotForCell(day, timeRange) {
             const [start, end] = timeRange.split('-');
             return this.slots.find(slot => 
                 slot.day_of_week === day && 
-                slot.start_time === start && 
-                slot.end_time === end
+                this.hi(slot.start_time) === start && 
+                this.hi(slot.end_time) === end
             );
         },
         
@@ -419,8 +422,8 @@ function timetableEditor() {
             const [start, end] = timeRange.split('-');
             return this.slots.filter(slot => 
                 slot.day_of_week === day && 
-                slot.start_time === start && 
-                slot.end_time === end
+                this.hi(slot.start_time) === start && 
+                this.hi(slot.end_time) === end
             );
         },
 
@@ -429,10 +432,9 @@ function timetableEditor() {
             const [start, end] = timeRange.split('-');
             const slotsForTime = this.slots.filter(slot => 
                 slot.day_of_week === day && 
-                slot.start_time === start && 
-                slot.end_time === end
+                this.hi(slot.start_time) === start && 
+                this.hi(slot.end_time) === end
             );
-            
             // Check if there are slots without specific groups (common to all)
             return slotsForTime.some(slot => !slot.group || slot.group === '');
         },
@@ -442,8 +444,8 @@ function timetableEditor() {
             const [start, end] = timeRange.split('-');
             return this.slots.filter(slot => 
                 slot.day_of_week === day && 
-                slot.start_time === start && 
-                slot.end_time === end &&
+                this.hi(slot.start_time) === start && 
+                this.hi(slot.end_time) === end &&
                 (!slot.group || slot.group === '')
             );
         },
@@ -453,8 +455,8 @@ function timetableEditor() {
             const [start, end] = timeRange.split('-');
             return this.slots.filter(slot => 
                 slot.day_of_week === day && 
-                slot.start_time === start && 
-                slot.end_time === end &&
+                this.hi(slot.start_time) === start && 
+                this.hi(slot.end_time) === end &&
                 slot.group === group
             );
         },
@@ -485,7 +487,12 @@ function timetableEditor() {
         },
         
         editSlotByData(slot) {
-            this.editingSlot = { ...slot, duration: slot.duration || 1 };
+            this.editingSlot = {
+                ...slot,
+                start_time: this.hi(slot.start_time),
+                end_time:   this.hi(slot.end_time),
+                duration:   slot.duration || 1,
+            };
             this.checkTeacherConflicts();
             this.checkDurationConflicts();
             this.updateAvailableTeachers();
