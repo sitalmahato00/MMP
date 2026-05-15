@@ -55,6 +55,7 @@
                             <option value="{{ $prog->id }}" @selected($timetable->program_id == $prog->id)>{{ $prog->name }}</option>
                         @endforeach
                     </x-select>
+                    <input type="hidden" name="program_id" value="{{ $timetable->program_id }}">
                     <p class="mt-1 text-xs text-slate-500">Program cannot be changed after creation</p>
                 </x-form-field>
 
@@ -64,6 +65,7 @@
                             <option value="{{ $i }}" @selected($timetable->semester == $i)>Semester {{ $i }}</option>
                         @endfor
                     </x-select>
+                    <input type="hidden" name="semester" value="{{ $timetable->semester }}">
                     <p class="mt-1 text-xs text-slate-500">Semester cannot be changed after creation</p>
                 </x-form-field>
             </x-form-row>
@@ -381,9 +383,8 @@ function timetableEditor() {
         durationConflicts: [],
         availableGroups: [],
         
-        async init() {
-            // Load available groups from database
-            await this.loadAvailableGroups();
+        init() {
+            this.loadAvailableGroups();
         },
         
         get uniqueTimeSlots() {
@@ -626,21 +627,8 @@ function timetableEditor() {
             }
         },
 
-        async loadAvailableGroups() {
-            try {
-                const response = await fetch(`{{ route('hod.timetable.available-groups', $timetable) }}`, {
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                this.availableGroups = data.groups;
-            } catch (error) {
-                console.error('Error loading groups:', error);
-                this.availableGroups = ['A', 'B', 'C', 'D']; // Fallback
-            }
+        loadAvailableGroups() {
+            this.availableGroups = ['A', 'B'];
         },
 
         async saveSlotChanges() {
@@ -669,13 +657,17 @@ function timetableEditor() {
             }
 
             // Find existing slot to update or add new one
-            const existingSlotIndex = this.slots.findIndex(slot => 
-                slot.day_of_week === this.editingSlot.day_of_week &&
-                slot.start_time === this.editingSlot.start_time &&
-                slot.end_time === this.editingSlot.end_time &&
-                slot.group === this.editingSlot.group &&
-                (!slot.id || slot.id === this.editingSlot.id)
-            );
+            const existingSlotIndex = this.slots.findIndex(slot => {
+                // If both have IDs, match by ID (most reliable)
+                if (this.editingSlot.id && slot.id) {
+                    return slot.id === this.editingSlot.id;
+                }
+                // Otherwise match by day/time/group (normalize null/''/undefined to '')
+                return slot.day_of_week === this.editingSlot.day_of_week &&
+                    slot.start_time === this.editingSlot.start_time &&
+                    slot.end_time === this.editingSlot.end_time &&
+                    (slot.group ?? '') === (this.editingSlot.group ?? '');
+            });
 
             if (existingSlotIndex !== -1) {
                 // Update existing slot
@@ -831,16 +823,17 @@ function timetableEditor() {
             const existingInputs = form.querySelectorAll('input[name^="slots["]');
             existingInputs.forEach(input => input.remove());
             
-            // Add slots data to form
-            this.slots.forEach((slot, index) => {
-                Object.keys(slot).forEach(key => {
-                    if (key !== 'id') {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = `slots[${index}][${key}]`;
-                        input.value = slot[key] || '';
-                        form.appendChild(input);
-                    }
+            // Serialize via JSON to get plain objects from Alpine proxy
+            const plainSlots = JSON.parse(JSON.stringify(this.slots));
+            const fields = ['day_of_week', 'start_time', 'end_time', 'subject_id', 'teacher_id', 'room_number', 'type', 'group', 'duration'];
+            
+            plainSlots.forEach((slot, index) => {
+                fields.forEach(key => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `slots[${index}][${key}]`;
+                    input.value = slot[key] ?? '';
+                    form.appendChild(input);
                 });
             });
             

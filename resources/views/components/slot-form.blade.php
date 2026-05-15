@@ -91,9 +91,8 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">Group Assignment</label>
             <x-select name="group" x-model="editingSlot.group" class="w-full">
                 <option value="">All Groups (Common Class)</option>
-                <template x-for="group in availableGroups" :key="group">
-                    <option :value="group" x-text="'Group ' + group + ' Only'"></option>
-                </template>
+                <option value="A">Group A Only</option>
+                <option value="B">Group B Only</option>
             </x-select>
             <p class="mt-1 text-xs text-slate-500">
                 <span x-show="!editingSlot.group">This class will appear in merged cell for all groups</span>
