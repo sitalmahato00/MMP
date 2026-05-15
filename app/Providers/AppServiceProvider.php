@@ -113,7 +113,7 @@ class AppServiceProvider extends ServiceProvider
         ];
 
         foreach ($aliases as $old => $new) {
-            if (! class_exists($old) && class_exists($new)) {
+            if (! class_exists($old, false) && class_exists($new)) {
                 class_alias($new, $old);
             }
         }
