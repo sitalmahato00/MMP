@@ -59,6 +59,7 @@ class IdCardController extends Controller
                 'blood_group'         => $s->blood_group,
                 'batch'               => $s->batch,
                 'dob'                 => $s->user?->dob ? bsDate($s->user->dob) : null,
+                'address'             => $s->user?->address ?? null,
                 'photo_url'           => $s->user?->avatar_url ?? '',
                 'academic_session'    => $s->academicSession?->name ?? '—',
             ]);

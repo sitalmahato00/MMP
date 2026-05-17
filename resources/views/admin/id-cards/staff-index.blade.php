@@ -212,24 +212,28 @@
                             </div>
                         </div>
 
-                        <div style="background:white;display:flex;justify-content:center;padding:18px 0 10px;">
-                            <img
-                                :src="staff?.photo_url || 'https://ui-avatars.com/api/?name=S&background=1e3a5f&color=fff&size=120'"
-                                :style="`width:90px;height:90px;border-radius:50%;border:3px solid ${cardColor};object-fit:cover;`">
+                        <div style="background:white;display:flex;justify-content:center;padding:14px 0 10px;">
+                            <div :style="`width:80px;height:80px;border-radius:50%;background:${cardColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;`">
+                                <img
+                                    :src="staff?.photo_url || 'https://ui-avatars.com/api/?name=S&background=1e3a5f&color=fff&size=120'"
+                                    style="width:66px;height:66px;border-radius:50%;border:3px solid white;object-fit:cover;display:block;">
+                            </div>
+                        </div>
                         </div>
 
                         <div style="background:white;text-align:center;padding:0 14px 10px;">
                             <div style="font-size:15px;font-weight:700;color:#0f172a;letter-spacing:0.5px;" x-text="staff?.name?.toUpperCase() || 'STAFF NAME'"></div>
-                            <div style="font-size:10px;color:#475569;text-transform:uppercase;margin-top:3px;letter-spacing:0.5px;" x-text="staff?.designation?.toUpperCase() || 'DESIGNATION'"></div>
+                            <div :style="`font-size:10px;font-weight:600;color:${cardColor};text-transform:uppercase;margin-top:3px;letter-spacing:0.5px;`" x-text="staff?.designation?.toUpperCase() || 'DESIGNATION'"></div>
                             <div style="font-size:9px;color:#94a3b8;margin-top:2px;" x-text="staff?.department?.toUpperCase() || ''"></div>
                         </div>
 
-                        <div :style="`height:2px;background:${cardColor};margin:0 14px;`"></div>
+                        <div :style="`height:1.5px;background:${cardColor};margin:0 14px 4px;`"></div>
 
-                        <div style="background:white;padding:10px 18px;font-size:10.5px;color:#1e293b;line-height:1.9;">
-                            <div>Staff Code: &nbsp;<strong x-text="staff?.staff_code || '—'"></strong></div>
-                            <div x-show="staff?.join_date">Join Date: &nbsp;<strong x-text="staff?.join_date"></strong></div>
-                            <div x-show="validUpto">Valid up to: &nbsp;<strong x-text="validUpto"></strong></div>
+                        <div style="background:white;padding:8px 16px;font-size:10px;color:#1e293b;line-height:1.85;">
+                            <div><span style="color:#475569;">Staff Code:</span> &nbsp;<strong x-text="staff?.staff_code || '—'"></strong></div>
+                            <div x-show="staff?.join_date"><span style="color:#475569;">Join Date:</span> &nbsp;<strong x-text="staff?.join_date"></strong></div>
+                            <div x-show="address"><span style="color:#475569;">Campus:</span> &nbsp;<strong x-text="address"></strong></div>
+                            <div x-show="validUpto"><span style="color:#475569;">Valid up to:</span> &nbsp;<strong x-text="validUpto"></strong></div>
                         </div>
 
                         <div style="background:white;padding:8px 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:6px;">
@@ -426,9 +430,44 @@ function idCardGen(config) {
 
         printCard() {
             if (!this.staff) return;
-            const el  = document.getElementById('id-card-preview');
-            const win = window.open('', '_blank', 'width=400,height=700');
-            win.document.write('<html><head><title>Print ID Card</title><style>body{margin:0;padding:20px;font-family:sans-serif;}@media print{@page{margin:0;size:auto;}body{margin:10mm;}}</style></head><body>' + el.innerHTML + '</body></html>');
+            const cardEl = document.querySelector('#id-card-preview .w-72');
+            if (!cardEl) return;
+            const win = window.open('', '_blank', 'width=360,height=640');
+            win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Print ID Card</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    background: #e5e7eb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+}
+.card-wrap {
+    width: 288px;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    flex-shrink: 0;
+    background: #fff;
+}
+.card-wrap * { box-sizing: border-box; }
+@media print {
+    @page { size: 86mm auto; margin: 0; }
+    html, body { background: #fff; padding: 0; display: block; width: 86mm; }
+    .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+<div class="card-wrap">${cardEl.innerHTML}</div>
+</body>
+</html>`);
             win.document.close();
             win.focus();
             setTimeout(() => { win.print(); }, 500);

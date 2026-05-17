@@ -45,19 +45,6 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.staff.import') }}" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        @csrf
-        <div class="flex flex-wrap items-end gap-3">
-            <div class="min-w-[220px] flex-1">
-                <label class="mb-1.5 block text-xs font-semibold text-slate-600">Import CSV</label>
-                <input type="file" name="csv" accept=".csv,text/csv"
-                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-[#8B0000] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white focus:border-[#8B0000] focus:ring-[#8B0000]/20">
-            </div>
-            <button type="submit" class="rounded-xl bg-[#8B0000] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7a0000]">Import Staff CSV</button>
-            <p class="text-sm text-slate-500">Upload the staff CSV schema to create or update records.</p>
-        </div>
-    </form>
-
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
         @php
             $kpis = [

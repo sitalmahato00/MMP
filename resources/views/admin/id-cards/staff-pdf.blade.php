@@ -18,12 +18,14 @@
     .header-text-cell { vertical-align: middle; }
     .header-college-name { color: #ffffff; font-size: 9.5pt; font-weight: bold; letter-spacing: 0.3pt; line-height: 1.3; }
     .header-affiliation { color: rgba(255,255,255,0.85); font-size: 7.5pt; margin-top: 2pt; }
-    .photo-section { background: #ffffff; padding: 14pt 0 8pt; text-align: center; }
-    .photo-section img { width: 72pt; height: 72pt; border-radius: 50%; border: 2.5pt solid #1e3a5f; display: inline-block; object-fit: cover; }
-    .photo-placeholder { width: 72pt; height: 72pt; border-radius: 50%; border: 2.5pt solid #1e3a5f; background: #e2e8f0; display: inline-block; text-align: center; line-height: 72pt; font-size: 22pt; color: #94a3b8; }
+    .photo-section { background: #ffffff; padding: 10pt 0 6pt; text-align: center; }
+    .photo-outer { width: 66pt; height: 66pt; border-radius: 50%; display: inline-block; background: #1e3a5f; }
+    .photo-circle { width: 54pt; height: 54pt; border-radius: 50%; overflow: hidden; display: block; border: 3pt solid white; margin: 6pt; }
+    .photo-circle img { width: 54pt; height: 54pt; display: block; }
+    .photo-placeholder { width: 54pt; height: 54pt; border-radius: 50%; background: #e2e8f0; display: block; border: 3pt solid white; margin: 6pt; text-align: center; line-height: 54pt; font-size: 18pt; color: #94a3b8; }
     .name-section { background: #ffffff; text-align: center; padding: 0 10pt 8pt; }
     .staff-name { font-size: 11.5pt; font-weight: bold; color: #0f172a; letter-spacing: 0.5pt; }
-    .staff-designation { font-size: 7.5pt; color: #475569; margin-top: 2pt; letter-spacing: 0.3pt; }
+    .staff-designation { font-size: 7.5pt; font-weight: bold; margin-top: 2pt; letter-spacing: 0.3pt; }
     .staff-department { font-size: 7pt; color: #94a3b8; margin-top: 1pt; }
     .divider { height: 1.5pt; margin: 0 10pt; }
     .details-section { background: #ffffff; padding: 8pt 14pt; }
@@ -100,15 +102,19 @@
                         </tr></table>
                     </div>
                     <div class="photo-section">
+                        <div class="photo-outer" style="background:{{ $headerColor }};">
                         @if($member->photo_b64)
-                            <img src="{{ $member->photo_b64 }}" alt="Photo" style="border-color:{{ $headerColor }};">
+                            <div class="photo-circle">
+                                <img src="{{ $member->photo_b64 }}" alt="Photo">
+                            </div>
                         @else
-                            <div class="photo-placeholder" style="border-color:{{ $headerColor }};">{{ mb_strtoupper(mb_substr($name, 0, 1)) }}</div>
+                            <div class="photo-placeholder">{{ mb_strtoupper(mb_substr($name, 0, 1)) }}</div>
                         @endif
+                        </div>
                     </div>
                     <div class="name-section">
                         <div class="staff-name">{{ mb_strtoupper($name) }}</div>
-                        <div class="staff-designation">{{ mb_strtoupper($designation) }}</div>
+                        <div class="staff-designation" style="color:{{ $headerColor }};">{{ mb_strtoupper($designation) }}</div>
                         @if($department)<div class="staff-department">{{ mb_strtoupper($department) }}</div>@endif
                     </div>
                     <div class="divider" style="background:{{ $headerColor }};"></div>

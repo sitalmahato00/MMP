@@ -233,27 +233,30 @@
                         </div>
 
                         {{-- Photo --}}
-                        <div style="background:white;display:flex;justify-content:center;padding:18px 0 10px;">
-                            <img
-                                :src="student?.photo_url || 'https://ui-avatars.com/api/?name=S&background=8B0000&color=fff&size=120'"
-                                :style="`width:90px;height:90px;border-radius:50%;border:3px solid ${cardColor};object-fit:cover;`">
+                        <div style="background:white;display:flex;justify-content:center;padding:14px 0 10px;">
+                            <div :style="`width:80px;height:80px;border-radius:50%;background:${cardColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;`">
+                                <img
+                                    :src="student?.photo_url || 'https://ui-avatars.com/api/?name=S&background=8B0000&color=fff&size=120'"
+                                    style="width:66px;height:66px;border-radius:50%;border:3px solid white;object-fit:cover;display:block;">
+                            </div>
                         </div>
 
                         {{-- Name & Program --}}
                         <div style="background:white;text-align:center;padding:0 14px 10px;">
                             <div style="font-size:15px;font-weight:700;color:#0f172a;letter-spacing:0.5px;" x-text="student?.name?.toUpperCase() || 'STUDENT NAME'"></div>
-                            <div style="font-size:10px;color:#475569;text-transform:uppercase;margin-top:3px;letter-spacing:0.5px;" x-text="student?.program?.toUpperCase() || 'PROGRAM NAME'"></div>
+                            <div :style="`font-size:10px;font-weight:600;color:${cardColor};text-transform:uppercase;margin-top:3px;letter-spacing:0.5px;`" x-text="student?.program?.toUpperCase() || 'PROGRAM NAME'"></div>
                         </div>
 
                         {{-- Divider --}}
-                        <div :style="`height:2px;background:${cardColor};margin:0 14px;`"></div>
+                        <div :style="`height:1.5px;background:${cardColor};margin:0 14px 4px;`"></div>
 
                         {{-- Details --}}
-                        <div style="background:white;padding:10px 18px;font-size:10.5px;color:#1e293b;line-height:1.9;">
-                            <div>Student ID No: &nbsp;<strong x-text="student?.student_no || '—'"></strong></div>
-                            <div x-show="student?.dob">Date of Birth: &nbsp;<strong x-text="student?.dob"></strong></div>
-                            <div x-show="validUpto">Valid up to: &nbsp;<strong x-text="validUpto"></strong></div>
-                            <div x-show="issueDate">Issue Date: &nbsp;<strong x-text="issueDate"></strong></div>
+                        <div style="background:white;padding:8px 16px;font-size:10px;color:#1e293b;line-height:1.85;">
+                            <div><span style="color:#475569;">Student ID No:</span> &nbsp;<strong x-text="student?.student_no || '—'"></strong></div>
+                            <div x-show="student?.dob"><span style="color:#475569;">Date of Birth:</span> &nbsp;<strong x-text="student?.dob"></strong></div>
+                            <div x-show="student?.address"><span style="color:#475569;">Address:</span> &nbsp;<strong x-text="student?.address"></strong></div>
+                            <div x-show="address"><span style="color:#475569;">Campus:</span> &nbsp;<strong x-text="address"></strong></div>
+                            <div x-show="validUpto"><span style="color:#475569;">Valid up to:</span> &nbsp;<strong x-text="validUpto"></strong></div>
                         </div>
 
                         {{-- Barcode + QR + Signature --}}
@@ -270,7 +273,7 @@
                             {{-- QR --}}
                             <div x-show="barcodeType === 'qr' || barcodeType === 'both'" style="flex-shrink:0;">
                                 <img
-                                    :src="student ? `https://api.qrserver.com/v1/create-qr-code/?size=55x55&data=${encodeURIComponent(student.student_no)}` : ''"
+                                    :src="qrDataUrl || (student ? `https://api.qrserver.com/v1/create-qr-code/?size=55x55&data=${encodeURIComponent(student.student_no)}` : '')"
                                     style="width:50px;height:50px;" alt="QR">
                             </div>
                             {{-- Signature --}}
@@ -411,8 +414,8 @@
                     Download as PDF
                 </button>
                 <button
-                    @click="printCard()"
-                    :disabled="!student"
+                    @click="downloadImage()"
+                    :disabled="!student || generating"
                     class="inline-flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700 hover:bg-green-100 disabled:opacity-40 disabled:cursor-not-allowed dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-400 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -434,6 +437,7 @@
 </div>
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script>
 function idCardGen(config) {
     return {
@@ -443,6 +447,7 @@ function idCardGen(config) {
         showDropdown: false,
         searching: false,
         student: null,
+        qrDataUrl: null,
         template: 'red',
         validUpto: config.defaultYear + '-06-30',
         issueDate: new Date().getFullYear() + '-01-01',
@@ -479,6 +484,21 @@ function idCardGen(config) {
             this.student     = s;
             this.searchQuery = s.name;
             this.showDropdown = false;
+            this.qrDataUrl = null;
+            this.loadQrCode(s.student_no);
+        },
+
+        async loadQrCode(studentNo) {
+            try {
+                const url = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(studentNo)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                this.qrDataUrl = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) { /* QR fetch failed, will use direct URL */ }
         },
 
         clearStudent() {
@@ -499,11 +519,71 @@ function idCardGen(config) {
             setTimeout(() => { this.generating = false; }, 3000);
         },
 
+        async downloadImage() {
+            if (!this.student) return;
+            const el = document.querySelector('#id-card-preview .w-72');
+            if (!el) return;
+            this.generating = true;
+            try {
+                if (typeof html2canvas === 'undefined') { this.printCard(); return; }
+                const canvas = await html2canvas(el, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                });
+                const link = document.createElement('a');
+                link.download = 'id-card-' + (this.student.student_no || this.student.id) + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (e) {
+                console.error('Image download error:', e);
+                this.printCard();
+            }
+            this.generating = false;
+        },
+
         printCard() {
             if (!this.student) return;
-            const el  = document.getElementById('id-card-preview');
-            const win = window.open('', '_blank', 'width=400,height=700');
-            win.document.write('<html><head><title>Print ID Card</title><style>body{margin:0;padding:20px;font-family:sans-serif;}@media print{@page{margin:0;size:auto;}body{margin:10mm;}}</style></head><body>' + el.innerHTML + '</body></html>');
+            const cardEl = document.querySelector('#id-card-preview .w-72');
+            if (!cardEl) return;
+            const win = window.open('', '_blank', 'width=360,height=640');
+            win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Print ID Card</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    background: #e5e7eb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+}
+.card-wrap {
+    width: 288px;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    flex-shrink: 0;
+    background: #fff;
+}
+.card-wrap * { box-sizing: border-box; }
+@media print {
+    @page { size: 86mm auto; margin: 0; }
+    html, body { background: #fff; padding: 0; display: block; width: 86mm; }
+    .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+<div class="card-wrap">${cardEl.innerHTML}</div>
+</body>
+</html>`);
             win.document.close();
             win.focus();
             setTimeout(() => { win.print(); }, 500);
