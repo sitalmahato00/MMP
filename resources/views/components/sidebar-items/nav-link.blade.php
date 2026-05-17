@@ -25,6 +25,7 @@
         'external'        => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>',
         'funnel'          => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/>',
         'messages'        => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8m-8 4h5M21 12c0 4.418-4.03 8-9 8a9.76 9.76 0 01-4-.82L3 20l1.09-3.27A7.52 7.52 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>',
+        'identification'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c0 1.306-2.566 2-4 2"/>',
     ];
 
     $svgPath = $icons[$iconName] ?? $icons['doc-text'];
