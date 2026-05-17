@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ExecutiveController;
 use App\Http\Controllers\Admin\HodController;
 // Application feature removed
 use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\IdCardController;
 
 // ── Dashboard ──────────────────────────────────────────────
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -79,6 +80,16 @@ Route::post('staff/{staff}/toggle-public', [StaffController::class, 'togglePubli
 Route::get('staff/{staff}/documents', [StaffController::class, 'documents'])->name('staff.documents');
 Route::post('staff/{staff}/documents', [StaffController::class, 'storeDocument'])->name('staff.documents.store');
 Route::delete('staff/{staff}/documents/{document}', [StaffController::class, 'destroyDocument'])->name('staff.documents.destroy');
+
+// ── ID Cards ───────────────────────────────────────────────
+Route::prefix('id-cards')->name('id-cards.')->group(function () {
+    Route::get('students',                             [IdCardController::class, 'studentIndex'])->name('students.index');
+    Route::get('students/{student}/pdf',               [IdCardController::class, 'studentSinglePdf'])->name('students.single-pdf');
+    Route::post('students/bulk-pdf',                   [IdCardController::class, 'studentBulkPdf'])->name('students.bulk-pdf');
+    Route::get('staff',                                [IdCardController::class, 'staffIndex'])->name('staff.index');
+    Route::get('staff/{staff}/pdf',                    [IdCardController::class, 'staffSinglePdf'])->name('staff.single-pdf');
+    Route::post('staff/bulk-pdf',                      [IdCardController::class, 'staffBulkPdf'])->name('staff.bulk-pdf');
+});
 
 // ── Examinations & Results ─────────────────────────────────
 Route::get('exams/analytics', [ExamController::class, 'analytics'])->name('exams.analytics');
