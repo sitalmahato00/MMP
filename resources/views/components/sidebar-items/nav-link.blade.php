@@ -33,13 +33,13 @@
     $displayBadge = $badgeValue !== null ? ($badgeValue > 99 ? '99+' : (string) $badgeValue) : null;
     $isDisabled = isset($disabled) && $disabled;
     
-    $baseClass = 'group relative flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-normal transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-white/10';
+    $baseClass = 'group relative flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-normal text-black dark:text-white transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-white/10';
     if ($isDisabled) {
-        $baseClass .= ' cursor-not-allowed opacity-50 text-slate-500';
+        $baseClass .= ' cursor-not-allowed opacity-50';
     } else if ($isActive) {
-        $baseClass .= ' text-white';
+        $baseClass .= ' text-black';
     } else {
-        $baseClass .= ' text-slate-400 hover:text-white hover:bg-white/8';
+        $baseClass .= ' hover:-translate-y-0.5 hover:bg-slate-100 dark:hover:bg-white/5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.08)]';
     }
 @endphp
 
@@ -67,11 +67,10 @@
     <a href="{{ $href }}"
        title="{{ $label }}"
        class="{{ $baseClass }}"
-       style="{{ $isActive ? 'background: ' . $accent . '1a;' : '' }}"
        :class="sidebarCollapsed ? 'lg:justify-center lg:gap-0' : 'lg:justify-start'">
         <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-200
-            @if($isActive) text-white @else text-slate-400 group-hover:text-white @endif"
-            style="{{ $isActive ? 'background: ' . $accent . '33;' : 'background: rgba(255,255,255,0.06);' }}">
+            @if($isActive) bg-[#8b0000] text-white
+            @else bg-slate-100 text-black dark:bg-white/10 dark:text-white @endif">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {!! $svgPath !!}
             </svg>
@@ -86,7 +85,7 @@
             </span>
         @endif
         @if($isActive)
-            <span class="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full" style="background: {{ $accent }};"></span>
+            <span class="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full" style="background: #8b0000;"></span>
         @endif
         <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-2xl ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 lg:block">
             {{ $label }}
