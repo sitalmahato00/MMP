@@ -285,6 +285,13 @@
             ],
         ],
         [
+            'label' => 'My ID Card',
+            'standalone' => true,
+            'items' => [
+                ['label' => 'ID Card', 'iconName' => 'identification', 'href' => $portalRoute('student.id-card.index', 'student.dashboard'), 'isActive' => $active('student.id-card.*')],
+            ],
+        ],
+        [
             'label' => 'Account',
             'standalone' => true,
             'items' => [
