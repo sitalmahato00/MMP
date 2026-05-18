@@ -54,7 +54,7 @@
     </section>
 
     {{-- Card display --}}
-    <div class="flex justify-center">
+    <div class="flex min-h-[70vh] items-center justify-center">
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <h2 class="mb-5 text-center text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Student Identity Card</h2>
 

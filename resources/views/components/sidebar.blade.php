@@ -467,18 +467,33 @@
             @endforeach
         @elseif($isStudent)
             @foreach($studentGroups as $group)
-                @include('components.sidebar-items.nav-section', ['label' => $group['label']])
-                @foreach($group['items'] as $item)
-                    @include('components.sidebar-items.nav-link', [
-                        'href' => $item['href'],
-                        'iconName' => $item['iconName'],
-                        'label' => $item['label'],
-                        'isActive' => $item['isActive'],
-                        'accent' => $accent,
-                        'disabled' => $item['disabled'] ?? false,
-                    ])
-                @endforeach
-                @include('components.sidebar-items.nav-section-end')
+                @if(!empty($group['standalone']))
+                    <div class="pt-4 pb-1 px-1 space-y-1">
+                        @foreach($group['items'] as $item)
+                            @include('components.sidebar-items.nav-link', [
+                                'href'     => $item['href'],
+                                'iconName' => $item['iconName'],
+                                'label'    => $item['label'],
+                                'isActive' => $item['isActive'],
+                                'accent'   => $accent,
+                                'disabled' => $item['disabled'] ?? false,
+                            ])
+                        @endforeach
+                    </div>
+                @else
+                    @include('components.sidebar-items.nav-section', ['label' => $group['label']])
+                    @foreach($group['items'] as $item)
+                        @include('components.sidebar-items.nav-link', [
+                            'href'     => $item['href'],
+                            'iconName' => $item['iconName'],
+                            'label'    => $item['label'],
+                            'isActive' => $item['isActive'],
+                            'accent'   => $accent,
+                            'disabled' => $item['disabled'] ?? false,
+                        ])
+                    @endforeach
+                    @include('components.sidebar-items.nav-section-end')
+                @endif
             @endforeach
         @elseif($isParent)
             @foreach($parentGroups as $group)
