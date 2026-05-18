@@ -41,14 +41,6 @@
                     <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">My ID Card</h1>
                     <p class="mt-1 text-sm text-slate-600">View your student identity card</p>
                 </div>
-                <div>
-                    <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                        </svg>
-                        View only — printing &amp; downloading are disabled
-                    </span>
-                </div>
             </div>
         </div>
     </section>
@@ -58,7 +50,7 @@
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <h2 class="mb-5 text-center text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Student Identity Card</h2>
 
-            <div id="id-card-preview" oncontextmenu="return false;">
+            <div id="id-card-preview" oncontextmenu="return false;" class="flex justify-center">
                 {{-- Card: matches admin preview design --}}
                 <div class="w-72 overflow-hidden rounded-2xl shadow-2xl" style="font-family: 'Segoe UI', Arial, sans-serif;">
 
