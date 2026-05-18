@@ -53,8 +53,8 @@
                     <option value="blue">Template: Blue</option>
                     <option value="green">Template: Green</option>
                 </select>
-                <input type="text" name="valid_upto" placeholder="Valid Up To (BS)" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
-                <input type="text" name="issue_date" placeholder="Issue Date (BS)" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
+                <x-bs-date-picker name="valid_upto" placeholder="Valid Up To (BS)" />
+                <x-bs-date-picker name="issue_date" placeholder="Issue Date (BS)" />
                 <select name="barcode_type" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
                     <option value="both">Barcode &amp; QR</option>
                     <option value="barcode">Barcode Only</option>

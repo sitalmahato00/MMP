@@ -35,7 +35,7 @@ class IdCardController extends Controller
         }
 
         $students = Student::with([
-                'user:id,name,avatar',
+                'user:id,name,avatar,dob,address',
                 'program:id,name',
                 'department:id,name',
                 'academicSession:id,name',
@@ -120,36 +120,39 @@ class IdCardController extends Controller
             $qrMap[$s->id] = $this->generateQrBase64($s->student_no ?? (string) $s->id);
         }
 
+        // CR80: 2.125" × 3.375" = 153pt × 243pt — each student on its own page
         $pdf = Pdf::loadView('admin.id-cards.student-pdf', compact(
             'students', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ))->setPaper('A4', 'portrait');
+        ))->setPaper([0, 0, 153, 243], 'portrait');
 
         return $pdf->download('student-id-cards-' . now()->format('Ymd-His') . '.pdf');
     }
 
-    public function studentSinglePdf(Student $student)
+    public function studentSinglePdf(Student $student, Request $request)
     {
+        $request->validate([
+            'valid_upto'   => 'nullable|string|max:30',
+            'issue_date'   => 'nullable|string|max:30',
+            'barcode_type' => 'nullable|in:both,barcode,qr,none',
+            'template'     => 'nullable|in:red,blue,green',
+            'card_type'    => 'nullable|in:regular,premium',
+        ]);
+
         $student->load(['user', 'program', 'department', 'academicSession']);
         $student = $this->injectStudentPhoto($student);
 
-        $cardConfig = [
-            'valid_upto'    => '',
-            'issue_date'    => bsDate(now()),
-            'barcode_type'  => 'both',
-            'template'      => 'red',
-            'header_color'  => '#8B0000',
-        ];
+        $cardConfig = $this->buildCardConfig($request);
 
         $settings   = $this->siteSettings();
         $logoBase64 = $this->toBase64($settings['site_logo'] ?? null);
-        $students   = collect([$student]);
-        $qrMap      = [$student->id => $this->generateQrBase64($student->student_no ?? (string) $student->id)];
+        $qrBase64   = $this->generateQrBase64($student->student_no ?? (string) $student->id);
 
-        $pdf = Pdf::loadView('admin.id-cards.student-pdf', compact(
-            'students', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ))->setPaper('A4', 'portrait');
+        // CR80 card: 2.125" × 3.375" = 153pt × 243pt — @page{margin:0} in blade uses full height
+        $pdf = Pdf::loadView('admin.id-cards.student-card-pdf', compact(
+            'student', 'settings', 'logoBase64', 'cardConfig', 'qrBase64'
+        ))->setPaper([0, 0, 153, 243], 'portrait');
 
-        return $pdf->stream('student-id-' . $student->student_no . '.pdf');
+        return $pdf->download('student-id-' . ($student->student_no ?: $student->id) . '.pdf');
     }
 
     // ── Staff ─────────────────────────────────────────────────────────────
@@ -242,9 +245,10 @@ class IdCardController extends Controller
             $qrMap[$m->id] = $this->generateQrBase64($m->staff_code ?? (string) $m->id);
         }
 
+        // CR80: 2.125" × 3.375" = 153pt × 243pt — each staff member on its own page
         $pdf = Pdf::loadView('admin.id-cards.staff-pdf', compact(
             'staffList', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ))->setPaper('A4', 'portrait');
+        ))->setPaper([0, 0, 153, 243], 'portrait');
 
         return $pdf->download('staff-id-cards-' . now()->format('Ymd-His') . '.pdf');
     }
@@ -266,9 +270,10 @@ class IdCardController extends Controller
         $staffList  = collect([$staff]);
         $qrMap      = [$staff->id => $this->generateQrBase64($staff->staff_code ?? (string) $staff->id)];
 
+        // CR80: 2.125" × 3.375" = 153pt × 243pt
         $pdf = Pdf::loadView('admin.id-cards.staff-pdf', compact(
             'staffList', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ))->setPaper('A4', 'portrait');
+        ))->setPaper([0, 0, 153, 243], 'portrait');
 
         return $pdf->stream('staff-id-' . ($staff->staff_code ?: $staff->id) . '.pdf');
     }
@@ -294,6 +299,7 @@ class IdCardController extends Controller
             'barcode_type' => $request->input('barcode_type', 'both'),
             'template'     => $template,
             'header_color' => $colorMap[$template] ?? $defaultColor,
+            'card_type'    => $request->input('card_type', 'regular'),
         ];
     }
 
@@ -311,7 +317,51 @@ class IdCardController extends Controller
 
         $mime = mime_content_type($path) ?: 'image/jpeg';
 
+        // Correct EXIF orientation for JPEG images so DomPDF renders upright
+        if (in_array($mime, ['image/jpeg', 'image/jpg'], true) && function_exists('imagecreatefromjpeg')) {
+            $corrected = $this->correctImageOrientation($path);
+            if ($corrected !== null) {
+                return 'data:image/jpeg;base64,' . base64_encode($corrected);
+            }
+        }
+
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
+    }
+
+    private function correctImageOrientation(string $path): ?string
+    {
+        try {
+            $orientation = 1;
+            if (function_exists('exif_read_data')) {
+                $exif        = @exif_read_data($path);
+                $orientation = $exif['Orientation'] ?? 1;
+            }
+
+            if ($orientation === 1) {
+                return null; // already upright — no re-encode needed
+            }
+
+            $img = @imagecreatefromjpeg($path);
+            if (! $img) {
+                return null;
+            }
+
+            $img = match ($orientation) {
+                3       => imagerotate($img, 180, 0),
+                6       => imagerotate($img, -90, 0),
+                8       => imagerotate($img, 90, 0),
+                default => $img,
+            };
+
+            ob_start();
+            imagejpeg($img, null, 95);
+            $data = ob_get_clean();
+            imagedestroy($img);
+
+            return $data ?: null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function generateQrBase64(string $data): ?string

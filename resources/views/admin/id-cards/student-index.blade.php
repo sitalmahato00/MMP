@@ -12,6 +12,8 @@
     $logoUrl      = ($settings['site_logo'] ?? null)
                     ? Storage::disk('public')->url($settings['site_logo'])
                     : null;
+    $defaultValidUptoBS = bsDate($defaultYear . '-06-30') ?? '';
+    $defaultIssueDateBS = bsDate(now()->format('Y-m-d')) ?? '';
 @endphp
 
 <div
@@ -27,6 +29,8 @@
         email: @js($email),
         principal: @js($principal),
         logoUrl: @js($logoUrl),
+        defaultValidUpto: @js($defaultValidUptoBS),
+        defaultIssueDate: @js($defaultIssueDateBS),
     })"
     class="space-y-6"
 >
@@ -152,15 +156,17 @@
                         {{-- Valid Up To --}}
                         <div>
                             <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Valid Up To</label>
-                            <input type="text" x-model="validUpto" placeholder="e.g. 2083-06-30 BS"
-                                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
+                            <div @change="validUpto = $event.target.value">
+                                <x-bs-date-picker name="valid_upto" :value="$defaultValidUptoBS" placeholder="YYYY-MM-DD" />
+                            </div>
                         </div>
 
                         {{-- Issue Date --}}
                         <div>
                             <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Issue Date</label>
-                            <input type="text" x-model="issueDate" placeholder="e.g. 2080-06-01 BS"
-                                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
+                            <div @change="issueDate = $event.target.value">
+                                <x-bs-date-picker name="issue_date" :value="$defaultIssueDateBS" placeholder="YYYY-MM-DD" />
+                            </div>
                         </div>
 
                         {{-- Barcode / QR --}}
@@ -221,8 +227,8 @@
                 <div x-show="student" x-cloak class="flex justify-center" id="id-card-preview">
                     <div class="w-72 overflow-hidden rounded-2xl shadow-2xl" style="font-family: 'Segoe UI', Arial, sans-serif;">
 
-                        {{-- Header --}}
-                        <div :style="`background: ${cardColor}; padding: 14px 12px; display: flex; align-items: center; gap: 10px;`">
+                        {{-- Header: extra bottom padding creates space so photo doesn't cover the text --}}
+                        <div :style="`background:${cardColor}; padding:14px 12px 52px; display:flex; align-items:center; gap:10px;`">
                             <img
                                 :src="logoUrl || 'https://ui-avatars.com/api/?name=MMP&background=fff&color=8B0000&size=60'"
                                 style="width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);object-fit:cover;flex-shrink:0;">
@@ -232,53 +238,54 @@
                             </div>
                         </div>
 
-                        {{-- Photo --}}
-                        <div style="background:white;display:flex;justify-content:center;padding:14px 0 10px;">
-                            <div :style="`width:80px;height:80px;border-radius:50%;background:${cardColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;`">
-                                <img
-                                    :src="student?.photo_url || 'https://ui-avatars.com/api/?name=S&background=8B0000&color=fff&size=120'"
-                                    style="width:66px;height:66px;border-radius:50%;border:3px solid white;object-fit:cover;display:block;">
-                            </div>
-                        </div>
+                        {{-- White body: photo centered at the header/body boundary via absolute position --}}
+                        <div style="background:white; position:relative; padding-top:58px;">
 
-                        {{-- Name & Program --}}
-                        <div style="background:white;text-align:center;padding:0 14px 10px;">
-                            <div style="font-size:15px;font-weight:700;color:#0f172a;letter-spacing:0.5px;" x-text="student?.name?.toUpperCase() || 'STUDENT NAME'"></div>
-                            <div :style="`font-size:10px;font-weight:600;color:${cardColor};text-transform:uppercase;margin-top:3px;letter-spacing:0.5px;`" x-text="student?.program?.toUpperCase() || 'PROGRAM NAME'"></div>
-                        </div>
-
-                        {{-- Divider --}}
-                        <div :style="`height:1.5px;background:${cardColor};margin:0 14px 4px;`"></div>
-
-                        {{-- Details --}}
-                        <div style="background:white;padding:8px 16px;font-size:10px;color:#1e293b;line-height:1.85;">
-                            <div><span style="color:#475569;">Student ID No:</span> &nbsp;<strong x-text="student?.student_no || '—'"></strong></div>
-                            <div x-show="student?.dob"><span style="color:#475569;">Date of Birth:</span> &nbsp;<strong x-text="student?.dob"></strong></div>
-                            <div x-show="student?.address"><span style="color:#475569;">Address:</span> &nbsp;<strong x-text="student?.address"></strong></div>
-                            <div x-show="address"><span style="color:#475569;">Campus:</span> &nbsp;<strong x-text="address"></strong></div>
-                            <div x-show="validUpto"><span style="color:#475569;">Valid up to:</span> &nbsp;<strong x-text="validUpto"></strong></div>
-                        </div>
-
-                        {{-- Barcode + QR + Signature --}}
-                        <div style="background:white;padding:8px 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:6px;">
-                            {{-- Barcode --}}
-                            <div x-show="barcodeType === 'barcode' || barcodeType === 'both'" style="flex:1;min-width:0;">
-                                <div style="display:flex;gap:1px;height:28px;align-items:stretch;overflow:hidden;">
-                                    <template x-for="i in 40">
-                                        <div :style="`background: ${(i*7 + (student?.student_no?.charCodeAt(i % (student?.student_no?.length||1)) || 65)) % 3 !== 2 ? '#000' : '#fff'}; width: ${(i*3) % 4 === 0 ? 3 : 1.5}px; height: 100%; flex-shrink: 0;`"></div>
-                                    </template>
+                            {{-- Photo circle overlapping the header bottom --}}
+                            <div style="position:absolute; top:-48px; left:0; right:0; display:flex; justify-content:center;">
+                                <div style="width:96px; height:96px; border-radius:50%; background:white; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    <img
+                                        :src="student?.photo_url || 'https://ui-avatars.com/api/?name=S&background=8B0000&color=fff&size=120'"
+                                        style="width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;">
                                 </div>
-                                <div style="font-size:7px;text-align:center;margin-top:2px;font-family:monospace;letter-spacing:1px;" x-text="student?.student_no"></div>
                             </div>
-                            {{-- QR --}}
-                            <div x-show="barcodeType === 'qr' || barcodeType === 'both'" style="flex-shrink:0;">
-                                <img
-                                    :src="qrDataUrl || (student ? `https://api.qrserver.com/v1/create-qr-code/?size=55x55&data=${encodeURIComponent(student.student_no)}` : '')"
-                                    style="width:50px;height:50px;" alt="QR">
+
+                            {{-- Name & Program --}}
+                            <div style="text-align:center; padding:4px 14px 6px;">
+                                <div style="font-size:16px; font-weight:900; color:#1e3a5f; letter-spacing:1px; text-transform:uppercase;" x-text="student?.name?.toUpperCase() || 'STUDENT NAME'"></div>
+                                <div style="font-size:10.5px; font-weight:800; color:#1a1a1a; text-transform:uppercase; margin-top:2px; letter-spacing:0.8px;" x-text="student?.program?.toUpperCase() || 'PROGRAM NAME'"></div>
                             </div>
-                            {{-- Signature --}}
-                            <div style="flex-shrink:0;text-align:center;font-size:8px;color:#475569;width:56px;">
-                                <div style="border-top:1px solid #475569;padding-top:3px;" x-text="principal || 'Principal'"></div>
+
+                            {{-- Details (center-aligned) --}}
+                            <div style="padding:2px 16px 6px; font-size:10px; color:#1e293b; line-height:1.85; text-align:center;">
+                                <div><span style="color:#475569;">Student ID No:</span> &nbsp;<strong x-text="student?.student_no || '—'"></strong></div>
+                                <div x-show="student?.dob"><span style="color:#475569;">Date of Birth:</span> &nbsp;<strong x-text="student?.dob"></strong></div>
+                                <div x-show="student?.address"><span style="color:#475569;">Address:</span> &nbsp;<strong x-text="student?.address"></strong></div>
+                                <div x-show="address"><span style="color:#475569;">Campus:</span> &nbsp;<strong x-text="address"></strong></div>
+                                <div x-show="validUpto"><span style="color:#475569;">Valid up to:</span> &nbsp;<strong x-text="validUpto"></strong></div>
+                            </div>
+
+                            {{-- Barcode + QR + Signature --}}
+                            <div style="padding:8px 14px; display:flex; justify-content:space-between; align-items:flex-end; gap:6px;">
+                                {{-- Barcode --}}
+                                <div x-show="barcodeType === 'barcode' || barcodeType === 'both'" style="flex:1;min-width:0;">
+                                    <div style="display:flex;gap:1px;height:28px;align-items:stretch;overflow:hidden;">
+                                        <template x-for="i in 40">
+                                            <div :style="`background: ${(i*7 + (student?.student_no?.charCodeAt(i % (student?.student_no?.length||1)) || 65)) % 3 !== 2 ? '#000' : '#fff'}; width: ${(i*3) % 4 === 0 ? 3 : 1.5}px; height: 100%; flex-shrink: 0;`"></div>
+                                        </template>
+                                    </div>
+                                    <div style="font-size:7px;text-align:center;margin-top:2px;font-family:monospace;letter-spacing:1px;" x-text="student?.student_no"></div>
+                                </div>
+                                {{-- QR --}}
+                                <div x-show="barcodeType === 'qr' || barcodeType === 'both'" style="flex-shrink:0;">
+                                    <img
+                                        :src="qrDataUrl || (student ? `https://api.qrserver.com/v1/create-qr-code/?size=55x55&data=${encodeURIComponent(student.student_no)}` : '')"
+                                        style="width:50px;height:50px;" alt="QR">
+                                </div>
+                                {{-- Signature --}}
+                                <div style="flex-shrink:0;text-align:center;font-size:8px;color:#475569;width:56px;">
+                                    <div style="border-top:1px solid #475569;padding-top:3px;" x-text="principal || 'Principal'"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -426,14 +433,6 @@
         </div>
     </div>
 
-    {{-- Hidden generate form --}}
-    <form id="generate-form" method="POST" action="{{ route('admin.id-cards.students.bulk-pdf') }}" target="_blank">
-        @csrf
-        <input type="hidden" name="valid_upto"   x-bind:value="validUpto">
-        <input type="hidden" name="issue_date"   x-bind:value="issueDate">
-        <input type="hidden" name="barcode_type" x-bind:value="barcodeType">
-        <input type="hidden" name="template"     x-bind:value="template">
-    </form>
 </div>
 
 @push('scripts')
@@ -449,8 +448,8 @@ function idCardGen(config) {
         student: null,
         qrDataUrl: null,
         template: 'red',
-        validUpto: config.defaultYear + '-06-30',
-        issueDate: new Date().getFullYear() + '-01-01',
+        validUpto: config.defaultValidUpto || '',
+        issueDate: config.defaultIssueDate  || '',
         barcodeType: 'both',
         cardType: 'regular',
         generating: false,
@@ -510,13 +509,16 @@ function idCardGen(config) {
         generateCard() {
             if (!this.student || this.generating) return;
             this.generating = true;
-            const form = document.getElementById('generate-form');
-            form.querySelectorAll('input[name="ids[]"]').forEach(e => e.remove());
-            const inp = document.createElement('input');
-            inp.type  = 'hidden'; inp.name = 'ids[]'; inp.value = this.student.id;
-            form.appendChild(inp);
-            form.submit();
-            setTimeout(() => { this.generating = false; }, 3000);
+            const base = '{{ route('admin.id-cards.students.single-pdf', ['student' => '__ID__']) }}'.replace('__ID__', this.student.id);
+            const params = new URLSearchParams({
+                valid_upto:   this.validUpto   || '',
+                issue_date:   this.issueDate   || '',
+                barcode_type: this.barcodeType || 'both',
+                template:     this.template    || 'red',
+                card_type:    this.cardType    || 'regular',
+            });
+            window.open(base + '?' + params.toString(), '_blank');
+            setTimeout(() => { this.generating = false; }, 1500);
         },
 
         async downloadImage() {
@@ -548,7 +550,7 @@ function idCardGen(config) {
             if (!this.student) return;
             const cardEl = document.querySelector('#id-card-preview .w-72');
             if (!cardEl) return;
-            const win = window.open('', '_blank', 'width=360,height=640');
+            const win = window.open('', '_blank', 'width=360,height=700');
             win.document.write(`<!DOCTYPE html>
 <html>
 <head>
@@ -560,8 +562,9 @@ html, body {
     font-family: 'Segoe UI', Arial, sans-serif;
     display: flex;
     justify-content: center;
+    align-items: flex-start;
     padding: 24px;
-    min-height: 100vh;
+    height: auto;
 }
 .card-wrap {
     width: 288px;
@@ -575,7 +578,14 @@ html, body {
 .card-wrap * { box-sizing: border-box; }
 @media print {
     @page { size: 86mm auto; margin: 0; }
-    html, body { background: #fff; padding: 0; display: block; width: 86mm; }
+    html, body {
+        background: #fff;
+        padding: 0;
+        display: block;
+        width: 86mm;
+        height: auto;
+        min-height: 0;
+    }
     .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
 }
 </style>
