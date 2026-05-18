@@ -54,12 +54,12 @@
         </button>
         <button
             @click="generateCard()"
-            :disabled="!staff || generating"
+            :disabled="!staff"
             class="inline-flex items-center gap-2 rounded-xl bg-blue-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-950 disabled:opacity-40 disabled:cursor-not-allowed transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
             </svg>
-            <span x-text="generating ? 'Generating…' : 'Download'"></span>
+            Download PDF
         </button>
     </div>
 
@@ -170,11 +170,11 @@
                     </div>
 
                     <button
-                        @click="generateCard()"
-                        :disabled="generating"
-                        class="mt-5 w-full rounded-xl py-3 text-sm font-bold text-white shadow transition disabled:opacity-60"
+                        @click="printCard()"
+                        :disabled="!staff"
+                        class="mt-5 w-full rounded-xl py-3 text-sm font-bold text-white shadow transition disabled:opacity-60 disabled:cursor-not-allowed"
                         :style="`background: ${cardColor};`">
-                        <span x-text="generating ? 'Generating…' : 'Generate ID Card'"></span>
+                        Print ID Card
                     </button>
                 </div>
 
@@ -202,7 +202,8 @@
                 <div x-show="staff" x-cloak class="flex justify-center" id="id-card-preview">
                     <div class="w-72 overflow-hidden rounded-2xl shadow-2xl" style="font-family: 'Segoe UI', Arial, sans-serif;">
 
-                        <div :style="`background: ${cardColor}; padding: 14px 12px; display: flex; align-items: center; gap: 10px;`">
+                        {{-- Header: extra bottom padding creates space so photo overlaps --}}
+                        <div :style="`background:${cardColor}; padding:14px 12px 52px; display:flex; align-items:center; gap:10px;`">
                             <img
                                 :src="logoUrl || 'https://ui-avatars.com/api/?name=MMP&background=fff&color=1e3a5f&size=60'"
                                 style="width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);object-fit:cover;flex-shrink:0;">
@@ -212,60 +213,67 @@
                             </div>
                         </div>
 
-                        <div style="background:white;display:flex;justify-content:center;padding:14px 0 10px;">
-                            <div :style="`width:80px;height:80px;border-radius:50%;background:${cardColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;`">
-                                <img
-                                    :src="staff?.photo_url || 'https://ui-avatars.com/api/?name=S&background=1e3a5f&color=fff&size=120'"
-                                    style="width:66px;height:66px;border-radius:50%;border:3px solid white;object-fit:cover;display:block;">
-                            </div>
-                        </div>
-                        </div>
+                        {{-- White body: photo centered at the header/body boundary via absolute position --}}
+                        <div style="background:white; position:relative; padding-top:58px;">
 
-                        <div style="background:white;text-align:center;padding:0 14px 10px;">
-                            <div style="font-size:15px;font-weight:700;color:#0f172a;letter-spacing:0.5px;" x-text="staff?.name?.toUpperCase() || 'STAFF NAME'"></div>
-                            <div :style="`font-size:10px;font-weight:600;color:${cardColor};text-transform:uppercase;margin-top:3px;letter-spacing:0.5px;`" x-text="staff?.designation?.toUpperCase() || 'DESIGNATION'"></div>
-                            <div style="font-size:9px;color:#94a3b8;margin-top:2px;" x-text="staff?.department?.toUpperCase() || ''"></div>
-                        </div>
-
-                        <div :style="`height:1.5px;background:${cardColor};margin:0 14px 4px;`"></div>
-
-                        <div style="background:white;padding:8px 16px;font-size:10px;color:#1e293b;line-height:1.85;">
-                            <div><span style="color:#475569;">Staff Code:</span> &nbsp;<strong x-text="staff?.staff_code || '—'"></strong></div>
-                            <div x-show="staff?.join_date"><span style="color:#475569;">Join Date:</span> &nbsp;<strong x-text="staff?.join_date"></strong></div>
-                            <div x-show="address"><span style="color:#475569;">Campus:</span> &nbsp;<strong x-text="address"></strong></div>
-                            <div x-show="validUpto"><span style="color:#475569;">Valid up to:</span> &nbsp;<strong x-text="validUpto"></strong></div>
-                        </div>
-
-                        <div style="background:white;padding:8px 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:6px;">
-                            <div x-show="barcodeType === 'barcode' || barcodeType === 'both'" style="flex:1;min-width:0;">
-                                <div style="display:flex;gap:1px;height:28px;align-items:stretch;overflow:hidden;">
-                                    <template x-for="i in 40">
-                                        <div :style="`background: ${(i*7 + (staff?.staff_code?.charCodeAt(i % (staff?.staff_code?.length||1)) || 65)) % 3 !== 2 ? '#000' : '#fff'}; width: ${(i*3) % 4 === 0 ? 3 : 1.5}px; height: 100%; flex-shrink: 0;`"></div>
-                                    </template>
+                            {{-- Photo circle overlapping the header bottom --}}
+                            <div style="position:absolute; top:-48px; left:0; right:0; display:flex; justify-content:center;">
+                                <div style="width:96px;height:96px;border-radius:50%;background:white;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <img
+                                        :src="staff?.photo_url || 'https://ui-avatars.com/api/?name=S&background=1e3a5f&color=fff&size=120'"
+                                        style="width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;">
                                 </div>
-                                <div style="font-size:7px;text-align:center;margin-top:2px;font-family:monospace;letter-spacing:1px;" x-text="staff?.staff_code"></div>
                             </div>
-                            <div x-show="barcodeType === 'qr' || barcodeType === 'both'" style="flex-shrink:0;">
-                                <img
-                                    :src="staff ? `https://api.qrserver.com/v1/create-qr-code/?size=55x55&data=${encodeURIComponent(staff.staff_code || staff.id)}` : ''"
-                                    style="width:50px;height:50px;" alt="QR">
+
+                            {{-- Name & Designation --}}
+                            <div style="text-align:center; padding:4px 14px 6px;">
+                                <div style="font-size:16px;font-weight:900;color:#1e3a5f;letter-spacing:1px;text-transform:uppercase;" x-text="staff?.name?.toUpperCase() || 'STAFF NAME'"></div>
+                                <div style="font-size:10.5px;font-weight:800;color:#1a1a1a;text-transform:uppercase;margin-top:2px;letter-spacing:0.8px;" x-text="staff?.designation?.toUpperCase() || 'DESIGNATION'"></div>
                             </div>
-                            <div style="flex-shrink:0;text-align:center;font-size:8px;color:#475569;width:56px;">
-                                <div style="border-top:1px solid #475569;padding-top:3px;" x-text="principal || 'Principal'"></div>
+
+                            {{-- Details --}}
+                            <div style="padding:2px 16px 6px; font-size:10px; color:#1e293b; line-height:1.85; text-align:center;">
+                                <div><span style="color:#475569;">Staff Code:</span> &nbsp;<strong x-text="staff?.staff_code || '—'"></strong></div>
+                                <div x-show="staff?.department"><span style="color:#475569;">Department:</span> &nbsp;<strong x-text="staff?.department"></strong></div>
+                                <div x-show="address"><span style="color:#475569;">Campus:</span> &nbsp;<strong x-text="address"></strong></div>
+                                <div x-show="validUpto"><span style="color:#475569;">Valid up to:</span> &nbsp;<strong x-text="validUpto"></strong></div>
+                            </div>
+
+                            {{-- Barcode + QR + Signature --}}
+                            <div style="padding:8px 14px; display:flex; justify-content:space-between; align-items:flex-end; gap:6px;">
+                                <div x-show="barcodeType === 'barcode' || barcodeType === 'both'" style="flex:1;min-width:0;">
+                                    <div style="display:flex;gap:1px;height:28px;align-items:stretch;overflow:hidden;">
+                                        <template x-for="i in 40">
+                                            <div :style="`background: ${(i*7 + (staff?.staff_code?.charCodeAt(i % (staff?.staff_code?.length||1)) || 65)) % 3 !== 2 ? '#000' : '#fff'}; width: ${(i*3) % 4 === 0 ? 3 : 1.5}px; height: 100%; flex-shrink: 0;`"></div>
+                                        </template>
+                                    </div>
+                                    <div style="font-size:7px;text-align:center;margin-top:2px;font-family:monospace;letter-spacing:1px;" x-text="staff?.staff_code"></div>
+                                </div>
+                                <div x-show="barcodeType === 'qr' || barcodeType === 'both'" style="flex-shrink:0;">
+                                    <img
+                                        :src="staff ? `https://api.qrserver.com/v1/create-qr-code/?size=55x55&data=${encodeURIComponent(staff.staff_code || staff.id)}` : ''"
+                                        style="width:50px;height:50px;" alt="QR">
+                                </div>
+                                <div style="flex-shrink:0;text-align:center;font-size:8px;color:#475569;width:56px;">
+                                    <div style="border-top:1px solid #475569;padding-top:3px;" x-text="principal || 'Principal'"></div>
+                                </div>
                             </div>
                         </div>
 
+                        {{-- College info footer --}}
                         <div :style="`background:${cardColor};color:white;padding:7px 10px;font-size:8px;text-align:center;line-height:1.6;`">
                             <span x-text="address"></span><br>
                             <template x-if="phone"><span>Ph: <span x-text="phone"></span></span></template>
                             <template x-if="email"><span> | Email: <span x-text="email"></span></span></template>
                         </div>
 
+                        {{-- Bottom strip --}}
                         <div style="background:#1a1a1a;color:white;text-align:center;padding:7px;font-size:11px;font-weight:700;letter-spacing:3px;">
                             STAFF IDENTITY CARD
                         </div>
-                    </div>
-                </div>
+
+                    </div>{{-- end .w-72 --}}
+                </div>{{-- end #id-card-preview --}}
             </div>
         </div>
     </div>
@@ -336,7 +344,7 @@
             <h3 class="mb-1 text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Export Options</h3>
             <p class="mb-4 text-xs text-slate-400">Download or print the generated ID card.</p>
             <div class="flex flex-wrap gap-3">
-                <button @click="generateCard()" :disabled="!staff || generating"
+                <button @click="generateCard()" :disabled="!staff"
                    class="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-40 disabled:cursor-not-allowed dark:border-blue-900/40 dark:bg-blue-900/20 dark:text-blue-400 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -417,15 +425,72 @@ function idCardGen(config) {
         },
 
         generateCard() {
-            if (!this.staff || this.generating) return;
-            this.generating = true;
-            const form = document.getElementById('generate-form');
-            form.querySelectorAll('input[name="ids[]"]').forEach(e => e.remove());
-            const inp = document.createElement('input');
-            inp.type  = 'hidden'; inp.name = 'ids[]'; inp.value = this.staff.id;
-            form.appendChild(inp);
-            form.submit();
-            setTimeout(() => { this.generating = false; }, 3000);
+            if (!this.staff) return;
+            const cardEl = document.querySelector('#id-card-preview .w-72');
+            if (!cardEl) return;
+            const win = window.open('', '_blank', 'width=800,height=900');
+            win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Export ID Card — ${this.staff.name}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    background: #e5e7eb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 24px;
+    min-height: 100vh;
+}
+.card-wrap {
+    width: 288px;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+}
+.card-wrap * { box-sizing: border-box; }
+.tip {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+@media print {
+    @page { size: A4 portrait; margin: 0; }
+    html, body {
+        background: #fff;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 80px;
+        width: 210mm;
+        min-height: 0;
+    }
+    .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
+    .tip { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="card-wrap">${cardEl.innerHTML}</div>
+<div class="tip">Press Ctrl+P &rarr; "Save as PDF" to export</div>
+</body>
+</html>`);
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); }, 600);
         },
 
         printCard() {
