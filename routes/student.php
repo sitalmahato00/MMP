@@ -29,6 +29,9 @@ Route::resource('notices', \App\Http\Controllers\Student\NoticesController::clas
 Route::get('news-events', [\App\Http\Controllers\Student\NoticesController::class, 'newsEvents'])->name('news-events.index');
 Route::get('news-events/{notice}', [\App\Http\Controllers\Student\NoticesController::class, 'showNewsEvent'])->name('news-events.show');
 
+// ID Card (view only)
+Route::get('id-card', [\App\Http\Controllers\Student\IdCardController::class, 'index'])->name('id-card.index');
+
 // Profile
 Route::get('profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile.show');
 Route::get('profile/edit', [\App\Http\Controllers\Student\ProfileController::class, 'edit'])->name('profile.edit');
