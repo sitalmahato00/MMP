@@ -120,12 +120,9 @@ class IdCardController extends Controller
             $qrMap[$s->id] = $this->generateQrBase64($s->student_no ?? (string) $s->id);
         }
 
-        // CR80: 2.125" × 3.375" = 153pt × 243pt — each student on its own page
-        $pdf = Pdf::loadView('admin.id-cards.student-pdf', compact(
+        return view('admin.id-cards.student-bulk-print', compact(
             'students', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ))->setPaper([0, 0, 153, 243], 'portrait');
-
-        return $pdf->download('student-id-cards-' . now()->format('Ymd-His') . '.pdf');
+        ));
     }
 
     public function studentSinglePdf(Student $student, Request $request)
@@ -147,10 +144,11 @@ class IdCardController extends Controller
         $logoBase64 = $this->toBase64($settings['site_logo'] ?? null);
         $qrBase64   = $this->generateQrBase64($student->student_no ?? (string) $student->id);
 
-        // CR80 card: 2.125" × 3.375" = 153pt × 243pt — @page{margin:0} in blade uses full height
+        // A4 page with card centered — renders cleanly in browser print dialog
         $pdf = Pdf::loadView('admin.id-cards.student-card-pdf', compact(
             'student', 'settings', 'logoBase64', 'cardConfig', 'qrBase64'
-        ))->setPaper([0, 0, 153, 243], 'portrait');
+        ))->setPaper('a4', 'portrait')
+          ->setOptions(['marginTop' => 0, 'marginBottom' => 0, 'marginLeft' => 0, 'marginRight' => 0]);
 
         return $pdf->download('student-id-' . ($student->student_no ?: $student->id) . '.pdf');
     }
@@ -248,7 +246,8 @@ class IdCardController extends Controller
         // CR80: 2.125" × 3.375" = 153pt × 243pt — each staff member on its own page
         $pdf = Pdf::loadView('admin.id-cards.staff-pdf', compact(
             'staffList', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ))->setPaper([0, 0, 153, 243], 'portrait');
+        ))->setPaper([0, 0, 153, 243], 'portrait')
+          ->setOptions(['marginTop' => 0, 'marginBottom' => 0, 'marginLeft' => 0, 'marginRight' => 0]);
 
         return $pdf->download('staff-id-cards-' . now()->format('Ymd-His') . '.pdf');
     }
@@ -273,7 +272,8 @@ class IdCardController extends Controller
         // CR80: 2.125" × 3.375" = 153pt × 243pt
         $pdf = Pdf::loadView('admin.id-cards.staff-pdf', compact(
             'staffList', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ))->setPaper([0, 0, 153, 243], 'portrait');
+        ))->setPaper([0, 0, 153, 243], 'portrait')
+          ->setOptions(['marginTop' => 0, 'marginBottom' => 0, 'marginLeft' => 0, 'marginRight' => 0]);
 
         return $pdf->stream('staff-id-' . ($staff->staff_code ?: $staff->id) . '.pdf');
     }

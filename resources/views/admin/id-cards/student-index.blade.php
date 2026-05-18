@@ -57,12 +57,12 @@
         </button>
         <button
             @click="generateCard()"
-            :disabled="!student || generating"
+            :disabled="!student"
             class="inline-flex items-center gap-2 rounded-xl bg-red-700 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-800 disabled:opacity-40 disabled:cursor-not-allowed transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
             </svg>
-            <span x-text="generating ? 'Generating…' : 'Download'"></span>
+            Download PDF
         </button>
     </div>
 
@@ -192,11 +192,11 @@
 
                     {{-- Generate button --}}
                     <button
-                        @click="generateCard()"
-                        :disabled="generating"
-                        class="mt-5 w-full rounded-xl py-3 text-sm font-bold text-white shadow transition disabled:opacity-60"
+                        @click="printCard()"
+                        :disabled="!student"
+                        class="mt-5 w-full rounded-xl py-3 text-sm font-bold text-white shadow transition disabled:opacity-60 disabled:cursor-not-allowed"
                         :style="`background: ${cardColor};`">
-                        <span x-text="generating ? 'Generating…' : 'Generate ID Card'"></span>
+                        Print ID Card
                     </button>
                 </div>
 
@@ -412,7 +412,7 @@
             <div class="flex flex-wrap gap-3">
                 <button
                     @click="generateCard()"
-                    :disabled="!student || generating"
+                    :disabled="!student"
                     class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-40 disabled:cursor-not-allowed dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -507,18 +507,72 @@ function idCardGen(config) {
         },
 
         generateCard() {
-            if (!this.student || this.generating) return;
-            this.generating = true;
-            const base = '{{ route('admin.id-cards.students.single-pdf', ['student' => '__ID__']) }}'.replace('__ID__', this.student.id);
-            const params = new URLSearchParams({
-                valid_upto:   this.validUpto   || '',
-                issue_date:   this.issueDate   || '',
-                barcode_type: this.barcodeType || 'both',
-                template:     this.template    || 'red',
-                card_type:    this.cardType    || 'regular',
-            });
-            window.open(base + '?' + params.toString(), '_blank');
-            setTimeout(() => { this.generating = false; }, 1500);
+            if (!this.student) return;
+            const cardEl = document.querySelector('#id-card-preview .w-72');
+            if (!cardEl) return;
+            const win = window.open('', '_blank', 'width=800,height=900');
+            win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Export ID Card — ${this.student.name}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    background: #e5e7eb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 24px;
+    min-height: 100vh;
+}
+.card-wrap {
+    width: 288px;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+}
+.card-wrap * { box-sizing: border-box; }
+.tip {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+@media print {
+    @page { size: A4 portrait; margin: 0; }
+    html, body {
+        background: #fff;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 80px;
+        width: 210mm;
+        min-height: 0;
+    }
+    .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
+    .tip { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="card-wrap">${cardEl.innerHTML}</div>
+<div class="tip">Press Ctrl+P &rarr; "Save as PDF" to export</div>
+</body>
+</html>`);
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); }, 600);
         },
 
         async downloadImage() {
