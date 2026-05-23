@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useAppDispatch } from '@shared/hooks/useRedux';
 import { setUser, logout, setLoading } from '@app/store/auth.store';
 import api from '@shared/api/axios';
-import type { ApiResponse, AuthUser } from '@shared/types/common.types';
+import type { AuthUser } from '@shared/types/common.types';
 
 interface Props { children: ReactNode; }
 
@@ -19,11 +19,11 @@ export function AuthInitializer({ children }: Props) {
     if (!token) return;
 
     dispatch(setLoading(true));
-    api
-      .get<ApiResponse<AuthUser>>('/v1/user')
+      api
+        .get<{ success: boolean; data: { user: AuthUser } }>('/v1/user')
       .then(({ data }) => {
-        if (data.success && data.data) {
-          dispatch(setUser(data.data));
+        if (data.success && data.data?.user) {
+          dispatch(setUser(data.data.user));
         } else {
           dispatch(logout());
         }

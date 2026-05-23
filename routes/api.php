@@ -61,6 +61,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
 
     // ── Dashboard ─────────────────────────────────────────────────────────────
     Route::get('/dashboard/stats', [AcademicApiController::class, 'dashboardStats']);
+    Route::get('/dashboard/admin', [AcademicApiController::class, 'adminDashboard']);
 
     // ── Academic ──────────────────────────────────────────────────────────────
     Route::prefix('academic')->group(function () {

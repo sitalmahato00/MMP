@@ -5,8 +5,17 @@ interface UiState {
   theme: 'light' | 'dark';
 }
 
+function loadSidebarState(): boolean {
+  try {
+    const saved = localStorage.getItem('sidebar_open');
+    return saved !== null ? JSON.parse(saved) : true;
+  } catch {
+    return true;
+  }
+}
+
 const initialState: UiState = {
-  sidebarOpen: true,
+  sidebarOpen: loadSidebarState(),
   theme: 'light',
 };
 
@@ -16,9 +25,11 @@ const uiSlice = createSlice({
   reducers: {
     toggleSidebar(state) {
       state.sidebarOpen = !state.sidebarOpen;
+      localStorage.setItem('sidebar_open', JSON.stringify(state.sidebarOpen));
     },
     setSidebarOpen(state, action: PayloadAction<boolean>) {
       state.sidebarOpen = action.payload;
+      localStorage.setItem('sidebar_open', JSON.stringify(state.sidebarOpen));
     },
   },
 });
