@@ -4,11 +4,21 @@ import type { ApiResponse, AuthUser } from '@shared/types/common.types';
 export interface LoginPayload {
   email: string;
   password: string;
+  otp?: string;
+  remember?: boolean;
 }
 
 export interface LoginResponse {
   token: string;
   user: AuthUser;
+}
+
+export interface LoginApiResponse {
+  success: boolean;
+  message: string;
+  data?: LoginResponse;
+  requires_2fa?: boolean;
+  two_factor_method?: string;
 }
 
 export interface OtpSendPayload  { phone: string; }
@@ -19,7 +29,7 @@ const authService = {
    * Standard email+password login (admin/teacher/staff portal)
    */
   login(payload: LoginPayload) {
-    return post<ApiResponse<LoginResponse>>('/auth/login', payload);
+    return post<LoginApiResponse>('/auth/login', payload);
   },
 
   /**
@@ -39,6 +49,20 @@ const authService = {
 
   me() {
     return post<ApiResponse<AuthUser>>('/v1/user');
+  },
+
+  /**
+   * Request password reset link
+   */
+  forgotPassword(email: string) {
+    return post<ApiResponse<null>>('/auth/forgot-password', { email });
+  },
+
+  /**
+   * Reset password with token
+   */
+  resetPassword(payload: { email: string; token: string; password: string; password_confirmation: string }) {
+    return post<ApiResponse<null>>('/auth/reset-password', payload);
   },
 };
 

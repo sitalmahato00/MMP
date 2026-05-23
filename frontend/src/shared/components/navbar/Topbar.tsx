@@ -22,7 +22,7 @@ export function Topbar() {
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="text-sm text-gray-500">
         {/* Breadcrumb can be added here */}
       </div>

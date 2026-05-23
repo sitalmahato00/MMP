@@ -38,7 +38,8 @@ class PublicDataService
 
     public function getHomepageData(): array
     {
-        return Cache::remember('public:homepage', self::CACHE_TTL, function () {
+        // Compose from individual cached methods so each piece can be invalidated independently
+        $base = Cache::remember('public:homepage', self::CACHE_TTL, function () {
             return [
                 'banners' => Banner::active()->get(['id', 'title', 'subtitle', 'image', 'link', 'order']),
                 'departments' => Department::active()
@@ -63,6 +64,15 @@ class PublicDataService
                     ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
             ];
         });
+
+        // Merge in the additional data needed by the React frontend
+        return array_merge($base, [
+            'newsEvents'      => $this->getLatestNewsEvents(5),
+            'leadership'      => $this->getLeadership(),
+            'site_settings'   => $this->getSiteSettings()->pluck('value', 'key')->toArray(),
+            'stats'           => $this->getHomepageStats(),
+            'recentDownloads' => $this->getRecentDownloads(4),
+        ]);
     }
 
     public function getNotices(int $perPage = 15, ?string $type = 'general')

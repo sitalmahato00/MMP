@@ -5,7 +5,10 @@ import { GuestOnly } from '@app/router/GuestOnly';
 import { Spinner } from '@shared/components/ui/Spinner';
 
 // ─── Lazy-loaded pages ────────────────────────────────────────────────────────
-const LoginPage         = lazy(() => import('@modules/auth/pages/LoginPage'));
+const LoginPage            = lazy(() => import('@modules/auth/pages/LoginPage'));
+const ForgotPasswordPage   = lazy(() => import('@modules/auth/pages/ForgotPasswordPage'));
+const ResetPasswordPage    = lazy(() => import('@modules/auth/pages/ResetPasswordPage'));
+const Verify2faPage        = lazy(() => import('@modules/auth/pages/Verify2faPage'));
 
 // Public (CMS) pages
 const PublicLayout         = lazy(() => import('@app/layouts/PublicLayout'));
@@ -84,6 +87,30 @@ export function AppRouter() {
           element={
             <GuestOnly>
               <LoginPage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <GuestOnly>
+              <ForgotPasswordPage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="/reset-password/:token"
+          element={
+            <GuestOnly>
+              <ResetPasswordPage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="/verify-2fa"
+          element={
+            <GuestOnly>
+              <Verify2faPage />
             </GuestOnly>
           }
         />

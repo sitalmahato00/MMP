@@ -20,10 +20,12 @@ use App\Modules\Api\Controllers\SubjectController;
 
 // ─── Authentication ───────────────────────────────────────────────────────────
 Route::prefix('auth')->group(function () {
-    Route::post('/login',      [AuthController::class, 'login'])->middleware('throttle:10,1');
-    Route::post('/otp/send',   [AuthController::class, 'sendOtp'])->middleware('throttle:3,1');
-    Route::post('/otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:5,1');
-    Route::post('/logout',     [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('/login',           [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('/otp/send',        [AuthController::class, 'sendOtp'])->middleware('throttle:3,1');
+    Route::post('/otp/verify',      [AuthController::class, 'verifyOtp'])->middleware('throttle:5,1');
+    Route::post('/logout',          [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
+    Route::post('/reset-password',  [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
 });
 
 // ─── Public API (unauthenticated) ─────────────────────────────────────────────
