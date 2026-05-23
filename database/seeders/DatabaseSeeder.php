@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
                 'is_active' => true,
-                'two_factor_enabled' => true,
+                'two_factor_enabled' => false,
                 'two_factor_method' => 'email',
             ]
         );
