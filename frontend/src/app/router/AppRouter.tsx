@@ -39,6 +39,14 @@ const NotFoundPage      = lazy(() => import('@shared/pages/error/NotFoundPage'))
 const AdminLayout       = lazy(() => import('@app/layouts/AdminLayout'));
 const AdminDashboard    = lazy(() => import('@modules/admin/pages/DashboardPage'));
 
+// User management pages
+const UsersPage         = lazy(() => import('@modules/admin/pages/UsersPage'));
+const HodsPage          = lazy(() => import('@modules/admin/pages/HodsPage'));
+const ExecutivesPage    = lazy(() => import('@modules/admin/pages/ExecutivesPage'));
+const ParentsPage       = lazy(() => import('@modules/admin/pages/ParentsPage'));
+const AlumniAdminPage   = lazy(() => import('@modules/admin/pages/AlumniAdminPage'));
+const StaffAdminPage    = lazy(() => import('@modules/admin/pages/StaffAdminPage'));
+
 // Student module
 const StudentListPage   = lazy(() => import('@modules/student/pages/StudentListPage'));
 const StudentShowPage   = lazy(() => import('@modules/student/pages/StudentShowPage'));
@@ -47,6 +55,9 @@ const StudentEditPage   = lazy(() => import('@modules/student/pages/StudentEditP
 
 // Teacher module
 const TeacherListPage   = lazy(() => import('@modules/teacher/pages/TeacherListPage'));
+const TeacherShowPage   = lazy(() => import('@modules/teacher/pages/TeacherShowPage'));
+const TeacherCreatePage = lazy(() => import('@modules/teacher/pages/TeacherCreatePage'));
+const TeacherEditPage   = lazy(() => import('@modules/teacher/pages/TeacherEditPage'));
 
 // Exam module
 const ExamListPage      = lazy(() => import('@modules/exam/pages/ExamListPage'));
@@ -127,6 +138,15 @@ export function AppRouter() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
 
+          {/* Users */}
+          <Route path="users"            element={<UsersPage />} />
+
+          {/* HODs */}
+          <Route path="hods"             element={<HodsPage />} />
+
+          {/* Executives */}
+          <Route path="executives"       element={<ExecutivesPage />} />
+
           {/* Students */}
           <Route path="students"         element={<StudentListPage />} />
           <Route path="students/create"  element={<StudentCreatePage />} />
@@ -135,6 +155,18 @@ export function AppRouter() {
 
           {/* Teachers */}
           <Route path="teachers"         element={<TeacherListPage />} />
+          <Route path="teachers/create"  element={<TeacherCreatePage />} />
+          <Route path="teachers/:id"     element={<TeacherShowPage />} />
+          <Route path="teachers/:id/edit" element={<TeacherEditPage />} />
+
+          {/* Parents */}
+          <Route path="parents"          element={<ParentsPage />} />
+
+          {/* Alumni */}
+          <Route path="alumni"           element={<AlumniAdminPage />} />
+
+          {/* Staff */}
+          <Route path="staff"            element={<StaffAdminPage />} />
 
           {/* Exams */}
           <Route path="exams"            element={<ExamListPage />} />
