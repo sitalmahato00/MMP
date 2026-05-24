@@ -1,0 +1,1 @@
+import{p as t}from"./index-ByCq3yCk.js";const e={login(r){return t("/auth/login",r)},sendOtp(r){return t("/auth/otp/send",r)},verifyOtp(r){return t("/auth/otp/verify",r)},logout(){return t("/auth/logout")},me(){return t("/v1/user")},forgotPassword(r){return t("/auth/forgot-password",{email:r})},resetPassword(r){return t("/auth/reset-password",r)}};export{e as a};

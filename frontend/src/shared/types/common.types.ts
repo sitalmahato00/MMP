@@ -31,7 +31,7 @@ export interface PaginationLinks {
 
 // ─── Auth Types ───────────────────────────────────────────────────────────────
 
-export type UserRole = 'admin' | 'teacher' | 'student' | 'staff' | 'hod' | 'parent' | 'librarian' | 'accountant' | 'hostel_warden';
+export type UserRole = 'admin' | 'principal' | 'teacher' | 'student' | 'staff' | 'hod' | 'parent' | 'librarian' | 'accountant' | 'hostel_warden';
 
 export interface AuthUser {
   id: number;
@@ -39,9 +39,11 @@ export interface AuthUser {
   email: string;
   phone?: string;
   avatar?: string;
+  avatar_url?: string;
   role: UserRole;
-  roles: UserRole[];
-  is_active: boolean;
+  roles?: UserRole[];
+  panel_type?: string;
+  is_active?: boolean;
   profile?: StudentProfile | TeacherProfile | StaffProfile;
 }
 

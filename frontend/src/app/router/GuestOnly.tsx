@@ -18,6 +18,7 @@ export function GuestOnly({ children }: Props) {
 function getDashboardPath(role: string): string {
   const map: Record<string, string> = {
     admin:          '/admin/dashboard',
+    principal:      '/admin/dashboard',
     teacher:        '/teacher/dashboard',
     student:        '/student/dashboard',
     hod:            '/hod/dashboard',
@@ -27,5 +28,5 @@ function getDashboardPath(role: string): string {
     accountant:     '/admin/dashboard',
     hostel_warden:  '/hostel/dashboard',
   };
-  return map[role] ?? '/dashboard';
+  return map[role] ?? '/admin/dashboard';
 }

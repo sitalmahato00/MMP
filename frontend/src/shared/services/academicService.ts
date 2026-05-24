@@ -5,6 +5,9 @@ const academicService = {
   dashboardStats() {
     return get<ApiResponse<DashboardStats>>('/v1/dashboard/stats');
   },
+  adminDashboard() {
+    return get<any>('/v1/dashboard/admin');
+  },
 
   sessions() {
     return get<ApiResponse<AcademicSession[]>>('/v1/academic/sessions');

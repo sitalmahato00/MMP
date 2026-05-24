@@ -1,1 +1,0 @@
-import{g as s}from"./index-DQW0UzCB.js";const t={dashboardStats(){return s("/v1/dashboard/stats")},sessions(){return s("/v1/academic/sessions")},currentSession(){return s("/v1/academic/sessions/current")},programs(r){const e=r?`?department_id=${r}`:"";return s(`/v1/academic/programs${e}`)},departments(){return s("/v1/departments")}};export{t as a};

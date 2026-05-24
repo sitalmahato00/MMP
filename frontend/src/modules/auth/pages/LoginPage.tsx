@@ -50,6 +50,7 @@ export default function LoginPage() {
 
         const roleMap: Record<string, string> = {
           admin:    '/admin/dashboard',
+          principal:'/admin/dashboard',
           teacher:  '/teacher/dashboard',
           student:  '/student/dashboard',
           hod:      '/hod/dashboard',
