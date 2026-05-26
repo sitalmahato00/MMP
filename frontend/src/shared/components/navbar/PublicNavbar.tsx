@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getDepartments } from '@shared/services/public.service';
+import { useLogo } from '@hooks/useLogo';
 
 const dropdownMenus: Record<string, { label: string; to?: string }[]> = {
   'ABOUT US': [
@@ -48,6 +49,7 @@ export default function PublicNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDd, setOpenDd] = useState<Record<string, boolean>>({});
   const [hoverDd, setHoverDd] = useState<string | null>(null);
+  const logoUrl = useLogo();
 
   const { data: deptData } = useQuery({
     queryKey: ['public-departments'],
@@ -154,8 +156,19 @@ export default function PublicNavbar() {
               <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3 flex-1">
-              <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl" style={{ backgroundColor: '#003D82', border: '2px solid #DAA520' }}>
-                <span className="text-white font-bold text-xs sm:text-sm">MMP</span>
+              <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:rounded-2xl bg-white" style={{ border: '2px solid #DAA520' }}>
+                <img
+                  src={logoUrl}
+                  alt="MMP"
+                  className="h-full w-full object-contain p-0.5"
+                  onError={(e) => {
+                    const t = e.currentTarget;
+                    t.style.display = 'none';
+                    const fb = t.nextElementSibling as HTMLElement | null;
+                    if (fb) fb.style.display = 'flex';
+                  }}
+                />
+                <span className="hidden h-full w-full items-center justify-center bg-[#003D82] text-white font-bold text-xs sm:text-sm">MMP</span>
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-[#003D82] dark:text-blue-300 leading-tight">MMP</p>
@@ -178,8 +191,19 @@ export default function PublicNavbar() {
       <div className={`fixed left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl overflow-hidden z-50 lg:hidden flex flex-col transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div style={{ backgroundColor: '#003D82' }} className="px-4 py-4 flex items-center justify-between pt-[max(1rem,env(safe-area-inset-top))]">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: 'radial-gradient(circle, #003D82, #001F4D)', border: '2px solid #DAA520' }}>
-              <span className="text-white font-bold text-sm">MMP</span>
+            <div className="h-10 w-10 overflow-hidden rounded-lg bg-white flex items-center justify-center" style={{ border: '2px solid #DAA520' }}>
+              <img
+                src={logoUrl}
+                alt="MMP"
+                className="h-full w-full object-contain p-0.5"
+                onError={(e) => {
+                  const t = e.currentTarget;
+                  t.style.display = 'none';
+                  const fb = t.nextElementSibling as HTMLElement | null;
+                  if (fb) fb.style.display = 'flex';
+                }}
+              />
+              <span className="hidden h-full w-full items-center justify-center bg-[#003D82] text-white font-bold text-sm">MMP</span>
             </div>
             <div><p className="text-white font-bold text-sm">MMP</p><p className="text-blue-200 text-xs">Navigation Menu</p></div>
           </div>

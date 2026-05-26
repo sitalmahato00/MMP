@@ -6,6 +6,7 @@ import studentService, { type StudentFilters } from '@services/studentService';
 import academicService from '@services/academicService';
 import { BsDate } from '@components/ui/BsDate';
 import { Pagination } from '@components/ui/Pagination';
+import { StudentDrawer } from '../components/StudentDrawer';
 import toast from 'react-hot-toast';
 import { clsx } from 'clsx';
 import type { Student } from '@/types';
@@ -44,6 +45,7 @@ export default function StudentListPage() {
     (localStorage.getItem('mmp_students_view') as 'table' | 'cards') ?? 'table'
   );
   const [selected, setSelected] = useState<number[]>([]);
+  const [drawerStudentId, setDrawerStudentId] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['students', filters],
@@ -230,7 +232,7 @@ export default function StudentListPage() {
                           <div className="flex items-center gap-3 min-w-0">
                             <Avatar student={student} />
                             <div className="min-w-0">
-                              <button onClick={() => navigate(`${student.id}`)} className="block font-semibold text-slate-900 hover:text-blue-700 truncate transition text-sm text-left">{student.user.name}</button>
+                              <button onClick={() => setDrawerStudentId(student.id)} className="block font-semibold text-slate-900 hover:text-blue-700 truncate transition text-sm text-left">{student.user.name}</button>
                               <p className="font-mono text-[11px] text-slate-400 truncate">{student.student_no ?? '—'}</p>
                               <p className="text-[11px] text-slate-400 truncate hidden sm:block">{student.user.email}</p>
                             </div>
@@ -315,6 +317,7 @@ export default function StudentListPage() {
 
         {meta && <div className="border-t border-slate-100 px-5 py-4"><Pagination meta={meta} onPageChange={p => setFilters(f => ({ ...f, page: p }))} /></div>}
       </div>
+      <StudentDrawer studentId={drawerStudentId} onClose={() => setDrawerStudentId(null)} />
     </div>
   );
 }

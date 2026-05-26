@@ -70,11 +70,8 @@ export function Sidebar() {
     <aside
       className={clsx(
         'fixed inset-y-0 left-0 z-50 flex h-screen flex-col transition-all duration-300',
-        /* Government deep-navy background */
-        'bg-[#0f2d5e] text-white',
-        expanded
-          ? 'w-64 translate-x-0'
-          : '-translate-x-full lg:translate-x-0 lg:w-[4.5rem]'
+        'bg-sidebar-bg text-sidebar-text',
+        expanded ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-[4.5rem]'
       )}
     >
       {/* ── Brand Header ── */}
@@ -113,13 +110,13 @@ export function Sidebar() {
           )}
         </Link>
         {expanded && (
-          <button
-            onClick={() => dispatch(setSidebarOpen(!expanded))}
-            className="hidden shrink-0 rounded-md p-1.5 text-white/50 transition hover:bg-white/10 hover:text-white lg:inline-flex"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-        )}
+            <button
+              onClick={() => dispatch(setSidebarOpen(!expanded))}
+              className="hidden shrink-0 rounded-md p-1.5 text-sidebar-text/60 transition hover:bg-sidebar-panel/10 hover:text-sidebar-text lg:inline-flex"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
       </div>
       {/* Collapsed expand button — sits just below the header, centered */}
       {!expanded && (
@@ -148,11 +145,11 @@ export function Sidebar() {
                       'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium transition-all',
                       isActivePath(item.path)
                         ? 'bg-white/15 text-white'
-                        : 'text-blue-100/80 hover:bg-white/10 hover:text-white'
+                        : 'text-sidebar-text/80 hover:bg-white/10 hover:text-white'
                     )}
                   >
                     {isActivePath(item.path) && (
-                      <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-blue-300" />
+                      <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-brand" />
                     )}
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center">
                       <DynamicIcon name={item.icon} />
@@ -173,7 +170,7 @@ export function Sidebar() {
                 {expanded ? (
                   <button
                     onClick={() => toggleGroup(group.label)}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-300/70 transition hover:text-blue-200"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-sidebar-muted transition hover:text-sidebar-text"
                   >
                     <span className="flex-1 text-left">{group.label}</span>
                     <ChevronDown
@@ -201,11 +198,11 @@ export function Sidebar() {
                           'group relative flex items-center gap-3 rounded-lg px-3 py-2 font-medium transition-all',
                           isActivePath(item.path)
                             ? 'bg-white/15 text-white'
-                            : 'text-blue-100/70 hover:bg-white/10 hover:text-white'
+                            : 'text-sidebar-text/80 hover:bg-white/10 hover:text-white'
                         )}
                       >
                         {isActivePath(item.path) && (
-                          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-blue-300" />
+                          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-brand" />
                         )}
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center">
                           <DynamicIcon name={item.icon} />
@@ -232,7 +229,7 @@ export function Sidebar() {
             target="_blank"
             rel="noreferrer"
             title={!expanded ? 'Public Site' : undefined}
-            className="group relative flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-blue-100/60 transition hover:bg-white/10 hover:text-white"
+                    className="group relative flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sidebar-muted transition hover:bg-white/10 hover:text-white"
           >
             <span className="flex h-7 w-7 shrink-0 items-center justify-center">
               <ExternalLink className="h-4 w-4" />
@@ -250,7 +247,7 @@ export function Sidebar() {
       {/* ── User Footer ── */}
       <div className="shrink-0 border-t border-white/10 p-3">
         {expanded ? (
-          <div className="flex items-center gap-3 rounded-lg bg-white/10 p-2.5">
+          <div className="flex items-center gap-3 rounded-lg bg-white/6 p-2.5">
             <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-white/20">
               {user?.avatar_url || user?.avatar ? (
                 <img src={user.avatar_url || user.avatar || ''} alt={user.name} className="h-full w-full object-cover" />
@@ -260,9 +257,9 @@ export function Sidebar() {
                 </div>
               )}
             </div>
-            <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-semibold text-white">{user?.name}</p>
-              <p className="truncate text-[10px] capitalize text-blue-300">{user?.role ?? 'Admin'}</p>
+              <p className="truncate text-[10px] capitalize text-sidebar-muted">{user?.role ?? 'Admin'}</p>
             </div>
             <button
               onClick={handleLogout}

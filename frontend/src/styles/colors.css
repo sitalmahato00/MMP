@@ -1,0 +1,39 @@
+/* Shared design tokens for color usage (Tailwind is primary, but these help in non-Tailwind contexts)
+   Use these CSS variables in components or global styles if needed. */
+:root{
+  --action-add: #10B981;
+  --action-add-dark: #059669;
+  --action-edit: #F59E0B;
+  --action-edit-dark: #D97706;
+  --action-delete: #EF4444;
+  --action-delete-dark: #DC2626;
+  --action-view: #6366F1;
+  --action-view-dark: #4F46E5;
+  --action-info: #14B8A6;
+  --action-info-dark: #0D9488;
+  --ui-neutral: #6B7280;
+  --sidebar-bg: #0f172a;
+  --sidebar-panel: #111827;
+  --sidebar-text: #e5e7eb;
+  --sidebar-muted: #9CA3AF;
+}
+
+/* Small helper classes (when not using tailwind utilities) */
+.btn {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.5rem;
+  padding:0.5rem 0.75rem;
+  border-radius:0.375rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:transform .06s ease, box-shadow .06s ease;
+}
+
+.btn:active{ transform:translateY(1px); }
+
+.btn-ghost{ background:transparent; border:1px solid rgba(0,0,0,0.06); }
+
+/* accessible focus ring */
+.focus-ring:focus{ outline:none; box-shadow:0 0 0 3px rgba(59,130,246,0.25); }

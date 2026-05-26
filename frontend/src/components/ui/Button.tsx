@@ -3,16 +3,22 @@ import type { ButtonHTMLAttributes } from 'react';
 import { Spinner } from './Spinner';
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'add' | 'edit' | 'delete' | 'view' | 'info' | 'neutral';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
 }
 
-const variantMap = {
+const variantMap: Record<string, string> = {
   primary:   'btn-primary',
   secondary: 'btn-secondary',
   danger:    'btn-danger',
   ghost:     'rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition',
+  add:       'bg-action-add text-white hover:bg-action-addDark focus:ring-action-add/40 rounded-lg px-4 py-2 text-sm font-medium transition',
+  edit:      'bg-action-edit text-white hover:bg-action-editDark focus:ring-action-edit/40 rounded-lg px-4 py-2 text-sm font-medium transition',
+  delete:    'bg-action-delete text-white hover:bg-action-deleteDark focus:ring-action-delete/40 rounded-lg px-4 py-2 text-sm font-medium transition',
+  view:      'bg-action-view text-white hover:bg-action-viewDark focus:ring-action-view/40 rounded-lg px-4 py-2 text-sm font-medium transition',
+  info:      'bg-action-info text-white hover:bg-action-infoDark focus:ring-action-info/40 rounded-lg px-4 py-2 text-sm font-medium transition',
+  neutral:   'bg-gray-100 text-gray-800 hover:bg-gray-200 rounded-lg px-4 py-2 text-sm font-medium transition',
 };
 
 const sizeMap = {

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import authService from '@shared/services/authService';
 import { Input } from '@components/ui/Input';
 import { Button } from '@components/ui/Button';
+import { LogoBadge } from '@components/ui/LogoBadge';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 
@@ -46,9 +47,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="card shadow-xl border-t-4 border-primary-600">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-[3px] border-yellow-500 shadow-md" style={{ background: 'radial-gradient(circle, #003D82, #001F4D)' }}>
-              <span className="text-xl font-bold text-white">MMP</span>
-            </div>
+            <LogoBadge />
             <h1 className="text-2xl font-black text-primary-700 font-serif tracking-tight">Reset Password</h1>
             <p className="mt-1 text-sm font-medium text-gray-500">We will email you a secure reset link</p>
           </div>

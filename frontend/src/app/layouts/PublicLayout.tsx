@@ -1,9 +1,11 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import PublicNavbar from '@shared/components/navbar/PublicNavbar';
+import { useLogo } from '@hooks/useLogo';
 
 export default function PublicLayout() {
   const { pathname } = useLocation();
   const isHome = pathname === '/';
+  const logoUrl = useLogo();
 
   const topBar = (
     <div style={{ backgroundColor: '#003D82' }} className="sticky top-0 z-50 hidden py-1.5 text-xs text-white lg:block">
@@ -36,8 +38,19 @@ export default function PublicLayout() {
     <div className="hidden border-b border-gray-200 bg-white py-2.5 shadow-sm lg:block md:py-3">
       <div className="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex items-center justify-between gap-3">
         <Link to="/" className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="w-11 h-11 md:w-14 md:h-14 flex-shrink-0 rounded-full flex items-center justify-center" style={{ background: 'radial-gradient(circle, #003D82, #001F4D)', border: '2px solid #DAA520' }}>
-            <span className="text-lg md:text-xl font-bold text-white">MMP</span>
+          <div className="w-11 h-11 md:w-14 md:h-14 flex-shrink-0 overflow-hidden rounded-full bg-white flex items-center justify-center" style={{ border: '2px solid #DAA520' }}>
+            <img
+              src={logoUrl}
+              alt="MMP Logo"
+              className="h-full w-full object-contain p-0.5"
+              onError={(e) => {
+                const t = e.currentTarget;
+                t.style.display = 'none';
+                const fb = t.nextElementSibling as HTMLElement | null;
+                if (fb) fb.style.display = 'flex';
+              }}
+            />
+            <span className="hidden h-full w-full items-center justify-center rounded-full text-lg md:text-xl font-bold text-white" style={{ background: 'radial-gradient(circle, #003D82, #001F4D)' }}>MMP</span>
           </div>
           <div className="min-w-0 leading-tight">
             <div className="text-base sm:text-xl font-semibold font-serif leading-tight text-[#003D82] line-clamp-1">Manmohan Memorial Polytechnic</div>

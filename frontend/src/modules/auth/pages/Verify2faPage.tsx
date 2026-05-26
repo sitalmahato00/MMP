@@ -6,6 +6,7 @@ import { useAppDispatch } from '@hooks/useRedux';
 import { setCredentials } from '@app/store/auth.store';
 import authService from '@shared/services/authService';
 import { Button } from '@components/ui/Button';
+import { LogoBadge } from '@components/ui/LogoBadge';
 import toast from 'react-hot-toast';
 import { useEffect, useState, useRef } from 'react';
 
@@ -110,9 +111,7 @@ export default function Verify2faPage() {
       <div className="w-full max-w-md">
         <div className="card shadow-xl">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-[3px] border-yellow-500 shadow-md" style={{ background: 'radial-gradient(circle, #003D82, #001F4D)' }}>
-              <span className="text-xl font-bold text-white">MMP</span>
-            </div>
+            <LogoBadge />
             <h2 className="text-2xl font-extrabold text-gray-900">Two-Factor Authentication</h2>
             <p className="mt-2 text-sm text-gray-600">Enter the verification code sent to your email</p>
             <div className="mt-4">
