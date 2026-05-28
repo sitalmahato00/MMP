@@ -75,13 +75,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 p-4">
-      <div className="w-full max-w-md">
-        <div className="card shadow-xl border-t-4 border-primary-600">
-          <div className="mb-8 text-center">
+    <div
+      className="flex min-h-screen items-center justify-center p-4"
+      style={{ background: '#F4F7FB' }}
+    >
+      <div className="w-full max-w-sm">
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #DCE3EB',
+            borderRadius: '4px',
+            borderTop: '3px solid #002366',
+            padding: '2rem',
+            boxShadow: '0 1px 3px rgba(11,46,107,0.08)',
+          }}
+        >
+          <div className="mb-6 text-center">
             <LogoBadge />
-            <h1 className="text-2xl font-black text-primary-700 font-serif tracking-tight">MMP Portal</h1>
-            <p className="mt-1 text-sm font-medium text-gray-500">Secure System Authentication</p>
+            <h1
+              className="font-bold tracking-tight"
+              style={{ fontSize: '1.25rem', color: '#002366', fontFamily: 'Inter, sans-serif' }}
+            >
+              MMP Portal
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: '#6B7A8D' }}>Secure System Authentication</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -95,8 +112,18 @@ export default function LoginPage() {
             />
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="form-label mb-0" htmlFor="password">Password</label>
-                <Link to="/forgot-password" className="text-xs font-bold text-primary-600 hover:text-primary-800 hover:underline">
+                <label
+                  className="form-label mb-0"
+                  htmlFor="password"
+                  style={{ color: '#1A2B45', fontSize: '0.8125rem', fontWeight: 500 }}
+                >
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-medium transition-colors"
+                  style={{ color: '#1D4ED8' }}
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -105,33 +132,85 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="form-input"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  border: errors.password ? '1px solid #DC2626' : '1px solid #DCE3EB',
+                  borderRadius: '3px',
+                  padding: '0.4375rem 0.75rem',
+                  fontSize: '0.8125rem',
+                  lineHeight: '1.5',
+                  background: '#ffffff',
+                  color: '#1A2B45',
+                  outline: 'none',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.password ? '#DC2626' : '#1D4ED8';
+                  e.currentTarget.style.boxShadow = errors.password
+                    ? '0 0 0 2px rgba(220,38,38,0.15)'
+                    : '0 0 0 2px rgba(29,78,216,0.15)';
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.password ? '#DC2626' : '#DCE3EB';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
                 {...register('password')}
               />
-              {errors.password?.message && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
+              {errors.password?.message && (
+                <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+              )}
             </div>
 
             <div className="flex items-center">
               <input
                 id="remember"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="h-4 w-4 rounded border-gray-300"
+                style={{ accentColor: '#1D4ED8' }}
                 {...register('remember')}
               />
-              <label htmlFor="remember" className="ml-2 block text-sm font-medium text-gray-700">Remember me</label>
+              <label
+                htmlFor="remember"
+                className="ml-2 block text-sm font-medium"
+                style={{ color: '#1A2B45' }}
+              >
+                Remember me
+              </label>
             </div>
 
-            <Button type="submit" className="w-full mt-2 uppercase tracking-wider" loading={loading}>
-              Sign in to Account
-            </Button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-2 text-sm font-medium uppercase tracking-wider transition"
+              style={{
+                background: loading ? '#1e40af' : '#1D4ED8',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '0.5rem 1rem',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.8 : 1,
+              }}
+            >
+              {loading ? 'Signing in…' : 'Sign in to Account'}
+            </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between">
-            <Link to="/" className="text-xs font-bold text-gray-500 hover:text-primary-600 flex items-center gap-1 transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <div
+            className="mt-6 pt-4 flex items-center justify-between"
+            style={{ borderTop: '1px solid #DCE3EB' }}
+          >
+            <Link
+              to="/"
+              className="text-xs font-medium flex items-center gap-1 transition-colors"
+              style={{ color: '#6B7A8D' }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
               Back to Home
             </Link>
-            <p className="text-[10px] font-medium text-gray-400">Restricted Access</p>
+            <p className="text-[10px] font-medium" style={{ color: '#6B7A8D' }}>Restricted Access</p>
           </div>
         </div>
       </div>

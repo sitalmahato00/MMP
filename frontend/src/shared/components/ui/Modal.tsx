@@ -29,23 +29,36 @@ export function Modal({ open, onClose, title, children, size = 'md', footer }: P
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50"
         onClick={onClose}
       />
 
       {/* Panel */}
       <div
-        className={clsx(
-          'relative z-10 w-full rounded-2xl bg-white shadow-2xl',
-          sizeMap[size]
-        )}
+        className={clsx('relative z-10 w-full bg-white', sizeMap[size])}
+        style={{
+          borderRadius: '4px',
+          boxShadow: '0 4px 16px rgba(11,46,107,0.12)',
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+        <div
+          className="flex items-center justify-between px-6 py-4"
+          style={{ borderBottom: '1px solid #DCE3EB' }}
+        >
+          <h2 className="text-base font-semibold" style={{ color: '#1A2B45' }}>{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
+            className="rounded p-1 transition"
+            style={{ color: '#6B7A8D' }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.background = '#F4F7FB';
+              (e.currentTarget as HTMLButtonElement).style.color = '#1A2B45';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              (e.currentTarget as HTMLButtonElement).style.color = '#6B7A8D';
+            }}
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -57,7 +70,10 @@ export function Modal({ open, onClose, title, children, size = 'md', footer }: P
 
         {/* Footer */}
         {footer && (
-          <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
+          <div
+            className="flex justify-end gap-3 px-6 py-4"
+            style={{ borderTop: '1px solid #DCE3EB' }}
+          >
             {footer}
           </div>
         )}

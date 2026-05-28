@@ -11,11 +11,14 @@ export function Pagination({ meta, onPageChange }: Props) {
   const { current_page, last_page, from, to, total } = meta;
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3">
-      <p className="text-sm text-gray-600">
-        Showing <span className="font-medium">{from}</span>–
-        <span className="font-medium">{to}</span> of{' '}
-        <span className="font-medium">{total}</span> results
+    <div
+      className="flex items-center justify-between px-4 py-3"
+      style={{ borderTop: '1px solid #DCE3EB' }}
+    >
+      <p className="text-sm" style={{ color: '#6B7A8D' }}>
+        Showing <span className="font-medium" style={{ color: '#1A2B45' }}>{from}</span>–
+        <span className="font-medium" style={{ color: '#1A2B45' }}>{to}</span> of{' '}
+        <span className="font-medium" style={{ color: '#1A2B45' }}>{total}</span> results
       </p>
       <div className="flex items-center gap-1">
         <Button
@@ -33,11 +36,22 @@ export function Pagination({ meta, onPageChange }: Props) {
             <button
               key={page}
               onClick={() => onPageChange(page)}
-              className={`rounded px-3 py-1.5 text-sm font-medium transition ${
+              className="rounded px-3 py-1.5 text-sm font-medium transition"
+              style={
                 page === current_page
-                  ? 'bg-primary-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                  ? { background: '#1D4ED8', color: '#ffffff' }
+                  : { color: '#6B7A8D', background: 'transparent' }
+              }
+              onMouseEnter={e => {
+                if (page !== current_page) {
+                  (e.currentTarget as HTMLButtonElement).style.background = '#F4F7FB';
+                }
+              }}
+              onMouseLeave={e => {
+                if (page !== current_page) {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                }
+              }}
             >
               {page}
             </button>
