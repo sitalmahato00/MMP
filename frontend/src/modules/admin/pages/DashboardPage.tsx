@@ -204,7 +204,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
 
       {/* ── 1. Page Header ─────────────────────────────────────────────── */}
       <div className="rounded-xl border border-slate-200 bg-white px-6 py-5 shadow-sm">
@@ -316,10 +316,10 @@ export default function DashboardPage() {
       </div>
 
       {/* ── 3. Analytics + Sidebar ─────────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_300px]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_280px]">
 
         {/* Charts column */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
 
           {/* Attendance Trend */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -344,7 +344,7 @@ export default function DashboardPage() {
                 </div>
               }
             />
-            <div className="h-52">
+            <div className="h-52 w-full">
               <canvas ref={chartRef} />
             </div>
           </div>
@@ -355,14 +355,14 @@ export default function DashboardPage() {
               title="Grade Distribution"
               sub="Student performance breakdown by grade"
             />
-            <div className="h-52">
+            <div className="h-52 w-full">
               <canvas ref={donutRef} />
             </div>
           </div>
         </div>
 
-        {/* Right sidebar column */}
-        <div className="space-y-5">
+        {/* Right sidebar column — stacks below charts on small/medium, side-by-side on xl+ */}
+        <div className="min-w-0 space-y-5">
 
           {/* Notices */}
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm">

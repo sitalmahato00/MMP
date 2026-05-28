@@ -6,13 +6,16 @@ import { useAuth } from '@hooks/useAuth';
 import { logout as logoutAction } from '@app/store/auth.store';
 import authService from '@shared/services/authService';
 import toast from 'react-hot-toast';
-import { Bell, LogOut, User, Settings, Menu, ChevronDown } from 'lucide-react';
+import { Bell, LogOut, User, Settings, Menu, ChevronDown, Calendar } from 'lucide-react';
+import { useLogo } from '@hooks/useLogo';
+import { adToBS, formatBS } from '@shared/utils/nepaliDate';
 
 export function Topbar() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const sidebarOpen = useAppSelector((s) => s.ui.sidebarOpen);
+  const logoUrl = useLogo();
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -37,129 +40,196 @@ export function Topbar() {
 
   const userAvatar = user?.avatar_url || user?.avatar;
 
+  // BS date
+  const bsDate = (() => {
+    try { return adToBS(new Date()); } catch { return null; }
+  })();
+  const bsDateStr = bsDate ? formatBS(bsDate, 'F j, Y') : '';
+
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-sm sm:px-6">
-      {/* Left: hamburger + breadcrumb area */}
-      <div className="flex items-center gap-3">
-        {/* Mobile menu toggle */}
+    <header
+      className="flex h-16 w-full items-center justify-between px-4"
+      style={{
+        backgroundColor: '#002366',
+        borderBottom: '2px solid #1a3a7a',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
+      }}
+    >
+      {/* ── LEFT: Logo + Institution Name ── */}
+      <div className="flex min-w-0 items-center gap-3">
+        {/* Mobile hamburger — only on small screens */}
         <button
           onClick={() => dispatch(setSidebarOpen(!sidebarOpen))}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 lg:hidden"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded text-white/70 transition hover:bg-white/10 hover:text-white lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* Institution name — visible on md+ */}
-        <div className="hidden items-center gap-2 md:flex">
-          <div className="h-4 w-px bg-slate-200" />
-          <span className="text-[13px] font-semibold text-slate-700">
+        {/* Logo circle */}
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden bg-white"
+          style={{ borderRadius: '50%', border: '2px solid #DAA520' }}
+        >
+          <img
+            src={logoUrl}
+            alt="MMP"
+            className="h-full w-full object-contain p-0.5"
+            onError={(e) => {
+              const t = e.currentTarget;
+              t.style.display = 'none';
+              const fb = t.nextElementSibling as HTMLElement | null;
+              if (fb) fb.style.display = 'flex';
+            }}
+          />
+          <span className="hidden h-full w-full items-center justify-center text-[11px] font-extrabold text-white" style={{ backgroundColor: '#002366' }}>
+            MMP
+          </span>
+        </div>
+
+        {/* Institution text */}
+        <div className="hidden min-w-0 flex-col leading-tight sm:flex">
+          <span className="truncate text-[15px] font-bold tracking-wide text-white">
             Manmohan Memorial Polytechnic
           </span>
-          <div className="h-4 w-px bg-slate-200" />
-          <span className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500" />
-            Session 2081/82
+          <span className="truncate text-[11px] font-normal tracking-wide" style={{ color: '#93b8e8' }}>
+            College Administration Management System
           </span>
         </div>
       </div>
 
-      {/* Right: notifications + user */}
-      <div className="flex items-center gap-2">
+      {/* ── CENTER: Session badge ── */}
+      <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex">
+        <span
+          className="inline-flex items-center gap-2 px-4 py-1 text-[12px] font-semibold text-white"
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.12)',
+            border: '1px solid rgba(255,255,255,0.22)',
+            borderRadius: '4px',
+          }}
+        >
+          Session 2081/82
+        </span>
+      </div>
+
+      {/* ── RIGHT: BS Date · Bell · User ── */}
+      <div className="flex shrink-0 items-center gap-1">
+
+        {/* BS Date */}
+        {bsDateStr && (
+          <div className="hidden items-center gap-1.5 px-3 py-1 lg:flex" style={{ color: '#c5d8f0' }}>
+            <Calendar className="h-3.5 w-3.5 shrink-0" />
+            <span className="whitespace-nowrap text-[11px] font-medium">{bsDateStr}</span>
+          </div>
+        )}
+
+        <div className="hidden h-4 w-px bg-white/20 lg:block" />
+
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotifOpen(!notifOpen)}
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+            className="relative inline-flex h-8 w-8 items-center justify-center rounded transition hover:bg-white/10"
+            style={{ color: '#c5d8f0' }}
           >
             <Bell className="h-4 w-4" />
-            <span className="absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
-              0
-            </span>
+            <span
+              className="absolute right-1 top-1 inline-flex h-2 w-2 rounded-full"
+              style={{ backgroundColor: '#ef4444' }}
+            />
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-              <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">Notifications</p>
-                  <p className="text-xs text-slate-500">0 unread messages</p>
-                </div>
-                <Link to="/admin/notices" className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+            <div
+              className="absolute right-0 z-50 mt-1 w-72 overflow-hidden"
+              style={{
+                backgroundColor: '#fff',
+                border: '1px solid #DCE3EB',
+                borderRadius: '4px',
+                boxShadow: '0 4px 16px rgba(0,35,102,0.18)',
+              }}
+            >
+              <div
+                className="flex items-center justify-between px-4 py-2.5"
+                style={{ borderBottom: '1px solid #DCE3EB', backgroundColor: '#EEF3FB' }}
+              >
+                <p className="text-xs font-semibold" style={{ color: '#002366' }}>Notifications</p>
+                <Link to="/admin/notices" className="text-[11px] font-semibold" style={{ color: '#1D4ED8' }}>
                   View all
                 </Link>
               </div>
-              <div className="px-4 py-8 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
-                  <Bell className="h-5 w-5 text-slate-400" />
-                </div>
-                <p className="mt-3 text-sm font-medium text-slate-700">No notifications</p>
-                <p className="mt-1 text-xs text-slate-400">New notices and updates will appear here.</p>
+              <div className="px-4 py-6 text-center">
+                <Bell className="mx-auto h-8 w-8" style={{ color: '#c5d8f0' }} />
+                <p className="mt-2 text-xs font-medium" style={{ color: '#1A2B45' }}>No notifications</p>
+                <p className="mt-0.5 text-[11px]" style={{ color: '#6B7A8D' }}>New notices will appear here.</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Divider */}
-        <div className="h-6 w-px bg-slate-200" />
+        <div className="h-4 w-px bg-white/20" />
 
-        {/* User Dropdown */}
+        {/* User dropdown */}
         <div className="relative" ref={userMenuRef}>
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition hover:border-slate-200 hover:bg-slate-50"
+            className="flex items-center gap-2 rounded px-2 py-1 transition hover:bg-white/10"
           >
-            <div className="h-7 w-7 overflow-hidden rounded-full border border-slate-200 bg-blue-600">
+            <div
+              className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden"
+              style={{ borderRadius: '50%', border: '2px solid rgba(255,255,255,0.35)', backgroundColor: '#1D4ED8' }}
+            >
               {userAvatar ? (
                 <img src={userAvatar} alt={user?.name} className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-white">
-                  {user?.name?.charAt(0) || 'U'}
-                </div>
+                <span className="text-[11px] font-bold text-white">{user?.name?.charAt(0) || 'A'}</span>
               )}
             </div>
-            <div className="hidden flex-col items-start md:flex">
-              <span className="text-[13px] font-semibold leading-none text-slate-800">{user?.name}</span>
-              <span className="mt-0.5 text-[10px] capitalize leading-none text-slate-500">{user?.role ?? 'Admin'}</span>
+            <div className="hidden flex-col items-start leading-tight md:flex">
+              <span className="text-[12px] font-semibold text-white">{user?.name ?? 'Admin'}</span>
+              <span className="text-[10px] capitalize" style={{ color: '#93b8e8' }}>{user?.role ?? 'Principal'}</span>
             </div>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+            <ChevronDown className="h-3 w-3" style={{ color: 'rgba(255,255,255,0.5)' }} />
           </button>
 
           {userMenuOpen && (
-            <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-              {/* User info header */}
-              <div className="border-b border-slate-100 bg-slate-50 px-4 py-3">
-                <p className="truncate text-[13px] font-semibold text-slate-900">{user?.name}</p>
-                <p className="truncate text-xs text-slate-500">{user?.email}</p>
-                <span className="mt-1.5 inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">
+            <div
+              className="absolute right-0 z-50 mt-1 w-52 overflow-hidden"
+              style={{
+                backgroundColor: '#fff',
+                border: '1px solid #DCE3EB',
+                borderRadius: '4px',
+                boxShadow: '0 4px 16px rgba(0,35,102,0.18)',
+              }}
+            >
+              <div className="px-4 py-3" style={{ borderBottom: '1px solid #DCE3EB', backgroundColor: '#EEF3FB' }}>
+                <p className="truncate text-xs font-semibold" style={{ color: '#002366' }}>{user?.name}</p>
+                <p className="truncate text-[11px]" style={{ color: '#6B7A8D' }}>{user?.email}</p>
+                <span
+                  className="mt-1.5 inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold"
+                  style={{ backgroundColor: '#DBEAFE', color: '#1E40AF', borderRadius: '2px' }}
+                >
                   {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Admin'}
                 </span>
               </div>
-
               <div className="py-1">
-                <Link
-                  to="/admin/settings"
-                  onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700 transition hover:bg-slate-50 hover:text-blue-700"
-                >
-                  <User className="h-4 w-4 text-slate-400" />
+                <Link to="/admin/settings" onClick={() => setUserMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-xs transition hover:bg-[#F4F7FB]"
+                  style={{ color: '#1A2B45' }}>
+                  <User className="h-3.5 w-3.5" style={{ color: '#6B7A8D' }} />
                   My Profile
                 </Link>
-                <Link
-                  to="/admin/settings"
-                  onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700 transition hover:bg-slate-50 hover:text-blue-700"
-                >
-                  <Settings className="h-4 w-4 text-slate-400" />
+                <Link to="/admin/settings" onClick={() => setUserMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-xs transition hover:bg-[#F4F7FB]"
+                  style={{ color: '#1A2B45' }}>
+                  <Settings className="h-3.5 w-3.5" style={{ color: '#6B7A8D' }} />
                   Settings
                 </Link>
               </div>
-
-              <div className="border-t border-slate-100 py-1">
-                <button
-                  onClick={handleLogout}
-                  className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-[13px] text-rose-600 transition hover:bg-rose-50"
-                >
-                  <LogOut className="h-4 w-4" />
+              <div className="py-1" style={{ borderTop: '1px solid #DCE3EB' }}>
+                <button onClick={handleLogout}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-xs transition hover:bg-red-50"
+                  style={{ color: '#DC2626' }}>
+                  <LogOut className="h-3.5 w-3.5" />
                   Sign Out
                 </button>
               </div>

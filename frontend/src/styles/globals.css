@@ -1,107 +1,213 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html, body, #root { @apply h-full scroll-smooth; }
-  body { @apply bg-gray-50 text-gray-900 antialiased; }
+  body {
+    @apply antialiased;
+    background-color: #F4F7FB;
+    color: #1A2B45;
+    font-family: 'Inter', 'Noto Sans', system-ui, sans-serif;
+  }
 
-  /* Admin brand — rgb(28, 78, 217) = #1c4ed9 */
+  /* ── Nepal Government Portal Design Tokens ─────────────────── */
   :root {
-    --brand:        #1c4ed9;
-    --brand-dark:   #1a44c2;
-    --brand-darker: #1538a0;
-    --brand-light:  #eef2ff;
-    --brand-ring:   rgba(28, 78, 217, 0.22);
+    /* Primary palette */
+    --gov-navy:    #0B2E6B;
+    --gov-royal:   #1D4ED8;
+    --gov-surface: #F4F7FB;
+    --gov-border:  #DCE3EB;
+    --gov-white:   #FFFFFF;
+    --gov-muted:   #6B7A8D;
+    --gov-dark:    #1A2B45;
+
+    /* Brand aliases */
+    --brand:        #1D4ED8;
+    --brand-dark:   #1538A0;
+    --brand-darker: #0F2C7E;
+    --brand-light:  #EEF3FB;
+    --brand-ring:   rgba(29, 78, 216, 0.20);
+
+    /* Sidebar */
+    --sidebar-bg:     #0B2E6B;
+    --sidebar-panel:  #0A2660;
+    --sidebar-hover:  #0F3580;
+    --sidebar-active: #1D4ED8;
+    --sidebar-text:   #E8EEF8;
+    --sidebar-muted:  #8FA3C8;
+    --sidebar-border: #1A3D7A;
   }
 }
 
 @layer components {
-  /* ── Buttons ─────────────────────────────────────────────── */
+  /* ── Government Portal Buttons ───────────────────────────────── */
   .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
-           text-white shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed;
-    background-color: var(--action-view);
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium
+           text-white transition disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: var(--gov-royal);
+    border-radius: 4px;
+    border: 1px solid transparent;
   }
-  .btn-primary:hover  { background-color: var(--action-view-dark); }
-  .btn-primary:focus  { outline: none; box-shadow: 0 0 0 3px rgba(79,70,229,0.22); }
+  .btn-primary:hover  { background-color: var(--brand-dark); }
+  .btn-primary:focus  { outline: none; box-shadow: 0 0 0 2px var(--brand-ring); }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2
-           text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none
-           focus:ring-2 focus:ring-offset-2 disabled:opacity-50;
-    --tw-ring-color: var(--brand-ring);
-  }
-  .btn-danger {
-    @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
-           text-white shadow-sm transition hover:bg-action-deleteDark focus:outline-none focus:ring-2
-           disabled:opacity-50;
-    background-color: var(--action-delete);
-    --tw-ring-color: rgba(239,68,68,0.22);
+    @apply inline-flex items-center gap-1.5 px-4 py-2
+           text-sm font-medium transition hover:bg-gray-50
+           focus:outline-none disabled:opacity-50;
+    background-color: var(--gov-white);
+    border: 1px solid var(--gov-border);
+    border-radius: 4px;
+    color: var(--gov-dark);
   }
 
-  /* ── Admin brand button (rounded-xl variant) ─────────────── */
-  .btn-brand {
-    @apply inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold text-white
-           shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed;
-    background-color: var(--brand);
+  .btn-danger {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium
+           text-white transition disabled:opacity-50;
+    background-color: #DC2626;
+    border-radius: 4px;
+    border: 1px solid transparent;
   }
-  .btn-brand:hover  { background-color: var(--brand-dark); }
+  .btn-danger:hover { background-color: #B91C1C; }
+
+  /* Government brand button */
+  .btn-brand {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white
+           transition disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: var(--gov-navy);
+    border-radius: 4px;
+    border: 1px solid transparent;
+  }
+  .btn-brand:hover  { background-color: #0F3580; }
   .btn-brand:active { background-color: var(--brand-darker); }
 
-  /* ── Cards ───────────────────────────────────────────────── */
+  /* ── Government Portal Cards ─────────────────────────────────── */
   .card {
-    @apply rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5;
+    background-color: var(--gov-white);
+    border: 1px solid var(--gov-border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(11,46,107,0.06);
   }
 
-  /* ── Form inputs ─────────────────────────────────────────── */
+  /* ── Government Form Inputs ──────────────────────────────────── */
   .form-input {
-    @apply block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm
-           outline-none transition;
+    @apply block w-full px-3 py-2 text-sm outline-none transition;
+    background-color: var(--gov-white);
+    border: 1px solid var(--gov-border);
+    border-radius: 3px;
+    color: var(--gov-dark);
   }
   .form-input:focus {
-    border-color: var(--brand);
+    border-color: var(--gov-royal);
     box-shadow: 0 0 0 2px var(--brand-ring);
   }
 
-  /* Admin-style input (rounded-xl) */
   .admin-input {
-    @apply block w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5
-           text-sm text-slate-700 outline-none transition;
+    @apply block w-full px-3 py-2 text-sm outline-none transition;
+    background-color: #F8FAFC;
+    border: 1px solid var(--gov-border);
+    border-radius: 3px;
+    color: var(--gov-dark);
   }
   .admin-input:focus {
-    border-color: var(--brand);
-    box-shadow: 0 0 0 3px var(--brand-ring);
+    border-color: var(--gov-royal);
+    box-shadow: 0 0 0 2px var(--brand-ring);
+    background-color: var(--gov-white);
   }
-  .admin-input.error { @apply border-red-400 bg-red-50; }
+  .admin-input.error {
+    border-color: #DC2626;
+    background-color: #FEF2F2;
+  }
 
   .admin-select {
-    @apply block w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5
-           text-sm text-slate-700 outline-none transition;
+    @apply block w-full px-3 py-2 text-sm outline-none transition;
+    background-color: #F8FAFC;
+    border: 1px solid var(--gov-border);
+    border-radius: 3px;
+    color: var(--gov-dark);
   }
   .admin-select:focus {
-    border-color: var(--brand);
-    box-shadow: 0 0 0 3px var(--brand-ring);
+    border-color: var(--gov-royal);
+    box-shadow: 0 0 0 2px var(--brand-ring);
   }
 
   .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-xs font-semibold mb-1;
+    color: var(--gov-dark);
+    letter-spacing: 0.01em;
   }
 
-  /* ── Badges ──────────────────────────────────────────────── */
-  .badge        { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium; }
-  .badge-green  { @apply badge bg-green-100 text-green-800; }
-  .badge-red    { @apply badge bg-red-100 text-red-800; }
-  .badge-yellow { @apply badge bg-yellow-100 text-yellow-800; }
-  .badge-blue   { @apply badge bg-blue-100 text-blue-800; }
-  .badge-gray   { @apply badge bg-gray-100 text-gray-800; }
+  /* ── Government Portal Badges ────────────────────────────────── */
+  .badge        { @apply inline-flex items-center px-2 py-0.5 text-xs font-medium; border-radius: 3px; }
+  .badge-green  { @apply badge; background-color: #DCFCE7; color: #166534; }
+  .badge-red    { @apply badge; background-color: #FEE2E2; color: #991B1B; }
+  .badge-yellow { @apply badge; background-color: #FEF9C3; color: #854D0E; }
+  .badge-blue   { @apply badge; background-color: #DBEAFE; color: #1E40AF; }
+  .badge-gray   { @apply badge; background-color: #F1F5F9; color: #475569; }
 
-  /* ── Tab active underline ────────────────────────────────── */
+  /* ── Tab active underline ────────────────────────────────────── */
   .tab-active {
-    border-bottom-color: var(--brand) !important;
-    color: var(--brand) !important;
-    font-weight: 700;
+    border-bottom-color: var(--gov-royal) !important;
+    color: var(--gov-royal) !important;
+    font-weight: 600;
+  }
+
+  /* ── Government Table Styles ─────────────────────────────────── */
+  .gov-table {
+    @apply w-full text-sm;
+    border-collapse: collapse;
+  }
+  .gov-table thead tr {
+    background-color: #EEF3FB;
+    border-bottom: 2px solid var(--gov-border);
+  }
+  .gov-table thead th {
+    @apply px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider;
+    color: var(--gov-navy);
+  }
+  .gov-table tbody tr {
+    border-bottom: 1px solid var(--gov-border);
+    transition: background-color 0.1s;
+  }
+  .gov-table tbody tr:hover {
+    background-color: #F4F7FB;
+  }
+  .gov-table tbody td {
+    @apply px-4 py-3 text-sm;
+    color: var(--gov-dark);
+  }
+
+  /* ── Government KPI Card ─────────────────────────────────────── */
+  .gov-kpi-card {
+    background-color: var(--gov-white);
+    border: 1px solid var(--gov-border);
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 3px 0 rgba(11,46,107,0.06);
+    border-left: 3px solid var(--gov-royal);
+  }
+
+  /* ── Government Section Header ───────────────────────────────── */
+  .gov-section-header {
+    @apply flex items-center justify-between pb-2.5 mb-4;
+    border-bottom: 1px solid var(--gov-border);
+  }
+  .gov-section-title {
+    @apply text-sm font-semibold;
+    color: var(--gov-navy);
+  }
+
+  /* ── Government Page Header ──────────────────────────────────── */
+  .gov-page-header {
+    background-color: var(--gov-white);
+    border: 1px solid var(--gov-border);
+    border-radius: 4px;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid var(--gov-navy);
+    box-shadow: 0 1px 3px 0 rgba(11,46,107,0.06);
   }
 }
 
