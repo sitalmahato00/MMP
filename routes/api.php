@@ -9,7 +9,13 @@ use App\Modules\Exam\Controllers\Api\ExamApiController;
 use App\Modules\Attendance\Controllers\Api\AttendanceApiController;
 use App\Modules\Academic\Controllers\Api\AcademicApiController;
 use App\Modules\Cms\Controllers\Api\CmsApiController;
+use App\Modules\Cms\Controllers\Api\ExecutiveApiController;
 use App\Modules\Api\Controllers\SubjectController;
+use App\Modules\User\Controllers\Api\UserApiController;
+use App\Modules\Parent\Controllers\Api\ParentApiController;
+use App\Modules\Alumni\Controllers\Api\AlumniApiController;
+use App\Modules\Staff\Controllers\Api\StaffApiController;
+use App\Modules\Hod\Controllers\Api\HodApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +101,27 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::post('/notices', [CmsApiController::class, 'storeNotice']);
     Route::put('/notices/{notice}', [CmsApiController::class, 'updateNotice']);
     Route::delete('/notices/{notice}', [CmsApiController::class, 'destroyNotice']);
+
+    // ── System Users ─────────────────────────────────────────────────────────
+    Route::apiResource('users', UserApiController::class);
+
+    // ── HODs ───────────────────────────────────────────────────────────────────
+    Route::apiResource('hods', HodApiController::class);
+
+    // ── Parents ────────────────────────────────────────────────────────────────
+    Route::apiResource('parents', ParentApiController::class);
+
+    // ── Alumni ─────────────────────────────────────────────────────────────────
+    Route::put('/alumni/{alumnus}/toggle-featured', [AlumniApiController::class, 'toggleFeatured']);
+    Route::apiResource('alumni', AlumniApiController::class);
+
+    // ── Executives ─────────────────────────────────────────────────────────────
+    Route::apiResource('executives', ExecutiveApiController::class);
+
+    // ── Staff ──────────────────────────────────────────────────────────────────
+    Route::put('/staff/{staff}/toggle-featured', [StaffApiController::class, 'toggleFeatured']);
+    Route::put('/staff/{staff}/toggle-public', [StaffApiController::class, 'togglePublic']);
+    Route::apiResource('staff', StaffApiController::class);
 
     // ── Students ──────────────────────────────────────────────────────────────
     Route::get('/students/export',        [StudentApiController::class, 'export']);

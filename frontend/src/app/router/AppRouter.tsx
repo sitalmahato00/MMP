@@ -41,11 +41,29 @@ const AdminDashboard    = lazy(() => import('@modules/admin/pages/DashboardPage'
 
 // User management pages
 const UsersPage         = lazy(() => import('@modules/admin/pages/UsersPage'));
+const CreateUserPage    = lazy(() => import('@modules/admin/pages/CreateUserPage'));
+const EditUserPage      = lazy(() => import('@modules/admin/pages/EditUserPage'));
+const ShowUserPage      = lazy(() => import('@modules/admin/pages/ShowUserPage'));
 const HodsPage          = lazy(() => import('@modules/admin/pages/HodsPage'));
+const CreateHodPage     = lazy(() => import('@modules/admin/pages/CreateHodPage'));
+const EditHodPage       = lazy(() => import('@modules/admin/pages/EditHodPage'));
+const ShowHodPage       = lazy(() => import('@modules/admin/pages/ShowHodPage'));
 const ExecutivesPage    = lazy(() => import('@modules/admin/pages/ExecutivesPage'));
+const CreateExecutivePage = lazy(() => import('@modules/admin/pages/CreateExecutivePage'));
+const EditExecutivePage = lazy(() => import('@modules/admin/pages/EditExecutivePage'));
+const ShowExecutivePage = lazy(() => import('@modules/admin/pages/ShowExecutivePage'));
 const ParentsPage       = lazy(() => import('@modules/admin/pages/ParentsPage'));
+const CreateParentPage  = lazy(() => import('@modules/admin/pages/CreateParentPage'));
+const EditParentPage    = lazy(() => import('@modules/admin/pages/EditParentPage'));
+const ShowParentPage    = lazy(() => import('@modules/admin/pages/ShowParentPage'));
 const AlumniAdminPage   = lazy(() => import('@modules/admin/pages/AlumniAdminPage'));
+const CreateAlumniPage  = lazy(() => import('@modules/admin/pages/CreateAlumniPage'));
+const EditAlumniPage    = lazy(() => import('@modules/admin/pages/EditAlumniPage'));
+const ShowAlumniPage    = lazy(() => import('@modules/admin/pages/ShowAlumniPage'));
 const StaffAdminPage    = lazy(() => import('@modules/admin/pages/StaffAdminPage'));
+const CreateStaffPage   = lazy(() => import('@modules/admin/pages/CreateStaffPage'));
+const EditStaffPage     = lazy(() => import('@modules/admin/pages/EditStaffPage'));
+const ShowStaffPage     = lazy(() => import('@modules/admin/pages/ShowStaffPage'));
 
 // Student module
 const StudentListPage   = lazy(() => import('@modules/student/pages/StudentListPage'));
@@ -140,12 +158,21 @@ export function AppRouter() {
 
           {/* Users */}
           <Route path="users"            element={<UsersPage />} />
+          <Route path="users/create"     element={<CreateUserPage />} />
+          <Route path="users/:id"        element={<ShowUserPage />} />
+          <Route path="users/:id/edit"   element={<EditUserPage />} />
 
           {/* HODs */}
           <Route path="hods"             element={<HodsPage />} />
+          <Route path="hods/create"      element={<CreateHodPage />} />
+          <Route path="hods/:id"         element={<ShowHodPage />} />
+          <Route path="hods/:id/edit"    element={<EditHodPage />} />
 
           {/* Executives */}
           <Route path="executives"       element={<ExecutivesPage />} />
+          <Route path="executives/create" element={<CreateExecutivePage />} />
+          <Route path="executives/:id"   element={<ShowExecutivePage />} />
+          <Route path="executives/:id/edit" element={<EditExecutivePage />} />
 
           {/* Students */}
           <Route path="students"         element={<StudentListPage />} />
@@ -161,12 +188,21 @@ export function AppRouter() {
 
           {/* Parents */}
           <Route path="parents"          element={<ParentsPage />} />
+          <Route path="parents/create"   element={<CreateParentPage />} />
+          <Route path="parents/:id"      element={<ShowParentPage />} />
+          <Route path="parents/:id/edit" element={<EditParentPage />} />
 
           {/* Alumni */}
           <Route path="alumni"           element={<AlumniAdminPage />} />
+          <Route path="alumni/create"    element={<CreateAlumniPage />} />
+          <Route path="alumni/:id"       element={<ShowAlumniPage />} />
+          <Route path="alumni/:id/edit"  element={<EditAlumniPage />} />
 
           {/* Staff */}
           <Route path="staff"            element={<StaffAdminPage />} />
+          <Route path="staff/create"     element={<CreateStaffPage />} />
+          <Route path="staff/:id"        element={<ShowStaffPage />} />
+          <Route path="staff/:id/edit"   element={<EditStaffPage />} />
 
           {/* Exams */}
           <Route path="exams"            element={<ExamListPage />} />
