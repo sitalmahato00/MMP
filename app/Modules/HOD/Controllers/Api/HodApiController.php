@@ -13,6 +13,15 @@ use Illuminate\Validation\Rule;
 
 class HodApiController extends BaseController
 {
+    public function stats(): JsonResponse
+    {
+        return $this->success([
+            'total_hods'          => User::role('hod')->count(),
+            'active_hods'         => User::role('hod')->where('is_active', true)->count(),
+            'assigned_departments' => Department::whereNotNull('hod_id')->count(),
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $hods = User::role('hod')

@@ -3,6 +3,8 @@
 namespace App\Modules\Parent\Controllers\Api;
 
 use App\Core\Base\BaseController;
+use App\Modules\Academic\Models\Program;
+use App\Modules\Department\Models\Department;
 use App\Modules\Parent\Models\ParentModel;
 use App\Modules\Student\Models\Student;
 use App\Modules\User\Models\User;
@@ -15,6 +17,29 @@ use Illuminate\Validation\Rule;
 
 class ParentApiController extends BaseController
 {
+    public function stats(): JsonResponse
+    {
+        $totalParents = ParentModel::count();
+        $linkedChildren = ParentModel::has('students')->count();
+        $unlinkedParents = ParentModel::doesntHave('students')->count();
+        $recentlyAdded = ParentModel::where('created_at', '>=', now()->subDays(30))->count();
+
+        return $this->success([
+            'total_parents'   => $totalParents,
+            'linked_children'  => $linkedChildren,
+            'unlinked_parents' => $unlinkedParents,
+            'recently_added'   => $recentlyAdded,
+        ]);
+    }
+
+    public function filters(): JsonResponse
+    {
+        return $this->success([
+            'departments' => Department::orderBy('name')->get(['id', 'name']),
+            'programs'    => Program::orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $parents = ParentModel::with(['user', 'students.user', 'students.department', 'students.program'])

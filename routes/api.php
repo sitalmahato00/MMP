@@ -106,9 +106,12 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::apiResource('users', UserApiController::class);
 
     // ── HODs ───────────────────────────────────────────────────────────────────
+    Route::get('hods/stats', [HodApiController::class, 'stats']);
     Route::apiResource('hods', HodApiController::class);
 
     // ── Parents ────────────────────────────────────────────────────────────────
+    Route::get('parents/stats', [ParentApiController::class, 'stats']);
+    Route::get('filters/parents', [ParentApiController::class, 'filters']);
     Route::apiResource('parents', ParentApiController::class);
 
     // ── Alumni ─────────────────────────────────────────────────────────────────
