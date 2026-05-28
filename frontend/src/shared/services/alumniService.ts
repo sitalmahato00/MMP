@@ -22,7 +22,7 @@ export interface Alumni {
   is_active: boolean;
   is_verified: boolean;
   visibility: string;
-  user: { id: number; name: string; email: string; avatar?: string };
+  user: { id: number; name: string; email: string; avatar?: string; phone?: string; address?: string; is_active?: boolean };
   department?: { id: number; name: string };
   program?: { id: number; name: string };
   projects?: { id: number; title: string }[];

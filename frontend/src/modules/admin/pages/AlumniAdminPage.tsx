@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Search, Trophy } from 'lucide-react';
 import { get } from '@shared/api/axios';
 import { useState } from 'react';
-import { BsDate } from '@components/ui/BsDate';
 import { Pagination } from '@components/ui/Pagination';
 
 export default function AlumniAdminPage() {

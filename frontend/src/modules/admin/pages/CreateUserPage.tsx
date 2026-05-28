@@ -5,15 +5,18 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Save, UserPlus } from 'lucide-react';
-import { Spinner } from '@components/ui/Spinner';
 import userService from '@shared/services/userService';
+import { Input } from '@components/ui/Input';
+import { Select } from '@components/ui/Select';
+import { Button } from '@components/ui/Button';
+import { BsDatePicker } from '@shared/components/ui/BsDatePicker';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
   gender: z.string().optional(),
+  dob: z.string().optional(),
   address: z.string().optional(),
   role: z.string().min(1, 'Role is required'),
   is_active: z.boolean().default(true),
@@ -22,38 +25,41 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const GENDER_OPTIONS = [
-  { value: '', label: 'Select gender' },
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
   { value: 'other', label: 'Other' },
 ];
 
 const ROLE_OPTIONS = [
-  { value: '', label: 'Select role' },
   { value: 'principal', label: 'Principal' },
-  { value: 'hod', label: 'HOD' },
+  { value: 'hod', label: 'Hod' },
   { value: 'teacher', label: 'Teacher' },
   { value: 'student', label: 'Student' },
   { value: 'parent', label: 'Parent' },
   { value: 'alumni', label: 'Alumni' },
-  { value: 'staff', label: 'Staff' },
 ];
 
 export default function CreateUserPage() {
   const navigate = useNavigate();
+  const [tab, setTab] = useState<'basic' | 'access' | 'security'>('basic');
   const [serverError, setServerError] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { is_active: true },
   });
 
+  const isActive = watch('is_active');
+
   const mutation = useMutation({
-    mutationFn: (data: FormValues) => userService.create(data as Record<string, unknown>),
+    mutationFn: (data: FormData) => userService.create(data),
     onSuccess: () => {
       toast.success('User created successfully');
       navigate('/admin/users');
@@ -63,85 +69,133 @@ export default function CreateUserPage() {
     },
   });
 
-  const onSubmit = (data: FormValues) => mutation.mutate(data);
+  const onSubmit = (data: FormValues) => {
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    if (data.phone) formData.append('phone', data.phone);
+    if (data.gender) formData.append('gender', data.gender);
+    if (data.dob) formData.append('dob', data.dob);
+    if (data.address) formData.append('address', data.address);
+    formData.append('role', data.role);
+    formData.append('is_active', data.is_active ? '1' : '0');
+    if (avatarFile) formData.append('avatar', avatarFile);
+    mutation.mutate(formData);
+  };
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">Create User</h1>
-          <p className="mt-0.5 text-sm text-slate-500">Add a new system user account.</p>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">Add User</h1>
+          <p className="mt-0.5 text-sm text-slate-500">Create a new system user.</p>
         </div>
-        <Link to=".." className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition">
-          <ArrowLeft className="h-4 w-4" /> Back
+        <Link to="/admin/users" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Back
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="p-6 space-y-5">
-          {serverError && (
-            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{serverError}</div>
-          )}
+      {serverError && (
+        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{serverError}</div>
+      )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Name</label>
-              <input {...register('name')} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Full name" />
-              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Email</label>
-              <input {...register('email')} type="email" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="email@example.com" />
-              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone</label>
-              <input {...register('phone')} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Phone number" />
-              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Gender</label>
-              <select {...register('gender')} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 mt-1.5">
-                {GENDER_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-              {errors.gender && <p className="text-xs text-red-500 mt-1">{errors.gender.message}</p>}
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Address</label>
-              <input {...register('address')} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Address" />
-              {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>}
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Role</label>
-              <select {...register('role')} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 mt-1.5">
-                {ROLE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-              {errors.role && <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>}
-            </div>
-
-            <div className="flex items-end pb-2.5">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" {...register('is_active')} className="h-4 w-4 rounded border-slate-300 text-blue-700 focus:ring-blue-100" />
-                <span className="text-sm font-semibold text-slate-700">Active</span>
-              </label>
-            </div>
-          </div>
+      <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+        <div className="mb-6 flex gap-1 rounded-xl bg-slate-100 p-1">
+          <button type="button" onClick={() => setTab('basic')}
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition ${tab === 'basic' ? 'bg-white shadow-sm text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-700'}`}>
+            Basic Info
+          </button>
+          <button type="button" onClick={() => setTab('access')}
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition ${tab === 'access' ? 'bg-white shadow-sm text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-700'}`}>
+            Role & Access
+          </button>
+          <button type="button" onClick={() => setTab('security')}
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition ${tab === 'security' ? 'bg-white shadow-sm text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-700'}`}>
+            Security
+          </button>
         </div>
 
-        <div className="border-t border-slate-100 bg-slate-50/50 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-800 transition disabled:opacity-50">
-              {isSubmitting ? <Spinner size="sm" /> : <Save className="h-4 w-4" />}
-              {isSubmitting ? 'Saving…' : 'Create User'}
-            </button>
-            <Link to=".." className="text-sm font-semibold text-slate-500 hover:text-slate-700 transition">Cancel</Link>
+        {tab === 'basic' && (
+          <div>
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h3 className="text-base font-bold text-slate-900">Basic Information</h3>
+                <p className="mt-0.5 text-sm text-slate-500">Identity, contact details, and profile photo.</p>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Input label="Full Name" required {...register('name')} error={errors.name?.message} placeholder="John Doe" />
+                <Input label="Email Address" type="email" required {...register('email')} error={errors.email?.message} placeholder="john@example.com" />
+                <Input label="Phone Number" {...register('phone')} error={errors.phone?.message} placeholder="+977-9800000000" />
+                <Select label="Gender" placeholder="Select Gender" options={GENDER_OPTIONS} {...register('gender')} error={errors.gender?.message} />
+                <div>
+                  <BsDatePicker
+                    label="Date of Birth (BS)"
+                    onChange={(bsDate) => setValue('dob', bsDate)}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="form-label">Address</label>
+                  <textarea {...register('address')} rows={2} placeholder="Full address" className="form-input w-full" />
+                  {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address.message}</p>}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="form-label">Profile Picture</label>
+                  <input type="file" accept="image/*" onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 transition cursor-pointer" />
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-3">
+              <button type="button" onClick={() => setTab('access')} className="rounded-xl bg-[#8B0000] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#7a0000] transition">Next: Role & Access →</button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {tab === 'access' && (
+          <div>
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h3 className="text-base font-bold text-slate-900">Role & Access</h3>
+                <p className="mt-0.5 text-sm text-slate-500">Assign a system role and set account status.</p>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Select label="Role" placeholder="— Select Role —" required options={ROLE_OPTIONS} {...register('role')} error={errors.role?.message} />
+                <div>
+                  <label className="flex items-center gap-3 mt-2 cursor-pointer">
+                    <input type="checkbox" checked={isActive} onChange={(e) => setValue('is_active', e.target.checked)} className="w-4 h-4 accent-[#8B0000] rounded" />
+                    <span className="text-sm text-gray-600">Active (can login)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-3">
+              <button type="button" onClick={() => setTab('basic')} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
+              <button type="button" onClick={() => setTab('security')} className="rounded-xl bg-[#8B0000] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#7a0000] transition">Next: Security →</button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'security' && (
+          <div>
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h3 className="text-base font-bold text-slate-900">Security</h3>
+                <p className="mt-0.5 text-sm text-slate-500">Password is auto-generated and emailed to the user.</p>
+              </div>
+              <div className="p-6">
+                <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 text-sm text-blue-700">
+                  <svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/></svg>
+                  A secure random password will be auto-generated and emailed to the user upon account creation.
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 flex items-center gap-3">
+              <button type="button" onClick={() => setTab('access')} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
+              <Button type="submit" loading={isSubmitting}>Create User</Button>
+              <Link to="/admin/users" className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</Link>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

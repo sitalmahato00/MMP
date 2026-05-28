@@ -40,7 +40,7 @@ export default function ShowExecutivePage() {
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Type</label>
             <div className="mt-1">
-              <Badge variant={exec.type === 'principal' ? 'blue' : 'amber'}>{exec.type?.charAt(0).toUpperCase() + exec.type?.slice(1)}</Badge>
+              <Badge variant={exec.type === 'principal' ? 'blue' : 'yellow'}>{exec.type?.charAt(0).toUpperCase() + exec.type?.slice(1)}</Badge>
             </div>
           </div>
 
@@ -69,7 +69,7 @@ export default function ShowExecutivePage() {
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Status</label>
             <div className="mt-1">
-              <Badge variant={exec.is_current ? 'emerald' : 'slate'}>{exec.is_current ? 'Current' : 'Former'}</Badge>
+              <Badge variant={exec.is_current ? 'green' : 'gray'}>{exec.is_current ? 'Current' : 'Former'}</Badge>
             </div>
           </div>
         </div>

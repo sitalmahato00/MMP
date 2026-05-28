@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Globe, Github, Linkedin, Trophy } from 'lucide-react';
+import { ArrowLeft, Globe, Github, Linkedin, Trophy } from 'lucide-react';
 import { Spinner } from '@components/ui/Spinner';
 import { BsDate } from '@components/ui/BsDate';
 import alumniService from '@shared/services/alumniService';
@@ -13,7 +13,7 @@ export default function ShowAlumniPage() {
     queryFn: () => alumniService.show(Number(id)),
     enabled: !!id,
   });
-  const a = data?.data?.data;
+  const a = data?.data;
 
   if (isLoading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
   if (!a) return <div className="py-20 text-center text-sm text-slate-500">Alumni not found.</div>;

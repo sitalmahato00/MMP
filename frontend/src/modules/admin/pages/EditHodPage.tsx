@@ -1,14 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { Input } from '@components/ui/Input';
+import { Select } from '@components/ui/Select';
+import { BsDatePicker } from '@components/ui/BsDatePicker';
+import { Button } from '@components/ui/Button';
 import { Spinner } from '@components/ui/Spinner';
 import hodService from '@shared/services/hodService';
 import academicService from '@shared/services/academicService';
 
+const schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+  gender: z.string().optional(),
+  dob: z.string().optional(),
+  address: z.string().optional(),
+  department_id: z.string().optional(),
+  is_active: z.boolean(),
+  password: z.string().optional(),
+  password_confirmation: z.string().optional(),
+}).refine(data => !data.password || data.password === data.password_confirmation, {
+  message: 'Passwords do not match',
+  path: ['password_confirmation'],
+}).refine(data => !data.password || data.password.length >= 8, {
+  message: 'Password must be at least 8 characters',
+  path: ['password'],
+});
+
+type FormValues = z.infer<typeof schema>;
+
 const GENDER_OPTIONS = [
-  { value: '', label: 'Select gender' },
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
   { value: 'other', label: 'Other' },
@@ -17,18 +44,8 @@ const GENDER_OPTIONS = [
 export default function EditHodPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    gender: '',
-    address: '',
-    department_id: '',
-    is_active: true,
-    password: '',
-    password_confirmation: '',
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const [resetDone, setResetDone] = useState(false);
 
   const { data: hodRes, isLoading: hodLoading } = useQuery({
     queryKey: ['hod', id],
@@ -36,7 +53,7 @@ export default function EditHodPage() {
     enabled: !!id,
   });
 
-  const { data: deptsRes } = useQuery({
+  const { data: deptsRes } =useQuery({
     queryKey: ['departments'],
     queryFn: academicService.departments,
     staleTime: Infinity,
@@ -45,36 +62,37 @@ export default function EditHodPage() {
   const hod = hodRes?.data;
   const departments = deptsRes?.data ?? [];
 
-  useEffect(() => {
-    if (hod) {
-      setForm({
-        name: hod.name || '',
-        email: hod.email || '',
-        phone: hod.phone || '',
-        gender: hod.gender || '',
-        address: hod.address || '',
-        department_id: String(hod.hod_department?.id ?? ''),
-        is_active: hod.is_active ?? true,
-        password: '',
-        password_confirmation: '',
-      });
-    }
-  }, [hod]);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+  });
 
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (!form.name.trim()) errs.name = 'Name is required';
-    if (!form.email.trim()) errs.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Invalid email address';
-    if (!form.department_id) errs.department_id = 'Department is required';
-    if (form.password && form.password.length < 8) errs.password = 'Password must be at least 8 characters';
-    if (form.password !== form.password_confirmation) errs.password_confirmation = 'Passwords do not match';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
+  if (hod && !resetDone) {
+    reset({
+      name: hod.name || '',
+      email: hod.email || '',
+      phone: hod.phone || '',
+      gender: hod.gender || '',
+      dob: hod.dob || '',
+      address: hod.address || '',
+      department_id: hod.hod_department ? String(hod.hod_department.id) : '',
+      is_active: hod.is_active ?? true,
+      password: '',
+      password_confirmation: '',
+    });
+    setResetDone(true);
+  }
+
+  const dob = watch('dob');
 
   const mutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) => hodService.update(Number(id), data),
+    mutationFn: (data: FormData) => hodService.update(Number(id), data),
     onSuccess: () => {
       toast.success('HOD updated successfully');
       navigate('/admin/hods');
@@ -84,16 +102,23 @@ export default function EditHodPage() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-    const payload = { ...form };
-    if (!payload.password) { delete payload.password; delete payload.password_confirmation; }
-    mutation.mutate(payload as unknown as Record<string, unknown>);
+  const onSubmit = (data: FormValues) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('_method', 'PUT');
+    if (!data.password) {
+      formData.delete('password');
+      formData.delete('password_confirmation');
+    }
+    if (avatarRef.current?.files?.[0]) {
+      formData.append('avatar', avatarRef.current.files[0]);
+    }
+    mutation.mutate(formData);
   };
-
-  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm(prev => ({ ...prev, [field]: e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value }));
 
   if (hodLoading) {
     return (
@@ -115,87 +140,91 @@ export default function EditHodPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="max-w-3xl">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900">Edit HOD</h1>
-          <p className="mt-0.5 text-sm text-slate-500">Update HOD account and department assignment.</p>
+          <p className="mt-0.5 text-sm text-slate-500">Update Head of Department information.</p>
         </div>
-        <Link to=".." className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition">
-          <ArrowLeft className="h-4 w-4" /> Back
+        <Link to="/admin/hods" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition">
+          <ArrowLeft className="h-4 w-4" /> Back to List
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="p-6 space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6" encType="multipart/form-data">
+        <div className="space-y-6">
+          {hod.avatar_url && (
+            <div className="flex items-center gap-4">
+              <img src={hod.avatar_url} alt={hod.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">Current Profile Photo</p>
+                <p className="text-xs text-gray-500">Upload a new photo to replace</p>
+              </div>
+            </div>
+          )}
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Input id="name" label="Full Name" required {...register('name')} error={errors.name?.message} />
+              </div>
+              <div>
+                <Input id="email" label="Email" type="email" required {...register('email')} error={errors.email?.message} />
+              </div>
+              <div>
+                <Input id="phone" label="Phone" {...register('phone')} />
+              </div>
+              <div>
+                <Select id="gender" label="Gender" placeholder="Select Gender" options={GENDER_OPTIONS} {...register('gender')} />
+              </div>
+              <div>
+                <BsDatePicker label="Date of Birth (BS)" value={dob} onChange={(bs) => setValue('dob', bs, { shouldValidate: true })} error={errors.dob?.message} />
+              </div>
+              <div className="md:col-span-2">
+                <Input id="address" label="Address" {...register('address')} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="form-label">Profile Photo</label>
+                <input type="file" ref={avatarRef} accept="image/*"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mt-1.5" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Assignment</h3>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Name</label>
-              <input value={form.name} onChange={set('name')} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Full name" />
-              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+              <Select id="department_id" label="Assign Department" placeholder="No Department"
+                options={departments.map((d: any) => ({ value: String(d.id), label: `${d.name} (${d.code ?? ''})` }))}
+                {...register('department_id')} />
+              <p className="mt-1 text-xs text-gray-500">Only departments without an assigned HOD are shown (plus current department if assigned)</p>
             </div>
+          </div>
 
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Email</label>
-              <input value={form.email} onChange={set('email')} type="email" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="email@example.com" />
-              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone</label>
-              <input value={form.phone} onChange={set('phone')} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Phone number" />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Gender</label>
-              <select value={form.gender} onChange={set('gender')} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 mt-1.5">
-                {GENDER_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Address</label>
-              <input value={form.address} onChange={set('address')} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Address" />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Department</label>
-              <select value={form.department_id} onChange={set('department_id')} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 mt-1.5">
-                <option value="">Select department</option>
-                {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
-              {errors.department_id && <p className="text-xs text-red-500 mt-1">{errors.department_id}</p>}
-            </div>
-
-            <div className="flex items-end pb-2.5">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={form.is_active} onChange={set('is_active')} className="h-4 w-4 rounded border-slate-300 text-blue-700 focus:ring-blue-100" />
-                <span className="text-sm font-semibold text-slate-700">Active</span>
-              </label>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Password</label>
-              <input value={form.password} onChange={set('password')} type="password" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Leave blank to keep current" />
-              {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Confirm Password</label>
-              <input value={form.password_confirmation} onChange={set('password_confirmation')} type="password" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 disabled:bg-slate-50 mt-1.5" placeholder="Confirm password" />
-              {errors.password_confirmation && <p className="text-xs text-red-500 mt-1">{errors.password_confirmation}</p>}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Input id="password" label="New Password" type="password" {...register('password')} hint="Leave blank to keep current password" error={errors.password?.message} />
+              </div>
+              <div>
+                <Input id="password_confirmation" label="Confirm New Password" type="password" {...register('password_confirmation')} error={errors.password_confirmation?.message} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" {...register('is_active')}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <span className="text-sm font-medium text-gray-700">Active Account</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-slate-100 bg-slate-50/50 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <button type="submit" disabled={mutation.isPending} className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-800 transition disabled:opacity-50">
-              {mutation.isPending ? <Spinner size="sm" /> : <Save className="h-4 w-4" />}
-              {mutation.isPending ? 'Saving…' : 'Update HOD'}
-            </button>
-            <Link to=".." className="text-sm font-semibold text-slate-500 hover:text-slate-700 transition">Cancel</Link>
-          </div>
+        <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-gray-100">
+          <Link to="/admin/hods" className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition">Cancel</Link>
+          <Button type="submit" loading={isSubmitting}>Update HOD</Button>
         </div>
       </form>
     </div>
