@@ -8,6 +8,7 @@ use App\Modules\Teacher\Controllers\Api\TeacherApiController;
 use App\Modules\Exam\Controllers\Api\ExamApiController;
 use App\Modules\Attendance\Controllers\Api\AttendanceApiController;
 use App\Modules\Academic\Controllers\Api\AcademicApiController;
+use App\Modules\Cms\Controllers\Api\CmsApiController;
 use App\Modules\Api\Controllers\SubjectController;
 
 /*
@@ -65,14 +66,35 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
 
     // ── Academic ──────────────────────────────────────────────────────────────
     Route::prefix('academic')->group(function () {
-        Route::get('/sessions',         [AcademicApiController::class, 'sessions']);
-        Route::get('/sessions/current', [AcademicApiController::class, 'currentSession']);
-        Route::post('/sessions',        [AcademicApiController::class, 'storeSession']);
-        Route::get('/programs',         [AcademicApiController::class, 'programs']);
-        Route::get('/subjects',         [AcademicApiController::class, 'subjects']);
+        Route::get('/sessions',              [AcademicApiController::class, 'sessions']);
+        Route::get('/sessions/current',      [AcademicApiController::class, 'currentSession']);
+        Route::post('/sessions',             [AcademicApiController::class, 'storeSession']);
+        Route::get('/sessions/{session}',    [AcademicApiController::class, 'sessionShow']);
+        Route::put('/sessions/{session}',    [AcademicApiController::class, 'updateSession']);
+        Route::delete('/sessions/{session}', [AcademicApiController::class, 'destroySession']);
+        Route::get('/programs',              [AcademicApiController::class, 'programs']);
+        Route::post('/programs',             [AcademicApiController::class, 'storeProgram']);
+        Route::get('/programs/{program}',    [AcademicApiController::class, 'programShow']);
+        Route::put('/programs/{program}',    [AcademicApiController::class, 'updateProgram']);
+        Route::delete('/programs/{program}', [AcademicApiController::class, 'destroyProgram']);
+        Route::get('/subjects',              [AcademicApiController::class, 'subjects']);
     });
 
-    Route::get('/departments', [AcademicApiController::class, 'departments']);
+    // ── Departments ──────────────────────────────────────────────────────────
+    Route::prefix('departments')->group(function () {
+        Route::get('/',                          [AcademicApiController::class, 'departments']);
+        Route::get('/{department}',              [AcademicApiController::class, 'departmentShow']);
+        Route::post('/',                         [AcademicApiController::class, 'storeDepartment']);
+        Route::put('/{department}',              [AcademicApiController::class, 'updateDepartment']);
+        Route::delete('/{department}',           [AcademicApiController::class, 'destroyDepartment']);
+    });
+
+    // ── CMS (Notices) ────────────────────────────────────────────────────────
+    Route::get('/notices', [CmsApiController::class, 'notices']);
+    Route::get('/notices/{notice}', [CmsApiController::class, 'noticeShow']);
+    Route::post('/notices', [CmsApiController::class, 'storeNotice']);
+    Route::put('/notices/{notice}', [CmsApiController::class, 'updateNotice']);
+    Route::delete('/notices/{notice}', [CmsApiController::class, 'destroyNotice']);
 
     // ── Students ──────────────────────────────────────────────────────────────
     Route::get('/students/export',        [StudentApiController::class, 'export']);

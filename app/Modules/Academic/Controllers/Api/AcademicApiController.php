@@ -203,11 +203,26 @@ class AcademicApiController extends BaseController
             'is_current' => ['boolean'],
         ]);
 
-        if (!empty($data['is_current'])) {
-            AcademicSession::query()->update(['is_current' => false]);
+        $isCurrent = !empty($data['is_current']);
+        unset($data['is_current']);
+
+        if (empty($data['start_date'])) {
+            $data['start_date'] = now()->toDateString();
+        }
+        if (empty($data['end_date'])) {
+            $data['end_date'] = now()->addYear()->toDateString();
+        }
+
+        if ($isCurrent) {
+            AcademicSession::query()->update(['is_active' => false]);
         }
 
         $session = AcademicSession::create($data);
+
+        if ($isCurrent) {
+            $session->update(['is_active' => true]);
+        }
+
         return $this->created($session);
     }
 
@@ -241,5 +256,144 @@ class AcademicApiController extends BaseController
             ->get();
 
         return $this->success($subjects);
+    }
+
+    // ─── Program CRUD ─────────────────────────────────────────────────────────
+
+    public function programShow(Program $program): JsonResponse
+    {
+        $program->load(['department:id,name', 'coordinator:id,name']);
+        return $this->success($program);
+    }
+
+    public function storeProgram(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'department_id'   => ['required', 'exists:departments,id'],
+            'coordinator_id'  => ['nullable', 'exists:teachers,id'],
+            'name'            => ['required', 'string', 'max:255'],
+            'code'            => ['required', 'string', 'max:50'],
+            'slug'            => ['nullable', 'string', 'max:255', 'unique:programs,slug'],
+            'ctevt_code'      => ['nullable', 'string', 'max:50'],
+            'affiliation_type'=> ['nullable', 'string', 'max:50'],
+            'total_semesters' => ['nullable', 'integer', 'min:1'],
+            'duration_years'  => ['nullable', 'numeric', 'min:0.5'],
+            'description'     => ['nullable', 'string'],
+            'eligibility'     => ['nullable', 'string'],
+            'is_active'       => ['boolean'],
+        ]);
+        if (empty($data['slug'])) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['name']) . '-' . uniqid();
+        }
+        $program = Program::create($data);
+        return $this->created($program);
+    }
+
+    public function updateProgram(Request $request, Program $program): JsonResponse
+    {
+        $data = $request->validate([
+            'department_id'   => ['required', 'exists:departments,id'],
+            'coordinator_id'  => ['nullable', 'exists:teachers,id'],
+            'name'            => ['required', 'string', 'max:255'],
+            'code'            => ['required', 'string', 'max:50'],
+            'slug'            => ['nullable', 'string', 'max:255', 'unique:programs,slug,' . $program->id],
+            'ctevt_code'      => ['nullable', 'string', 'max:50'],
+            'affiliation_type'=> ['nullable', 'string', 'max:50'],
+            'total_semesters' => ['nullable', 'integer', 'min:1'],
+            'duration_years'  => ['nullable', 'numeric', 'min:0.5'],
+            'description'     => ['nullable', 'string'],
+            'eligibility'     => ['nullable', 'string'],
+            'is_active'       => ['boolean'],
+        ]);
+        if (empty($data['slug'])) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['name']) . '-' . $program->id;
+        }
+        $program->update($data);
+        return $this->success($program);
+    }
+
+    public function destroyProgram(Program $program): JsonResponse
+    {
+        $program->delete();
+        return $this->success(['message' => 'Program deleted.']);
+    }
+
+    // ─── Session CRUD ─────────────────────────────────────────────────────────
+
+    public function sessionShow(AcademicSession $session): JsonResponse
+    {
+        return $this->success($session);
+    }
+
+    public function updateSession(Request $request, AcademicSession $session): JsonResponse
+    {
+        $data = $request->validate([
+            'name'       => ['required', 'string', 'max:100', 'unique:academic_sessions,name,' . $session->id],
+            'name_bs'    => ['nullable', 'string', 'max:100'],
+            'start_date' => ['nullable', 'date'],
+            'end_date'   => ['nullable', 'date', 'after_or_equal:start_date'],
+            'is_current' => ['boolean'],
+        ]);
+
+        $isCurrent = !empty($data['is_current']);
+        unset($data['is_current']);
+
+        if ($isCurrent) {
+            AcademicSession::where('id', '!=', $session->id)->update(['is_active' => false]);
+            $data['is_active'] = true;
+        }
+
+        $session->update($data);
+        return $this->success($session);
+    }
+
+    public function destroySession(AcademicSession $session): JsonResponse
+    {
+        $session->delete();
+        return $this->success(['message' => 'Session deleted.']);
+    }
+
+    // ─── Department CRUD ──────────────────────────────────────────────────────
+
+    public function departmentShow(Department $department): JsonResponse
+    {
+        $department->load(['hod:id,name']);
+        return $this->success($department);
+    }
+
+    public function storeDepartment(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name'          => ['required', 'string', 'max:255'],
+            'code'          => ['required', 'string', 'max:50', 'unique:departments,code'],
+            'slug'          => ['nullable', 'string', 'max:255', 'unique:departments,slug'],
+            'description'   => ['nullable', 'string'],
+            'seat_capacity' => ['nullable', 'integer', 'min:0'],
+            'hod_id'        => ['nullable', 'exists:teachers,id'],
+            'is_active'     => ['boolean'],
+        ]);
+        $department = Department::create($data);
+        return $this->created($department);
+    }
+
+    public function updateDepartment(Request $request, Department $department): JsonResponse
+    {
+        $data = $request->validate([
+            'name'          => ['required', 'string', 'max:255'],
+            'code'          => ['required', 'string', 'max:50', 'unique:departments,code,' . $department->id],
+            'slug'          => ['nullable', 'string', 'max:255', 'unique:departments,slug,' . $department->id],
+            'description'   => ['nullable', 'string'],
+            'seat_capacity' => ['nullable', 'integer', 'min:0'],
+            'hod_id'        => ['nullable', 'exists:teachers,id'],
+            'is_active'     => ['boolean'],
+        ]);
+        $department->update($data);
+        return $this->success($department);
+    }
+
+    public function destroyDepartment(Department $department): JsonResponse
+    {
+        $department->delete();
+        return $this->success(['message' => 'Department deleted.']);
     }
 }
