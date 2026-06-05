@@ -573,6 +573,9 @@ The system includes an external sync service for CTEVT notices that solves the c
 composer run setup
 ```
 
+On Windows, start local development with `composer run dev:windows`.
+The default `composer run dev` command includes Laravel Pail, which requires the `pcntl` extension and does not run on Windows.
+
 ### Manual setup
 
 ```bash
