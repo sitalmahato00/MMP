@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Create roles
-        $roles = ['principal', 'hod', 'teacher', 'student', 'parent', 'alumni'];
+        $roles = ['principal', 'admin', 'hod', 'teacher', 'student', 'parent', 'alumni'];
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
@@ -38,8 +38,8 @@ class DatabaseSeeder extends Seeder
             $admin->restore();
         }
 
-        // Assign principal role
-        $admin->syncRoles(['principal']);
+        // Assign principal and admin roles
+        $admin->syncRoles(['principal', 'admin']);
 
         // Create one active academic session
         AcademicSession::query()->updateOrCreate(

@@ -25,16 +25,31 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        $userRole = $request->user()->role ?? null;
+        // Determine user roles via Spatie trait if available
+        $user = $request->user();
+        $userRoles = [];
+        if (method_exists($user, 'getRoleNames')) {
+            $userRoles = $user->getRoleNames()->toArray();
+        } elseif (property_exists($user, 'role')) {
+            $userRoles = [$user->role];
+        }
 
-        // Check if user has required role
-        if (!in_array($userRole, $roles)) {
+        // Check if user has any of the required roles
+        $hasRole = false;
+        foreach ($roles as $required) {
+            if (in_array($required, $userRoles) || (method_exists($user, 'hasRole') && $user->hasRole($required))) {
+                $hasRole = true;
+                break;
+            }
+        }
+
+        if (! $hasRole) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Forbidden - Insufficient permissions',
                     'required_role' => implode(', ', $roles),
-                    'user_role' => $userRole,
+                    'user_roles' => $userRoles,
                 ], 403);
             }
             abort(403, 'Unauthorized. You do not have the required role.');
