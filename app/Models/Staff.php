@@ -52,7 +52,7 @@ class Staff extends Model
     public function getPhotoUrlAttribute()
     {
         if ($this->photo) {
-            return Storage::disk('public')->url($this->photo);
+            return publicStorageUrl($this->photo) ?? $this->user?->avatar_url;
         }
 
         if ($this->user?->avatar) {

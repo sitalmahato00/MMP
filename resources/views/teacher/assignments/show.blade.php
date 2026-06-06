@@ -70,7 +70,7 @@
     @if($assignment->attachment)
         <div class="rounded-xl border border-slate-200/80 bg-white p-4 sm:p-6 shadow-sm">
             <h2 class="text-sm font-semibold text-slate-900 mb-3">Attachment</h2>
-            <a href="{{ Storage::url($assignment->attachment) }}" target="_blank" class="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-100">
+            <a href="{{ asset('storage/' . ltrim($assignment->attachment, '/')) }}" target="_blank" class="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-100">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>

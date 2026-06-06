@@ -81,7 +81,7 @@
         @if($assignment->attachment)
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <p class="text-sm font-semibold text-slate-900 mb-2">Current Attachment</p>
-            <a href="{{ Storage::url($assignment->attachment) }}" target="_blank" class="inline-flex items-center gap-2 text-sm text-cyan-600 hover:text-cyan-700">
+            <a href="{{ asset('storage/' . ltrim($assignment->attachment, '/')) }}" target="_blank" class="inline-flex items-center gap-2 text-sm text-cyan-600 hover:text-cyan-700">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                 </svg>

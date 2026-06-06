@@ -10,7 +10,7 @@
     $email        = $settings['contact_email']        ?? '';
     $principal    = $settings['principal_name']       ?? 'Principal';
     $logoUrl      = ($settings['site_logo'] ?? null)
-                    ? Storage::disk('public')->url($settings['site_logo'])
+                    ? publicStorageUrl($settings['site_logo'])
                     : null;
     $defaultValidUptoBS = bsDate($defaultYear . '-06-30') ?? '';
     $defaultIssueDateBS = bsDate(now()->format('Y-m-d')) ?? '';

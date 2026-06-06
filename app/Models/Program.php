@@ -62,7 +62,7 @@ class Program extends Model
 
     public function getSyllabusUrlAttribute(): ?string
     {
-        return $this->syllabus ? Storage::disk('public')->url($this->syllabus) : null;
+        return $this->syllabus ? publicStorageUrl($this->syllabus) : null;
     }
 
     public function getFinalSemester(): int

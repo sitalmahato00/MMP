@@ -111,7 +111,7 @@ class Download extends Model
         }
 
         return $this->is_public
-            ? Storage::disk('public')->url($this->file_path)
+            ? publicStorageUrl($this->file_path) ?? ''
             : route('admin.downloads.file', $this);
     }
 }

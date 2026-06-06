@@ -105,6 +105,6 @@ class Department extends Model
 
     public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo ? Storage::disk('public')->url($this->photo) : null;
+        return $this->photo ? publicStorageUrl($this->photo) : null;
     }
 }

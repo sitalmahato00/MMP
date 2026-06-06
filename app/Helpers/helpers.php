@@ -78,3 +78,16 @@ if (!function_exists('logoVersion')) {
         });
     }
 }
+if (!function_exists('publicStorageUrl')) {
+    /**
+     * Generate a public storage URL for a local public disk path.
+     */
+    function publicStorageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
+    }
+}

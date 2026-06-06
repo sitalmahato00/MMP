@@ -25,7 +25,7 @@ class StaffDocument extends Model
 
     public function getFileUrlAttribute(): string
     {
-        return Storage::disk('public')->url($this->file_path);
+        return publicStorageUrl($this->file_path) ?? '';
     }
 
     public function getDocumentTypeLabelAttribute(): string

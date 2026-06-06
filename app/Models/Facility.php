@@ -34,7 +34,8 @@ class Facility extends Model
     {
         return collect($this->images ?? [])
             ->filter()
-            ->map(fn ($path) => Storage::disk('public')->url($path))
+            ->map(fn ($path) => publicStorageUrl($path))
+            ->filter()
             ->values()
             ->all();
     }
@@ -43,7 +44,8 @@ class Facility extends Model
     {
         return collect($this->documents ?? [])
             ->filter()
-            ->map(fn ($path) => Storage::disk('public')->url($path))
+            ->map(fn ($path) => publicStorageUrl($path))
+            ->filter()
             ->values()
             ->all();
     }
@@ -52,7 +54,8 @@ class Facility extends Model
     {
         return collect($this->videos ?? [])
             ->filter()
-            ->map(fn ($path) => Storage::disk('public')->url($path))
+            ->map(fn ($path) => publicStorageUrl($path))
+            ->filter()
             ->values()
             ->all();
     }

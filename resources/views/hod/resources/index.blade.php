@@ -24,7 +24,7 @@
             <td>{{ $resource->category }}</td>
             <td>{{ ucfirst($resource->audience) }}</td>
             <td>
-                <a href="{{ Storage::disk('public')->url($resource->file_path) }}" target="_blank" class="text-blue-600 underline">View</a>
+                <a href="{{ publicStorageUrl($resource->file_path) }}" target="_blank" class="text-blue-600 underline">View</a>
             </td>
             <td>{{ bsDate($resource->created_at, 'Y, F d') }}</td>
         </tr>

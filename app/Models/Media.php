@@ -20,7 +20,7 @@ class Media extends Model
 
     public function getUrlAttribute(): string
     {
-        return Storage::disk('public')->url($this->file_path);
+        return publicStorageUrl($this->file_path) ?? '';
     }
 
     public function getHumanSizeAttribute(): string

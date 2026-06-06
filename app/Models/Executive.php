@@ -29,6 +29,6 @@ class Executive extends Model
 
     public function getAvatarUrlAttribute(): ?string
     {
-        return $this->avatar ? Storage::disk('public')->url($this->avatar) : null;
+        return $this->avatar ? publicStorageUrl($this->avatar) : null;
     }
 }

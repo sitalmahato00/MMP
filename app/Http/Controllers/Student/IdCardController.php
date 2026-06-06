@@ -28,7 +28,7 @@ class IdCardController extends Controller
         $email       = $settings['contact_email']      ?? '';
         $principal   = $settings['principal_name']     ?? 'Principal';
         $logoUrl     = ($settings['site_logo'] ?? null)
-                        ? Storage::disk('public')->url($settings['site_logo'])
+                        ? publicStorageUrl($settings['site_logo'])
                         : null;
 
         $photoUrl    = $student->user->avatar_url ?? null;
