@@ -379,6 +379,13 @@ class ExamController extends Controller
             $exam->update($data);
             $this->syncProgramAssignments($exam, $programIds, $semesterSelection, $sessionId);
         });
+
+        if ($data['is_published']) {
+            Mark::where('exam_id', $exam->id)
+                ->whereIn('status', ['submitted', 'approved'])
+                ->update(['status' => 'published']);
+        }
+
         $exam->refresh()->loadMissing(['department:id,name,code', 'programs:id,name,code,department_id']);
         app(\App\Services\PortalNotificationService::class)->dispatchExamPublished($exam);
 
@@ -400,6 +407,11 @@ class ExamController extends Controller
             'is_published' => true,
             'published_at' => now(),
         ]);
+
+        Mark::where('exam_id', $exam->id)
+            ->whereIn('status', ['submitted', 'approved'])
+            ->update(['status' => 'published']);
+
         $exam->refresh()->loadMissing(['department:id,name,code', 'programs:id,name,code,department_id']);
         app(\App\Services\PortalNotificationService::class)->dispatchExamPublished($exam);
 

@@ -100,7 +100,7 @@ class Mark extends Model
 
     public function scopeVisibleToPortal($query)
     {
-        return $query->where('marks.status', 'published')
+        return $query->whereIn('marks.status', ['published', 'approved'])
             ->whereHas('exam', function ($examQuery) {
                 $examQuery->where(function ($publishedQuery) {
                     $publishedQuery
