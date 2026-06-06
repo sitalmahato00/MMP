@@ -46,7 +46,7 @@
             @if($assignment->attachment)
             <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm p-6">
                 <h2 class="text-sm font-semibold text-slate-900 mb-3">Assignment File</h2>
-                <a href="{{ Storage::url($assignment->attachment) }}" 
+                <a href="{{ asset('storage/' . ltrim($assignment->attachment, '/')) }}" 
                    target="_blank"
                    class="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,7 +150,7 @@
                         @if($submission->attachment)
                             <div class="mt-4 pt-4 border-t border-slate-100">
                                 <span class="text-xs font-medium text-slate-700">Your Submission File</span>
-                                <a href="{{ Storage::url($submission->attachment) }}" 
+                                <a href="{{ asset('storage/' . ltrim($submission->attachment, '/')) }}" 
                                    target="_blank"
                                    class="mt-2 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
