@@ -136,16 +136,16 @@
             <h3 class="text-sm font-semibold text-slate-900 mb-3">Weekly Schedule</h3>
             
             <div class="overflow-x-auto">
-                <div class="rounded-lg border border-slate-800 overflow-hidden shadow-sm">
+                <div class="rounded-lg border border-slate-300 overflow-hidden shadow-sm">
                     <table class="w-full border-collapse bg-white">
                     <thead>
                         <tr>
-                            <th class="border border-slate-400 border-r-2 border-r-slate-800 border-b-2 border-b-slate-800 px-3 py-3 text-center font-bold text-sm w-20 bg-slate-800 text-white">Day</th>
+                            <th class="border border-slate-400 border-r border-r-slate-300 border-b border-b-slate-300 px-3 py-3 text-center font-bold text-sm w-20 bg-slate-800 text-white">Day</th>
                             <th class="border border-slate-400 px-3 py-3 text-center font-bold text-sm w-32 bg-slate-800 text-white">Period</th>
                             <th class="border border-slate-400 px-3 py-3 text-center font-bold text-sm bg-blue-700 text-white" colspan="2">Subject Details</th>
                         </tr>
                         <tr>
-                            <th class="border border-slate-400 border-b-2 border-b-slate-800 border-r-2 border-r-slate-800 px-3 py-2 text-center font-bold text-xs bg-slate-700 text-white" colspan="2"></th>
+                            <th class="border border-slate-400 border-b border-b-slate-300 border-r border-r-slate-300 px-3 py-2 text-center font-bold text-xs bg-slate-700 text-white" colspan="2"></th>
                             <th class="border border-slate-400 px-3 py-2 text-center font-bold text-sm bg-blue-600 text-white w-1/2">Group A</th>
                             <th class="border border-slate-400 px-3 py-2 text-center font-bold text-sm bg-green-600 text-white w-1/2">Group B</th>
                         </tr>
@@ -232,7 +232,7 @@
                                                     <div class="h-16 flex items-center justify-center">
                                                         <button type="button"
                                                                 @click="openAddSlotModal(daySchedule.day, row.time, 'A')"
-                                                                class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-100 w-full h-full flex items-center justify-center group rounded-md">
+                                                                class="opacity-30 hover:opacity-100 transition-all border border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-100 w-full h-full flex items-center justify-center group rounded-md">
                                                             <div class="text-center">
                                                                 <svg class="w-4 h-4 text-blue-400 group-hover:text-blue-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -274,7 +274,7 @@
                                                     <div class="h-16 flex items-center justify-center">
                                                         <button type="button"
                                                                 @click="openAddSlotModal(daySchedule.day, row.time, 'B')"
-                                                                class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-green-300 hover:border-green-400 hover:bg-green-100 w-full h-full flex items-center justify-center group rounded-md">
+                                                                class="opacity-30 hover:opacity-100 transition-all border border-dashed border-green-300 hover:border-green-400 hover:bg-green-100 w-full h-full flex items-center justify-center group rounded-md">
                                                             <div class="text-center">
                                                                 <svg class="w-4 h-4 text-green-400 group-hover:text-green-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -293,7 +293,7 @@
                                             <div class="h-16 flex items-center justify-center">
                                                 <button type="button" 
                                                         @click="openAddSlotModal(daySchedule.day, row.time, '')"
-                                                        class="opacity-40 hover:opacity-100 transition-all border-2 border-dashed border-slate-300 hover:border-slate-500 hover:bg-slate-100 w-full h-full flex items-center justify-center group rounded-md">
+                                                        class="opacity-40 hover:opacity-100 transition-all border border-dashed border-slate-300 hover:border-slate-500 hover:bg-slate-100 w-full h-full flex items-center justify-center group rounded-md">
                                                     <div class="text-center">
                                                         <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-700 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -364,6 +364,7 @@
 function timetableEditor() {
     const subjects = @json($subjects);
     const teachers = @json($teachers);
+    const globalTimeSlots = @json($timeSlots ?? []);
     
     return {
         slots: @json($slotsData),
@@ -382,30 +383,14 @@ function timetableEditor() {
         },
         
         get scheduleRows() {
-            // Build a global list of unique time slots from all slots (so each day shows the same rows)
-            const timeSlots = Array.from(new Set(this.slots.map(s => `${this.hi(s.start_time)}-${this.hi(s.end_time)}`)));
-            // Sort timeSlots by start time
-            timeSlots.sort((a, b) => {
-                const [aStart] = a.split('-');
-                const [bStart] = b.split('-');
-                return this.timeToMinutes(aStart) - this.timeToMinutes(bStart);
-            });
-
-            // If there are no slots defined, provide a default first period
-            if (timeSlots.length === 0) {
-                timeSlots.push('06:30-07:15');
-            }
+            // Use server-provided global time slots (ensures edit view matches show view)
+            const timeSlots = Array.isArray(globalTimeSlots) && globalTimeSlots.length > 0 ? globalTimeSlots : Array.from(new Set(this.slots.map(s => `${this.hi(s.start_time)}-${this.hi(s.end_time)}`)));
 
             return this.days.map(day => {
                 const rows = timeSlots.map(ts => {
-                    // If there is any slot for this day and timeslot, mark as 'slot', else 'empty'
                     const hasSlot = this.slots.some(s => s.day_of_week === day && `${this.hi(s.start_time)}-${this.hi(s.end_time)}` === ts);
-                    return {
-                        type: hasSlot ? 'slot' : 'empty',
-                        time: ts
-                    };
+                    return { type: hasSlot ? 'slot' : 'empty', time: ts };
                 });
-
                 return { day, rows };
             });
         },

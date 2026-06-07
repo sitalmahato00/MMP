@@ -224,6 +224,13 @@ class TimetableController extends HodController
             ];
         })->values();
 
+        // Prepare unique time slots (matching the timetable-grid component)
+        $timeSlots = $timetable->slots->map(function($slot) {
+            $startTime = $slot->start_time instanceof \Carbon\Carbon ? $slot->start_time->format('H:i') : substr((string) ($slot->start_time ?? '09:00'), 0, 5);
+            $endTime = $slot->end_time instanceof \Carbon\Carbon ? $slot->end_time->format('H:i') : substr((string) ($slot->end_time ?? '10:00'), 0, 5);
+            return $startTime . '-' . $endTime;
+        })->unique()->sort()->values()->toArray();
+
         return view('hod.timetable.edit', compact(
             'timetable', 'department', 'programs', 'academicSessions', 'subjects', 'teachers', 'slotsData'
         ));
