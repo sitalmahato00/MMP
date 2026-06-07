@@ -150,26 +150,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <template x-for="(day, dayIndex) in days" :key="day">
-                            <template x-for="(time, timeIndex) in uniqueTimeSlots" :key="time">
+                        <template x-for="daySchedule in scheduleRows" :key="daySchedule.day">
+                            <template x-for="(row, rowIndex) in daySchedule.rows" :key="row.time">
                                 <tr class="hover:bg-slate-50 transition-colors">
                                     <!-- Day Column (only show for first period of each day) -->
-                                    <template x-if="timeIndex === 0">
+                                    <template x-if="rowIndex === 0">
                                         <td class="border border-slate-300 px-3 py-2 bg-slate-100 font-bold text-slate-900 text-sm text-center align-top"
-                                            :rowspan="uniqueTimeSlots.length"
-                                            x-text="getDayLabel(day).toUpperCase()"
+                                            :rowspan="daySchedule.rows.length"
+                                            x-text="getDayLabel(daySchedule.day).toUpperCase()"
                                             style="writing-mode: vertical-rl; text-orientation: mixed;"></td>
                                     </template>
                                     
                                     <!-- Period Column -->
                                     <td class="border border-slate-300 px-2 py-3 text-xs text-center bg-slate-50 font-medium text-slate-700" 
-                                        x-text="formatTimeRange(time)"></td>
+                                        x-text="formatTimeRange(row.time)"></td>
                                     
-                                    <!-- Check if there are common slots (same subject for both groups) -->
-                                    <template x-if="hasCommonSlot(day, time)">
-                                        <!-- Merged cell for common subjects -->
-                                        <td class="border border-slate-300 p-2 align-top min-w-[300px] h-20" colspan="2">
-                                            <template x-for="(slot, index) in getCommonSlots(day, time)" :key="slot.id || index">
+                                    <template x-if="row.type === 'slot'">
+                                        <!-- Check if there are common slots (same subject for both groups) -->
+                                        <template x-if="hasCommonSlot(daySchedule.day, row.time)">
+                                            <!-- Merged cell for common subjects -->
+                                            <td class="border border-slate-300 p-2 align-top min-w-[300px] h-20" colspan="2">
+                                                <template x-for="(slot, index) in getCommonSlots(daySchedule.day, row.time)" :key="slot.id || index">
                                                 <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 transition-all hover:shadow-md"
                                                      :class="getSlotColorClass(slot.subject_id)"
                                                      @click="editSlotByData(slot)">
@@ -203,10 +204,10 @@
                                             </template>
                                             
                                             <!-- Add button for common slot -->
-                                            <template x-if="getCommonSlots(day, time).length === 0">
+                                            <template x-if="getCommonSlots(daySchedule.day, row.time).length === 0">
                                                 <div class="h-16 flex items-center justify-center">
                                                     <button type="button" 
-                                                            @click="openAddSlotModal(day, time, '')"
+                                                            @click="openAddSlotModal(daySchedule.day, row.time, '')"
                                                             class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-slate-300 hover:border-purple-400 hover:bg-purple-50 w-full h-full flex items-center justify-center group rounded-md">
                                                         <div class="text-center">
                                                             <svg class="w-5 h-5 text-slate-400 group-hover:text-purple-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,12 +222,12 @@
                                     </template>
                                     
                                     <!-- Separate cells for Group A and Group B -->
-                                    <template x-if="!hasCommonSlot(day, time)">
-                                        <!-- Group A Cell -->
-                                        <td class="border border-slate-300 p-2 align-top w-1/2 h-20 bg-blue-50/30">
-                                            <template x-if="getGroupSlots(day, time, 'A').length > 0">
+                                        <template x-if="!hasCommonSlot(daySchedule.day, row.time)">
+                                            <!-- Group A Cell -->
+                                            <td class="border border-slate-300 p-2 align-top w-1/2 h-20 bg-blue-50/30">
+                                                <template x-if="getGroupSlots(daySchedule.day, row.time, 'A').length > 0">
                                                 <div class="space-y-1">
-                                                    <template x-for="(slot, index) in getGroupSlots(day, time, 'A')" :key="slot.id || index">
+                                                    <template x-for="(slot, index) in getGroupSlots(daySchedule.day, row.time, 'A')" :key="slot.id || index">
                                                         <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 border-l-blue-500 bg-blue-50 transition-all hover:shadow-md hover:bg-blue-100"
                                                              @click="editSlotByData(slot)">
                                                             
@@ -253,10 +254,10 @@
                                                 </div>
                                             </template>
                                             
-                                            <template x-if="getGroupSlots(day, time, 'A').length === 0">
+                                            <template x-if="getGroupSlots(daySchedule.day, row.time, 'A').length === 0">
                                                 <div class="h-16 flex items-center justify-center">
                                                     <button type="button" 
-                                                            @click="openAddSlotModal(day, time, 'A')"
+                                                            @click="openAddSlotModal(daySchedule.day, row.time, 'A')"
                                                             class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-100 w-full h-full flex items-center justify-center group rounded-md">
                                                         <div class="text-center">
                                                             <svg class="w-4 h-4 text-blue-400 group-hover:text-blue-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,12 +271,12 @@
                                         </td>
                                     </template>
                                     
-                                    <template x-if="!hasCommonSlot(day, time)">
-                                        <!-- Group B Cell -->
-                                        <td class="border border-slate-300 p-2 align-top w-1/2 h-20 bg-green-50/30">
-                                            <template x-if="getGroupSlots(day, time, 'B').length > 0">
+                                        <template x-if="!hasCommonSlot(daySchedule.day, row.time)">
+                                            <!-- Group B Cell -->
+                                            <td class="border border-slate-300 p-2 align-top w-1/2 h-20 bg-green-50/30">
+                                                <template x-if="getGroupSlots(daySchedule.day, row.time, 'B').length > 0">
                                                 <div class="space-y-1">
-                                                    <template x-for="(slot, index) in getGroupSlots(day, time, 'B')" :key="slot.id || index">
+                                                    <template x-for="(slot, index) in getGroupSlots(daySchedule.day, row.time, 'B')" :key="slot.id || index">
                                                         <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 border-l-green-500 bg-green-50 transition-all hover:shadow-md hover:bg-green-100"
                                                              @click="editSlotByData(slot)">
                                                             
@@ -302,10 +303,10 @@
                                                 </div>
                                             </template>
                                             
-                                            <template x-if="getGroupSlots(day, time, 'B').length === 0">
+                                            <template x-if="getGroupSlots(daySchedule.day, row.time, 'B').length === 0">
                                                 <div class="h-16 flex items-center justify-center">
                                                     <button type="button" 
-                                                            @click="openAddSlotModal(day, time, 'B')"
+                                                            @click="openAddSlotModal(daySchedule.day, row.time, 'B')"
                                                             class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-green-300 hover:border-green-400 hover:bg-green-100 w-full h-full flex items-center justify-center group rounded-md">
                                                         <div class="text-center">
                                                             <svg class="w-4 h-4 text-green-400 group-hover:text-green-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,6 +317,23 @@
                                                     </button>
                                                 </div>
                                             </template>
+                                        </td>
+                                    </template>
+
+                                    <template x-if="row.type === 'empty'">
+                                        <td class="border border-slate-300 p-2 align-top min-w-[300px] h-20" colspan="2">
+                                            <div class="h-16 flex items-center justify-center">
+                                                <button type="button" 
+                                                        @click="openAddSlotModal(daySchedule.day, row.time, '')"
+                                                        class="opacity-40 hover:opacity-100 transition-all border-2 border-dashed border-slate-300 hover:border-slate-500 hover:bg-slate-100 w-full h-full flex items-center justify-center group rounded-md">
+                                                    <div class="text-center">
+                                                        <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-700 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                                        </svg>
+                                                        <span class="text-sm text-slate-500 group-hover:text-slate-800">Add New Slot</span>
+                                                    </div>
+                                                </button>
+                                            </div>
                                         </td>
                                     </template>
                                 </tr>
@@ -395,33 +413,44 @@ function timetableEditor() {
             this.loadAvailableGroups();
         },
         
-        get uniqueTimeSlots() {
-            const defaultTimes = [
-                '06:30-07:15',
-                '07:15-08:00',
-                '08:00-08:45',
-                '08:45-09:30',
-                '09:30-10:15',
-                '10:15-11:00',
-                '11:00-11:45',
-                '11:45-12:30',
-                '12:30-13:15'
-            ];
+        get scheduleRows() {
+            return this.days.map(day => {
+                const slots = this.slots
+                    .filter(slot => slot.day_of_week === day)
+                    .sort((a, b) => this.timeToMinutes(this.hi(a.start_time)) - this.timeToMinutes(this.hi(b.start_time)));
 
-            const slotTimes = this.slots
-                .map(slot => `${this.hi(slot.start_time)}-${this.hi(slot.end_time)}`)
-                .filter(Boolean);
+                const rows = slots.map(slot => ({
+                    type: 'slot',
+                    time: `${this.hi(slot.start_time)}-${this.hi(slot.end_time)}`,
+                    slot
+                }));
 
-            const uniqueTimes = Array.from(new Set([...defaultTimes, ...slotTimes]));
+                const startTime = slots.length > 0 ? this.hi(slots[slots.length - 1].end_time) : '06:30';
+                const endTime = this.addMinutes(startTime, 45);
 
-            return uniqueTimes.sort((a, b) => {
-                const [aStart, aEnd] = a.split('-');
-                const [bStart, bEnd] = b.split('-');
-                const compareStart = this.timeToMinutes(aStart) - this.timeToMinutes(bStart);
-                return compareStart !== 0 ? compareStart : this.timeToMinutes(aEnd) - this.timeToMinutes(bEnd);
+                rows.push({
+                    type: 'empty',
+                    time: `${startTime}-${endTime}`
+                });
+
+                return {
+                    day,
+                    rows
+                };
             });
         },
-        
+
+        minutesToTime(minutes) {
+            const hrs = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        },
+
+        addMinutes(time, minutes) {
+            const total = this.timeToMinutes(time) + minutes;
+            return this.minutesToTime(total);
+        },
+
         // Normalize a time value to HH:MM regardless of whether it has seconds
         hi(t) { return t ? String(t).slice(0, 5) : ''; },
 
@@ -626,55 +655,39 @@ function timetableEditor() {
         checkDurationConflicts() {
             this.durationConflicts = [];
             
-            if (!this.editingSlot.duration || this.editingSlot.duration === 1) {
+            if (!this.editingSlot.duration || this.editingSlot.duration === 1 || !this.editingSlot.start_time) {
                 return;
             }
 
             const duration = parseInt(this.editingSlot.duration);
             const startTime = this.editingSlot.start_time;
-            const timeSlots = this.uniqueTimeSlots;
-            const startIndex = timeSlots.findIndex(slot => slot.startsWith(startTime));
-            
-            if (startIndex === -1) return;
+            const proposedEnd = this.addMinutes(startTime, duration * 45);
 
-            // Check if extending duration conflicts with existing slots
-            for (let i = 1; i < duration; i++) {
-                const nextSlotIndex = startIndex + i;
-                if (nextSlotIndex >= timeSlots.length) {
-                    this.durationConflicts.push(`Cannot extend beyond last period`);
-                    break;
-                }
+            const conflictingSlot = this.slots.find(slot => 
+                slot.id !== this.editingSlot.id &&
+                slot.day_of_week === this.editingSlot.day_of_week &&
+                this.slotGroupsConflict(slot.group, this.editingSlot.group) &&
+                this.timeOverlaps(slot.start_time, slot.end_time, startTime, proposedEnd)
+            );
 
-                const nextTimeSlot = timeSlots[nextSlotIndex];
-                const [nextStart] = nextTimeSlot.split('-');
-                
-                const conflictingSlot = this.slots.find(slot => 
-                    slot.id !== this.editingSlot.id &&
-                    slot.day_of_week === this.editingSlot.day_of_week &&
-                    slot.start_time === nextStart
-                );
-
-                if (conflictingSlot) {
-                    this.durationConflicts.push(`Conflicts with ${this.getSubjectName(conflictingSlot.subject_id)} at ${nextStart}`);
-                }
+            if (conflictingSlot) {
+                this.durationConflicts.push(`Extending duration conflicts with ${this.getSubjectName(conflictingSlot.subject_id)} at ${this.hi(conflictingSlot.start_time)}`);
             }
         },
 
         onDurationChange() {
-            this.checkDurationConflicts();
-            
-            // Auto-adjust end time based on duration
-            if (this.editingSlot.duration && this.editingSlot.start_time) {
-                const duration = parseInt(this.editingSlot.duration);
-                const timeSlots = this.uniqueTimeSlots;
-                const startIndex = timeSlots.findIndex(slot => slot.startsWith(this.editingSlot.start_time));
-                
-                if (startIndex !== -1 && startIndex + duration - 1 < timeSlots.length) {
-                    const endSlot = timeSlots[startIndex + duration - 1];
-                    const [, endTime] = endSlot.split('-');
-                    this.editingSlot.end_time = endTime;
-                }
+            if (!this.editingSlot.start_time) {
+                return;
             }
+
+            const duration = parseInt(this.editingSlot.duration);
+            if (!duration || duration < 1) {
+                this.editingSlot.duration = 1;
+            }
+
+            const proposedEnd = this.addMinutes(this.editingSlot.start_time, duration * 45);
+            this.editingSlot.end_time = proposedEnd;
+            this.checkDurationConflicts();
         },
 
         loadAvailableGroups() {
@@ -771,28 +784,21 @@ function timetableEditor() {
         },
 
         async handleDurationExtension() {
-            const duration = parseInt(this.editingSlot.duration);
             const startTime = this.editingSlot.start_time;
-            const timeSlots = this.uniqueTimeSlots;
-            const startIndex = timeSlots.findIndex(slot => slot.startsWith(startTime));
-            
-            if (startIndex === -1) return;
+            const endTime = this.editingSlot.end_time;
 
-            // Remove or adjust conflicting slots for joint classes
-            for (let i = 1; i < duration; i++) {
-                const nextSlotIndex = startIndex + i;
-                if (nextSlotIndex >= timeSlots.length) break;
-
-                const nextTimeSlot = timeSlots[nextSlotIndex];
-                const [nextStart] = nextTimeSlot.split('-');
-                
-                // Find and remove conflicting slots
-                this.slots = this.slots.filter(slot => 
-                    !(slot.id !== this.editingSlot.id &&
-                      slot.day_of_week === this.editingSlot.day_of_week &&
-                      slot.start_time === nextStart)
-                );
-            }
+            this.slots = this.slots.filter(slot => {
+                if (slot.id && this.editingSlot.id && slot.id === this.editingSlot.id) {
+                    return true;
+                }
+                if (slot.day_of_week !== this.editingSlot.day_of_week) {
+                    return true;
+                }
+                if (!this.slotGroupsConflict(slot.group, this.editingSlot.group)) {
+                    return true;
+                }
+                return !this.timeOverlaps(slot.start_time, slot.end_time, startTime, endTime);
+            });
         },
 
         timeOverlaps(start1, end1, start2, end2) {
