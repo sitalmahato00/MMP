@@ -166,158 +166,125 @@
                                         x-text="formatTimeRange(row.time)"></td>
                                     
                                     <template x-if="row.type === 'slot'">
-                                        <!-- Check if there are common slots (same subject for both groups) -->
+                                        <!-- Common subject across both groups -->
                                         <template x-if="hasCommonSlot(daySchedule.day, row.time)">
-                                            <!-- Merged cell for common subjects -->
                                             <td class="border border-slate-300 p-2 align-top min-w-[300px] h-20" colspan="2">
                                                 <template x-for="(slot, index) in getCommonSlots(daySchedule.day, row.time)" :key="slot.id || index">
-                                                <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 transition-all hover:shadow-md"
-                                                     :class="getSlotColorClass(slot.subject_id)"
-                                                     @click="editSlotByData(slot)">
-                                                    
-                                                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                                        <button type="button" @click.stop="editSlotByData(slot)"
-                                                                class="rounded-full p-1.5 bg-white shadow-md hover:bg-blue-50 text-blue-600 border border-blue-200" title="Edit">
-                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                            </svg>
-                                                        </button>
-                                                        <button type="button" @click.stop="removeSlotByData(slot)"
-                                                                class="rounded-full p-1.5 bg-white shadow-md hover:bg-red-50 text-red-600 border border-red-200" title="Delete">
-                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                    
-                                                    <div class="font-bold text-sm text-slate-900 leading-tight mb-1" x-text="slot.type === 'break' ? 'BREAK' : getSubjectName(slot.subject_id)"></div>
-                                                    <div class="text-xs text-slate-600 leading-tight mb-1" x-show="slot.type !== 'break'" x-text="'Teacher: ' + getTeacherName(slot.teacher_id)"></div>
-                                                    <div x-show="slot.room_number" class="text-xs text-slate-500 leading-tight" x-text="'Room: ' + slot.room_number"></div>
-                                                    
-
-                                                    
-                                                    <!-- Type Badge -->
-                                                    <div x-show="slot.type && slot.type !== 'theory'" class="absolute bottom-2 left-2">
-                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/80 text-slate-700 border border-slate-300" x-text="slot.type"></span>
-                                                    </div>
-                                                </div>
-                                            </template>
-                                            
-                                            <!-- Add button for common slot -->
-                                            <template x-if="getCommonSlots(daySchedule.day, row.time).length === 0">
-                                                <div class="h-16 flex items-center justify-center">
-                                                    <button type="button" 
-                                                            @click="openAddSlotModal(daySchedule.day, row.time, '')"
-                                                            class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-slate-300 hover:border-purple-400 hover:bg-purple-50 w-full h-full flex items-center justify-center group rounded-md">
-                                                        <div class="text-center">
-                                                            <svg class="w-5 h-5 text-slate-400 group-hover:text-purple-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                                            </svg>
-                                                            <span class="text-xs text-slate-500 group-hover:text-purple-600">Add Common Subject</span>
+                                                    <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 transition-all hover:shadow-md"
+                                                         :class="getSlotColorClass(slot.subject_id)"
+                                                         @click="editSlotByData(slot)">
+                                                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                            <button type="button" @click.stop="editSlotByData(slot)"
+                                                                    class="rounded-full p-1.5 bg-white shadow-md hover:bg-blue-50 text-blue-600 border border-blue-200" title="Edit">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                                </svg>
+                                                            </button>
+                                                            <button type="button" @click.stop="removeSlotByData(slot)"
+                                                                    class="rounded-full p-1.5 bg-white shadow-md hover:bg-red-50 text-red-600 border border-red-200" title="Delete">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                </svg>
+                                                            </button>
                                                         </div>
-                                                    </button>
-                                                </div>
-                                            </template>
-                                        </td>
-                                    </template>
-                                    
-                                    <!-- Separate cells for Group A and Group B -->
+                                                        <div class="font-bold text-sm text-slate-900 leading-tight mb-1" x-text="slot.type === 'break' ? 'BREAK' : getSubjectName(slot.subject_id)"></div>
+                                                        <div class="text-xs text-slate-600 leading-tight mb-1" x-show="slot.type !== 'break'" x-text="'Teacher: ' + getTeacherName(slot.teacher_id)"></div>
+                                                        <div x-show="slot.room_number" class="text-xs text-slate-500 leading-tight" x-text="'Room: ' + slot.room_number"></div>
+                                                        <div x-show="slot.type && slot.type !== 'theory'" class="absolute bottom-2 left-2">
+                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/80 text-slate-700 border border-slate-300" x-text="slot.type"></span>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </td>
+                                        </template>
+
+                                        <!-- Separate Group A and Group B cells when not common -->
                                         <template x-if="!hasCommonSlot(daySchedule.day, row.time)">
-                                            <!-- Group A Cell -->
                                             <td class="border border-slate-300 p-2 align-top w-1/2 h-20 bg-blue-50/30">
                                                 <template x-if="getGroupSlots(daySchedule.day, row.time, 'A').length > 0">
-                                                <div class="space-y-1">
-                                                    <template x-for="(slot, index) in getGroupSlots(daySchedule.day, row.time, 'A')" :key="slot.id || index">
-                                                        <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 border-l-blue-500 bg-blue-50 transition-all hover:shadow-md hover:bg-blue-100"
-                                                             @click="editSlotByData(slot)">
-                                                            
-                                                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                                                <button type="button" @click.stop="editSlotByData(slot)"
-                                                                        class="rounded-full p-1.5 bg-white shadow-sm hover:bg-blue-50 text-blue-600 border border-blue-200" title="Edit">
-                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                                    </svg>
-                                                                </button>
-                                                                <button type="button" @click.stop="removeSlotByData(slot)"
-                                                                        class="rounded-full p-1.5 bg-white shadow-sm hover:bg-red-50 text-red-600 border border-red-200" title="Delete">
-                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                                    </svg>
-                                                                </button>
+                                                    <div class="space-y-1">
+                                                        <template x-for="(slot, index) in getGroupSlots(daySchedule.day, row.time, 'A')" :key="slot.id || index">
+                                                            <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 border-l-blue-500 bg-blue-50 transition-all hover:shadow-md hover:bg-blue-100"
+                                                                 @click="editSlotByData(slot)">
+                                                                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                                    <button type="button" @click.stop="editSlotByData(slot)"
+                                                                            class="rounded-full p-1.5 bg-white shadow-sm hover:bg-blue-50 text-blue-600 border border-blue-200" title="Edit">
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                    <button type="button" @click.stop="removeSlotByData(slot)"
+                                                                            class="rounded-full p-1.5 bg-white shadow-sm hover:bg-red-50 text-red-600 border border-red-200" title="Delete">
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="font-bold text-sm text-slate-900 leading-tight mb-1" x-text="slot.type === 'break' ? 'BREAK' : getSubjectName(slot.subject_id)"></div>
+                                                                <div class="text-sm text-slate-600 leading-tight" x-show="slot.type !== 'break'" x-text="getTeacherName(slot.teacher_id)"></div>
+                                                                <div x-show="slot.room_number" class="text-sm text-slate-500 leading-tight" x-text="slot.room_number"></div>
                                                             </div>
-                                                            
-                                                            <div class="font-bold text-sm text-slate-900 leading-tight mb-1" x-text="slot.type === 'break' ? 'BREAK' : getSubjectName(slot.subject_id)"></div>
-                                                            <div class="text-sm text-slate-600 leading-tight" x-show="slot.type !== 'break'" x-text="getTeacherName(slot.teacher_id)"></div>
-                                                            <div x-show="slot.room_number" class="text-sm text-slate-500 leading-tight" x-text="slot.room_number"></div>
-                                                        </div>
-                                                    </template>
-                                                </div>
-                                            </template>
-                                            
-                                            <template x-if="getGroupSlots(daySchedule.day, row.time, 'A').length === 0">
-                                                <div class="h-16 flex items-center justify-center">
-                                                    <button type="button" 
-                                                            @click="openAddSlotModal(daySchedule.day, row.time, 'A')"
-                                                            class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-100 w-full h-full flex items-center justify-center group rounded-md">
-                                                        <div class="text-center">
-                                                            <svg class="w-4 h-4 text-blue-400 group-hover:text-blue-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                                            </svg>
-                                                            <span class="text-sm text-blue-500 group-hover:text-blue-600">Add Group A</span>
-                                                        </div>
-                                                    </button>
-                                                </div>
-                                            </template>
-                                        </td>
-                                    </template>
-                                    
-                                        <template x-if="!hasCommonSlot(daySchedule.day, row.time)">
-                                            <!-- Group B Cell -->
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                <template x-if="getGroupSlots(daySchedule.day, row.time, 'A').length === 0">
+                                                    <div class="h-16 flex items-center justify-center">
+                                                        <button type="button"
+                                                                @click="openAddSlotModal(daySchedule.day, row.time, 'A')"
+                                                                class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-100 w-full h-full flex items-center justify-center group rounded-md">
+                                                            <div class="text-center">
+                                                                <svg class="w-4 h-4 text-blue-400 group-hover:text-blue-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                                                </svg>
+                                                                <span class="text-sm text-blue-500 group-hover:text-blue-600">Add Group A</span>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                            </td>
                                             <td class="border border-slate-300 p-2 align-top w-1/2 h-20 bg-green-50/30">
                                                 <template x-if="getGroupSlots(daySchedule.day, row.time, 'B').length > 0">
-                                                <div class="space-y-1">
-                                                    <template x-for="(slot, index) in getGroupSlots(daySchedule.day, row.time, 'B')" :key="slot.id || index">
-                                                        <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 border-l-green-500 bg-green-50 transition-all hover:shadow-md hover:bg-green-100"
-                                                             @click="editSlotByData(slot)">
-                                                            
-                                                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                                                <button type="button" @click.stop="editSlotByData(slot)"
-                                                                        class="rounded-full p-1.5 bg-white shadow-sm hover:bg-green-50 text-green-600 border border-green-200" title="Edit">
-                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                                    </svg>
-                                                                </button>
-                                                                <button type="button" @click.stop="removeSlotByData(slot)"
-                                                                        class="rounded-full p-1.5 bg-white shadow-sm hover:bg-red-50 text-red-600 border border-red-200" title="Delete">
-                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                                    </svg>
-                                                                </button>
+                                                    <div class="space-y-1">
+                                                        <template x-for="(slot, index) in getGroupSlots(daySchedule.day, row.time, 'B')" :key="slot.id || index">
+                                                            <div class="h-16 p-3 relative group cursor-pointer rounded-md border-l-4 border-l-green-500 bg-green-50 transition-all hover:shadow-md hover:bg-green-100"
+                                                                 @click="editSlotByData(slot)">
+                                                                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                                    <button type="button" @click.stop="editSlotByData(slot)"
+                                                                            class="rounded-full p-1.5 bg-white shadow-sm hover:bg-green-50 text-green-600 border border-green-200" title="Edit">
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                    <button type="button" @click.stop="removeSlotByData(slot)"
+                                                                            class="rounded-full p-1.5 bg-white shadow-sm hover:bg-red-50 text-red-600 border border-red-200" title="Delete">
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="font-bold text-sm text-slate-900 leading-tight mb-1" x-text="slot.type === 'break' ? 'BREAK' : getSubjectName(slot.subject_id)"></div>
+                                                                <div class="text-sm text-slate-600 leading-tight" x-show="slot.type !== 'break'" x-text="getTeacherName(slot.teacher_id)"></div>
+                                                                <div x-show="slot.room_number" class="text-sm text-slate-500 leading-tight" x-text="slot.room_number"></div>
                                                             </div>
-                                                            
-                                                            <div class="font-bold text-sm text-slate-900 leading-tight mb-1" x-text="slot.type === 'break' ? 'BREAK' : getSubjectName(slot.subject_id)"></div>
-                                                            <div class="text-sm text-slate-600 leading-tight" x-show="slot.type !== 'break'" x-text="getTeacherName(slot.teacher_id)"></div>
-                                                            <div x-show="slot.room_number" class="text-sm text-slate-500 leading-tight" x-text="slot.room_number"></div>
-                                                        </div>
-                                                    </template>
-                                                </div>
-                                            </template>
-                                            
-                                            <template x-if="getGroupSlots(daySchedule.day, row.time, 'B').length === 0">
-                                                <div class="h-16 flex items-center justify-center">
-                                                    <button type="button" 
-                                                            @click="openAddSlotModal(daySchedule.day, row.time, 'B')"
-                                                            class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-green-300 hover:border-green-400 hover:bg-green-100 w-full h-full flex items-center justify-center group rounded-md">
-                                                        <div class="text-center">
-                                                            <svg class="w-4 h-4 text-green-400 group-hover:text-green-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                                            </svg>
-                                                            <span class="text-sm text-green-500 group-hover:text-green-600">Add Group B</span>
-                                                        </div>
-                                                    </button>
-                                                </div>
-                                            </template>
-                                        </td>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                <template x-if="getGroupSlots(daySchedule.day, row.time, 'B').length === 0">
+                                                    <div class="h-16 flex items-center justify-center">
+                                                        <button type="button"
+                                                                @click="openAddSlotModal(daySchedule.day, row.time, 'B')"
+                                                                class="opacity-30 hover:opacity-100 transition-all border-2 border-dashed border-green-300 hover:border-green-400 hover:bg-green-100 w-full h-full flex items-center justify-center group rounded-md">
+                                                            <div class="text-center">
+                                                                <svg class="w-4 h-4 text-green-400 group-hover:text-green-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                                                </svg>
+                                                                <span class="text-sm text-green-500 group-hover:text-green-600">Add Group B</span>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                            </td>
+                                        </template>
                                     </template>
 
                                     <template x-if="row.type === 'empty'">
