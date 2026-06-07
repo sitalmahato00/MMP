@@ -691,63 +691,25 @@ function timetableEditor() {
                 await this.handleDurationExtension();
             }
 
-            this.saving = true;
             this.saveError = null;
 
-            try {
-                const response = await fetch(`{{ route('hod.timetable.slots.store', $timetable) }}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        slot_id:     this.editingSlot.id   || null,
-                        day_of_week: this.editingSlot.day_of_week,
-                        start_time:  this.editingSlot.start_time,
-                        end_time:    this.editingSlot.end_time,
-                        subject_id:  this.editingSlot.subject_id  || null,
-                        teacher_id:  this.editingSlot.teacher_id  || null,
-                        room_number: this.editingSlot.room_number || null,
-                        type:        this.editingSlot.type        || 'theory',
-                        group:       this.editingSlot.group       || null,
-                        duration:    this.editingSlot.duration    || 1,
-                    })
-                });
+            const savedSlot = JSON.parse(JSON.stringify(this.editingSlot));
+            const existingSlotIndex = this.slots.findIndex(slot => {
+                if (savedSlot.id && slot.id) return slot.id === savedSlot.id;
+                return slot.day_of_week === savedSlot.day_of_week &&
+                    slot.start_time === savedSlot.start_time &&
+                    slot.end_time   === savedSlot.end_time &&
+                    (slot.group ?? '') === (savedSlot.group ?? '');
+            });
 
-                const result = await response.json();
-
-                if (!result.success) {
-                    throw new Error(result.message || 'Unknown error');
-                }
-
-                const savedSlot = result.slot;
-
-                // Find and update/add in local array
-                const existingSlotIndex = this.slots.findIndex(slot => {
-                    if (this.editingSlot.id && slot.id) return slot.id === this.editingSlot.id;
-                    return slot.day_of_week === this.editingSlot.day_of_week &&
-                        slot.start_time === this.editingSlot.start_time &&
-                        slot.end_time   === this.editingSlot.end_time &&
-                        (slot.group ?? '') === (this.editingSlot.group ?? '');
-                });
-
-                if (existingSlotIndex !== -1) {
-                    this.slots[existingSlotIndex] = savedSlot;
-                } else {
-                    this.slots.push(savedSlot);
-                }
-
-                this.showEditModal = false;
-                this.editingSlot = null;
-
-            } catch (err) {
-                this.saveError = 'Failed to save slot: ' + err.message;
-                alert(this.saveError);
-            } finally {
-                this.saving = false;
+            if (existingSlotIndex !== -1) {
+                this.slots[existingSlotIndex] = savedSlot;
+            } else {
+                this.slots.push(savedSlot);
             }
+
+            this.showEditModal = false;
+            this.editingSlot = null;
         },
 
         async handleDurationExtension() {
