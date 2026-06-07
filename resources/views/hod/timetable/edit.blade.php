@@ -382,18 +382,21 @@ function timetableEditor() {
     return {
         slots: @json($slotsData),
         days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
+        allTeachers: teachers,
+        availableTeachers: teachers,
         showEditModal: false,
         editingSlot: null,
         saving: false,
         saveError: null,
+        teacherConflicts: [],
+        durationConflicts: [],
         
         init() {
             this.loadAvailableGroups();
         },
         
         get uniqueTimeSlots() {
-            // Fixed time periods matching the original structure
-            return [
+            const defaultTimes = [
                 '06:30-07:15',
                 '07:15-08:00',
                 '08:00-08:45',
@@ -404,6 +407,19 @@ function timetableEditor() {
                 '11:45-12:30',
                 '12:30-13:15'
             ];
+
+            const slotTimes = this.slots
+                .map(slot => `${this.hi(slot.start_time)}-${this.hi(slot.end_time)}`)
+                .filter(Boolean);
+
+            const uniqueTimes = Array.from(new Set([...defaultTimes, ...slotTimes]));
+
+            return uniqueTimes.sort((a, b) => {
+                const [aStart, aEnd] = a.split('-');
+                const [bStart, bEnd] = b.split('-');
+                const compareStart = this.timeToMinutes(aStart) - this.timeToMinutes(bStart);
+                return compareStart !== 0 ? compareStart : this.timeToMinutes(aEnd) - this.timeToMinutes(bEnd);
+            });
         },
         
         // Normalize a time value to HH:MM regardless of whether it has seconds
@@ -492,6 +508,7 @@ function timetableEditor() {
                 start_time: this.hi(slot.start_time),
                 end_time:   this.hi(slot.end_time),
                 duration:   slot.duration || 1,
+                type:       slot.type || 'theory',
             };
             this.checkTeacherConflicts();
             this.checkDurationConflicts();
@@ -548,6 +565,28 @@ function timetableEditor() {
             } else {
                 this.availableTeachers = this.allTeachers;
             }
+        },
+
+        slotGroupsConflict(groupA, groupB) {
+            if (!groupA || !groupB) {
+                return true;
+            }
+            return String(groupA).trim().toUpperCase() === String(groupB).trim().toUpperCase();
+        },
+
+        hasSlotConflict(slotToCheck) {
+            return this.slots.some(existing => {
+                if (existing.id && slotToCheck.id && existing.id === slotToCheck.id) {
+                    return false;
+                }
+                if (existing.day_of_week !== slotToCheck.day_of_week) {
+                    return false;
+                }
+                if (!this.timeOverlaps(existing.start_time, existing.end_time, slotToCheck.start_time, slotToCheck.end_time)) {
+                    return false;
+                }
+                return this.slotGroupsConflict(existing.group, slotToCheck.group);
+            });
         },
 
         async checkTeacherConflicts() {
@@ -659,6 +698,11 @@ function timetableEditor() {
             
             if (this.durationConflicts.length > 0) {
                 alert('Please resolve duration conflicts before saving');
+                return;
+            }
+
+            if (this.hasSlotConflict(this.editingSlot)) {
+                alert('This slot overlaps with another slot for the same group or common schedule. Please choose a different time or group.');
                 return;
             }
 
@@ -877,7 +921,15 @@ function timetableEditor() {
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = `slots[${index}][${key}]`;
-                    input.value = slot[key] ?? '';
+
+                    if (key === 'type') {
+                        input.value = slot.type || 'theory';
+                    } else if (key === 'duration') {
+                        input.value = slot.duration ?? 1;
+                    } else {
+                        input.value = slot[key] ?? '';
+                    }
+
                     form.appendChild(input);
                 });
             });

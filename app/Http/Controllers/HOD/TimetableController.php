@@ -261,6 +261,8 @@ class TimetableController extends HodController
             'slots.*.duration' => 'nullable|integer|min:1|max:4',
         ]);
 
+        $this->ensureSlotCollectionHasNoConflicts($data['slots'] ?? []);
+
         // Verify program belongs to department
         $program = Program::where('id', $data['program_id'])
             ->where('department_id', $deptId)
@@ -287,6 +289,8 @@ class TimetableController extends HodController
 
             // Update slots if provided
             if (isset($data['slots'])) {
+                $this->ensureSlotCollectionHasNoConflicts($data['slots']);
+
                 // Delete existing slots
                 $timetable->slots()->delete();
 
@@ -353,7 +357,7 @@ class TimetableController extends HodController
             'slot_id'     => 'nullable|integer',
             'day_of_week' => 'required|string|in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
             'start_time'  => 'required|date_format:H:i',
-            'end_time'    => 'required|date_format:H:i',
+            'end_time'    => 'required|date_format:H:i|after:start_time',
             'subject_id'  => 'nullable|exists:subjects,id',
             'teacher_id'  => 'nullable|exists:teachers,id',
             'room_number' => 'nullable|string|max:50',
@@ -361,6 +365,13 @@ class TimetableController extends HodController
             'group'       => 'nullable|string|max:10',
             'duration'    => 'nullable|integer|min:1|max:4',
         ]);
+
+        if ($conflict = $this->findSlotConflict($timetable->id, $data, $data['slot_id'] ?? null)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Slot conflicts with existing slot at ' . $conflict->start_time . ' - ' . $conflict->end_time,
+            ], 422);
+        }
 
         $slotData = [
             'timetable_id' => $timetable->id,
@@ -735,5 +746,59 @@ class TimetableController extends HodController
         $e2 = strtotime($end2);
         
         return $s1 < $e2 && $s2 < $e1;
+    }
+
+    private function slotGroupsOverlap(?string $groupA, ?string $groupB): bool
+    {
+        if (!$groupA || !$groupB) {
+            return true;
+        }
+
+        return trim(strtoupper($groupA)) === trim(strtoupper($groupB));
+    }
+
+    private function findSlotConflict(int $timetableId, array $slotData, ?int $ignoreSlotId = null)
+    {
+        return TimetableSlot::where('timetable_id', $timetableId)
+            ->where('day_of_week', $slotData['day_of_week'])
+            ->when($ignoreSlotId, fn($q) => $q->where('id', '!=', $ignoreSlotId))
+            ->get()
+            ->first(function ($existing) use ($slotData) {
+                return $this->timeOverlaps(
+                    $existing->start_time,
+                    $existing->end_time,
+                    $slotData['start_time'],
+                    $slotData['end_time']
+                ) && $this->slotGroupsOverlap($existing->group, $slotData['group'] ?? null);
+            });
+    }
+
+    private function ensureSlotCollectionHasNoConflicts(array $slots): void
+    {
+        foreach ($slots as $index => $slot) {
+            $slotGroup = $slot['group'] ?? null;
+
+            foreach ($slots as $otherIndex => $otherSlot) {
+                if ($index >= $otherIndex) {
+                    continue;
+                }
+
+                if ($slot['day_of_week'] !== $otherSlot['day_of_week']) {
+                    continue;
+                }
+
+                if (!$this->timeOverlaps($slot['start_time'], $slot['end_time'], $otherSlot['start_time'], $otherSlot['end_time'])) {
+                    continue;
+                }
+
+                if ($this->slotGroupsOverlap($slotGroup, $otherSlot['group'] ?? null)) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'slots' => [
+                            'Slot #' . ($index + 1) . ' conflicts with slot #' . ($otherIndex + 1) . ' on ' . ucfirst($slot['day_of_week']) . '.',
+                        ],
+                    ]);
+                }
+            }
+        }
     }
 }

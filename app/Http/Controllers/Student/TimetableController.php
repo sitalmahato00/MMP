@@ -95,14 +95,11 @@ class TimetableController extends Controller
         $attendanceData = [];
 
         foreach ($subjects as $subject) {
-            // Get attendance sessions for this subject
+            // Get attendance sessions for this subject in the student's program and semester
             $sessions = AttendanceSession::where('subject_id', $subject->id)
-                ->whereHas('timetableSlot', function($query) use ($student) {
-                    $query->whereHas('timetable', function($q) use ($student) {
-                        $q->where('program_id', $student->program_id)
-                          ->where('semester', $student->current_semester);
-                    });
-                })
+                ->where('program_id', $student->program_id)
+                ->where('semester', $student->current_semester)
+                ->when($student->section, fn($q) => $q->where('section', $student->section))
                 ->get();
 
             $totalSessions = $sessions->count();
