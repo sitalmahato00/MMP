@@ -462,7 +462,14 @@ function timetableEditor() {
                 if (this.hi(slot.start_time) !== start) return false;
                 if (this.hi(slot.end_time) !== end) return false;
                 const sg = (slot.group ?? '').toString().trim().toUpperCase();
-                return sg === gNorm;
+                if (!sg) return false;
+                if (sg === gNorm) return true;
+                if (sg === 'BOTH' || sg === 'ALL') return true;
+                if (sg.includes(',')) {
+                    const parts = sg.split(',').map(s => s.trim());
+                    return parts.includes(gNorm);
+                }
+                return false;
             });
         },
 
