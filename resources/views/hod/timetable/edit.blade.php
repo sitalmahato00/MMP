@@ -136,16 +136,16 @@
             <h3 class="text-sm font-semibold text-slate-900 mb-3">Weekly Schedule</h3>
             
             <div class="overflow-x-auto">
-                <div class="rounded-lg border-2 border-slate-800 overflow-hidden shadow-sm">
+                <div class="rounded-lg border border-slate-800 overflow-hidden shadow-sm">
                     <table class="w-full border-collapse bg-white">
                     <thead>
                         <tr>
-                            <th class="border border-slate-400 border-r-4 border-r-slate-800 border-b-4 border-b-slate-800 px-3 py-3 text-center font-bold text-sm w-20 bg-slate-800 text-white">Day</th>
+                            <th class="border border-slate-400 border-r-2 border-r-slate-800 border-b-2 border-b-slate-800 px-3 py-3 text-center font-bold text-sm w-20 bg-slate-800 text-white">Day</th>
                             <th class="border border-slate-400 px-3 py-3 text-center font-bold text-sm w-32 bg-slate-800 text-white">Period</th>
                             <th class="border border-slate-400 px-3 py-3 text-center font-bold text-sm bg-blue-700 text-white" colspan="2">Subject Details</th>
                         </tr>
                         <tr>
-                            <th class="border border-slate-400 border-b-4 border-b-slate-800 border-r-4 border-r-slate-800 px-3 py-2 text-center font-bold text-xs bg-slate-700 text-white" colspan="2"></th>
+                            <th class="border border-slate-400 border-b-2 border-b-slate-800 border-r-2 border-r-slate-800 px-3 py-2 text-center font-bold text-xs bg-slate-700 text-white" colspan="2"></th>
                             <th class="border border-slate-400 px-3 py-2 text-center font-bold text-sm bg-blue-600 text-white w-1/2">Group A</th>
                             <th class="border border-slate-400 px-3 py-2 text-center font-bold text-sm bg-green-600 text-white w-1/2">Group B</th>
                         </tr>
@@ -442,7 +442,7 @@ function timetableEditor() {
             );
         },
 
-        // Check if there are common slots (same subject for all groups)
+        // Check if there are common slots (no group specified)
         hasCommonSlot(day, timeRange) {
             const [start, end] = timeRange.split('-');
             const slotsForTime = this.slots.filter(slot => 
@@ -451,7 +451,10 @@ function timetableEditor() {
                 this.hi(slot.end_time) === end
             );
             // Check if there are slots without specific groups (common to all)
-            return slotsForTime.some(slot => !slot.group || slot.group === '');
+            return slotsForTime.some(slot => {
+                const g = (slot.group ?? '').toString().trim();
+                return g === '';
+            });
         },
 
         // Get common slots (for all groups)
@@ -461,19 +464,21 @@ function timetableEditor() {
                 slot.day_of_week === day && 
                 this.hi(slot.start_time) === start && 
                 this.hi(slot.end_time) === end &&
-                (!slot.group || slot.group === '')
+                ((slot.group ?? '').toString().trim() === '')
             );
         },
 
-        // Get slots for specific group
+        // Get slots for specific group (case-insensitive, tolerant of null/empty)
         getGroupSlots(day, timeRange, group) {
             const [start, end] = timeRange.split('-');
-            return this.slots.filter(slot => 
-                slot.day_of_week === day && 
-                this.hi(slot.start_time) === start && 
-                this.hi(slot.end_time) === end &&
-                slot.group === group
-            );
+            const gNorm = (group ?? '').toString().trim().toUpperCase();
+            return this.slots.filter(slot => {
+                if (slot.day_of_week !== day) return false;
+                if (this.hi(slot.start_time) !== start) return false;
+                if (this.hi(slot.end_time) !== end) return false;
+                const sg = (slot.group ?? '').toString().trim().toUpperCase();
+                return sg === gNorm;
+            });
         },
 
         // Open add slot modal with pre-filled group
@@ -567,10 +572,10 @@ function timetableEditor() {
         },
 
         slotGroupsConflict(groupA, groupB) {
-            if (!groupA || !groupB) {
-                return true;
-            }
-            return String(groupA).trim().toUpperCase() === String(groupB).trim().toUpperCase();
+            const a = (groupA ?? '').toString().trim().toUpperCase();
+            const b = (groupB ?? '').toString().trim().toUpperCase();
+            if (!a || !b) return true; // treat empty as common
+            return a === b;
         },
 
         hasSlotConflict(slotToCheck) {

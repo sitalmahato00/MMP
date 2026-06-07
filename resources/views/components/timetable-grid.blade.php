@@ -57,7 +57,7 @@
     }
 @endphp
 
-<div class="rounded-lg border-2 border-slate-800 overflow-hidden">
+<div class="rounded-lg border border-slate-800 overflow-hidden">
     <table class="w-full border-collapse bg-white text-xs print:text-[10px]">
     <thead>
         <tr>
@@ -75,10 +75,10 @@
         @php $totalTimeSlots = count($timeSlots); @endphp
         @foreach($days as $dayIndex => $day)
             @foreach($timeSlots as $timeIndex => $timeSlot)
-                <tr class="hover:bg-slate-50 transition-colors print:hover:bg-white @if($timeIndex === $totalTimeSlots - 1) border-b-4 border-b-slate-700 @endif">
+                <tr class="hover:bg-slate-50 transition-colors print:hover:bg-white @if($timeIndex === $totalTimeSlots - 1) border-b-2 border-b-slate-700 @endif">
                     {{-- Day Column (only show for first period of each day) --}}
                     @if($timeIndex === 0)
-                        <td class="border border-slate-300 border-r-4 border-r-slate-800 px-2 py-1 bg-slate-100 font-bold text-slate-900 text-xs text-center align-top print:px-1 print:py-0.5"
+                        <td class="border border-slate-300 border-r-2 border-r-slate-800 px-2 py-1 bg-slate-100 font-bold text-slate-900 text-xs text-center align-top print:px-1 print:py-0.5"
                             rowspan="{{ count($timeSlots) }}"
                             style="writing-mode: vertical-rl; text-orientation: mixed;">
                             {{ strtoupper(substr($day, 0, 3)) }}
