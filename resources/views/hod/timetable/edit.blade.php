@@ -135,8 +135,9 @@
         <div class="p-4">
             <h3 class="text-sm font-semibold text-slate-900 mb-3">Weekly Schedule</h3>
             
-            <div class="overflow-x-auto border border-slate-300 rounded-lg shadow-sm">
-                <table class="w-full border-collapse bg-white">
+            <div class="overflow-x-auto">
+                <div class="rounded-lg border-2 border-slate-800 overflow-hidden shadow-sm">
+                    <table class="w-full border-collapse bg-white">
                     <thead>
                         <tr>
                             <th class="border border-slate-400 border-r-4 border-r-slate-800 border-b-4 border-b-slate-800 px-3 py-3 text-center font-bold text-sm w-20 bg-slate-800 text-white">Day</th>
@@ -155,7 +156,7 @@
                                 <tr :class="rowIndex === daySchedule.rows.length - 1 ? 'border-b-4 border-b-slate-700' : ''" class="hover:bg-slate-50 transition-colors">
                                     <!-- Day Column (only show for first period of each day) -->
                                     <template x-if="rowIndex === 0">
-                                        <td :class="rowIndex === daySchedule.rows.length - 1 ? 'border-b-4 border-b-slate-700' : ''" class="border border-slate-300 px-3 py-2 bg-slate-100 font-bold text-slate-900 text-sm text-center align-top"
+                                        <td :class="rowIndex === daySchedule.rows.length - 1 ? 'border-b-4 border-b-slate-700' : ''" class="border border-slate-300 border-r-4 border-r-slate-800 px-3 py-2 bg-slate-100 font-bold text-slate-900 text-sm text-center align-top"
                                             :rowspan="daySchedule.rows.length"
                                             x-text="getDayLabel(daySchedule.day).toUpperCase()"
                                             style="writing-mode: vertical-rl; text-orientation: mixed;"></td>
@@ -381,29 +382,31 @@ function timetableEditor() {
         },
         
         get scheduleRows() {
+            // Build a global list of unique time slots from all slots (so each day shows the same rows)
+            const timeSlots = Array.from(new Set(this.slots.map(s => `${this.hi(s.start_time)}-${this.hi(s.end_time)}`)));
+            // Sort timeSlots by start time
+            timeSlots.sort((a, b) => {
+                const [aStart] = a.split('-');
+                const [bStart] = b.split('-');
+                return this.timeToMinutes(aStart) - this.timeToMinutes(bStart);
+            });
+
+            // If there are no slots defined, provide a default first period
+            if (timeSlots.length === 0) {
+                timeSlots.push('06:30-07:15');
+            }
+
             return this.days.map(day => {
-                const slots = this.slots
-                    .filter(slot => slot.day_of_week === day)
-                    .sort((a, b) => this.timeToMinutes(this.hi(a.start_time)) - this.timeToMinutes(this.hi(b.start_time)));
-
-                const rows = slots.map(slot => ({
-                    type: 'slot',
-                    time: `${this.hi(slot.start_time)}-${this.hi(slot.end_time)}`,
-                    slot
-                }));
-
-                const startTime = slots.length > 0 ? this.hi(slots[slots.length - 1].end_time) : '06:30';
-                const endTime = this.addMinutes(startTime, 45);
-
-                rows.push({
-                    type: 'empty',
-                    time: `${startTime}-${endTime}`
+                const rows = timeSlots.map(ts => {
+                    // If there is any slot for this day and timeslot, mark as 'slot', else 'empty'
+                    const hasSlot = this.slots.some(s => s.day_of_week === day && `${this.hi(s.start_time)}-${this.hi(s.end_time)}` === ts);
+                    return {
+                        type: hasSlot ? 'slot' : 'empty',
+                        time: ts
+                    };
                 });
 
-                return {
-                    day,
-                    rows
-                };
+                return { day, rows };
             });
         },
 
