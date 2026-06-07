@@ -259,7 +259,7 @@ class TimetableController extends HodController
             'slots' => 'nullable|array',
             'slots.*.day_of_week' => 'required|string|in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
             'slots.*.start_time' => 'required|date_format:H:i',
-            'slots.*.end_time' => 'required|date_format:H:i|after:slots.*.start_time',
+            'slots.*.end_time' => 'required|date_format:H:i',
             'slots.*.subject_id' => 'nullable|exists:subjects,id',
             'slots.*.teacher_id' => 'nullable|exists:teachers,id',
             'slots.*.room_number' => 'nullable|string|max:50',
@@ -267,6 +267,19 @@ class TimetableController extends HodController
             'slots.*.group' => 'nullable|string|max:50',
             'slots.*.duration' => 'nullable|integer|min:1|max:4',
         ]);
+
+        // Basic sanity checks: ensure end_time is after start_time for each slot
+        if (!empty($data['slots'])) {
+            foreach ($data['slots'] as $i => $s) {
+                $start = strtotime($s['start_time']);
+                $end = strtotime($s['end_time']);
+                if ($end <= $start) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'slots' => ["Slot #" . ($i + 1) . " end time must be after start time."],
+                    ]);
+                }
+            }
+        }
 
         $this->ensureSlotCollectionHasNoConflicts($data['slots'] ?? []);
 
