@@ -36,7 +36,7 @@
                 <div class="text-center">
                     <div class="mx-auto h-24 w-24 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
                         @if($student->profile_photo)
-                            <img src="{{ Storage::url($student->profile_photo) }}" 
+                            <img src="{{ asset('storage/' . ltrim($student->profile_photo, '/')) }}" 
                                  alt="{{ $student->user->name }}" 
                                  class="h-full w-full object-cover">
                         @else

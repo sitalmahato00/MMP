@@ -87,7 +87,7 @@
                                     <p class="text-xs text-slate-500">{{ number_format($fileSize / 1024, 2) }} KB</p>
                                 </div>
                             </div>
-                            <a href="{{ Storage::url($notice->attachment) }}" target="_blank" download 
+                            <a href="{{ asset('storage/' . ltrim($notice->attachment, '/')) }}" target="_blank" download 
                                class="flex-shrink-0 ml-4 inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download
@@ -113,7 +113,7 @@
                                     <p class="text-xs text-slate-500">{{ $attachment->file_type ?? strtoupper($extension) }} • {{ number_format($fileSize / 1024, 2) }} KB</p>
                                 </div>
                             </div>
-                            <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" download 
+                            <a href="{{ asset('storage/' . ltrim($attachment->file_path, '/')) }}" target="_blank" download 
                                class="flex-shrink-0 ml-4 inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download

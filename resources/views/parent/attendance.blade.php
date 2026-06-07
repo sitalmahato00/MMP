@@ -18,7 +18,7 @@
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white">
                 @if($s->user?->avatar)
-                    <img src="{{ Storage::url($s->user->avatar) }}" alt="{{ $s->user->name }}" class="h-10 w-10 rounded-xl object-cover">
+                    <img src="{{ asset('storage/' . ltrim($s->user->avatar, '/')) }}" alt="{{ $s->user->name }}" class="h-10 w-10 rounded-xl object-cover">
                 @else
                     {{ strtoupper(substr($s->user?->name ?? 'S', 0, 1)) }}
                 @endif

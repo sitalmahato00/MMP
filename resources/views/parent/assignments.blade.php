@@ -122,7 +122,7 @@
                                                                 </div>
 
                                                                 @if($assignment['attachment'])
-                                                                    <a href="{{ Storage::url($assignment['attachment']) }}" 
+                                                                    <a href="{{ asset('storage/' . ltrim($assignment['attachment'], '/')) }}" 
                                                                        target="_blank"
                                                                        class="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
                                                                         <i class="fas fa-paperclip"></i>
@@ -137,7 +137,7 @@
                                                                     <div class="flex items-center justify-between mb-2">
                                                                         <span class="text-sm font-medium text-slate-700">Submission Details</span>
                                                                         @if($assignment['submission']->attachment)
-                                                                            <a href="{{ Storage::url($assignment['submission']->attachment) }}" 
+                                                                                <a href="{{ asset('storage/' . ltrim($assignment['submission']->attachment, '/')) }}" 
                                                                                target="_blank"
                                                                                class="text-sm text-blue-600 hover:text-blue-700">
                                                                                 <i class="fas fa-download mr-1"></i>

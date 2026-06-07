@@ -67,8 +67,8 @@
                     @if($notice->attachment)
                         @php
                             $fileName = basename($notice->attachment);
-                            $fileSize = \Illuminate\Support\Facades\Storage::exists('public/' . $notice->attachment) 
-                                ? \Illuminate\Support\Facades\Storage::size('public/' . $notice->attachment) 
+                            $fileSize = \Illuminate\Support\Facades\Storage::disk('public')->exists($notice->attachment) 
+                                ? \Illuminate\Support\Facades\Storage::disk('public')->size($notice->attachment) 
                                 : 0;
                             $extension = pathinfo($fileName, PATHINFO_EXTENSION);
                         @endphp
@@ -82,7 +82,7 @@
                                     <p class="text-xs text-slate-500">{{ number_format($fileSize / 1024, 2) }} KB</p>
                                 </div>
                             </div>
-                            <a href="{{ Storage::url($notice->attachment) }}" target="_blank" download 
+                            <a href="{{ asset('storage/' . ltrim($notice->attachment, '/')) }}" target="_blank" download 
                                class="flex-shrink-0 ml-4 inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download
@@ -93,8 +93,8 @@
                     @foreach($notice->attachments as $attachment)
                         @php
                             $fileName = basename($attachment->file_path);
-                            $fileSize = \Illuminate\Support\Facades\Storage::exists('public/' . $attachment->file_path) 
-                                ? \Illuminate\Support\Facades\Storage::size('public/' . $attachment->file_path) 
+                            $fileSize = \Illuminate\Support\Facades\Storage::disk('public')->exists($attachment->file_path) 
+                                ? \Illuminate\Support\Facades\Storage::disk('public')->size($attachment->file_path) 
                                 : 0;
                             $extension = pathinfo($fileName, PATHINFO_EXTENSION);
                         @endphp
@@ -108,7 +108,7 @@
                                     <p class="text-xs text-slate-500">{{ $attachment->file_type ?? strtoupper($extension) }} • {{ number_format($fileSize / 1024, 2) }} KB</p>
                                 </div>
                             </div>
-                            <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" download 
+                            <a href="{{ asset('storage/' . ltrim($attachment->file_path, '/')) }}" target="_blank" download 
                                class="flex-shrink-0 ml-4 inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download

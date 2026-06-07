@@ -67,7 +67,7 @@
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
                                 @if($student->user->avatar)
-                                    <img src="{{ Storage::url($student->user->avatar) }}" alt="{{ $student->user->name }}" class="h-10 w-10 rounded-full object-cover">
+                                    <img src="{{ asset('storage/' . ltrim($student->user->avatar, '/')) }}" alt="{{ $student->user->name }}" class="h-10 w-10 rounded-full object-cover">
                                 @else
                                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -197,7 +197,7 @@
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                                         @if($summary['student']->user->avatar)
-                                            <img src="{{ Storage::url($summary['student']->user->avatar) }}" alt="{{ $summary['student']->user->name }}" class="h-10 w-10 rounded-full object-cover">
+                                            <img src="{{ asset('storage/' . ltrim($summary['student']->user->avatar, '/')) }}" alt="{{ $summary['student']->user->name }}" class="h-10 w-10 rounded-full object-cover">
                                         @else
                                             <span class="text-sm font-bold">{{ strtoupper(substr($summary['student']->user->name, 0, 2)) }}</span>
                                         @endif
@@ -274,7 +274,7 @@
                         <div class="flex items-center gap-4">
                             <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                                 @if($child->user->avatar)
-                                    <img src="{{ Storage::url($child->user->avatar) }}" alt="{{ $child->user->name }}" class="h-12 w-12 rounded-full object-cover">
+                                    <img src="{{ asset('storage/' . ltrim($child->user->avatar, '/')) }}" alt="{{ $child->user->name }}" class="h-12 w-12 rounded-full object-cover">
                                 @else
                                     <span class="text-sm font-bold">{{ strtoupper(substr($child->user->name, 0, 2)) }}</span>
                                 @endif

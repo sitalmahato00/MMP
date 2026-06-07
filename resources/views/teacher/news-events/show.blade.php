@@ -65,7 +65,7 @@
                     </a>
                 @endif
                 @foreach($notice->attachments as $attachment)
-                    <a href="{{ Storage::url($attachment->file_path) }}" target="_blank"
+                    <a href="{{ asset('storage/' . ltrim($attachment->file_path, '/')) }}" target="_blank"
                        class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition hover:bg-slate-50 hover:border-slate-300">
                         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 flex-shrink-0">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

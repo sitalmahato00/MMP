@@ -86,7 +86,7 @@
                                 ? Storage::disk('public')->size($notice->attachment)
                                 : null;
                         @endphp
-                        <a href="{{ Storage::url($notice->attachment) }}" 
+                        <a href="{{ asset('storage/' . ltrim($notice->attachment, '/')) }}" 
                            target="_blank"
                            class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
@@ -106,7 +106,7 @@
                         </a>
                     @endif
                     @foreach($notice->attachments as $attachment)
-                        <a href="{{ Storage::url($attachment->file_path) }}" 
+                        <a href="{{ asset('storage/' . ltrim($attachment->file_path, '/')) }}" 
                            target="_blank"
                            class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
