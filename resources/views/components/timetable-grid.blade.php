@@ -16,6 +16,22 @@
         $endTime = $slot->end_time instanceof \Carbon\Carbon ? $slot->end_time->format('H:i') : $slot->end_time;
         return $startTime . '-' . $endTime;
     })->unique()->sort()->values()->toArray();
+
+    $timeSlotsByDay = collect($days)->mapWithKeys(function($day) use ($slots) {
+        $dayTimeSlots = collect($slots)
+            ->filter(fn($slot) => strtolower((string) $slot->day_of_week) === $day)
+            ->map(function($slot) {
+                $startTime = $slot->start_time instanceof \Carbon\Carbon ? $slot->start_time->format('H:i') : $slot->start_time;
+                $endTime = $slot->end_time instanceof \Carbon\Carbon ? $slot->end_time->format('H:i') : $slot->end_time;
+                return $startTime . '-' . $endTime;
+            })
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        return [$day => $dayTimeSlots];
+    });
     
     // Helper function to format time
     function formatTime($time) {
@@ -72,14 +88,20 @@
         </tr>
     </thead>
     <tbody>
-        @php $totalTimeSlots = count($timeSlots); @endphp
         @foreach($days as $dayIndex => $day)
-            @foreach($timeSlots as $timeIndex => $timeSlot)
+            @php
+                $dayTimeSlots = $timeSlotsByDay[$day] ?? [];
+                $totalTimeSlots = count($dayTimeSlots);
+            @endphp
+
+            @continue($totalTimeSlots === 0)
+
+            @foreach($dayTimeSlots as $timeIndex => $timeSlot)
                 <tr class="hover:bg-slate-50 transition-colors print:hover:bg-white @if($timeIndex === $totalTimeSlots - 1) border-b-2 border-b-slate-700 @endif">
                     {{-- Day Column (only show for first period of each day) --}}
                     @if($timeIndex === 0)
                         <td class="border border-slate-300 border-r-2 border-r-slate-800 px-2 py-1 bg-slate-100 font-bold text-slate-900 text-xs text-center align-top print:px-1 print:py-0.5"
-                            rowspan="{{ count($timeSlots) }}"
+                            rowspan="{{ $totalTimeSlots }}"
                             style="writing-mode: vertical-rl; text-orientation: mixed;">
                             {{ strtoupper(substr($day, 0, 3)) }}
                         </td>

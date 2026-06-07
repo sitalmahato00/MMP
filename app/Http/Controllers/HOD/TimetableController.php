@@ -204,15 +204,26 @@ class TimetableController extends HodController
 
         // Transform slots for JavaScript
         $slotsData = $timetable->slots->map(function($slot) {
+            // Normalize day_of_week to lowercase string (support numeric storage)
+            $rawDay = $slot->day_of_week;
+            if (is_numeric($rawDay)) {
+                // Map 1-7 => monday..sunday (1 => monday)
+                $map = [1=>'monday',2=>'tuesday',3=>'wednesday',4=>'thursday',5=>'friday',6=>'saturday',7=>'sunday'];
+                $day = $map[intval($rawDay)] ?? strtolower((string)$rawDay);
+            } else {
+                $day = strtolower(trim((string)$rawDay));
+            }
+
             $start = $slot->start_time instanceof \Carbon\Carbon
                 ? $slot->start_time->format('H:i')
                 : substr((string) ($slot->start_time ?? '09:00'), 0, 5);
             $end = $slot->end_time instanceof \Carbon\Carbon
                 ? $slot->end_time->format('H:i')
                 : substr((string) ($slot->end_time ?? '10:00'), 0, 5);
+
             return [
                 'id' => $slot->id,
-                'day_of_week' => $slot->day_of_week,
+                'day_of_week' => $day,
                 'start_time' => $start,
                 'end_time' => $end,
                 'subject_id' => $slot->subject_id,
@@ -232,7 +243,7 @@ class TimetableController extends HodController
         })->unique()->sort()->values()->toArray();
 
         return view('hod.timetable.edit', compact(
-            'timetable', 'department', 'programs', 'academicSessions', 'subjects', 'teachers', 'slotsData'
+            'timetable', 'department', 'programs', 'academicSessions', 'subjects', 'teachers', 'slotsData', 'timeSlots'
         ));
     }
 

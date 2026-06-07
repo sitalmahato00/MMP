@@ -263,6 +263,22 @@
             $endTime = $slot->end_time instanceof \Carbon\Carbon ? $slot->end_time->format('H:i') : $slot->end_time;
             return $startTime . '-' . $endTime;
         })->unique()->sort()->values()->toArray();
+
+        $timeSlotsByDay = collect($days)->mapWithKeys(function($day) use ($timetable) {
+            $dayTimeSlots = collect($timetable->slots)
+                ->filter(fn($slot) => strtolower((string) $slot->day_of_week) === $day)
+                ->map(function($slot) {
+                    $startTime = $slot->start_time instanceof \Carbon\Carbon ? $slot->start_time->format('H:i') : $slot->start_time;
+                    $endTime = $slot->end_time instanceof \Carbon\Carbon ? $slot->end_time->format('H:i') : $slot->end_time;
+                    return $startTime . '-' . $endTime;
+                })
+                ->unique()
+                ->sort()
+                ->values()
+                ->toArray();
+
+            return [$day => $dayTimeSlots];
+        });
         
         // Helper functions
         function formatTimePDF($time) {
@@ -314,10 +330,17 @@
         </thead>
         <tbody>
             @foreach($days as $dayIndex => $day)
-                @foreach($timeSlots as $timeIndex => $timeSlot)
+                @php
+                    $dayTimeSlots = $timeSlotsByDay[$day] ?? [];
+                    $totalTimeSlots = count($dayTimeSlots);
+                @endphp
+
+                @continue($totalTimeSlots === 0)
+
+                @foreach($dayTimeSlots as $timeIndex => $timeSlot)
                     <tr>
                         @if($timeIndex === 0)
-                            <td class="day-cell" rowspan="{{ count($timeSlots) }}">
+                            <td class="day-cell" rowspan="{{ $totalTimeSlots }}">
                                 {{ strtoupper(substr($day, 0, 3)) }}
                             </td>
                         @endif
