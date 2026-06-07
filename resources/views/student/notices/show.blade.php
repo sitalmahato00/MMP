@@ -39,12 +39,87 @@
 
     <div class="grid gap-6 lg:grid-cols-4">
         {{-- Notice Content --}}
-        <div class="lg:col-span-3">
+        <div class="lg:col-span-3 space-y-6">
             <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm p-6">
                 <div class="prose prose-sm max-w-none text-slate-700">
                     {!! nl2br(e($notice->content)) !!}
                 </div>
             </section>
+
+            @if($notice->attachment || $notice->attachments->count() > 0)
+            <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm p-6">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-sm font-semibold text-slate-900">Attachments</h2>
+                        <p class="text-xs text-slate-500">Preview or download attached files</p>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500">{{ ($notice->attachment ? 1 : 0) + $notice->attachments->count() }} file{{ (($notice->attachment ? 1 : 0) + $notice->attachments->count()) > 1 ? 's' : '' }}</span>
+                </div>
+
+                <div class="grid gap-4">
+                    @php
+                        $allAttachments = collect();
+                        if ($notice->attachment) {
+                            $allAttachments->push((object)[
+                                'file_path' => $notice->attachment,
+                                'file_name' => basename($notice->attachment),
+                                'file_size' => Storage::disk('public')->exists($notice->attachment) ? Storage::disk('public')->size($notice->attachment) : null,
+                            ]);
+                        }
+                        foreach ($notice->attachments as $attachment) {
+                            $allAttachments->push($attachment);
+                        }
+                    @endphp
+
+                    @foreach($allAttachments as $attachment)
+                        @php
+                            $path = ltrim($attachment->file_path, '/');
+                            $url = asset('storage/' . $path);
+                            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                            $isImage = in_array($extension, ['jpg','jpeg','png','gif','webp','svg']);
+                            $fileName = $attachment->file_name ?? basename($path);
+                            $fileSize = $attachment->file_size ?? null;
+                        @endphp
+
+                        <article class="rounded-3xl border border-slate-200 bg-slate-50 overflow-hidden shadow-sm">
+                            <div class="grid gap-4 lg:grid-cols-[120px_auto] p-4">
+                                <div class="overflow-hidden rounded-3xl bg-white">
+                                    @if($isImage)
+                                        <img src="{{ $url }}" alt="{{ $fileName }}" class="h-28 w-full object-cover" />
+                                    @else
+                                        <div class="flex h-28 items-center justify-center bg-slate-100 text-slate-500">
+                                            <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-slate-900 truncate">{{ $fileName }}</p>
+                                        @if($fileSize)
+                                            <p class="text-xs text-slate-500">{{ number_format($fileSize / 1024, 1) }} KB</p>
+                                        @endif
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <a href="{{ $url }}" target="_blank"
+                                           class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l-3-3m0 0l-3 3m3-3v12"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6"/></svg>
+                                            View
+                                        </a>
+                                        <a href="{{ $url }}" download
+                                           class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 10l5 5 5-5M12 15V3"/></svg>
+                                            Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+            @endif
         </div>
 
         {{-- Sidebar --}}
@@ -72,62 +147,6 @@
                     </div>
                 </div>
             </section>
-
-            {{-- Attachments --}}
-            @if($notice->attachment || $notice->attachments->count() > 0)
-            <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm p-6">
-                <h2 class="text-sm font-semibold text-slate-900 mb-4">Attachments</h2>
-                
-                <div class="space-y-3">
-                    @if($notice->attachment)
-                        @php
-                            $fileName = basename($notice->attachment);
-                            $fileSize = Storage::disk('public')->exists($notice->attachment)
-                                ? Storage::disk('public')->size($notice->attachment)
-                                : null;
-                        @endphp
-                        <a href="{{ asset('storage/' . ltrim($notice->attachment, '/')) }}" 
-                           target="_blank"
-                           class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
-                                <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-slate-900">{{ $fileName }}</p>
-                                @if($fileSize)
-                                    <p class="text-xs text-slate-500">{{ number_format($fileSize / 1024, 1) }} KB</p>
-                                @endif
-                            </div>
-                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </a>
-                    @endif
-                    @foreach($notice->attachments as $attachment)
-                        <a href="{{ asset('storage/' . ltrim($attachment->file_path, '/')) }}" 
-                           target="_blank"
-                           class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
-                                <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-slate-900">{{ $attachment->file_name ?? basename($attachment->file_path) }}</p>
-                                @if($attachment->file_size)
-                                    <p class="text-xs text-slate-500">{{ number_format($attachment->file_size / 1024, 1) }} KB</p>
-                                @endif
-                            </div>
-                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </a>
-                    @endforeach
-                </div>
-            </section>
-            @endif
         </div>
     </div>
 </div>
