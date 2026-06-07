@@ -28,9 +28,9 @@
                         <span>•</span>
                         <span>By: {{ $notice->author->name }}</span>
                     @endif
-                    @if($notice->attachments->count() > 0)
+                    @if($notice->attachment || $notice->attachments->count() > 0)
                         <span>•</span>
-                        <span>{{ $notice->attachments->count() }} attachment(s)</span>
+                        <span>{{ ($notice->attachment ? 1 : 0) + $notice->attachments->count() }} attachment(s)</span>
                     @endif
                 </div>
             </div>
@@ -74,11 +74,37 @@
             </section>
 
             {{-- Attachments --}}
-            @if($notice->attachments->count() > 0)
+            @if($notice->attachment || $notice->attachments->count() > 0)
             <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm p-6">
                 <h2 class="text-sm font-semibold text-slate-900 mb-4">Attachments</h2>
                 
                 <div class="space-y-3">
+                    @if($notice->attachment)
+                        @php
+                            $fileName = basename($notice->attachment);
+                            $fileSize = Storage::disk('public')->exists($notice->attachment)
+                                ? Storage::disk('public')->size($notice->attachment)
+                                : null;
+                        @endphp
+                        <a href="{{ Storage::url($notice->attachment) }}" 
+                           target="_blank"
+                           class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
+                                <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-slate-900">{{ $fileName }}</p>
+                                @if($fileSize)
+                                    <p class="text-xs text-slate-500">{{ number_format($fileSize / 1024, 1) }} KB</p>
+                                @endif
+                            </div>
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </a>
+                    @endif
                     @foreach($notice->attachments as $attachment)
                         <a href="{{ Storage::url($attachment->file_path) }}" 
                            target="_blank"
@@ -89,7 +115,7 @@
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-slate-900">{{ $attachment->original_name }}</p>
+                                <p class="text-sm font-medium text-slate-900">{{ $attachment->file_name ?? basename($attachment->file_path) }}</p>
                                 @if($attachment->file_size)
                                     <p class="text-xs text-slate-500">{{ number_format($attachment->file_size / 1024, 1) }} KB</p>
                                 @endif

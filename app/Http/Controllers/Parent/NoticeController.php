@@ -12,7 +12,7 @@ class NoticeController extends Controller
     {
         $query = Notice::published()
             ->forNoticeBoard()
-            ->with(['author', 'department', 'program']);
+            ->with(['author', 'department', 'program', 'attachments']);
 
         // Search filter
         if ($request->filled('search')) {

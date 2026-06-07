@@ -72,8 +72,8 @@
                     @if($notice->attachment)
                         @php
                             $fileName = basename($notice->attachment);
-                            $fileSize = \Illuminate\Support\Facades\Storage::exists('public/' . $notice->attachment) 
-                                ? \Illuminate\Support\Facades\Storage::size('public/' . $notice->attachment) 
+                            $fileSize = \Illuminate\Support\Facades\Storage::disk('public')->exists($notice->attachment) 
+                                ? \Illuminate\Support\Facades\Storage::disk('public')->size($notice->attachment) 
                                 : 0;
                             $extension = pathinfo($fileName, PATHINFO_EXTENSION);
                         @endphp
@@ -98,8 +98,8 @@
                     @foreach($notice->attachments as $attachment)
                         @php
                             $fileName = basename($attachment->file_path);
-                            $fileSize = \Illuminate\Support\Facades\Storage::exists('public/' . $attachment->file_path) 
-                                ? \Illuminate\Support\Facades\Storage::size('public/' . $attachment->file_path) 
+                            $fileSize = \Illuminate\Support\Facades\Storage::disk('public')->exists($attachment->file_path) 
+                                ? \Illuminate\Support\Facades\Storage::disk('public')->size($attachment->file_path) 
                                 : 0;
                             $extension = pathinfo($fileName, PATHINFO_EXTENSION);
                         @endphp

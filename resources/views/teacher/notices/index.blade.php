@@ -109,12 +109,12 @@
                                         {{ bsDate($notice->created_at, 'M d, Y') }}
                                     </td>
                                     <td class="px-5 py-3.5 text-xs text-slate-500 hidden sm:table-cell">
-                                        @if($notice->attachments->isNotEmpty())
+                                        @if($notice->attachment || $notice->attachments->isNotEmpty())
                                             <div class="flex items-center gap-1">
                                                 <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                                                 </svg>
-                                                {{ $notice->attachments->count() }}
+                                                {{ ($notice->attachment ? 1 : 0) + $notice->attachments->count() }}
                                             </div>
                                         @else
                                             —
@@ -177,8 +177,8 @@
                         {{-- Badges --}}
                         <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">
                             <x-badge color="blue">{{ ucfirst($notice->type ?? 'General') }}</x-badge>
-                            @if($notice->attachments->isNotEmpty())
-                                <span class="rounded-lg bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">{{ $notice->attachments->count() }} file{{ $notice->attachments->count() > 1 ? 's' : '' }}</span>
+                            @if($notice->attachment || $notice->attachments->isNotEmpty())
+                                <span class="rounded-lg bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">{{ ($notice->attachment ? 1 : 0) + $notice->attachments->count() }} file{{ ((($notice->attachment ? 1 : 0) + $notice->attachments->count()) > 1) ? 's' : '' }}</span>
                             @endif
                         </div>
                         {{-- Meta info --}}
