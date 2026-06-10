@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\HOD;
 
 use App\Models\Exam;
+use App\Models\ExamSubjectMarkingScheme;
 use App\Models\Mark;
 use App\Models\Student;
 use App\Models\Subject;
@@ -18,15 +19,23 @@ use Illuminate\Support\Facades\DB;
 class ExamController extends HodController
 {
     use ExportableTrait;
+
+    private array $markIsPassedCache = [];
+    private array $examCategoryCache = [];
+    private array $examSubjectMarkingSchemeCache = [];
+
     // ── Index ──────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
 
-        // Get exams for department
-        $query = Exam::where('department_id', $deptId)
-            ->with(['academicSession:id,name', 'programs'])
+        // Get exams for department or exams that include programs from this department
+        $query = Exam::with(['academicSession:id,name', 'programs'])
+            ->where(function ($q) use ($deptId) {
+                $q->where('department_id', $deptId)
+                    ->orWhereHas('programs', fn ($sub) => $sub->where('department_id', $deptId));
+            })
             ->when($request->search, function ($q) use ($request) {
                 $term = trim((string) $request->search);
                 $q->where('name', 'like', "%{$term}%");
@@ -298,9 +307,20 @@ class ExamController extends HodController
                 ->with('error', 'Please select an exam to view marks.');
         }
 
-        $exam = Exam::where('department_id', $deptId)
-            ->with(['academicSession:id,name', 'programs'])
+        $exam = Exam::with(['academicSession:id,name', 'programs'])
             ->findOrFail($examId);
+
+        if (! $exam->is_published && $exam->status !== 'results_published') {
+            return redirect()->route('hod.exams.index')
+                ->with('error', 'Marks are visible only after the exam is published.');
+        }
+
+        $belongsToDept = $exam->department_id === $deptId
+            || $exam->programs->where('department_id', $deptId)->isNotEmpty();
+
+        if (! $belongsToDept) {
+            abort(403, 'Unauthorized action.');
+        }
 
         // Get marks for this exam with filters — grouped display, no pagination
         $marksQuery = Mark::where('exam_id', $examId)
@@ -362,6 +382,247 @@ class ExamController extends HodController
         ));
     }
 
+    public function showSubjectMarks(Request $request, Exam $exam, Subject $subject)
+    {
+        $department = $this->currentDepartment($request);
+        $deptId = $department->id;
+
+        if (! $exam->is_published && $exam->status !== 'results_published') {
+            return redirect()->route('hod.exams.index')
+                ->with('error', 'Subject marks are visible only after the exam is published.');
+        }
+
+        $belongsToDept = $exam->department_id === $deptId
+            || $exam->programs->where('department_id', $deptId)->isNotEmpty();
+
+        if (! $belongsToDept) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        abort_unless(
+            $exam->programs()
+                ->where('programs.id', $subject->program_id)
+                ->wherePivot('semester', $subject->semester)
+                ->exists(),
+            404
+        );
+
+        $students = Student::query()
+            ->where('program_id', $subject->program_id)
+            ->where('current_semester', $subject->semester)
+            ->where('status', 'active')
+            ->with(['user:id,name,email', 'program:id,name,code', 'department:id,name,code'])
+            ->orderBy('roll_number')
+            ->get();
+
+        $marks = Mark::query()
+            ->where('exam_id', $exam->id)
+            ->where('subject_id', $subject->id)
+            ->with(['student.user:id,name,email', 'student.program:id,name,code', 'student.department:id,name,code', 'teacher.user:id,name'])
+            ->get()
+            ->keyBy('student_id');
+
+        $studentRows = $students->map(function (Student $student) use ($marks, $exam, $subject) {
+            $mark = $marks->get($student->id);
+            $hasMarks = $mark !== null;
+            $status = $mark?->status ? ucfirst($mark->status) : 'Missing';
+            $resultRemark = $mark ? $this->markResultRemark($mark) : 'Pending';
+            $obtained = null;
+
+            if ($mark) {
+                if ($this->examCategoryForMark($mark) === 'monthly_assessment') {
+                    $obtained = $mark->assessment_obtained_marks;
+                    $attendancePercentLabel = $mark->assessment_attendance_percent !== null
+                        ? number_format($mark->assessment_attendance_percent, 1) . '%'
+                        : '—';
+                } else {
+                    $obtained = (float) ($mark->internal_theory_marks ?? 0)
+                        + (float) ($mark->external_theory_marks ?? 0)
+                        + (float) ($mark->internal_practical_marks ?? 0)
+                        + (float) ($mark->external_practical_marks ?? 0);
+                    $attendancePercentLabel = '—';
+                }
+            } else {
+                $attendancePercentLabel = '—';
+            }
+
+            return [
+                'student' => $student,
+                'mark' => $mark,
+                'hasMarks' => $hasMarks,
+                'status' => $status,
+                'result' => $resultRemark,
+                'obtained' => $obtained,
+                'attendance_percent_label' => $attendancePercentLabel,
+                'pass' => $mark ? $this->markIsPassed($mark) : false,
+                'isAbsent' => $mark?->is_absent ?? false,
+                'isWithheld' => $mark?->is_withheld ?? false,
+                'isDelayed' => $mark?->is_delayed ?? false,
+            ];
+        });
+
+        $summary = [
+            'total_students' => $studentRows->count(),
+            'marks_entered' => $studentRows->where('hasMarks', true)->count(),
+            'missing_marks' => $studentRows->where('hasMarks', false)->count(),
+            'passed' => $studentRows->where('pass', true)->count(),
+            'failed' => $studentRows->where('hasMarks', true)->where('pass', false)->where('isAbsent', false)->where('isWithheld', false)->count(),
+            'absent' => $studentRows->where('isAbsent', true)->count(),
+            'withheld' => $studentRows->where('isWithheld', true)->count(),
+            'delayed' => $studentRows->where('isDelayed', true)->count(),
+        ];
+
+        return view('hod.exams.subject-marks', compact(
+            'exam', 'subject', 'studentRows', 'summary'
+        ));
+    }
+
+    private function markResultRemark(Mark $mark): string
+    {
+        if ($mark->is_absent) {
+            return 'Absent';
+        }
+
+        if ($mark->is_withheld) {
+            return 'Withheld';
+        }
+
+        if ($mark->is_delayed) {
+            return 'Delayed';
+        }
+
+        return $this->markIsPassed($mark) ? 'Pass' : 'Fail';
+    }
+
+    private function markIsPassed(Mark $mark): bool
+    {
+        $id = $mark->id;
+        if (array_key_exists($id, $this->markIsPassedCache)) {
+            return $this->markIsPassedCache[$id];
+        }
+
+        if ($mark->is_absent || $mark->is_withheld || $mark->is_delayed || ! $mark->subject) {
+            return $this->markIsPassedCache[$id] = false;
+        }
+
+        if ($this->examCategoryForMark($mark) === 'monthly_assessment') {
+            $full = (float) ($mark->assessment_full_marks ?? 0);
+            $pass = (float) ($mark->assessment_pass_marks ?? 0);
+            $obtained = $mark->assessment_obtained_marks;
+
+            if ($full <= 0 || $obtained === null) {
+                return $this->markIsPassedCache[$id] = false;
+            }
+
+            return $this->markIsPassedCache[$id] = (float) $obtained >= $pass;
+        }
+
+        $scheme = $this->markingSchemeForMark($mark);
+        $attrs = $mark->getAttributes();
+
+        $passInternalTheory = (float) $scheme['pass_internal_theory'];
+        $passExternalTheory = (float) $scheme['pass_external_theory'];
+        $passInternalPractical = (float) $scheme['pass_internal_practical'];
+        $passExternalPractical = (float) $scheme['pass_external_practical'];
+        $fullInternalPractical = (float) $scheme['full_internal_practical'];
+        $fullExternalPractical = (float) $scheme['full_external_practical'];
+        
+        $theoryPass = ((float) ($attrs['internal_theory_marks'] ?? 0)) >= $passInternalTheory
+            && ((float) ($attrs['external_theory_marks'] ?? 0)) >= $passExternalTheory;
+
+        if (! $theoryPass) {
+            return $this->markIsPassedCache[$id] = false;
+        }
+
+        $practicalPass = true;
+        $practicalThresholdApplies = $fullInternalPractical > 0
+            || $fullExternalPractical > 0
+            || $passInternalPractical > 0
+            || $passExternalPractical > 0;
+
+        if ($practicalThresholdApplies) {
+            $practicalPass = ((float) ($attrs['internal_practical_marks'] ?? 0)) >= $passInternalPractical
+                && ((float) ($attrs['external_practical_marks'] ?? 0)) >= $passExternalPractical;
+        }
+
+        return $this->markIsPassedCache[$id] = $theoryPass && $practicalPass;
+    }
+
+    private function examCategoryForMark(Mark $mark): string
+    {
+        $examId = (int) $mark->exam_id;
+
+        if (! isset($this->examCategoryCache[$examId])) {
+            $this->examCategoryCache[$examId] = (string) (Exam::query()->whereKey($examId)->value('category') ?: 'ctevt_final');
+        }
+
+        return $this->examCategoryCache[$examId];
+    }
+
+    private function markingSchemeForMark(Mark $mark): array
+    {
+        if (! $mark->subject) {
+            return [
+                'full_internal_theory' => 0.0,
+                'pass_internal_theory' => 0.0,
+                'full_external_theory' => 0.0,
+                'pass_external_theory' => 0.0,
+                'full_internal_practical' => 0.0,
+                'pass_internal_practical' => 0.0,
+                'full_external_practical' => 0.0,
+                'pass_external_practical' => 0.0,
+            ];
+        }
+
+        return $this->subjectMarkingSchemeForExamId((int) $mark->exam_id, $mark->subject);
+    }
+
+    private function subjectMarkingSchemeForExamId(int $examId, Subject $subject): array
+    {
+        $cacheKey = $this->schemeCacheKey($examId, (int) $subject->id);
+
+        if (! array_key_exists($cacheKey, $this->examSubjectMarkingSchemeCache)) {
+            $scheme = ExamSubjectMarkingScheme::query()
+                ->where('exam_id', $examId)
+                ->where('subject_id', $subject->id)
+                ->first();
+
+            $this->examSubjectMarkingSchemeCache[$cacheKey] = $scheme
+                ? [
+                    'full_internal_theory' => (float) $scheme->full_marks_internal_theory,
+                    'pass_internal_theory' => (float) $scheme->pass_marks_internal_theory,
+                    'full_external_theory' => (float) $scheme->full_marks_external_theory,
+                    'pass_external_theory' => (float) $scheme->pass_marks_external_theory,
+                    'full_internal_practical' => (float) $scheme->full_marks_internal_practical,
+                    'pass_internal_practical' => (float) $scheme->pass_marks_internal_practical,
+                    'full_external_practical' => (float) $scheme->full_marks_external_practical,
+                    'pass_external_practical' => (float) $scheme->pass_marks_external_practical,
+                ]
+                : $this->subjectDefaultMarkingScheme($subject);
+        }
+
+        return $this->examSubjectMarkingSchemeCache[$cacheKey];
+    }
+
+    private function subjectDefaultMarkingScheme(Subject $subject): array
+    {
+        return [
+            'full_internal_theory' => (float) ($subject->full_marks_internal_theory ?? 0),
+            'pass_internal_theory' => (float) ($subject->pass_marks_internal_theory ?? 0),
+            'full_external_theory' => (float) ($subject->full_marks_external_theory ?? 0),
+            'pass_external_theory' => (float) ($subject->pass_marks_external_theory ?? 0),
+            'full_internal_practical' => (float) ($subject->full_marks_internal_practical ?? 0),
+            'pass_internal_practical' => (float) ($subject->pass_marks_internal_practical ?? 0),
+            'full_external_practical' => (float) ($subject->full_marks_external_practical ?? 0),
+            'pass_external_practical' => (float) ($subject->pass_marks_external_practical ?? 0),
+        ];
+    }
+
+    private function schemeCacheKey(int $examId, int $subjectId): string
+    {
+        return $examId . ':' . $subjectId;
+    }
+
     // ── Fill Marks ─────────────────────────────────────────────────────────
     public function fillMarks(Request $request)
     {
@@ -375,15 +636,43 @@ class ExamController extends HodController
                 ->with('error', 'Please select an exam to fill marks.');
         }
 
-        $exam = Exam::where('department_id', $deptId)
-            ->with(['academicSession:id,name', 'programs'])
+        $exam = Exam::with(['academicSession:id,name', 'programs'])
+            ->where(function ($q) use ($deptId) {
+                $q->where('department_id', $deptId)
+                  ->orWhereHas('programs', fn ($sub) => $sub->where('department_id', $deptId));
+            })
             ->findOrFail($examId);
 
-        // Get programs and subjects for this exam
-        $programs = $exam->programs;
-        
-        $programId = $request->program_id ?? $programs->first()?->id;
-        $semester = $request->semester ?? $programs->first()?->pivot->semester ?? 1;
+        // Only use programs assigned to the exam for this department
+        $programs = $exam->programs
+            ->where('department_id', $deptId)
+            ->values();
+
+        if ($programs->isEmpty()) {
+            abort(403, 'No programs available for your department in this exam.');
+        }
+
+        $programId = $request->program_id;
+        if (! $programId || ! $programs->contains('id', $programId)) {
+            $programId = $programs->first()->id;
+        }
+
+        $selectedProgramSemesters = $programs
+            ->where('id', $programId)
+            ->pluck('pivot.semester')
+            ->unique()
+            ->sort()
+            ->values();
+
+        if ($selectedProgramSemesters->isEmpty()) {
+            abort(403, 'No semesters available for this program in the selected exam.');
+        }
+
+        $semester = $request->semester;
+        if (! $semester || ! $selectedProgramSemesters->contains((int) $semester)) {
+            $semester = $selectedProgramSemesters->first();
+        }
+
         $subjectId = $request->subject_id;
 
         if (!$programId || !$subjectId) {
@@ -394,8 +683,10 @@ class ExamController extends HodController
                 ->orderBy('name')
                 ->get();
 
+            $programSemesters = $selectedProgramSemesters;
+
             return view('hod.exams.fill-marks-select', compact(
-                'exam', 'department', 'programs', 'subjects', 'programId', 'semester'
+                'exam', 'department', 'programs', 'subjects', 'programId', 'semester', 'programSemesters'
             ));
         }
 
@@ -436,6 +727,7 @@ class ExamController extends HodController
             'marks' => 'required|array',
             'marks.*.student_id' => 'required|exists:students,id',
             'marks.*.is_absent' => 'nullable|boolean',
+            'marks.*.assessment_attendance_percent' => 'nullable|numeric|min:0|max:100',
             'marks.*.assessment_obtained_marks' => 'nullable|numeric|min:0',
             'marks.*.internal_theory_marks' => 'nullable|numeric|min:0',
             'marks.*.external_theory_marks' => 'nullable|numeric|min:0',
@@ -466,6 +758,7 @@ class ExamController extends HodController
                 // Assessment exam - use exam's assessment marks
                 $data['assessment_full_marks'] = $exam->assessment_full_marks ?? 100;
                 $data['assessment_pass_marks'] = $exam->assessment_pass_marks ?? 40;
+                $data['assessment_attendance_percent'] = $isAbsent ? null : ($markData['assessment_attendance_percent'] ?? null);
                 $data['assessment_obtained_marks'] = $isAbsent ? null : ($markData['assessment_obtained_marks'] ?? null);
             } else {
                 // CTEVT exam - just store the marks obtained
@@ -714,8 +1007,11 @@ class ExamController extends HodController
                 ->with('error', 'Please select an exam to export marks.');
         }
 
-        $exam = Exam::where('department_id', $deptId)
-            ->with(['academicSession:id,name', 'programs', 'department'])
+        $exam = Exam::with(['academicSession:id,name', 'programs', 'department'])
+            ->where(function ($q) use ($deptId) {
+                $q->where('department_id', $deptId)
+                  ->orWhereHas('programs', fn ($sub) => $sub->where('department_id', $deptId));
+            })
             ->findOrFail($examId);
 
         // Get marks for this exam with filters
