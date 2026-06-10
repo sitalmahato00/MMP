@@ -157,13 +157,15 @@
                             </td>
 
                             @if($exam->category === 'monthly_assessment')
-                                {{-- Attendance Percentage (Read-only) --}}
-                                <td class="px-4 py-3 text-center">
-                                    <div class="text-sm font-medium text-slate-700">
-                                        {{ $existingMark ? number_format($existingMark->assessment_attendance_percent ?? 0, 1) : '0.0' }}%
-                                    </div>
-                                    <input type="hidden" name="marks[{{ $index }}][assessment_attendance_percent]" 
-                                           value="{{ $existingMark ? $existingMark->assessment_attendance_percent : 0 }}">
+                                {{-- Attendance Percentage --}}
+                                <td class="px-4 py-3">
+                                    <input type="number"
+                                           name="marks[{{ $index }}][assessment_attendance_percent]"
+                                           value="{{ $existingMark ? $existingMark->assessment_attendance_percent : '' }}"
+                                           step="0.1" min="0" max="100"
+                                           placeholder="0.0"
+                                           :disabled="students[{{ $index }}].isAbsent"
+                                           class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm text-center disabled:bg-slate-50 disabled:text-slate-400">
                                 </td>
                                 {{-- Obtained Marks --}}
                                 <td class="px-4 py-3">

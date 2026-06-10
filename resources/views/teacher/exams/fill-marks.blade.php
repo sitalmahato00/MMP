@@ -76,6 +76,7 @@
                         <tr>
                             <th class="px-4 py-3 text-left sticky left-0 bg-slate-50 z-10">Student</th>
                             @if($exam->category === 'monthly_assessment')
+                                <th class="px-4 py-3 text-center">Attendance %</th>
                                 <th class="px-4 py-3 text-center">
                                     <div>Obtained Marks</div>
                                     <div class="text-[10px] text-slate-400 normal-case">Full: {{ $exam->assessment_full_marks ?? 100 }} / Pass: {{ $exam->assessment_pass_marks ?? 40 }}</div>
@@ -152,6 +153,16 @@
                                 </td>
 
                                 @if($exam->category === 'monthly_assessment')
+                                    {{-- Attendance Percent --}}
+                                    <td class="px-4 py-3">
+                                        <input type="number"
+                                               name="marks[{{ $index }}][assessment_attendance_percent]"
+                                               value="{{ $existingMark ? $existingMark->assessment_attendance_percent : '' }}"
+                                               step="0.1" min="0" max="100"
+                                               placeholder="0.0"
+                                               :disabled="students[{{ $index }}].isAbsent"
+                                               class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm text-center disabled:bg-slate-50 disabled:text-slate-400">
+                                    </td>
                                     {{-- Obtained Marks --}}
                                     <td class="px-4 py-3">
                                         <input type="number" 

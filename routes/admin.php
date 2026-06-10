@@ -99,10 +99,12 @@ Route::prefix('id-cards')->name('id-cards.')->group(function () {
 Route::get('exams/analytics', [ExamController::class, 'analytics'])->name('exams.analytics');
 Route::get('exams/export/{format}', [ExamController::class, 'export'])->name('exams.export');
 Route::get('exams/{exam}/marks/export/{format}', [ExamController::class, 'exportSubjectMarks'])->name('exams.marks.export');
+Route::get('exams/{exam}/subjects/{subject}/marks', [ExamController::class, 'showSubjectMarks'])->name('exams.subjects.marks');
 Route::patch('exams/{exam}/subjects/{subject}/marking-scheme', [ExamController::class, 'updateSubjectMarkingScheme'])->name('exams.subjects.marking-scheme.update');
 Route::resource('exams', ExamController::class);
 Route::get('exams/{exam}/marks/{mark}/edit', [ExamController::class, 'editMark'])->name('exams.marks.edit');
 Route::put('exams/{exam}/marks/{mark}', [ExamController::class, 'updateMark'])->name('exams.marks.update');
+Route::delete('exams/{exam}/subjects/{subject}/marks', [ExamController::class, 'destroySubjectMarks'])->name('exams.marks.destroy');
 Route::get('exams/{exam}/students/{student}/sheet', [ExamController::class, 'resultSheet'])->name('exams.result-sheet');
 Route::patch('exams/{exam}/publish', [ExamController::class, 'publish'])->name('exams.publish');
 

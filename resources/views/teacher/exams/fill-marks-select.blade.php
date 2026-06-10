@@ -29,11 +29,11 @@
 
                 <x-form-field label="Semester" name="semester" :required="true">
                     <x-select name="semester" :required="true" onchange="this.form.submit()">
-                        @for($i = 1; $i <= 8; $i++)
-                            <option value="{{ $i }}" @selected($semester == $i)>
-                                Semester {{ $i }}
+                        @foreach($semesters as $sem)
+                            <option value="{{ $sem }}" @selected($semester == $sem)>
+                                Semester {{ $sem }}
                             </option>
-                        @endfor
+                        @endforeach
                     </x-select>
                 </x-form-field>
             </x-form-row>

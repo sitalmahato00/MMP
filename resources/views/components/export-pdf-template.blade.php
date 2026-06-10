@@ -241,11 +241,8 @@
             @endif
         </div>
 
-        {{-- Right: Estd + Department --}}
+        {{-- Right: Department --}}
         <div class="letterhead-right">
-            @if($collegeEstd)
-                <div class="estd-line">Est. {{ $collegeEstd }}</div>
-            @endif
             @if(isset($config['department']))
                 <div style="font-size:8px; color:#000; margin-top:4px; font-weight:bold;">{{ $config['department'] }}</div>
                 <div style="font-size:7px; color:#555;">Department</div>

@@ -13,7 +13,6 @@ class ExportService
     protected $collegePhone;
     protected $collegeEmail;
     protected $collegeWebsite;
-    protected $collegeEstd;
     protected $collegeAffiliation;
 
     public function __construct()
@@ -29,7 +28,6 @@ class ExportService
         $this->collegePhone       = $settings->get('contact_phone', '');
         $this->collegeEmail       = $settings->get('contact_email', '');
         $this->collegeWebsite     = '';
-        $this->collegeEstd        = '';
         $this->collegeAffiliation = $settings->get('college_affiliation', 'CTEVT');
 
         $logoPath = $settings->get('site_logo');
@@ -207,7 +205,7 @@ class ExportService
         $xml .= '<Row ss:Height="18"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="AddressStyle"><Data ss:Type="String">' . htmlspecialchars($addrLine ?: ' ') . '</Data></Cell></Row>' . "\n";
 
         // ── ROW 3: Affiliation / Website ──
-        $affLine = implode('  |  ', array_filter([$this->collegeAffiliation ? 'Affiliated to: ' . $this->collegeAffiliation : '', $this->collegeWebsite, $this->collegeEstd ? 'Est. ' . $this->collegeEstd : '']));
+        $affLine = implode('  |  ', array_filter([$this->collegeAffiliation ? 'Affiliated to: ' . $this->collegeAffiliation : '', $this->collegeWebsite]));
         if ($affLine) {
             $xml .= '<Row ss:Height="15"><Cell ss:MergeAcross="' . ($columnCount - 1) . '" ss:StyleID="AffiliationStyle"><Data ss:Type="String">' . htmlspecialchars($affLine) . '</Data></Cell></Row>' . "\n";
         }
@@ -404,7 +402,6 @@ class ExportService
             'collegePhone'       => $this->collegePhone,
             'collegeEmail'       => $this->collegeEmail,
             'collegeWebsite'     => $this->collegeWebsite,
-            'collegeEstd'        => $this->collegeEstd,
             'collegeAffiliation' => $this->collegeAffiliation,
         ])->render();
 
@@ -527,43 +524,39 @@ class ExportService
     {
         // Get semester information from exam programs
         $semesters = $exam->programs->pluck('pivot.semester')->filter()->unique()->sort()->values();
-        $semesterText = $semesters->count() > 0
+        $semesterLabel = $semesters->count() > 0
             ? ($semesters->count() === 1 ? 'Semester ' . $semesters->first() : 'Semesters ' . $semesters->implode(', '))
-            : 'All Semesters';
+            : 'N/A';
 
         // Single subject? (per-subject export)
         $singleSubject = $marks->pluck('subject_id')->unique()->count() === 1
             ? $marks->first()?->subject
             : null;
 
-        // Single semester?
-        $singleSemester = $marks->pluck('semester')->filter()->unique()->count() === 1
-            ? $marks->first()?->semester
-            : null;
+        $departmentLabel = $department ? $department->name : ($exam->department->name ?? 'N/A');
 
-        // Build compact metadata — only what's needed to understand the report
+        $fullMarks = $exam->assessment_full_marks !== null ? number_format($exam->assessment_full_marks, 2) : 'N/A';
+        $passMarks = $exam->assessment_pass_marks !== null ? number_format($exam->assessment_pass_marks, 2) : 'N/A';
+
         $metadata = [
-            'Exam'             => $exam->name,
-            'Academic Session' => $exam->academicSession->name ?? 'N/A',
-            'Department'       => $department ? $department->name : ($exam->department->name ?? 'N/A'),
+            'Exam' => $exam->name,
+            'Semester' => $semesterLabel,
+            'Department' => $departmentLabel,
         ];
+
         if ($singleSubject) {
             $metadata['Subject'] = $singleSubject->name . ($singleSubject->code ? ' (' . $singleSubject->code . ')' : '');
         }
-        if ($singleSemester) {
-            $metadata['Semester'] = 'Semester ' . $singleSemester;
-        } else {
-            $metadata['Semester(s)'] = $semesterText;
-        }
-        $metadata['Date']           = bsDate($exam->start_date, 'F d, Y');
-        $metadata['Total Students'] = $marks->count();
+
+        $metadata['Full Marks'] = $fullMarks;
+        $metadata['Pass Marks'] = $passMarks;
 
         $config = [
-            'title'      => $exam->name . ' — Marks Report',
-            'subtitle'   => ($singleSubject ? $singleSubject->name . ' • ' : '') . $exam->category_label . ' • ' . ($singleSemester ? 'Semester ' . $singleSemester : $semesterText),
-            'department' => $department ? $department->name : ($exam->department->name ?? 'N/A'),
-            'metadata'   => $metadata,
-            'data'       => $marks,
+            'title' => 'Mark Sheet',
+            'subtitle' => $singleSubject ? ($singleSubject->name . ' • ' . ($singleSubject->code ? $singleSubject->code : '')) : $semesterLabel,
+            'department' => $departmentLabel,
+            'metadata' => $metadata,
+            'data' => $marks,
         ];
 
         if ($exam->category === 'monthly_assessment') {
@@ -573,14 +566,13 @@ class ExportService
             $config['metadata']['Pass Marks'] = $passMarks;
 
             // Only show subject/semester columns when data spans multiple subjects/semesters
-            $columns = ['student.user.name' => 'Student Name', 'student.roll_number' => 'Roll No'];
+            $columns = ['student.roll_number' => 'Student ID', 'student.user.name' => 'Student Name'];
             if (!$singleSubject) {
-                $columns['semester']      = 'Sem';
-                $columns['subject.name']  = 'Subject';
+                $columns['subject.name'] = 'Subject';
             }
-            $columns['assessment_obtained_marks'] = 'Obtained (' . $fullMarks . '/' . $passMarks . ')';
-            $columns['result_remark']             = 'Result';
-            $columns['remarks']                   = 'Remarks';
+            $columns['assessment_attendance_percent'] = 'Attendance (%)';
+            $columns['assessment_obtained_marks'] = 'Obtained Marks (out of ' . $fullMarks . ')';
+            $columns['result_remark'] = 'Remarks';
             $config['columns'] = $columns;
         } else {
             // Only show subject/semester columns when data spans multiple subjects/semesters

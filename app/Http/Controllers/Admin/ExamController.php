@@ -11,8 +11,10 @@ use App\Models\ExamSubjectMarkingScheme;
 use App\Models\Mark;
 use App\Models\Program;
 use App\Models\Student;
+use App\Models\SiteSetting;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Services\ExportService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -244,6 +246,20 @@ class ExamController extends Controller
             ->with('success', 'Mark updated successfully.');
     }
 
+    public function destroySubjectMarks(Exam $exam, Subject $subject)
+    {
+        abort_unless($exam->marks()->where('subject_id', $subject->id)->exists(), 404);
+
+        Mark::query()
+            ->where('exam_id', $exam->id)
+            ->where('subject_id', $subject->id)
+            ->delete();
+
+        return redirect()
+            ->route('admin.exams.show', ['exam' => $exam, 'tab' => 'marks'])
+            ->with('success', 'All marks for "' . $subject->name . '" have been deleted.');
+    }
+
     public function updateSubjectMarkingScheme(Request $request, Exam $exam, Subject $subject)
     {
         $hasMarksForSubject = $exam->marks()->where('subject_id', $subject->id)->exists();
@@ -342,6 +358,81 @@ class ExamController extends Controller
             'subjectResults' => $sheet['rows'],
             'summary' => $sheet['summary'],
             'verificationCode' => $sheet['verificationCode'],
+        ]);
+    }
+
+    public function showSubjectMarks(Request $request, Exam $exam, Subject $subject)
+    {
+        $exam->load(['academicSession:id,name,name_bs', 'department:id,name,code', 'programs:id,name,code,department_id']);
+
+        abort_unless(
+            $exam->programs()->where('programs.id', $subject->program_id)->exists(),
+            404,
+        );
+
+        $students = Student::query()
+            ->where('program_id', $subject->program_id)
+            ->where('current_semester', $subject->semester)
+            ->where('status', 'active')
+            ->with(['user:id,name,email', 'program:id,name,code', 'department:id,name,code'])
+            ->orderBy('roll_number')
+            ->get();
+
+        $marks = Mark::query()
+            ->where('exam_id', $exam->id)
+            ->where('subject_id', $subject->id)
+            ->with(['student.user:id,name,email', 'student.program:id,name,code', 'student.department:id,name,code', 'teacher.user:id,name'])
+            ->get()
+            ->keyBy('student_id');
+
+        $studentRows = $students->map(function (Student $student) use ($marks, $exam, $subject) {
+            $mark = $marks->get($student->id);
+            $hasMarks = $mark !== null;
+            $status = $mark?->status ? ucfirst($mark->status) : 'Missing';
+            $resultRemark = $mark ? $this->markResultRemark($mark) : 'Pending';
+            $obtained = null;
+
+            if ($mark) {
+                if ($this->examCategoryForMark($mark) === 'monthly_assessment') {
+                    $obtained = $mark->assessment_obtained_marks;
+                } else {
+                    $obtained = (float) ($mark->internal_theory_marks ?? 0)
+                        + (float) ($mark->external_theory_marks ?? 0)
+                        + (float) ($mark->internal_practical_marks ?? 0)
+                        + (float) ($mark->external_practical_marks ?? 0);
+                }
+            }
+
+            return [
+                'student' => $student,
+                'mark' => $mark,
+                'hasMarks' => $hasMarks,
+                'status' => $status,
+                'result' => $resultRemark,
+                'obtained' => $obtained,
+                'pass' => $mark ? $this->markIsPassed($mark) : false,
+                'isAbsent' => $mark?->is_absent ?? false,
+                'isWithheld' => $mark?->is_withheld ?? false,
+                'isDelayed' => $mark?->is_delayed ?? false,
+            ];
+        });
+
+        $summary = [
+            'total_students' => $studentRows->count(),
+            'marks_entered' => $studentRows->where('hasMarks', true)->count(),
+            'missing_marks' => $studentRows->where('hasMarks', false)->count(),
+            'passed' => $studentRows->where('pass', true)->count(),
+            'failed' => $studentRows->where('hasMarks', true)->where('pass', false)->where('isAbsent', false)->where('isWithheld', false)->count(),
+            'absent' => $studentRows->where('isAbsent', true)->count(),
+            'withheld' => $studentRows->where('isWithheld', true)->count(),
+            'delayed' => $studentRows->where('isDelayed', true)->count(),
+        ];
+
+        return view('admin.exams.subject-marks', [
+            'exam' => $exam,
+            'subject' => $subject,
+            'studentRows' => $studentRows,
+            'summary' => $summary,
         ]);
     }
 
@@ -470,7 +561,7 @@ class ExamController extends Controller
 
     public function exportSubjectMarks(Request $request, Exam $exam, string $format)
     {
-        abort_unless(in_array($format, ['pdf', 'csv', 'excel'], true), 404);
+        abort_unless(in_array($format, ['pdf', 'excel'], true), 404);
 
         $subjectId = $request->integer('subject_id') ?: null;
 
@@ -478,66 +569,28 @@ class ExamController extends Controller
             'academicSession:id,name,name_bs',
             'marks.student.user:id,name',
             'marks.student.program:id,name,code',
-            'marks.subject:id,name,code,semester,type',
+            'marks.subject:id,name,code,semester,type,full_marks_internal_theory,full_marks_external_theory,pass_marks_internal_theory,pass_marks_external_theory,full_marks_internal_practical,full_marks_external_practical,pass_marks_internal_practical,pass_marks_external_practical',
             'marks.teacher.user:id,name',
         ]);
 
-        $rows = $this->subjectMarkExportRows($exam, $subjectId);
         $subject = $subjectId ? $exam->marks->firstWhere('subject_id', $subjectId)?->subject : null;
 
-        if ($format === 'pdf') {
-            $pdf = Pdf::loadView('admin.exams.subject-marks-export', [
-                'exam' => $exam,
-                'rows' => $rows,
-                'subject' => $subject,
-                'generatedAt' => now(),
-            ])->setPaper('a4', 'landscape');
+        $marks = Mark::where('exam_id', $exam->id)
+            ->with(['student.user:id,name', 'student.program:id,name', 'subject:id,name,code'])
+            ->when($subjectId, fn ($q) => $q->where('subject_id', $subjectId))
+            ->orderBy('id')
+            ->get();
 
-            return $pdf->download($this->subjectMarkExportFilename($exam, 'pdf', $subject));
-        }
+        $config = ExportService::createMarksExportConfig($exam, $marks, $exam->department);
+        $config['format'] = $format;
 
-        $columns = [
-            'Subject Code', 'Subject', 'Semester', 'Student', 'Student No', 'Roll', 'Program',
-            'Internal Theory', 'External Theory', 'Internal Practical', 'External Practical',
-            'Total Marks', 'Percentage', 'Result', 'Status', 'Teacher', 'Updated (BS)', 'Remarks',
-        ];
-
-        $separator = $format === 'excel' ? "\t" : ',';
-        $mime = $format === 'excel' ? 'application/vnd.ms-excel' : 'text/csv';
-
-        return response()->streamDownload(function () use ($columns, $rows, $separator) {
-            $handle = fopen('php://output', 'wb');
-            $this->writeDelimitedLine($handle, $columns, $separator);
-
-            foreach ($rows as $row) {
-                $this->writeDelimitedLine($handle, [
-                    $row['subject_code'],
-                    $row['subject_name'],
-                    $row['semester'],
-                    $row['student_name'],
-                    $row['student_no'],
-                    $row['roll_number'],
-                    $row['program_name'],
-                    $row['internal_theory'],
-                    $row['external_theory'],
-                    $row['internal_practical'],
-                    $row['external_practical'],
-                    $row['total_marks'],
-                    $row['percentage_label'],
-                    $row['result_remark'],
-                    $row['status'],
-                    $row['teacher_name'],
-                    $row['updated_at_label'],
-                    $row['remarks'],
-                ], $separator);
-            }
-
-            fclose($handle);
-        }, $this->subjectMarkExportFilename($exam, $format, $subject), ['Content-Type' => $mime]);
+        return (new ExportService())->export($config);
     }
 
     private function subjectMarkExportRows(Exam $exam, ?int $subjectId = null): Collection
     {
+        $isAssessment = $exam->category === 'monthly_assessment';
+
         return $exam->marks
             ->when($subjectId, fn (Collection $marks) => $marks->where('subject_id', $subjectId))
             ->filter(fn (Mark $mark) => $mark->student && $mark->subject)
@@ -547,8 +600,14 @@ class ExamController extends Controller
                 fn (Mark $mark) => strtolower((string) ($mark->student?->user?->name ?: '')),
             ])
             ->values()
-            ->map(function (Mark $mark) {
+            ->map(function (Mark $mark) use ($isAssessment) {
                 $percentage = $this->markPercentage($mark);
+                $attendanceLabel = $isAssessment
+                    ? ($mark->assessment_attendance_percent !== null ? number_format($mark->assessment_attendance_percent, 1) . '%' : '—')
+                    : '—';
+                $obtained = $mark && ! $mark->is_absent && ! $mark->is_withheld
+                    ? ($isAssessment ? $mark->assessment_obtained_marks : $mark->total_marks)
+                    : null;
 
                 return [
                     'subject_code' => $mark->subject?->code ?? '—',
@@ -558,11 +617,12 @@ class ExamController extends Controller
                     'student_no' => $mark->student?->student_no ?? '—',
                     'roll_number' => $mark->student?->roll_number ?? '—',
                     'program_name' => $mark->student?->program?->name ?? '—',
-                    'internal_theory' => $mark->internal_theory_marks,
-                    'external_theory' => $mark->external_theory_marks,
-                    'internal_practical' => $mark->internal_practical_marks,
-                    'external_practical' => $mark->external_practical_marks,
-                    'total_marks' => number_format((float) $mark->total_marks, 2),
+                    'attendance_percent_label' => $attendanceLabel,
+                    'internal_theory' => $isAssessment ? null : $mark->internal_theory_marks,
+                    'external_theory' => $isAssessment ? null : $mark->external_theory_marks,
+                    'internal_practical' => $isAssessment ? null : $mark->internal_practical_marks,
+                    'external_practical' => $isAssessment ? null : $mark->external_practical_marks,
+                    'total_marks' => $obtained !== null ? (float) $obtained : null,
                     'percentage_label' => $percentage !== null ? number_format($percentage, 1) . '%' : '—',
                     'result_remark' => $this->markResultRemark($mark),
                     'status' => $mark->status,
@@ -888,6 +948,14 @@ class ExamController extends Controller
                                                 'assessment_full_marks' => $mark->assessment_full_marks,
                                                 'assessment_pass_marks' => $mark->assessment_pass_marks,
                                                 'assessment_obtained_marks' => $mark->assessment_obtained_marks,
+                                                'ctevt_full_marks_internal_theory' => $mark->ctevt_full_marks_internal_theory,
+                                                'ctevt_pass_marks_internal_theory' => $mark->ctevt_pass_marks_internal_theory,
+                                                'ctevt_full_marks_external_theory' => $mark->ctevt_full_marks_external_theory,
+                                                'ctevt_pass_marks_external_theory' => $mark->ctevt_pass_marks_external_theory,
+                                                'ctevt_full_marks_internal_practical' => $mark->ctevt_full_marks_internal_practical,
+                                                'ctevt_pass_marks_internal_practical' => $mark->ctevt_pass_marks_internal_practical,
+                                                'ctevt_full_marks_external_practical' => $mark->ctevt_full_marks_external_practical,
+                                                'ctevt_pass_marks_external_practical' => $mark->ctevt_pass_marks_external_practical,
                                                 'total_marks' => $mark->total_marks,
                                                 'percentage' => $markPercentage,
                                                 'result_remark' => $this->markResultRemark($mark),
@@ -1183,6 +1251,8 @@ class ExamController extends Controller
                 $submittedCount = $subjectMarks->whereIn('status', ['submitted', 'approved', 'published'])->count();
                 $approvedCount = $subjectMarks->whereIn('status', ['approved', 'published'])->count();
                 $publishedCount = $subjectMarks->where('status', 'published')->count();
+                $passedCount = $subjectMarks->filter(fn (Mark $mark) => $this->markIsPassed($mark))->count();
+                $failedCount = $subjectMarks->filter(fn (Mark $mark) => ! $this->markIsPassed($mark) && ! $mark->is_absent && ! $mark->is_withheld)->count();
                 $teacher = $subject->teachers->first();
                 $state = $publishedCount > 0
                     ? ['key' => 'completed', 'label' => 'Completed', 'tone' => 'green']
@@ -1207,6 +1277,7 @@ class ExamController extends Controller
                     'subject_name' => $subject->name,
                     'subject_code' => $subject->code,
                     'subject_type' => $this->subjectTypeLabel($subject->type),
+                    'subject_mark_id' => $subjectMarks->first()?->id,
                     'student_count' => $studentCount,
                     'full_marks' => (float) $subject->totalFullMarks,
                     'pass_marks' => (float) $subject->totalPassMarks,
@@ -1214,6 +1285,8 @@ class ExamController extends Controller
                     'submitted_count' => $submittedCount,
                     'approved_count' => $approvedCount,
                     'published_count' => $publishedCount,
+                    'passed_count' => $passedCount,
+                    'failed_count' => $failedCount,
                     'entered_pct' => $studentCount > 0 ? round(($enteredCount / $studentCount) * 100, 1) : 0,
                     'missing_count' => max(0, $studentCount - $enteredCount),
                     'subject' => $subject,
@@ -1276,8 +1349,10 @@ class ExamController extends Controller
 
         foreach ($relevantRows as $row) {
             $mark = $marksBySubject->get($row['subject_id'])?->first();
-            $obtained = $mark && ! $mark->is_absent && ! $mark->is_withheld ? (float) $mark->total_marks : 0.0;
             $isMonthlyAssessment = $mark && $this->examCategoryForMark($mark) === 'monthly_assessment';
+            $obtained = $mark && ! $mark->is_absent && ! $mark->is_withheld
+                ? (float) ($isMonthlyAssessment ? ($mark->assessment_obtained_marks ?? 0) : $mark->total_marks)
+                : 0.0;
             $full = $isMonthlyAssessment
                 ? (float) ($mark->assessment_full_marks ?? $row['full_marks'])
                 : (float) $row['full_marks'];
@@ -1286,6 +1361,9 @@ class ExamController extends Controller
                 : (float) $row['pass_marks'];
             $percentage = $full > 0 ? round(($obtained / $full) * 100, 1) : 0.0;
             $gradeBand = $this->gradeBand($percentage);
+            $attendancePercentLabel = $isMonthlyAssessment
+                ? ($mark && $mark->assessment_attendance_percent !== null ? number_format($mark->assessment_attendance_percent, 1) . '%' : '—')
+                : null;
 
             $subjectResults->push([
                 'subject' => $row['subject'],
@@ -1296,6 +1374,7 @@ class ExamController extends Controller
                 'obtained' => $obtained,
                 'percentage' => $percentage,
                 'grade' => $gradeBand,
+                'attendance_percent_label' => $attendancePercentLabel,
                 'remarks' => $mark?->remarks ?? '',
                 'result_status' => $mark ? $this->markResultRemark($mark) : 'Pending',
             ]);

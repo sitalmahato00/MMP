@@ -35,6 +35,7 @@ Route::prefix('exams')->name('exams.')->group(function () {
     Route::delete('/{exam}', [\App\Http\Controllers\HOD\ExamController::class, 'destroy'])->name('destroy');
     Route::delete('/{exam}/force', [\App\Http\Controllers\HOD\ExamController::class, 'forceDestroy'])->name('force-destroy');
     Route::get('/marks', [\App\Http\Controllers\HOD\ExamController::class, 'marks'])->name('marks');
+    Route::get('/{exam}/subjects/{subject}/marks', [\App\Http\Controllers\HOD\ExamController::class, 'showSubjectMarks'])->name('subjects.marks');
     Route::get('/fill-marks', [\App\Http\Controllers\HOD\ExamController::class, 'fillMarks'])->name('fill-marks');
     Route::post('/save-marks', [\App\Http\Controllers\HOD\ExamController::class, 'saveMarks'])->name('save-marks');
     Route::post('/verify-marks', [\App\Http\Controllers\HOD\ExamController::class, 'verifyMarks'])->name('verify-marks');

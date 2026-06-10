@@ -82,8 +82,6 @@
                             {{-- College identity always visible --}}
                             <div class="flex flex-wrap items-center gap-1 sm:gap-2 mb-2 sm:mb-4 bg-transparent p-0">
                                 <span class="text-yellow-400 text-[10px] sm:text-xs md:text-[0.85rem] font-bold sm:font-extrabold uppercase tracking-wider drop-shadow-lg">Best Technical College in Nepal</span>
-                                <span class="text-white/40 text-[10px] sm:text-xs md:text-[0.85rem]">·</span>
-                                <span class="text-white/85 text-[10px] sm:text-xs md:text-[0.85rem] font-medium">Est. 2054 B.S.</span>
                             </div>
                             @if($banner->subtitle)
                                 <span class="rounded-none bg-[#e74c3c] text-[9px] sm:text-[10px] md:text-[0.7rem] font-bold px-2 sm:px-3 py-1 sm:py-1.5 mb-2 sm:mb-4 inline-block uppercase text-white tracking-wider">{{ $banner->subtitle }}</span>

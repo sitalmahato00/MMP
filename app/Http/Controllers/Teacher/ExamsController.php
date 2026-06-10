@@ -166,12 +166,48 @@ class ExamsController extends Controller
             abort(403, 'You are not assigned to any subjects for this exam.');
         }
 
-        // Get programs and subjects for this exam (filtered to teacher's subjects)
-        $programs = $exam->programs;
-        
-        $programId = $request->program_id ?? $programs->first()?->id;
-        $semester = $request->semester ?? $programs->first()?->pivot->semester ?? 1;
+        // Get only exam programs/semesters that this teacher is assigned to
+        $programs = $exam->programs->filter(function ($program) use ($teacherRelevantSubjects) {
+            return $teacherRelevantSubjects->contains(function ($subject) use ($program) {
+                return $subject->program_id == $program->id
+                    && $subject->semester == $program->pivot->semester;
+            });
+        })->values();
+
+        if ($programs->isEmpty()) {
+            abort(403, 'You are not assigned to any programs or semesters for this exam.');
+        }
+
+        $programId = null;
+        $semester = null;
+
+        $requestedProgramId = $request->program_id;
+        $requestedSemester = $request->semester;
+
+        $selectedProgram = null;
+
+        if ($requestedProgramId && $requestedSemester) {
+            $selectedProgram = $programs->first(fn($program) => $program->id == $requestedProgramId && (int) $program->pivot->semester === (int) $requestedSemester);
+        }
+
+        if (!$selectedProgram && $requestedProgramId) {
+            $selectedProgram = $programs->first(fn($program) => $program->id == $requestedProgramId);
+        }
+
+        if (!$selectedProgram) {
+            $selectedProgram = $programs->first();
+        }
+
+        $programId = $selectedProgram->id;
+        $semester = (int) $selectedProgram->pivot->semester;
         $subjectId = $request->subject_id;
+
+        $semesters = $programs
+            ->filter(fn($program) => $program->id == $programId)
+            ->pluck('pivot.semester')
+            ->unique()
+            ->sort()
+            ->values();
 
         if (!$programId || !$subjectId) {
             // Show selection form - only teacher's subjects for the selected program/semester
@@ -180,7 +216,7 @@ class ExamsController extends Controller
             });
 
             return view('teacher.exams.fill-marks-select', compact(
-                'exam', 'programs', 'subjects', 'programId', 'semester'
+                'exam', 'programs', 'subjects', 'programId', 'semester', 'semesters'
             ));
         }
 
@@ -225,6 +261,7 @@ class ExamsController extends Controller
             'marks' => 'required|array',
             'marks.*.student_id' => 'required|exists:students,id',
             'marks.*.is_absent' => 'nullable|boolean',
+            'marks.*.assessment_attendance_percent' => 'nullable|numeric|min:0|max:100',
             'marks.*.assessment_obtained_marks' => 'nullable|numeric|min:0',
             'marks.*.internal_theory_marks' => 'nullable|numeric|min:0',
             'marks.*.external_theory_marks' => 'nullable|numeric|min:0',
@@ -266,6 +303,7 @@ class ExamsController extends Controller
                 // Assessment exam - use exam's assessment marks
                 $data['assessment_full_marks'] = $exam->assessment_full_marks ?? 100;
                 $data['assessment_pass_marks'] = $exam->assessment_pass_marks ?? 40;
+                $data['assessment_attendance_percent'] = $isAbsent ? null : ($markData['assessment_attendance_percent'] ?? null);
                 $data['assessment_obtained_marks'] = $isAbsent ? null : ($markData['assessment_obtained_marks'] ?? null);
             } else {
                 // CTEVT exam - store the marks obtained

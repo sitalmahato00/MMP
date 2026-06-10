@@ -79,14 +79,10 @@
             'label' => 'Academics',
             'items' => [
                 ['label' => 'Programs',           'iconName' => 'book-open',       'href' => route('admin.programs.index'),          'isActive' => $active('admin.programs.*')],
-                ['label' => 'Courses & Subjects', 'iconName' => 'doc-text',        'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Classes & Sections', 'iconName' => 'collection',      'href' => '#', 'isActive' => false, 'disabled' => true],
                 ['label' => 'Academic Calendar',  'iconName' => 'calendar',        'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
                 ['label' => 'Attendance',         'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'),        'isActive' => $active('admin.attendance.*')],
-                ['label' => 'Timetable',          'iconName' => 'calendar',        'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Assignments',        'iconName' => 'clipboard-list',  'href' => '#', 'isActive' => false, 'disabled' => true],
                 ['label' => 'Examinations',       'iconName' => 'chart-bar',       'href' => route('admin.exams.index'),             'isActive' => $active('admin.exams.*')],
-                ['label' => 'Results & Grading',  'iconName' => 'doc-report',      'href' => route('admin.exams.analytics'),         'isActive' => $active('admin.exams.analytics')],
+
             ],
         ],
 
@@ -96,22 +92,6 @@
             'items' => [
                 ['label' => 'Student ID Cards', 'iconName' => 'identification', 'href' => route('admin.id-cards.students.index'), 'isActive' => $active('admin.id-cards.students.*')],
                 ['label' => 'Staff ID Cards',   'iconName' => 'identification', 'href' => route('admin.id-cards.staff.index'),    'isActive' => $active('admin.id-cards.staff.*')],
-                ['label' => 'Certificates',     'iconName' => 'doc-text',       'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Library',          'iconName' => 'book-open',      'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Transport',        'iconName' => 'truck',          'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Hostel',           'iconName' => 'building',       'href' => '#', 'isActive' => false, 'disabled' => true],
-            ],
-        ],
-
-        // ── Administration ─────────────────────────────────────
-        [
-            'label' => 'Administration',
-            'items' => [
-                ['label' => 'Office Management', 'iconName' => 'office-building', 'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Finance & Fees',    'iconName' => 'currency',        'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Payroll',           'iconName' => 'currency',        'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Inventory & Assets','iconName' => 'archive',         'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Procurement',       'iconName' => 'clipboard-list',  'href' => '#', 'isActive' => false, 'disabled' => true],
             ],
         ],
 
@@ -125,19 +105,6 @@
                 ['label' => 'Events',            'iconName' => 'collection', 'href' => route('admin.news-events.index'),  'isActive' => $active('admin.news-events.*')],
                 ['label' => 'File Repository',   'iconName' => 'download',   'href' => route('admin.downloads.index'),    'isActive' => $active('admin.downloads.*')],
                 ['label' => 'Banner Management', 'iconName' => 'collection', 'href' => route('admin.banners.index'),      'isActive' => $active('admin.banners.*')],
-                ['label' => 'Email & SMS',       'iconName' => 'mail',       'href' => '#', 'isActive' => false, 'disabled' => true],
-            ],
-        ],
-
-        // ── Reports & Analytics ────────────────────────────────
-        [
-            'label' => 'Reports & Analytics',
-            'items' => [
-                ['label' => 'Academic Reports', 'iconName' => 'doc-report', 'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Student Reports',  'iconName' => 'doc-report', 'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'HR Reports',       'iconName' => 'doc-report', 'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Financial Reports','iconName' => 'chart-pie',  'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Custom Reports',   'iconName' => 'funnel',     'href' => '#', 'isActive' => false, 'disabled' => true],
             ],
         ],
 
@@ -147,8 +114,6 @@
             'items' => [
                 ['label' => 'Institution Settings', 'iconName' => 'cog',      'href' => route('admin.web-control.index'),       'isActive' => $active('admin.web-control.*')],
                 ['label' => 'Academic Settings',    'iconName' => 'calendar', 'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
-                ['label' => 'Templates',            'iconName' => 'template', 'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Integrations',         'iconName' => 'puzzle',   'href' => '#', 'isActive' => false, 'disabled' => true],
             ],
         ],
 
@@ -160,9 +125,6 @@
                 ['label' => 'Access Control',       'iconName' => 'shield',     'href' => route('admin.roles-permissions.index'), 'isActive' => $active('admin.roles-permissions.*')],
                 ['label' => 'Audit Logs',       'iconName' => 'doc-report', 'href' => route('admin.audit-logs.index'),  'isActive' => $active('admin.audit-logs.*')],
                 ['label' => 'Account Settings', 'iconName' => 'cog',        'href' => route('admin.settings.index'),   'isActive' => $active('admin.settings.*')],
-                ['label' => 'Backup & Restore', 'iconName' => 'server',     'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'Maintenance',          'iconName' => 'cog',        'href' => '#', 'isActive' => false, 'disabled' => true],
-                ['label' => 'API & Developer Tools','iconName' => 'code',       'href' => '#', 'isActive' => false, 'disabled' => true],
             ],
         ],
     ];

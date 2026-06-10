@@ -24,11 +24,6 @@
             <p class="mt-0.5 text-sm text-slate-500">Track exam lifecycle from setup to mark entry, verification, and publishing.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('admin.exams.analytics', array_merge(request()->except('page'), [])) }}"
-               class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 transition">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3a1 1 0 011 1v3m0 0a1 1 0 01-1 1H7a1 1 0 00-1 1v8a1 1 0 001 1h4a1 1 0 011 1v3m0-17h4a1 1 0 011 1v3m0 0a1 1 0 001 1h4a1 1 0 011 1v8a1 1 0 01-1 1h-4a1 1 0 00-1 1v3"/></svg>
-                Analytics
-            </a>
             <a href="{{ route('admin.exams.create') }}"
                class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#7a0000] transition">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/></svg>

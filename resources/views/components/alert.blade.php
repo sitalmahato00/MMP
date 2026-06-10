@@ -1,4 +1,4 @@
-@props(['type' => 'info', 'message'])
+@props(['type' => 'info', 'message' => null])
 
 @php
     $classes = match($type) {
@@ -19,7 +19,7 @@
 <div x-data="{ show: true }" x-show="show" class="flex items-center p-4 mb-4 border rounded-lg {{ $classes }} {{ $attributes->get('class') }}" role="alert">
     {!! $icon !!}
     <div class="flex-1 text-sm font-medium">
-        {{ $message }}
+        {{ $message ?? $slot }}
     </div>
     <button @click="show = false" type="button" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-current rounded-lg focus:ring-2 p-1.5 hover:bg-black/5 inline-flex h-8 w-8">
         <span class="sr-only">Close</span>
