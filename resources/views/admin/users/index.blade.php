@@ -28,32 +28,28 @@
 
 {{-- Search / Filter Bar --}}
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-4 px-4 py-3">
-    <form method="GET" class="flex flex-wrap gap-3 items-center">
-        <x-input name="search" value="{{ request('search') }}" placeholder="Search name or email…" class="flex-1 min-w-[200px]"/>
-        <x-select name="role">
+    <form method="GET" class="grid gap-3 md:grid-cols-[minmax(0,2fr)_1fr_1fr_auto_auto] items-end">
+        <x-input name="search" value="{{ request('search') }}" placeholder="Search name or email…" class="w-full"/>
+
+        <x-select name="role" class="w-full">
             <option value="">All Roles</option>
             @foreach(['admin','principal','hod','executive','teacher','student','parent','alumni'] as $r)
                 <option value="{{ $r }}" {{ request('role') === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
             @endforeach
         </x-select>
-        <x-select name="status">
+
+        <x-select name="status" class="w-full">
             <option value="">All Status</option>
             <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
             <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
         </x-select>
-        <x-btn type="submit" variant="secondary">Filter</x-btn>
+
+        <x-btn type="submit" variant="secondary" class="w-full md:w-auto">Filter</x-btn>
+
         @if(request()->anyFilled(['search','role','status']))
-            <x-btn href="{{ route('admin.users.index') }}" variant="ghost" size="sm">Clear</x-btn>
+            <x-btn href="{{ route('admin.users.index') }}" variant="ghost" size="sm" class="w-full md:w-auto">Clear</x-btn>
         @endif
     </form>
-</div>
-
-{{-- Additional Statistics Row --}}
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <x-stat-card title="Parents" value="{{ number_format($usersByRole['parents']) }}" color="amber" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 919.288 0M15 7a3 3 0 11-6 0 3 3 0 616 0z'/></svg>"/>
-    <x-stat-card title="Alumni" value="{{ number_format($usersByRole['alumni']) }}" color="emerald" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/></svg>"/>
-    <x-stat-card title="With Departments" value="{{ number_format($usersWithDepartments) }}" color="violet" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/></svg>"/>
-    <x-stat-card title="Inactive Users" value="{{ number_format($inactiveUsers) }}" color="red" icon="<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 715.636 5.636m12.728 12.728L5.636 5.636'/></svg>"/>
 </div>
 
 {{-- Table --}}
@@ -223,9 +219,18 @@
                     <p class="text-xs text-gray-600">{{ $user->phone ?? '—' }}</p>
                     <p class="text-[11px] text-gray-400">Joined {{ bsDate($user->created_at, 'Y, F d') }}</p>
                 </div>
-                <div class="mt-4 grid grid-cols-2 gap-2">
-                    <a href="{{ route('admin.users.show', $user) }}" class="rounded-lg border border-gray-200 py-1.5 text-center text-xs font-semibold text-gray-600 hover:bg-gray-50 transition">View</a>
-                    <a href="{{ route('admin.users.edit', $user) }}" class="rounded-lg bg-gray-900 py-1.5 text-center text-xs font-bold text-white hover:bg-gray-700 transition">Edit</a>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <x-btn href="{{ route('admin.users.show', $user) }}" variant="view" size="sm" class="flex-1">View</x-btn>
+                    <x-btn href="{{ route('admin.users.edit', $user) }}" variant="edit" size="sm" class="flex-1">Edit</x-btn>
+                    @if($user->id !== auth()->id())
+                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
+                              onsubmit="return confirm('Are you sure you want to delete {{ addslashes($user->name) }}?')"
+                              class="flex-1">
+                            @csrf
+                            @method('DELETE')
+                            <x-btn type="submit" variant="danger" size="sm" class="w-full">Delete</x-btn>
+                        </form>
+                    @endif
                 </div>
             </div>
             @endforeach
