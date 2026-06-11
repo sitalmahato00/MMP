@@ -605,8 +605,8 @@
                     </label>
 
                     <div class="flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
-                        <button type="button" @click="openCreateSemester = false" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100">Cancel</button>
-                        <button type="submit" class="rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#6e0000]">Save Semester</button>
+                        <x-btn type="button" variant="secondary" @click="openCreateSemester = false">Cancel</x-btn>
+                        <x-btn type="submit">Save Semester</x-btn>
                     </div>
                 </form>
             </div>
@@ -681,8 +681,8 @@
                         </label>
 
                         <div class="flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
-                            <button type="button" @click="openEditSemester = null" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100">Cancel</button>
-                            <button type="submit" class="rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#6e0000]">Update Semester</button>
+                            <x-btn type="button" variant="secondary" @click="openCreateSemester = false">Cancel</x-btn>
+                            <x-btn type="submit">Save Semester</x-btn>
                         </div>
                     </form>
                 </div>

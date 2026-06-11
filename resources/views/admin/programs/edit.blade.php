@@ -177,13 +177,8 @@
 
         {{-- Submit --}}
         <div class="flex items-center justify-between gap-4">
-            <a href="{{ route('admin.programs.show', $program) }}"
-               class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">Cancel</a>
-            <button type="submit"
-                    class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-6 py-2.5 text-sm font-bold text-white hover:bg-[#7a0000] transition shadow-lg shadow-[#8B0000]/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Save Changes
-            </button>
+            <x-btn href="{{ route('admin.programs.show', $program) }}" variant="secondary">Cancel</x-btn>
+            <x-btn type="submit" size="lg">Save Changes</x-btn>
         </div>
     </form>
 </div>

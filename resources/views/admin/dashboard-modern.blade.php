@@ -57,7 +57,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
 @endphp
 
 <div id="principal-dashboard"
-    class="space-y-6"
+    class="mx-auto max-w-[1440px] px-6 py-6 space-y-6"
     data-principal-dashboard
     data-dashboard-endpoint="{{ route('admin.dashboard') }}"
     data-dashboard-state="{{ $dashboardStateEncoded }}">
@@ -66,9 +66,9 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
          1. TOP HEADER – Smart Control Bar
     ═══════════════════════════════════════════════════════════ --}}
     <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+        <div class="px-6 py-5 sm:px-6 sm:py-6 lg:px-8">
             {{-- Row 1: Greeting + Quick Actions --}}
-            <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
                     <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Principal Dashboard</p>
                     <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
@@ -76,7 +76,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                     </h1>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2.5">
                     <a href="{{ route('admin.students.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800">
                         <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         Add Student
@@ -121,9 +121,9 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     {{-- ═══════════════════════════════════════════════════════════
          2. SIMPLE STATS CARDS
     ═══════════════════════════════════════════════════════════ --}}
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {{-- Total Active Users Card --}}
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm h-full">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-slate-500">Total Active Users</p>
@@ -139,7 +139,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         </div>
 
         {{-- Attendance Percentage Card --}}
-        <a href="{{ route('admin.attendance.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <a href="{{ route('admin.attendance.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition h-full">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-slate-500">Attendance Rate</p>
@@ -155,7 +155,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         </a>
 
         {{-- Pass Rate Card --}}
-        <a href="{{ route('admin.exams.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <a href="{{ route('admin.exams.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition h-full">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-slate-500">Pass Rate</p>
@@ -171,7 +171,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         </a>
 
         {{-- Total Departments Card --}}
-        <a href="{{ route('admin.departments.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <a href="{{ route('admin.departments.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition h-full">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-slate-500">Total Departments</p>
@@ -190,11 +190,11 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     {{-- ═══════════════════════════════════════════════════════════
          3. MAIN ANALYTICS – Charts + Notices Panel
     ═══════════════════════════════════════════════════════════ --}}
-    <section id="main-insights" class="grid gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <section id="main-insights" class="grid gap-6 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_24rem]">
         {{-- LEFT: Charts --}}
         <div class="space-y-5">
             {{-- Attendance Curve Chart --}}
-            <div class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm h-full">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                     <div>
                         <h2 class="text-sm font-semibold text-slate-900">Attendance Trend</h2>
@@ -217,7 +217,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
             </div>
 
             {{-- Grade Distribution Donut Chart --}}
-            <div class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm h-full">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h2 class="text-sm font-semibold text-slate-900">Grade Distribution</h2>
@@ -238,7 +238,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
         {{-- RIGHT: Notices + Community --}}
         <div class="space-y-5">
             {{-- Notices & Updates --}}
-            <div class="rounded-xl border border-slate-200 bg-white shadow-sm" x-data="{ activeNoticeTab: 'internal' }">
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm h-full" x-data="{ activeNoticeTab: 'internal' }">
                 <div class="border-b border-slate-100 px-4 py-3">
                     <h2 class="text-sm font-semibold text-slate-900">Notices & Updates</h2>
                 </div>
@@ -278,7 +278,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
             </div>
 
             {{-- Community Stats --}}
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm h-full">
                 <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Community</p>
                 <div class="mt-3 grid grid-cols-3 gap-2">
                     <div class="text-center">

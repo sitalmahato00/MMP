@@ -204,11 +204,7 @@
     </section>
 
     <div class="flex flex-wrap items-center gap-3">
-        <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-[#8B0000] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#7a0000]">
-            {{ $submitLabel }}
-        </button>
-        <a href="{{ route('admin.exams.index') }}" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
-            Cancel
-        </a>
+        <x-btn type="submit" size="lg">{{ $submitLabel }}</x-btn>
+        <x-btn href="{{ route('admin.exams.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>

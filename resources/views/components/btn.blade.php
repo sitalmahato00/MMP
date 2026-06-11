@@ -22,7 +22,7 @@
     $variants = [
         'primary'   => 'bg-[#00d14d] text-white hover:bg-[#00b53c] shadow-sm',
         'success'   => 'bg-[#00d14d] text-white hover:bg-[#00b53c] shadow-sm',
-        'view'      => 'bg-[#0B2E6B] text-white hover:bg-[#0A295F] shadow-sm',
+        'view'      => 'bg-[#0347f0] text-white hover:bg-[#0a39cc] shadow-sm',
         'edit'      => 'bg-[#F59E0B] text-white hover:bg-[#D97706] shadow-sm',
         'secondary' => 'bg-white text-[#334155] border border-slate-300 hover:bg-slate-100 shadow-sm',
         'danger'    => 'bg-[#DC2626] text-white hover:bg-[#B91C1C] shadow-sm',

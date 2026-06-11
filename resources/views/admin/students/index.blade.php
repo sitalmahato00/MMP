@@ -84,11 +84,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Export
         </a>
-        <a href="{{ route('admin.students.create') }}"
-           class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#7a0000] transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-            Add Student
-        </a>
+        <x-btn href="{{ route('admin.students.create') }}" icon="plus">Add Student</x-btn>
     </div>
 </div>
 
@@ -227,10 +223,7 @@
                 </div>
                 <h3 class="text-base font-bold text-slate-800">No students found</h3>
                 <p class="mt-1 text-sm text-slate-500 max-w-xs">Try adjusting your search or filters, or enroll a new student.</p>
-                <a href="{{ route('admin.students.create') }}" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white hover:bg-[#7a0000] transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    Add Student
-                </a>
+                <x-btn href="{{ route('admin.students.create') }}" icon="plus" class="mt-4">Add Student</x-btn>
             </div>
         @else
         @php $allIds = $students->pluck('id')->toJson(); @endphp
