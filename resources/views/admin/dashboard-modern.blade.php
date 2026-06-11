@@ -190,7 +190,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
     {{-- ═══════════════════════════════════════════════════════════
          3. MAIN ANALYTICS – Charts + Notices Panel
     ═══════════════════════════════════════════════════════════ --}}
-    <section id="main-insights" class="grid gap-5 grid-cols-1 lg:grid-cols-[1fr_320px]">
+    <section id="main-insights" class="grid gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem]">
         {{-- LEFT: Charts --}}
         <div class="space-y-5">
             {{-- Attendance Curve Chart --}}
@@ -235,9 +235,9 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
             </div>
         </div>
 
-        {{-- RIGHT: Notices Panel --}}
+        {{-- RIGHT: Notices + Community --}}
         <div class="space-y-5">
-            {{-- Notices & CTEVT Notices Tabbed Card --}}
+            {{-- Notices & Updates --}}
             <div class="rounded-xl border border-slate-200 bg-white shadow-sm" x-data="{ activeNoticeTab: 'internal' }">
                 <div class="border-b border-slate-100 px-4 py-3">
                     <h2 class="text-sm font-semibold text-slate-900">Notices & Updates</h2>
@@ -248,7 +248,7 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                     <button @click="activeNoticeTab = 'internal'" :class="activeNoticeTab === 'internal' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-600 hover:text-slate-900'" class="flex-1 px-3 py-2.5 text-xs font-semibold transition">
                         Internal
                     </button>
-                    </div>
+                </div>
 
                 {{-- Internal Notices Tab --}}
                 <div x-show="activeNoticeTab === 'internal'" class="divide-y divide-slate-100 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
@@ -276,23 +276,23 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
                     @endif
                 </div>
             </div>
-        </div>
 
-        {{-- COMMUNITY STATS (Separate Card) --}}
-        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Community</p>
-            <div class="mt-3 grid grid-cols-3 gap-2">
-                <div class="text-center">
-                    <p class="text-base font-bold text-slate-900">{{ number_format($totalTeachers ?? 0) }}</p>
-                    <p class="text-[9px] text-slate-500">Teachers</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-base font-bold text-slate-900">{{ number_format($totalParents ?? 0) }}</p>
-                    <p class="text-[9px] text-slate-500">Parents</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-base font-bold text-slate-900">{{ number_format($totalAlumni ?? 0) }}</p>
-                    <p class="text-[9px] text-slate-500">Alumni</p>
+            {{-- Community Stats --}}
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Community</p>
+                <div class="mt-3 grid grid-cols-3 gap-2">
+                    <div class="text-center">
+                        <p class="text-base font-bold text-slate-900">{{ number_format($totalTeachers ?? 0) }}</p>
+                        <p class="text-[9px] text-slate-500">Teachers</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-base font-bold text-slate-900">{{ number_format($totalParents ?? 0) }}</p>
+                        <p class="text-[9px] text-slate-500">Parents</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-base font-bold text-slate-900">{{ number_format($totalAlumni ?? 0) }}</p>
+                        <p class="text-[9px] text-slate-500">Alumni</p>
+                    </div>
                 </div>
             </div>
         </div>

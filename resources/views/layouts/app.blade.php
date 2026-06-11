@@ -187,113 +187,107 @@
         ],
     };
 @endphp
-<body class="h-full overflow-x-hidden bg-gray-50 text-gray-800 antialiased transition-colors dark:bg-slate-950 dark:text-slate-100" x-data="mmpAppShell()" x-init="init()">
+<body class="h-full overflow-x-hidden antialiased" style="background-color: #F4F7FB;" x-data="mmpAppShell()" x-init="init()">
 
-    <div x-show="sidebarOpen" class="fixed inset-0 z-40 bg-gray-950/65 backdrop-blur-sm lg:hidden" x-cloak @click="sidebarOpen = false"></div>
+    {{-- Mobile sidebar overlay --}}
+    <div x-show="sidebarOpen" class="fixed inset-0 z-[60] bg-black/50 lg:hidden" x-cloak @click="sidebarOpen = false"></div>
 
-    <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-40 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
-        <div class="w-full max-w-md rounded-[26px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/95">
+    {{-- PWA install prompt --}}
+    <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed bottom-24 inset-x-4 z-50 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
+        <div class="w-full max-w-md bg-white p-4 shadow-xl" style="border: 1px solid #DCE3EB; border-radius: 4px;">
             <div class="flex items-center gap-3">
-                <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP logo" class="h-16 w-16 shrink-0 rounded-[20px] border border-slate-200 bg-white p-2 shadow-sm object-contain dark:border-slate-700">
+                <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP logo" class="h-12 w-12 shrink-0 rounded object-contain" style="border: 1px solid #DCE3EB;">
                 <div class="min-w-0 flex-1">
-                    <p class="text-lg font-bold text-slate-900 dark:text-slate-50">Install MMP App</p>
-                    <p class="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">Faster access • Offline support • Updates &amp; notifications</p>
-                    <div x-show="installHelpVisible" x-transition.opacity.duration.200ms class="mt-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                        <span x-text="installHelpMessage"></span>
-                    </div>
+                    <p class="text-sm font-bold text-gray-900">Install MMP App</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Faster access · Offline support · Notifications</p>
                 </div>
             </div>
-            <div class="mt-4 flex items-center justify-end gap-3">
-                <button type="button" @click="dismissInstall()" class="inline-flex items-center rounded-2xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                    Not now
-                </button>
-                <button type="button" @click="installApp()" class="inline-flex items-center rounded-2xl bg-[#2563eb] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/20 transition hover:bg-[#1d4ed8]">
-                    Download
-                </button>
+            <div class="mt-3 flex items-center justify-end gap-2">
+                <button type="button" @click="dismissInstall()" class="px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:text-gray-900" style="border: 1px solid #DCE3EB; border-radius: 3px;">Not now</button>
+                <button type="button" @click="installApp()" class="px-4 py-1.5 text-xs font-semibold text-white transition" style="background: #1D4ED8; border-radius: 3px;">Download</button>
             </div>
         </div>
     </div>
 
-    <div class="flex h-full w-full overflow-x-hidden">
+    {{-- ══════════════════════════════════════════════════════════
+         FIXED TOP NAVBAR — full viewport width, z-30
+    ══════════════════════════════════════════════════════════ --}}
+    <x-navbar />
+
+    {{-- ══════════════════════════════════════════════════════════
+         PAGE BODY — sidebar + content, starts below navbar
+    ══════════════════════════════════════════════════════════ --}}
+    <div class="flex" style="padding-top: 64px; min-height: calc(100vh - 64px);">
+
+        {{-- SIDEBAR --}}
         <x-sidebar />
 
-        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-            <header class="fixed inset-x-0 top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur lg:hidden dark:border-slate-800 dark:bg-slate-950/95">
-                <div class="flex items-center justify-between gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-                    <div class="flex min-w-0 items-center gap-3">
-                        <button type="button" @click="sidebarOpen = true" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16"/>
-                            </svg>
-                        </button>
-                        <div class="min-w-0">
-                            <p class="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">{{ $portalLabel }}</p>
-                            <p class="truncate text-sm font-semibold text-slate-900 dark:text-slate-50">{{ $currentTitle }}</p>
-                        </div>
-                    </div>
+        {{-- MAIN CONTENT --}}
+        <div class="flex min-w-0 flex-1 flex-col">
 
-                    <div class="flex items-center gap-2">
-                        <button type="button" @click="toggleTheme()" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                            <svg x-show="effectiveTheme !== 'dark'" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.354 15.354A9 9 0 018.646 3.646 9 9 0 1012 21a8.96 8.96 0 008.354-5.646z"/>
-                            </svg>
-                            <svg x-show="effectiveTheme === 'dark'" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2.25M12 18.75V21m9-9h-2.25M5.25 12H3m15.364 6.364l-1.591-1.591M7.227 7.227L5.636 5.636m12.728 0l-1.591 1.591M7.227 16.773l-1.591 1.591M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
-                            </svg>
-                        </button>
-                        <a href="{{ route('notifications.index') }}" class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                            </svg>
-                            @if($unreadCount > 0)
-                                <span class="absolute -right-1 -top-1 inline-flex min-h-[1.25rem] min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
-                                    {{ $unreadCount > 99 ? '99+' : $unreadCount }}
-                                </span>
-                            @endif
-                        </a>
+            {{-- Mobile header (only on small screens, fixed) --}}
+            <header class="fixed inset-x-0 top-0 z-[35] flex h-14 items-center justify-between px-4 lg:hidden"
+                    style="background-color: #0B2E6B; border-bottom: 1px solid rgba(255,255,255,0.12);">
+                <div class="flex items-center gap-3 min-w-0">
+                    <button type="button" @click="sidebarOpen = true"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded text-blue-200 hover:bg-white/10 hover:text-white flex-shrink-0">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <div class="min-w-0">
+                        <p class="truncate text-[10px] font-medium uppercase tracking-[0.18em] text-blue-200">{{ $portalLabel }}</p>
+                        <p class="truncate text-sm font-semibold text-white">{{ $currentTitle }}</p>
                     </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button type="button" @click="toggleTheme()" class="inline-flex h-9 w-9 items-center justify-center rounded text-blue-200 hover:bg-white/10">
+                        <svg x-show="effectiveTheme !== 'dark'" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.354 15.354A9 9 0 018.646 3.646 9 9 0 1012 21a8.96 8.96 0 008.354-5.646z"/></svg>
+                        <svg x-show="effectiveTheme === 'dark'" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2.25M12 18.75V21m9-9h-2.25M5.25 12H3m15.364 6.364l-1.591-1.591M7.227 7.227L5.636 5.636m12.728 0l-1.591 1.591M7.227 16.773l-1.591 1.591M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+                    </button>
+                    <a href="{{ route('notifications.index') }}" class="relative inline-flex h-9 w-9 items-center justify-center rounded text-blue-200 hover:bg-white/10">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        @if($unreadCount > 0)
+                            <span class="absolute -right-0.5 -top-0.5 inline-flex min-h-[1rem] min-w-[1rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                        @endif
+                    </a>
                 </div>
             </header>
 
-            <div class="hidden lg:block">
-                <x-navbar />
-            </div>
-
-            <main class="min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-[calc(env(safe-area-inset-top)+5.5rem)] sm:px-4 lg:p-8">
+            {{-- Page content --}}
+            <main class="flex-1 overflow-x-hidden px-4 py-5 pt-16 lg:px-6 lg:py-6 lg:pt-6 pb-24 lg:pb-6"
+                  style="background-color: #F4F7FB; min-height: 100%;">
                 <div class="mx-auto w-full max-w-full">
                     @if (session('success'))
-                        <x-alert type="success" :message="session('success')" class="mb-6" />
+                        <x-alert type="success" :message="session('success')" class="mb-5" />
                     @endif
-
                     @if (session('error'))
                         @php
                             $showError = true;
-                            if (str_contains(session('error'), 'department is assigned') &&
-                                auth()->check() &&
-                                auth()->user()->hasRole('hod')) {
+                            if (str_contains(session('error'), 'department is assigned') && auth()->check() && auth()->user()->hasRole('hod')) {
                                 $dept = \App\Models\Department::where('hod_id', auth()->id())->first();
-                                if ($dept) {
-                                    $showError = false;
-                                }
+                                if ($dept) { $showError = false; }
                             }
                         @endphp
                         @if($showError)
-                            <x-alert type="error" :message="session('error')" class="mb-6" />
+                            <x-alert type="error" :message="session('error')" class="mb-5" />
                         @endif
                     @endif
 
                     @yield('content')
-
                     {{ $slot ?? '' }}
                 </div>
             </main>
         </div>
     </div>
 
-    <nav data-shell-bottom-nav class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/80 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] lg:hidden dark:border-slate-800 dark:bg-slate-950/95">
-        <div class="flex items-center justify-around gap-1 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
+    {{-- Mobile bottom nav --}}
+    <nav class="fixed inset-x-0 bottom-0 z-30 lg:hidden" style="background-color: #0B2E6B; border-top: 1px solid rgba(255,255,255,0.12);">
+        <div class="flex items-stretch justify-around" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); padding-top: 0.375rem;">
             @foreach($mobileNavItems as $item)
-                <a href="{{ $item['href'] }}" class="flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-center transition flex-1 {{ $item['active'] ? 'bg-[#8B0000]/10 text-[#8B0000] dark:bg-blue-500/15 dark:text-blue-300' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900' }}">
+                <a href="{{ $item['href'] }}"
+                   class="flex flex-col items-center justify-center gap-0.5 flex-1 px-1 py-1 text-center"
+                   style="{{ $item['active'] ? 'color: #ffffff; background-color: rgba(255,255,255,0.12); border-radius: 4px;' : 'color: rgba(255,255,255,0.55);' }}">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         @if($item['icon'] === 'cog')
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $iconPaths[$item['icon']] }}"/>
@@ -302,7 +296,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $iconPaths[$item['icon']] ?? $iconPaths['home'] }}"/>
                         @endif
                     </svg>
-                    <span class="truncate text-[11px] font-semibold">{{ $item['label'] }}</span>
+                    <span class="truncate text-[10px] font-medium">{{ $item['label'] }}</span>
                 </a>
             @endforeach
         </div>

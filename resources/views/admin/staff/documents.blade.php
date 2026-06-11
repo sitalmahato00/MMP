@@ -55,7 +55,7 @@
                     <textarea name="notes" rows="3" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#8B0000] focus:ring-4 focus:ring-[#8B0000]/10">{{ old('notes') }}</textarea>
                 </div>
 
-                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#8B0000] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#6f0000]">Upload Document</button>
+                <x-btn type="submit" variant="success">Upload Document</x-btn>
             </form>
         </div>
 

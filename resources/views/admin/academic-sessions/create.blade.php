@@ -2,10 +2,22 @@
 @section('title', 'New Academic Session')
 
 @section('content')
-<x-page-header title="New Academic Session" subtitle="Define a new academic year period. Activating it will close the current session and move final-semester students to alumni automatically."
-               back="{{ route('admin.academic-sessions.index') }}"/>
+<x-form-layout title="New Academic Session" subtitle="Define a new academic year period. Activating it will close the current session and move final-semester students to alumni automatically." back="{{ route('admin.academic-sessions.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.academic-sessions.index') }}" class="hover:text-slate-900">Academic Sessions</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">New Session</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.academic-sessions.store') }}" class="max-w-2xl space-y-6">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
+    <form method="POST" action="{{ route('admin.academic-sessions.store') }}" class="max-w-2xl space-y-6">
     @csrf
     <x-form-section title="Session Details">
         <x-form-row>
@@ -44,4 +56,5 @@
         <x-btn href="{{ route('admin.academic-sessions.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+</x-form-layout>
 @endsection

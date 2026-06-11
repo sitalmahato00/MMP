@@ -123,40 +123,41 @@
 {{-- ── FILTER BAR ──────────────────────────────────────────── --}}
 <form method="GET" action="{{ route('admin.teachers.index') }}"
       class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-    <div class="flex flex-wrap items-end gap-3">
-        <div class="relative min-w-[220px] flex-1">
+    <div class="grid gap-3 lg:grid-cols-4 xl:grid-cols-8">
+        <div class="relative xl:col-span-2">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
             <input type="text" name="search" value="{{ request('search') }}"
                    placeholder="Search name, email, employee ID…"
                    class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-700 placeholder-slate-400 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition"/>
         </div>
-        <select name="department_id" class="rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
+        <select name="department_id" class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
             <option value="">All Departments</option>
             @foreach($departments as $dept)
             <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
             @endforeach
         </select>
-        <select name="employment_type" class="rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
+        <select name="employment_type" class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
             <option value="">All Types</option>
             <option value="permanent" {{ request('employment_type') === 'permanent' ? 'selected' : '' }}>Permanent</option>
             <option value="contract"  {{ request('employment_type') === 'contract'  ? 'selected' : '' }}>Contract</option>
             <option value="part-time" {{ request('employment_type') === 'part-time' ? 'selected' : '' }}>Part-time</option>
         </select>
-        <select name="status" class="rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
+        <select name="status" class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
             <option value="">All Status</option>
             <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
             <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
         </select>
-        <select name="semester" class="rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
+        <select name="semester" class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">
             <option value="">All Semesters</option>
             @for($s = 1; $s <= 6; $s++)
             <option value="{{ $s }}" {{ request('semester') == $s ? 'selected' : '' }}>Semester {{ $s }}</option>
             @endfor
         </select>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2">
         <button type="submit" class="rounded-xl bg-[#8B0000] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#7a0000] transition shadow-sm">Apply</button>
         @if(request()->hasAny(['search','department_id','designation','employment_type','status','semester']))
-        <a href="{{ route('admin.teachers.index') }}"
-           class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition" title="Clear">✕</a>
+        <a href="{{ route('admin.teachers.index') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition" title="Clear">✕</a>
         @endif
     </div>
 </form>
@@ -296,23 +297,13 @@
                             {{ bsDate($teacher->join_date ?? $teacher->created_at, 'Y, F d') }}
                         </td>
                         <td class="px-4 py-3">
-                            <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button type="button" @click="openDrawer({{ $teacher->id }})" class="rounded-lg bg-slate-100 p-1.5 text-slate-500 hover:bg-slate-200 transition" title="Quick view">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                </button>
-                                <a href="{{ route('admin.teachers.show', $teacher) }}" class="rounded-lg bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100 transition" title="Full page">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                </a>
-                                <a href="{{ route('admin.teachers.edit', $teacher) }}" class="rounded-lg bg-violet-50 p-1.5 text-violet-600 hover:bg-violet-100 transition" title="Edit">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                </a>
-                                <form method="POST" action="{{ route('admin.teachers.destroy', $teacher) }}"
-                                      onsubmit="return confirm('Delete {{ addslashes($teacher->user?->name) }}? This cannot be undone.')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="rounded-lg bg-red-50 p-1.5 text-red-500 hover:bg-red-100 transition" title="Delete">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    </button>
-                                </form>
+                            <div class="flex items-center justify-end gap-2">
+                                <x-table-actions
+                                    :show="route('admin.teachers.show', $teacher)"
+                                    :edit="route('admin.teachers.edit', $teacher)"
+                                    :destroy="route('admin.teachers.destroy', $teacher)"
+                                    name="{{ addslashes($teacher->user?->name ?? 'this teacher') }}"
+                                />
                             </div>
                         </td>
                     </tr>
@@ -389,10 +380,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="absolute bottom-0 left-0 right-0 flex items-center justify-end gap-1.5 px-4 py-2.5 bg-white border-t border-slate-100
-                            opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200">
-                    <a href="{{ route('admin.teachers.show', $teacher) }}" @click.stop class="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 transition">View</a>
-                    <a href="{{ route('admin.teachers.edit', $teacher) }}" @click.stop class="rounded-lg bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-600 hover:bg-violet-100 transition">Edit</a>
+                <div class="absolute bottom-0 left-0 right-0 flex flex-wrap items-center justify-end gap-2 px-4 py-2.5 bg-white border-t border-slate-100 transition-all duration-200">
+                    <x-btn href="{{ route('admin.teachers.show', $teacher) }}" variant="view" size="sm">View</x-btn>
+                    <x-btn href="{{ route('admin.teachers.edit', $teacher) }}" variant="edit" size="sm">Edit</x-btn>
+                    <form method="POST" action="{{ route('admin.teachers.destroy', $teacher) }}" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($teacher->user?->name ?? 'this teacher') }}?')">
+                        @csrf
+                        @method('DELETE')
+                        <x-btn type="submit" variant="danger" size="sm">Delete</x-btn>
+                    </form>
                 </div>
             </div>
             @endforeach

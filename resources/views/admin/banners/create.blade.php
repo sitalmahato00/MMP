@@ -2,10 +2,22 @@
 @section('title', 'Add Banner')
 
 @section('content')
-<x-page-header title="Add Banner" subtitle="Upload a new hero image for the homepage."
-               back="{{ route('admin.banners.index') }}"/>
+<x-form-layout title="Add Banner" subtitle="Upload a new hero image for the homepage." back="{{ route('admin.banners.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.banners.index') }}" class="hover:text-slate-900">Banners</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Add Banner</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.banners.store') }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
+    <form method="POST" action="{{ route('admin.banners.store') }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
     @csrf
     <x-form-section title="Banner Details">
         <x-form-row>
@@ -34,4 +46,5 @@
         <x-btn href="{{ route('admin.banners.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+</x-form-layout>
 @endsection

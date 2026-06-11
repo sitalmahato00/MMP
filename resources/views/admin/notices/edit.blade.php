@@ -2,8 +2,20 @@
 @section('title', $workspace['edit_button_label'])
 
 @section('content')
-<x-page-header :title="$workspace['edit_button_label']" :subtitle="$notice->title"
-               :back="route($workspace['index_route'])"/>
+<x-form-layout title="{{ $workspace['edit_button_label'] }}" subtitle="{{ $notice->title }}" back="{{ route($workspace['index_route']) }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route($workspace['index_route']) }}" class="hover:text-slate-900">Notices</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Edit Notice</span>
+        </nav>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
 
 <form method="POST" action="{{ route($workspace['route_prefix'] . '.update', $notice) }}" enctype="multipart/form-data" class="max-w-3xl space-y-6" x-data="{ removals: [], selectedType: @js(old('type', $notice->type)) }">
     @csrf
@@ -105,6 +117,7 @@
         <x-btn :href="route($workspace['index_route'])" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+</x-form-layout>
 
 <script>
 document.getElementById('attachments')?.addEventListener('change', function() {

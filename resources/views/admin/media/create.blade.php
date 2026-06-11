@@ -2,8 +2,20 @@
 @section('title', 'Upload Media')
 
 @section('content')
-<x-page-header title="Upload Media" subtitle="Add images or documents to the system."
-               back="{{ route('admin.media.index') }}"/>
+<x-form-layout title="Upload Media" subtitle="Add images or documents to the system." back="{{ route('admin.media.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.media.index') }}" class="hover:text-slate-900">Media</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Upload Media</span>
+        </nav>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
 
 <form method="POST" action="{{ route('admin.media.store') }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
     @csrf

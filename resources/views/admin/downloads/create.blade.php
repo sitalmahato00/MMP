@@ -2,10 +2,22 @@
 @section('title', 'Add Download')
 
 @section('content')
-<x-page-header title="Add Download" subtitle="Upload a public or private resource."
-               back="{{ route('admin.downloads.index') }}"/>
+<x-form-layout title="Add Download" subtitle="Upload a public or private resource." back="{{ route('admin.downloads.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.downloads.index') }}" class="hover:text-slate-900">Downloads</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Add Download</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.downloads.store') }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
+    <form method="POST" action="{{ route('admin.downloads.store') }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
     @csrf
     <x-form-section title="Resource Details">
         <x-form-row>
@@ -45,4 +57,5 @@
         <x-btn href="{{ route('admin.downloads.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+</x-form-layout>
 @endsection

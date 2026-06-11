@@ -2,10 +2,22 @@
 @section('title', 'Edit Banner')
 
 @section('content')
-<x-page-header title="Edit Banner" subtitle="Update homepage hero image."
-               back="{{ route('admin.banners.index') }}"/>
+<x-form-layout title="Edit Banner" subtitle="Update homepage hero image." back="{{ route('admin.banners.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.banners.index') }}" class="hover:text-slate-900">Banners</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Edit Banner</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.banners.update', $banner) }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
+    <form method="POST" action="{{ route('admin.banners.update', $banner) }}" enctype="multipart/form-data" class="max-w-2xl space-y-6">
     @csrf @method('PUT')
     <x-form-section title="Banner Details">
         <x-form-row>

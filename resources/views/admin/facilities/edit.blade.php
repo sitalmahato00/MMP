@@ -2,8 +2,20 @@
 @section('title', 'Edit Facility')
 
 @section('content')
-<x-page-header title="Edit Facility/Resource" :subtitle="$facility->name"
-               back="{{ route('admin.facilities.index') }}"/>
+<x-form-layout title="Edit Facility/Resource" subtitle="Update the facility or resource page." back="{{ route('admin.facilities.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.facilities.index') }}" class="hover:text-slate-900">Facilities</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Edit Facility</span>
+        </nav>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
 
 <form method="POST" action="{{ route('admin.facilities.update', $facility) }}" enctype="multipart/form-data" class="max-w-4xl space-y-6">
     @csrf @method('PUT')

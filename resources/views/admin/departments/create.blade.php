@@ -2,9 +2,20 @@
 @section('title', 'Add Department')
 
 @section('content')
-<div class="mx-auto max-w-4xl space-y-6">
-    <x-page-header title="Add Department" subtitle="Create a new faculty department."
-                   back="{{ route('admin.departments.index') }}"/>
+<x-form-layout title="Add Department" subtitle="Create a new faculty department." back="{{ route('admin.departments.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.departments.index') }}" class="hover:text-slate-900">Departments</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Add Department</span>
+        </nav>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
 
     <form method="POST" action="{{ route('admin.departments.store') }}" enctype="multipart/form-data" class="mx-auto w-full max-w-3xl space-y-6">
         @csrf
@@ -42,13 +53,9 @@
     </x-form-section>
 
         <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <button type="submit" class="inline-flex items-center rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#6e0000]">
-                Create Department
-            </button>
-            <a href="{{ route('admin.departments.index') }}" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
-                Cancel
-            </a>
+            <x-btn type="submit" variant="success">Create Department</x-btn>
+            <x-btn href="{{ route('admin.departments.index') }}" variant="secondary">Cancel</x-btn>
         </div>
     </form>
-</div>
+</x-form-layout>
 @endsection

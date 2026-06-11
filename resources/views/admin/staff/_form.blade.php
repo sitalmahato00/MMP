@@ -244,7 +244,7 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
-        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#8B0000] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#8B0000]/25 transition hover:bg-[#6f0000]">{{ $submitLabel }}</button>
-        <a href="{{ $backUrl }}" class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#8B0000] hover:text-[#8B0000]">Cancel</a>
+        <x-btn type="submit" variant="success">{{ $submitLabel }}</x-btn>
+        <x-btn href="{{ $backUrl }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>

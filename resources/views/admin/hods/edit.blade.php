@@ -2,19 +2,21 @@
 @section('title', 'Edit HOD')
 
 @section('content')
-
-<x-page-header title="Edit HOD" subtitle="Update Head of Department information.">
-    <x-slot name="actions">
-        <x-btn href="{{ route('admin.hods.index') }}" variant="secondary">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Back to List
-        </x-btn>
+<x-form-layout title="Edit HOD" subtitle="Update Head of Department information." back="{{ route('admin.hods.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.hods.index') }}" class="hover:text-slate-900">HODs</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Edit HOD</span>
+        </nav>
     </x-slot>
-</x-page-header>
 
-<div class="max-w-3xl">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
     <form action="{{ route('admin.hods.update', $hod) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         @csrf
         @method('PUT')
@@ -135,6 +137,6 @@
             <x-btn type="submit">Update HOD</x-btn>
         </div>
     </form>
-</div>
+</x-form-layout>
 
 @endsection

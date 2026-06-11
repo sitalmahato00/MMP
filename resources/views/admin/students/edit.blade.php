@@ -2,49 +2,61 @@
 @section('title', 'Edit Student')
 
 @section('content')
-<x-page-header title="Edit Student" :subtitle="$student->user->name"
-               back="{{ route('admin.students.index') }}"/>
+<x-form-layout title="Edit Student" subtitle="Update student profile, enrollment, and contact details." back="{{ route('admin.students.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.students.index') }}" class="hover:text-slate-900">Students</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Edit Student</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.students.update', $student) }}" enctype="multipart/form-data"
-      x-data="{
-          selectedProgram: '{{ $student->program_id }}',
-          programs: {{ $programs->map(fn($p) => ['id'=>$p->id,'name'=>$p->name,'dept'=>$p->department?->name,'semesters'=>$p->total_semesters])->toJson() }},
-          programInfo() { return this.programs.find(p => p.id == this.selectedProgram) ?? null; }
-      }"
-      class="w-full mx-auto space-y-6">
-    @csrf @method('PUT')
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
 
-    {{-- ── 1. PERSONAL INFORMATION ──────────────────────── --}}
-    <x-form-section title="Personal Information" subtitle="Student's identity, contact details, and login credentials.">
-        <x-form-row>
-            <x-form-field label="Full Name" name="name" :required="true">
-                <x-input name="name" :value="old('name', $student->user->name)" :required="true"/>
-            </x-form-field>
-            <x-form-field label="Email Address" name="email" :required="true">
-                <x-input name="email" type="email" :value="old('email', $student->user->email)" :required="true"/>
-            </x-form-field>
-            <x-form-field label="Phone Number" name="phone">
-                <x-input name="phone" :value="old('phone', $student->user->phone)" placeholder="98XXXXXXXX"/>
-            </x-form-field>
-            <x-form-field label="Gender" name="gender">
-                <x-select name="gender">
-                    <option value="">Select Gender</option>
-                    <option value="male"   @selected(old('gender', $student->user->gender) === 'male')>Male</option>
-                    <option value="female" @selected(old('gender', $student->user->gender) === 'female')>Female</option>
-                    <option value="other"  @selected(old('gender', $student->user->gender) === 'other')>Other</option>
-                </x-select>
-            </x-form-field>
-            <x-form-field label="Date of Birth (BS)" name="dob">
-                <x-bs-date-picker name="dob" :value="old('dob', $student->user->dob ? bsDate($student->user->dob) : '')"/>
-            </x-form-field>
-            <x-form-field label="Permanent Address" name="address" span="full">
-                <x-textarea name="address" rows="2">{{ old('address', $student->user->address) }}</x-textarea>
-            </x-form-field>
-            <x-form-field label="Profile Photo" name="avatar" span="full">
-                <x-file-input name="avatar" accept="image/*" label="Upload new photo (leave blank to keep current)" :current="$student->user->avatar"/>
-            </x-form-field>
-        </x-form-row>
-    </x-form-section>
+    <form method="POST" action="{{ route('admin.students.update', $student) }}" enctype="multipart/form-data"
+          x-data="{
+              selectedProgram: '{{ $student->program_id }}',
+              programs: {{ $programs->map(fn($p) => ['id'=>$p->id,'name'=>$p->name,'dept'=>$p->department?->name,'semesters'=>$p->total_semesters])->toJson() }},
+              programInfo() { return this.programs.find(p => p.id == this.selectedProgram) ?? null; }
+          }"
+          class="space-y-6">
+        @csrf @method('PUT')
+
+        {{-- ── 1. PERSONAL INFORMATION ──────────────────────── --}}
+        <x-form-section title="Personal Information" subtitle="Student's identity, contact details, and login credentials.">
+            <x-form-row>
+                <x-form-field label="Profile Photo" name="avatar" span="full">
+                    <x-file-input name="avatar" accept="image/*" label="Upload new photo (leave blank to keep current)" :current="$student->user->avatar"/>
+                </x-form-field>
+                <x-form-field label="Full Name" name="name" :required="true">
+                    <x-input name="name" :value="old('name', $student->user->name)" :required="true"/>
+                </x-form-field>
+                <x-form-field label="Phone Number" name="phone">
+                    <x-input name="phone" :value="old('phone', $student->user->phone)" placeholder="98XXXXXXXX"/>
+                </x-form-field>
+                <x-form-field label="Email Address" name="email" :required="true">
+                    <x-input name="email" type="email" :value="old('email', $student->user->email)" :required="true"/>
+                </x-form-field>
+                <x-form-field label="Gender" name="gender">
+                    <x-select name="gender">
+                        <option value="">Select Gender</option>
+                        <option value="male"   @selected(old('gender', $student->user->gender) === 'male')>Male</option>
+                        <option value="female" @selected(old('gender', $student->user->gender) === 'female')>Female</option>
+                        <option value="other"  @selected(old('gender', $student->user->gender) === 'other')>Other</option>
+                    </x-select>
+                </x-form-field>
+                <x-form-field label="Date of Birth (BS)" name="dob">
+                    <x-bs-date-picker name="dob" :value="old('dob', $student->user->dob ? bsDate($student->user->dob) : '')"/>
+                </x-form-field>
+                <x-form-field label="Permanent Address" name="address" span="full">
+                    <x-textarea name="address" rows="2">{{ old('address', $student->user->address) }}</x-textarea>
+                </x-form-field>
+            </x-form-row>
+        </x-form-section>
 
     {{-- ── 2. ENROLLMENT DETAILS ────────────────────────── --}}
     <x-form-section title="Enrollment Details" subtitle="Academic program, semester, and administrative codes.">
@@ -141,9 +153,12 @@
     </x-form-section>
     @endif
 
-    <div class="flex items-center gap-3 pb-6">
-        <x-btn type="submit">Save Changes</x-btn>
-        <x-btn href="{{ route('admin.students.index') }}" variant="secondary">Cancel</x-btn>
-    </div>
-</form>
+    <x-slot name="footer">
+        <div class="flex flex-wrap items-center gap-3">
+            <x-btn type="submit">Save Changes</x-btn>
+            <x-btn href="{{ route('admin.students.index') }}" variant="secondary">Cancel</x-btn>
+        </div>
+    </x-slot>
+    </form>
+</x-form-layout>
 @endsection

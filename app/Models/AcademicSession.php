@@ -70,9 +70,16 @@ class AcademicSession extends Model
      */
     public static function current(): ?self
     {
-        return cache()->remember('active_academic_session', 3600, function () {
-            return static::where('is_active', true)->first();
+        $sessionId = cache()->remember('active_academic_session_id', 3600, function () {
+            $session = static::where('is_active', true)->first();
+            return $session?->id;
         });
+
+        if ($sessionId === null) {
+            return null;
+        }
+
+        return static::find($sessionId);
     }
 
     /**

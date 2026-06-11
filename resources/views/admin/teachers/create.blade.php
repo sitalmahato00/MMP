@@ -2,20 +2,22 @@
 @section('title', 'Add Teacher')
 
 @section('content')
-<div class="space-y-5">
+<x-form-layout title="Add Teacher" subtitle="Onboard a new faculty member to the system." back="{{ route('admin.teachers.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.teachers.index') }}" class="hover:text-slate-900">Teachers</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Add Teacher</span>
+        </nav>
+    </x-slot>
 
-<div class="flex flex-wrap items-center justify-between gap-4">
-    <div>
-        <h1 class="text-2xl font-black tracking-tight text-slate-900">Add Teacher</h1>
-        <p class="mt-0.5 text-sm text-slate-500">Onboard a new faculty member to the system.</p>
-    </div>
-    <a href="{{ route('admin.teachers.index') }}"
-       class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition shadow-sm">
-        ← Back to Teachers
-    </a>
-</div>
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.teachers.store') }}" enctype="multipart/form-data" class="space-y-5">
+    <form method="POST" action="{{ route('admin.teachers.store') }}" enctype="multipart/form-data" class="max-w-full space-y-5">
     @csrf
 
     @if($errors->any())
@@ -208,15 +210,11 @@
 
     {{-- ── ACTIONS ── --}}
     <div class="flex items-center gap-3">
-        <button type="submit" class="rounded-xl bg-[#8B0000] px-6 py-2.5 text-sm font-bold text-white hover:bg-[#7a0000] transition shadow-sm">
-            Add Teacher
-        </button>
-        <a href="{{ route('admin.teachers.index') }}" class="rounded-xl border border-slate-200 px-6 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
-            Cancel
-        </a>
+        <x-btn type="submit" variant="success">Add Teacher</x-btn>
+        <x-btn href="{{ route('admin.teachers.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 
 </form>
-</div>
+</x-form-layout>
 @endsection
 

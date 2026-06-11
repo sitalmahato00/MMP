@@ -39,8 +39,11 @@
         <div class="flex items-center gap-3">
             @if($back)
                 <a href="{{ $back }}"
-                   class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center justify-center h-8 w-8 rounded transition-colors flex-shrink-0"
+                   style="border: 1px solid #DCE3EB; background: #ffffff; color: #374151;"
+                   onmouseover="this.style.borderColor='#1D4ED8'; this.style.color='#1D4ED8';"
+                   onmouseout="this.style.borderColor='#DCE3EB'; this.style.color='#374151';">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
@@ -65,9 +68,9 @@
             @endif
             
             <div>
-                <h1 class="text-2xl font-black text-gray-900 leading-tight">{{ $title }}</h1>
+                <h1 class="text-xl font-bold leading-tight" style="color: #0B2E6B;">{{ $title }}</h1>
                 @if($subtitle)
-                    <p class="text-sm text-gray-500 mt-0.5">{{ $subtitle }}</p>
+                    <p class="text-sm mt-0.5" style="color: #6B7280;">{{ $subtitle }}</p>
                 @endif
             </div>
         </div>

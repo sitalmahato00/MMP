@@ -2,22 +2,33 @@
 @section('title', 'Edit User')
 
 @section('content')
-<x-page-header title="Edit User" :subtitle="$user->name"
-               back="{{ route('admin.users.index') }}"/>
+<x-form-layout title="Edit User" subtitle="Update system user details." back="{{ route('admin.users.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.users.index') }}" class="hover:text-slate-900">User Management</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Edit User</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.users.update', $user) }}" enctype="multipart/form-data" class="max-w-3xl space-y-6">
+    <form method="POST" action="{{ route('admin.users.update', $user) }}" enctype="multipart/form-data" class="space-y-6">
     @csrf @method('PUT')
     
     <x-form-section title="Basic Information">
         <x-form-row>
+            <x-form-field label="Profile Picture (Avatar)" name="avatar" span="full">
+                <x-file-input name="avatar" accept="image/*" label="Upload Profile Picture" :current="$user->avatar"/>
+            </x-form-field>
             <x-form-field label="Full Name" name="name" :required="true">
                 <x-input name="name" :value="$user->name" :required="true"/>
             </x-form-field>
-            <x-form-field label="Email Address" name="email" :required="true">
-                <x-input name="email" type="email" :value="$user->email" :required="true"/>
-            </x-form-field>
             <x-form-field label="Phone Number" name="phone">
                 <x-input name="phone" :value="$user->phone"/>
+            </x-form-field>
+            <x-form-field label="Email Address" name="email" :required="true">
+                <x-input name="email" type="email" :value="$user->email" :required="true"/>
             </x-form-field>
             <x-form-field label="Gender" name="gender">
                 <x-select name="gender">
@@ -70,9 +81,22 @@
         </x-form-row>
     </x-form-section>
 
-    <div class="flex items-center gap-3">
-        <x-btn type="submit">Save Changes</x-btn>
-        <x-btn href="{{ route('admin.users.index') }}" variant="secondary">Cancel</x-btn>
-    </div>
+    <x-slot name="sidebar">
+        <x-form-sidebar>
+            <div class="rounded-[8px] border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="text-sm font-semibold text-slate-900 mb-3">Action Notes</div>
+                <p class="text-sm leading-6 text-slate-600">Use this page to update user roles, status, and login credentials in a single centralized form. Leave password fields blank if you do not wish to change the password.</p>
+            </div>
+        </x-form-sidebar>
+    </x-slot>
+
+    <x-slot name="footer">
+        <div class="flex flex-wrap items-center gap-3">
+            <x-btn type="submit" variant="success">Save Changes</x-btn>
+            <x-btn type="reset" variant="ghost">Reset</x-btn>
+            <x-btn href="{{ route('admin.users.index') }}" variant="secondary">Cancel</x-btn>
+        </div>
+    </x-slot>
 </form>
+</x-form-layout>
 @endsection

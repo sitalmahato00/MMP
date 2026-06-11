@@ -1,4 +1,4 @@
-{{-- Sidebar Nav Link Partial --}}
+{{-- Sidebar Nav Link — Nepal Government Portal Style --}}
 {{-- Variables: $href, $iconName, $label, $isActive, $accent, $badge (optional), $disabled (optional) --}}
 
 @php
@@ -42,69 +42,61 @@
         'user-circle'     => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
     ];
 
-    $svgPath = $icons[$iconName] ?? $icons['doc-text'];
+    $svgPath    = $icons[$iconName] ?? $icons['doc-text'];
     $badgeValue = isset($badge) && $badge !== null && (int) $badge > 0 ? (int) $badge : null;
     $displayBadge = $badgeValue !== null ? ($badgeValue > 99 ? '99+' : (string) $badgeValue) : null;
     $isDisabled = isset($disabled) && $disabled;
-    
-    $baseClass = 'group relative flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm font-normal text-black dark:text-white transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-white/10';
-    if ($isDisabled) {
-        $baseClass .= ' cursor-not-allowed opacity-50';
-    } else if ($isActive) {
-        $baseClass .= ' text-black';
-    } else {
-        $baseClass .= ' hover:-translate-y-0.5 hover:bg-slate-100 dark:hover:bg-white/5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.08)]';
-    }
 @endphp
 
 @if($isDisabled)
     <div title="{{ $label }} — Coming Soon"
-         class="{{ $baseClass }} text-slate-400"
+         class="group relative flex items-center gap-2.5 rounded px-3 py-2 text-sm font-normal cursor-not-allowed opacity-40"
+         style="color: rgba(255,255,255,0.5);"
          :class="sidebarCollapsed ? 'lg:justify-center lg:gap-0' : 'lg:justify-start'">
-        <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {!! $svgPath !!}
-            </svg>
+        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded" style="background-color: rgba(255,255,255,0.07);">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">{!! $svgPath !!}</svg>
         </span>
-
-        <span x-show="!sidebarCollapsed" x-cloak class="min-w-0 flex-1 truncate transition-opacity duration-200 text-slate-400">{{ $label }}</span>
-
-        <span x-show="!sidebarCollapsed" x-cloak class="ml-auto inline-flex shrink-0 items-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-amber-200">
-            Soon
-        </span>
-
-        <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-2xl ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 lg:block">
+        <span x-show="!sidebarCollapsed" x-cloak class="min-w-0 flex-1 truncate">{{ $label }}</span>
+        <span x-show="!sidebarCollapsed" x-cloak class="ml-auto text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded" style="background-color: rgba(255,200,0,0.15); color: #fbbf24;">Soon</span>
+        <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block">
             {{ $label }} (Coming Soon)
         </span>
     </div>
 @else
     <a href="{{ $href }}"
        title="{{ $label }}"
-       class="{{ $baseClass }}"
-       :class="sidebarCollapsed ? 'lg:justify-center lg:gap-0' : 'lg:justify-start'">
-        <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-200
-            @if($isActive) bg-[#8b0000] text-white
-            @else bg-slate-100 text-black dark:bg-white/10 dark:text-white @endif">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+       class="group relative flex items-center gap-2.5 rounded px-3 py-2 text-sm font-normal transition-colors duration-150 focus:outline-none"
+       style="{{ $isActive ? 'background-color: #1D4ED8; color: #ffffff;' : 'color: rgba(255,255,255,0.78);' }}"
+       :class="sidebarCollapsed ? 'lg:justify-center lg:gap-0' : 'lg:justify-start'"
+       @if(!$isActive) onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.backgroundColor=''; this.style.color='rgba(255,255,255,0.78)';" @endif>
+
+        {{-- Active left border indicator --}}
+        @if($isActive)
+            <span class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r" style="background-color: #60a5fa;"></span>
+        @endif
+
+        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded transition-colors duration-150"
+              style="{{ $isActive ? 'background-color: rgba(255,255,255,0.15);' : 'background-color: rgba(255,255,255,0.07);' }}">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {!! $svgPath !!}
             </svg>
             @if($badgeValue !== null)
-                <span x-show="sidebarCollapsed" x-cloak class="absolute -right-0.5 -top-0.5 inline-flex h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-slate-950"></span>
+                <span x-show="sidebarCollapsed" x-cloak class="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-rose-500"></span>
             @endif
         </span>
-        <span x-show="!sidebarCollapsed" x-cloak class="min-w-0 flex-1 truncate transition-opacity duration-200">{{ $label }}</span>
+
+        <span x-show="!sidebarCollapsed" x-cloak class="min-w-0 flex-1 truncate">{{ $label }}</span>
+
         @if($badgeValue !== null)
-            <span x-show="!sidebarCollapsed" x-cloak class="ml-auto inline-flex min-w-6 items-center justify-center rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-semibold text-rose-100 ring-1 ring-rose-400/20">
+            <span x-show="!sidebarCollapsed" x-cloak class="ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold text-white" style="background-color: #dc2626;">
                 {{ $displayBadge }}
             </span>
         @endif
-        @if($isActive)
-            <span class="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full" style="background: #8b0000;"></span>
-        @endif
-        <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-2xl ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 lg:block">
+
+        <span x-show="sidebarCollapsed" x-cloak class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block">
             {{ $label }}
             @if($displayBadge)
-                <span class="ml-2 inline-flex rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold">{{ $displayBadge }}</span>
+                <span class="ml-2 inline-flex rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold">{{ $displayBadge }}</span>
             @endif
         </span>
     </a>

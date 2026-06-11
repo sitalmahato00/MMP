@@ -2,11 +2,23 @@
 @section('title', 'Edit Alumni')
 
 @section('content')
-<x-page-header title="Edit Alumni" subtitle="Update alumni record and career information."
-               back="{{ route('admin.alumni.show', $alumnus) }}"/>
+<x-form-layout title="Edit Alumni" subtitle="Update alumni record and career information." back="{{ route('admin.alumni.show', $alumnus) }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.alumni.index') }}" class="hover:text-slate-900">Alumni</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Edit Alumni</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.alumni.update', $alumnus) }}" enctype="multipart/form-data"
-      class="max-w-4xl space-y-6">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
+    <form method="POST" action="{{ route('admin.alumni.update', $alumnus) }}" enctype="multipart/form-data"
+          class="space-y-6">
     @csrf @method('PUT')
 
     {{-- 1. PERSONAL INFORMATION --}}
@@ -145,9 +157,12 @@
     </x-form-section>
 
     {{-- SUBMIT --}}
-    <div class="flex items-center gap-3">
-        <x-btn type="submit">Update Alumni</x-btn>
-        <a href="{{ route('admin.alumni.show', $alumnus) }}" class="text-sm text-slate-500 hover:text-slate-700">Cancel</a>
-    </div>
-</form>
+    <x-slot name="footer">
+        <div class="flex flex-wrap items-center gap-3">
+            <x-btn type="submit">Update Alumni</x-btn>
+            <a href="{{ route('admin.alumni.show', $alumnus) }}" class="text-sm text-slate-500 hover:text-slate-700">Cancel</a>
+        </div>
+    </x-slot>
+    </form>
+</x-form-layout>
 @endsection

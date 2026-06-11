@@ -2,10 +2,22 @@
 @section('title', 'Add Executive Record')
 
 @section('content')
-<x-page-header title="Record Leadership" subtitle="Add institutional presidents, principals, and key directors."
-               back="{{ route('admin.web-control.index') }}"/>
+<x-form-layout title="Record Leadership" subtitle="Add institutional presidents, principals, and key directors." back="{{ route('admin.web-control.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.web-control.index') }}" class="hover:text-slate-900">Leadership</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Add Executive</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.executives.store') }}" enctype="multipart/form-data" class="max-w-4xl space-y-6">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
+    <form method="POST" action="{{ route('admin.executives.store') }}" enctype="multipart/form-data" class="max-w-4xl space-y-6">
     @csrf
 
     <x-form-section title="Identity & Title">
@@ -70,4 +82,5 @@
         <x-btn href="{{ route('admin.web-control.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+</x-form-layout>
 @endsection

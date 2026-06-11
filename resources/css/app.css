@@ -1,10 +1,373 @@
-/* Force horizontal mobile nav bar for all user roles */
+/* ══════════════════════════════════════════════════════════════════════
+   Nepal Government Portal Style — MMP College Administration System
+   Color Palette:
+     Navy Blue   #0B2E6B  (sidebar, navbar, primary dark)
+     Royal Blue  #1D4ED8  (accent / active / buttons)
+     White       #FFFFFF
+     Light Gray  #F4F7FB  (page background)
+     Border Gray #DCE3EB
+     Success     #16A34A
+     Error       #DC2626
+   ══════════════════════════════════════════════════════════════════════ */
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Custom Theme Tokens ──────────────────────────────────────── */
+@theme {
+  --color-gov-navy:   #0B2E6B;
+  --color-gov-royal:  #1D4ED8;
+  --color-gov-light:  #F4F7FB;
+  --color-gov-border: #DCE3EB;
+
+  --color-primary-50:  #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+
+  --color-success-500: #16a34a;
+  --color-danger-500:  #dc2626;
+  --color-warning-500: #d97706;
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+html, body { border-radius: 0 !important; }
+:root { color-scheme: light; }
+html.dark { color-scheme: dark; }
+
+body {
+  font-family: 'Inter', 'Noto Sans', sans-serif;
+  font-size: 0.875rem;
+  background-color: #F4F7FB;
+  color: #374151;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C5CDD8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9BAABB; }
+
+[x-cloak] { display: none !important; }
+
+/* ── Dark Mode Base ───────────────────────────────────────────── */
+html.dark body { background-color: #0D1B35; color: #e2e8f0; }
+
+/* ── Sidebar — always dark navy regardless of color mode ─────── */
+aside[style*="background-color: #0B2E6B"],
+aside[style*="0B2E6B"] {
+  background-color: #0B2E6B !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* Ensure ALL text inside sidebar is white-toned */
+aside[style*="0B2E6B"] p,
+aside[style*="0B2E6B"] span:not([class*="bg-"]),
+aside[style*="0B2E6B"] a,
+aside[style*="0B2E6B"] button {
+  color: inherit;
+}
+
+/* Nav section labels */
+aside[style*="0B2E6B"] nav > div > div > p {
+  color: rgba(255,255,255,0.40) !important;
+}
+
+/* ── Page Background ──────────────────────────────────────────── */
+main, .page-content { background-color: #F4F7FB; }
+html.dark main, html.dark .page-content { background-color: #0D1B35 !important; }
+
+/* ── Government Cards ─────────────────────────────────────────── */
+.dashboard-card,
+.card,
+.program-card,
+.course-card,
+.feature-card,
+.bg-white {
+  background-color: #ffffff;
+  border: 1px solid #DCE3EB;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(11, 46, 107, 0.05);
+}
+
+html.dark .dashboard-card,
+html.dark .card,
+html.dark .program-card,
+html.dark .course-card,
+html.dark .feature-card {
+  background: #132044;
+  border-color: #1e3a5f;
+  color: #e2e8f0;
+}
+
+/* bg utilities */
+.bg-gray-50, .bg-slate-50, .bg-slate-100 {
+  background-color: #F4F7FB;
+  border-radius: 4px;
+}
+
+html.dark .bg-white,
+html.dark [class*="bg-white"] {
+  background-color: #132044 !important;
+  color: #e2e8f0 !important;
+}
+html.dark .bg-gray-50,
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #0D1B35 !important;
+  color: #e2e8f0 !important;
+}
+html.dark main { background-color: #0D1B35 !important; }
+
+/* ── Border overrides ─────────────────────────────────────────── */
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80 { border-color: #1e3a5f !important; }
+
+/* ── Text overrides in dark mode ──────────────────────────────── */
+html.dark .text-gray-900, html.dark .text-slate-900 { color: #f0f4f8 !important; }
+html.dark .text-gray-800, html.dark .text-slate-800,
+html.dark .text-gray-700, html.dark .text-slate-700 { color: #cbd5e1 !important; }
+html.dark .text-gray-600, html.dark .text-slate-600,
+html.dark .text-gray-500, html.dark .text-slate-500 { color: #94a3b8 !important; }
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-black { color: #e2e8f0 !important; }
+html.dark a:not([class*="text-"]):not([class*="bg-"]) { color: #60a5fa !important; }
+
+/* ── Form elements dark mode ──────────────────────────────────── */
+html.dark input:not([class*="text-"]),
+html.dark textarea:not([class*="text-"]),
+html.dark select:not([class*="text-"]) {
+  color: #e2e8f0 !important;
+  background-color: #1a2f50 !important;
+  border-color: #2d4a70 !important;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder { color: #64748b !important; }
+html.dark ::-webkit-scrollbar-thumb { background: #2d4a70; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #3d5a80; }
+
+/* ── Rounded-corner resets (government flat look) ─────────────── */
+.rounded-2xl, .rounded-3xl, .rounded-xl {
+  border-radius: 4px !important;
+}
+/* Only reset on admin UI elements, not public pages */
+.rounded-full { /* keep for avatars/badges — do NOT reset */ }
+
+/* ── Buttons — flat government style ──────────────────────────── */
+.btn-gov-primary,
+button[class*="bg-blue-"], a[class*="bg-blue-"],
+button[class*="bg-primary"], a[class*="bg-primary"] {
+  border-radius: 3px !important;
+}
+
+.btn-gov-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: #1D4ED8;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 3px;
+  border: 1px solid #1D4ED8;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-gov-primary:hover { background: #1740B3; border-color: #1740B3; }
+
+.btn-gov-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 3px;
+  border: 1px solid #DCE3EB;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-gov-secondary:hover { border-color: #1D4ED8; color: #1D4ED8; }
+
+/* ── Inline blue/green/red buttons (Tailwind) ─────────────────── */
+.bg-blue-600, .bg-blue-700, .bg-indigo-600 {
+  background-color: #1D4ED8 !important;
+  border-radius: 3px !important;
+}
+.bg-blue-600:hover, .bg-blue-700:hover { background-color: #1740B3 !important; }
+.bg-green-600, .bg-emerald-600 { background-color: #16A34A !important; border-radius: 3px !important; }
+.bg-red-600, .bg-rose-600     { background-color: #DC2626 !important; border-radius: 3px !important; }
+.bg-yellow-500, .bg-amber-500  { background-color: #D97706 !important; border-radius: 3px !important; }
+
+/* ── Table — government style ──────────────────────────────────── */
+.gov-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.gov-table th {
+  background: #F4F7FB;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 9px 14px;
+  border-bottom: 2px solid #DCE3EB;
+  text-align: left;
+  white-space: nowrap;
+}
+.gov-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #F0F3F7;
+  color: #374151;
+  vertical-align: middle;
+}
+.gov-table tbody tr:hover { background: #F8FAFD; }
+
+html.dark .gov-table th { background: #1a2f50; color: #94a3b8; border-bottom-color: #2d4a70; }
+html.dark .gov-table td { border-bottom-color: #1e3a5f; color: #cbd5e1; }
+html.dark .gov-table tbody tr:hover { background: #1e3a5f; }
+
+/* Generic table overrides */
+table thead th {
+  background-color: #F4F7FB !important;
+  color: #374151 !important;
+  font-weight: 600 !important;
+  font-size: 0.6875rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 2px solid #DCE3EB !important;
+  padding: 9px 14px !important;
+}
+html.dark table thead th {
+  background-color: #1a2f50 !important;
+  color: #94a3b8 !important;
+  border-bottom-color: #2d4a70 !important;
+}
+table tbody td { padding: 9px 14px !important; border-bottom: 1px solid #F0F3F7 !important; }
+html.dark table tbody td { border-bottom-color: #1e3a5f !important; }
+table tbody tr:hover { background: #F8FAFD !important; }
+html.dark table tbody tr:hover { background: #1e3a5f !important; }
+
+/* ── Status badges ────────────────────────────────────────────── */
+.badge-active   { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; border-radius: 3px; padding: 2px 8px; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.badge-inactive { background: #FEF9C3; color: #A16207; border: 1px solid #FDE68A; border-radius: 3px; padding: 2px 8px; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.badge-danger   { background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; border-radius: 3px; padding: 2px 8px; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Generic badge radius reset */
+.badge, [class*="badge-"] { border-radius: 3px !important; }
+
+/* ── Form controls — government style ────────────────────────── */
+.gov-input,
+input[type="text"], input[type="email"], input[type="password"],
+input[type="number"], input[type="tel"], input[type="date"],
+input[type="search"], textarea, select {
+  width: 100%;
+  padding: 7px 12px;
+  font-size: 0.875rem;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #DCE3EB;
+  border-radius: 3px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.gov-input:focus,
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus,
+input[type="number"]:focus, input[type="tel"]:focus, input[type="date"]:focus,
+input[type="search"]:focus, textarea:focus, select:focus {
+  border-color: #1D4ED8;
+  box-shadow: 0 0 0 2px rgba(29,78,216,0.08);
+}
+html.dark .gov-input,
+html.dark input, html.dark textarea, html.dark select {
+  color: #e2e8f0;
+  background: #1a2f50;
+  border-color: #2d4a70;
+}
+html.dark .gov-input:focus,
+html.dark input:focus, html.dark textarea:focus, html.dark select:focus {
+  border-color: #3b82f6;
+}
+
+/* ── Pagination ───────────────────────────────────────────────── */
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: 3px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #DCE3EB;
+  transition: all 0.15s;
+  cursor: pointer;
+  user-select: none;
+}
+.pagination-btn:hover { border-color: #1D4ED8; color: #1D4ED8; background: #EEF2FF; }
+html.dark .pagination-btn { color: #cbd5e1; background: #1a2f50; border-color: #2d4a70; }
+html.dark .pagination-btn:hover { border-color: #3b82f6; color: #93c5fd; background: #1e3a5f; }
+
+.pagination-active {
+  background: #0B2E6B;
+  color: #ffffff;
+  border-color: #0B2E6B;
+  font-weight: 600;
+}
+html.dark .pagination-active { background: #1D4ED8; border-color: #1D4ED8; }
+
+.pagination-disabled {
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  cursor: not-allowed;
+}
+html.dark .pagination-disabled { color: #475569; border-color: #1e3a5f; background: #0D1B35; }
+
+/* ── Breadcrumb ───────────────────────────────────────────────── */
+.gov-breadcrumb { font-size: 0.8125rem; color: #6B7280; display: flex; align-items: center; gap: 6px; }
+.gov-breadcrumb a { color: #1D4ED8; text-decoration: none; }
+.gov-breadcrumb a:hover { text-decoration: underline; }
+
+/* ── Responsive table wrapper ─────────────────────────────────── */
+.mmp-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.mmp-table { min-width: 100%; }
+@media (max-width: 640px) { .mmp-table { min-width: 760px; } }
+
+/* ── Utilities ────────────────────────────────────────────────── */
+@layer utilities {
+  .safe-top    { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+  .safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .safe-bottom-nav { padding-bottom: calc(env(safe-area-inset-bottom) + 5.5rem); }
+}
+
+/* ── PWA install prompt fix ───────────────────────────────────── */
+[data-shell-bottom-nav] {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ── Mobile bottom-nav grid ───────────────────────────────────── */
 @media (max-width: 640px) {
   [data-shell-bottom-nav] > div {
     display: grid !important;
     grid-auto-flow: column !important;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
-    gap: 0.25rem !important;
+    gap: 0 !important;
   }
   [data-shell-bottom-nav] a {
     flex-direction: column !important;
@@ -13,587 +376,102 @@
   }
 }
 
-/* Make table action buttons always visible on mobile devices */
+/* ── Always show table action buttons on mobile ───────────────── */
 @media (max-width: 1024px) {
-  /* Force action buttons to be visible on mobile/tablet */
   .opacity-0.group-hover\:opacity-100,
-  .opacity-0.group-hover\:opacity-100.transition-opacity {
-    opacity: 1 !important;
-  }
-  
-  /* Also handle translate animations on mobile */
-  .translate-y-2.group-hover\:translate-y-0 {
-    transform: translateY(0) !important;
-  }
+  .opacity-0.group-hover\:opacity-100.transition-opacity { opacity: 1 !important; }
+  .translate-y-2.group-hover\:translate-y-0 { transform: translateY(0) !important; }
 }
-/* Fix: Ensure hero image is visible in dark mode on public page */
-html.dark .hero-section img {
-  opacity: 1 !important;
-  filter: none !important;
-}
-/* Prevent dark mode CSS from hiding hero section backgrounds */
-html.dark .hero-section,
-html.dark .hero-section > div,
-html.dark .hero-section img {
-  background-color: transparent !important;
-}
-html.dark .hero-section .bg-gray-900 {
-  background-color: #111827 !important;
-}
-/* Remove all rounded corners from hero section - AGGRESSIVE */
-.hero-section,
-.hero-section *,
-.hero-section > div,
-.hero-section .absolute,
-.hero-section section,
-section.hero-section {
-  border-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-}
-/* Reusable dashboard card class for all user dashboards */
-.dashboard-card {
-  @apply relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm;
-}
-html.dark .dashboard-card {
-  background: linear-gradient(135deg, #0f172a 60%, #0f172a 100%) !important;
-  color: #e2e8f0 !important;
-  border-color: #334155 !important;
-}
-/* Teacher dashboard large card dark mode fix */
-html.dark .teacher-dashboard-header,
-html.dark .teacher-dashboard-header .bg-gradient-to-br {
-  background: linear-gradient(135deg, #0f172a 60%, #0f172a 100%) !important;
-  color: #e2e8f0 !important;
-  border-color: #334155 !important;
-}
-/* Force all bg-white, bg-gray-50, and similar backgrounds to dark in dark mode, even with opacity or border utility classes */
-/* Exclude hero-section to prevent hiding hero images */
-html.dark [class*="bg-white"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-gray-50"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-50"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-100"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-200"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-300"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-400"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-500"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-600"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-700"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-800"]:not(.hero-section):not(.hero-section *),
-html.dark [class*="bg-slate-900"]:not(.hero-section):not(.hero-section *) {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-  border-color: #334155 !important;
-}
-/* Large card/section dark mode fix for private pages */
-/* Exclude hero-section to prevent hiding hero images */
-html.dark .card:not(.hero-section):not(.hero-section *),
-html.dark .dashboard-card:not(.hero-section):not(.hero-section *),
-html.dark .section:not(.hero-section):not(.hero-section *),
-html.dark .rounded-2xl:not(.hero-section):not(.hero-section *),
-html.dark .rounded-3xl:not(.hero-section):not(.hero-section *),
-html.dark .shadow:not(.hero-section):not(.hero-section *),
-html.dark .shadow-md:not(.hero-section):not(.hero-section *),
-html.dark .shadow-xl:not(.hero-section):not(.hero-section *),
-html.dark .border:not(.hero-section):not(.hero-section *),
-html.dark .bg-white:not(.hero-section):not(.hero-section *),
-html.dark .bg-gray-50:not(.hero-section):not(.hero-section *),
-html.dark .bg-slate-50:not(.hero-section):not(.hero-section *) {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-  border-color: #334155 !important;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18) !important;
-}
-/* Private pages: override white/gray hover backgrounds in dark mode to blue */
-html.dark .hover\:bg-white:hover,
-html.dark .hover\:bg-gray-50:hover,
-html.dark .hover\:bg-slate-50:hover,
-html.dark .hover\:bg-white\/50:hover,
-html.dark .hover\:bg-white\/60:hover,
-html.dark .hover\:bg-white\/70:hover,
-html.dark .hover\:bg-white\/80:hover,
-html.dark .hover\:bg-white\/90:hover,
-html.dark .hover\:bg-slate-50\/60:hover,
-html.dark .hover\:bg-slate-50\/70:hover,
-html.dark .hover\:bg-gray-50\/60:hover,
-html.dark .hover\:bg-gray-50\/70:hover {
-  background-color: #003D82 !important;
-  color: #fff !important;
-}
-/* Result search form dark mode fix */
-/* Exclude hero-section to prevent hiding hero gradient overlays */
-html.dark .bg-white:not(.hero-section):not(.hero-section *),
-html.dark .bg-gradient-to-b:not(.hero-section):not(.hero-section *),
-html.dark .bg-gradient-to-r:not(.hero-section):not(.hero-section *) {
-  background: #0f172a !important;
-  color: #e2e8f0 !important;
-}
-html.dark .border-gray-200,
-html.dark .border-blue-100 {
-  border-color: #334155 !important;
-}
-/* Program card blue hover with white text in light mode */
+
+/* ── Program card hover ───────────────────────────────────────── */
 .program-card:hover {
-  border-color: #074ea2 !important; /* blue-800 */
-  box-shadow: 0 4px 24px 0 rgba(7, 78, 162, 0.12);
-  background: #074ea2 !important;
+  border-color: #0B2E6B !important;
+  box-shadow: 0 2px 8px rgba(11,46,107,0.12);
+  background: #0B2E6B !important;
   color: #fff !important;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+  transition: all 0.2s;
 }
-/* Ensure only text changes color on hover, logo/icon remains blue with white background */
 .program-card:hover h3,
-.program-card:hover p {
-  color: #fff !important;
-}
+.program-card:hover p { color: #fff !important; }
 .program-card:hover .program-logo,
-.program-card:hover .program-logo * {
-  color: #003D82 !important;
-  background: #fff !important;
-  fill: #003D82 !important;
-  stroke: #003D82 !important;
-}
-html.dark .program-card:hover {
-  border-color: #60a5fa !important; /* blue-400 */
-  background: #1e293b;
-  box-shadow: 0 4px 24px 0 rgba(96, 165, 250, 0.10);
-}
-/* Card footer link bar for 'View More'/'View All' links */
+.program-card:hover .program-logo * { color: #0B2E6B !important; background: #fff !important; fill: #0B2E6B !important; }
+
+/* ── Card footer link ─────────────────────────────────────────── */
 .card-footer-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
-  background: #074ea2; /* blue-800 or your preferred blue */
+  background: #0B2E6B;
   color: #fff;
-  font-weight: 700;
-  padding: 1rem 1.5rem;
-  border-bottom-left-radius: 1rem;
-  border-bottom-right-radius: 1rem;
+  font-weight: 600;
+  padding: 0.625rem 1.25rem;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
   text-align: left;
-  transition: background 0.2s;
+  transition: background 0.15s;
   text-decoration: none;
+  font-size: 0.8125rem;
 }
-.card-footer-link:hover {
-  background: #003D82;
-  color: #fff;
-  text-decoration: underline;
-}
+.card-footer-link:hover { background: #091F4A; color: #fff; }
 
-
-/* Card border style for card-like components only */
-.card, .program-card, .course-card, .feature-card {
-  border: 2px solid #334155; /* slate-700 for dark, will override below for light */
-  border-radius: 1rem;
-  background: #0f172a;
-}
-html:not(.dark) .card, html:not(.dark) .program-card, html:not(.dark) .course-card, html:not(.dark) .feature-card {
-  border: 2px solid #e5e7eb; /* gray-200 */
-  background: #fff;
-}
-
-/* Card color refinement */
-.card, .bg-white, .bg-gray-50, .bg-slate-50, .bg-slate-100 {
-  background-color: #fff !important;
-  border-radius: 1rem;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
-}
-
-html.dark .card, html.dark .bg-white, html.dark .bg-gray-50, html.dark .bg-slate-50, html.dark .bg-slate-100 {
-  background-color: #0f172a !important; /* slate-900 - darker */
-  border-radius: 1rem;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18);
-  border: 1px solid #334155 !important;
-}
-@import "tailwindcss";
-
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* Custom Theme Extension specific for MMP CMS */
-@theme {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  
-  --color-success-500: #22c55e;
-  --color-danger-500: #ef4444;
-  --color-warning-500: #f59e0b;
-}
-
-@layer utilities {
-  .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
-  }
-
-  .safe-top {
-    padding-top: max(0.75rem, env(safe-area-inset-top));
-  }
-
-  .safe-bottom {
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-  }
-
-  .safe-bottom-nav {
-    padding-bottom: calc(env(safe-area-inset-bottom) + 5.5rem);
-  }
-}
-
-/* Base custom styles to enforce minimal scrollbar and smooth behaviors */
-html {
-  scroll-behavior: smooth;
-  border-radius: 0 !important;
-}
-
-html, body {
-  border-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
-:root {
-  color-scheme: light;
-}
-
-html.dark {
-  color-scheme: dark;
-  border-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
-body {
-  transition: background-color 200ms ease, color 200ms ease;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-[x-cloak] { display: none !important; }
-
-html.dark body {
-  background-color: #020617;
-  color: #e2e8f0;
-  border-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
-/* AGGRESSIVE: Force ALL white backgrounds to dark in dark mode */
-html.dark .bg-white {
-  background-color: #0f172a !important;
-}
-
+/* ── Dark mode: hover backgrounds ────────────────────────────── */
 html.dark .hover\:bg-white:hover,
-html.dark .hover\:bg-blue-50:hover,
-html.dark .hover\:bg-red-50:hover,
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-slate-50:hover,
 html.dark .hover\:bg-slate-100:hover,
-html.dark .hover\:bg-gray-100:hover {
-  background-color: rgb(51 65 85 / 0.85) !important;
-}
+html.dark .hover\:bg-gray-100:hover { background-color: #1e3a5f !important; color: #fff !important; }
 
-html.dark .bg-gray-50,
-html.dark .bg-slate-50,
-html.dark .bg-slate-50\/60,
-html.dark .bg-slate-50\/70 {
-  background-color: #0f172a !important;
-}
-
-html.dark .bg-gray-100,
-html.dark .bg-slate-100 {
-  background-color: #0f172a !important;
-}
-
-html.dark .text-gray-900,
-html.dark .text-slate-900 {
-  color: rgb(248 250 252) !important;
-}
-
-html.dark .text-gray-800,
-html.dark .text-slate-800,
-html.dark .text-gray-700,
-html.dark .text-slate-700 {
-  color: rgb(226 232 240) !important;
-}
-
-html.dark .text-gray-600,
-html.dark .text-slate-600,
-html.dark .text-gray-500,
-html.dark .text-slate-500 {
-  color: rgb(148 163 184) !important;
-}
-
-html.dark .text-gray-400,
-html.dark .text-slate-400 {
-  color: rgb(100 116 139) !important;
-}
-
-html.dark .border-gray-100,
-html.dark .border-gray-200,
-html.dark .border-slate-100,
-html.dark .border-slate-200 {
-  border-color: rgb(71 85 105 / 0.9) !important;
-}
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
-}
-
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
-
-[data-shell-bottom-nav] {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-/* ── Pagination ───────────────────────────────────────────── */
-
-.pagination-btn {
-  @apply inline-flex items-center justify-center h-8 min-w-8 px-2 rounded-lg
-         text-sm font-medium text-slate-600 bg-white border border-slate-200
-         transition-all select-none cursor-pointer;
-}
-
-html.dark .pagination-btn {
-  @apply text-slate-200 bg-slate-800 border-slate-700;
-}
-
-html.dark .pagination-btn:hover {
-  @apply border-blue-400 text-blue-400 bg-slate-700;
-}
-
-.pagination-active {
-  @apply bg-[#8B0000] text-white border-[#8B0000] font-bold;
-}
-
-html.dark .pagination-active {
-  @apply bg-blue-700 text-white border-blue-700;
-}
-
-.pagination-disabled {
-  @apply text-slate-300 border-slate-100 bg-slate-50 cursor-not-allowed;
-}
-
-html.dark .pagination-disabled {
-  @apply text-slate-600 border-slate-700 bg-slate-800;
-}
-
-/* ── Responsive table utility ─────────────────────────────── */
-.mmp-table-wrap {
-  @apply w-full overflow-x-auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.mmp-table {
-  @apply min-w-full;
-}
-
-@media (max-width: 640px) {
-  .mmp-table {
-    min-width: 760px;
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   ULTRA AGGRESSIVE DARK MODE CARD FIX - MUST BE LAST TO OVERRIDE EVERYTHING
-   ══════════════════════════════════════════════════════════════════════════════ */
-
-/* Force main content area background */
-html.dark main.bg-gray-50 {
-  background-color: #020617 !important;
-}
-
-/* Force ALL cards, divs, sections with white/gray backgrounds to dark */
-html.dark div[class*="bg-white"],
-html.dark section[class*="bg-white"],
-html.dark div[class*="bg-gray"],
-html.dark section[class*="bg-gray"],
-html.dark div[class*="bg-slate"],
-html.dark section[class*="bg-slate"],
-html.dark div.bg-white,
-html.dark section.bg-white,
-html.dark div.bg-gray-50,
-html.dark div.bg-gray-100,
-html.dark div.bg-slate-50,
-html.dark div.bg-slate-100,
-html.dark div.bg-slate-200 {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-}
-
-/* Target rounded cards specifically */
-html.dark div[class*="rounded"][class*="bg-white"],
-html.dark div[class*="rounded"][class*="bg-gray"],
-html.dark div[class*="rounded"][class*="bg-slate"],
-html.dark div.rounded-lg.bg-white,
-html.dark div.rounded-xl.bg-white,
-html.dark div.rounded-2xl.bg-white,
-html.dark div.rounded-3xl.bg-white {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-  border-color: #334155 !important;
-}
-
-/* Target shadow cards */
-html.dark div[class*="shadow"][class*="bg-white"],
-html.dark div[class*="shadow"][class*="bg-gray"],
-html.dark div[class*="shadow"][class*="bg-slate"] {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-}
-
-/* Exclude only hero section */
+/* ── Public site hero (keep as-is) ───────────────────────────── */
+html.dark .guest-logo-bar,
+html.dark .guest-desktop-nav { border-radius: 0 !important; }
+html.dark .guest-desktop-nav-links > a,
+html.dark .guest-desktop-nav-links > div > button { border-bottom-width: 0 !important; border-bottom-color: transparent !important; }
+.hero-section, .hero-section *, .hero-section > div,
+.hero-section .absolute, .hero-section section, section.hero-section { border-radius: 0 !important; }
 html.dark .hero-section,
 html.dark .hero-section *,
-html.dark .hero-section div,
-html.dark .hero-section section {
-  background-color: transparent !important;
-}
+html.dark .hero-section img { background-color: transparent !important; opacity: 1 !important; filter: none !important; }
 
-/* ══════════════════════════════════════════════════════════════════════════════
-   NUCLEAR OPTION - FORCE EVERY SINGLE ELEMENT TO DARK IN DARK MODE
-   ══════════════════════════════════════════════════════════════════════════════ */
-
-/* Target EVERY div, section, article, aside with ANY white/gray background class */
-html.dark div.bg-white,
-html.dark section.bg-white,
-html.dark article.bg-white,
-html.dark aside.bg-white,
-html.dark main.bg-white,
-html.dark div.bg-gray-50,
-html.dark div.bg-gray-100,
-html.dark div.bg-slate-50,
-html.dark div.bg-slate-100,
-html.dark div.bg-slate-200,
-html.dark section.bg-gray-50,
-html.dark section.bg-slate-50 {
-  background-color: #0f172a !important;
+/* ── Teacher dashboard header dark fix ───────────────────────── */
+html.dark .teacher-dashboard-header,
+html.dark .teacher-dashboard-header .bg-gradient-to-br {
+  background: #132044 !important;
   color: #e2e8f0 !important;
+  border-color: #1e3a5f !important;
 }
 
-/* Force body background */
-html.dark body {
-  background-color: #020617 !important;
+/* ── Shadow utility overrides ─────────────────────────────────── */
+.shadow-2xl { box-shadow: 0 4px 16px rgba(11,46,107,0.12) !important; }
+.shadow-lg   { box-shadow: 0 2px 8px rgba(11,46,107,0.10) !important; }
+.shadow-md   { box-shadow: 0 2px 6px rgba(11,46,107,0.08) !important; }
+.shadow-sm   { box-shadow: 0 1px 3px rgba(11,46,107,0.06) !important; }
+
+/* ── Page header section title ────────────────────────────────── */
+.page-title { font-size: 1.25rem; font-weight: 700; color: #0B2E6B; letter-spacing: -0.01em; }
+html.dark .page-title { color: #e2e8f0; }
+.page-subtitle { font-size: 0.8125rem; color: #6B7280; margin-top: 2px; }
+
+/* ── Section header ───────────────────────────────────────────── */
+.section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #6B7280; }
+
+/* ── Dropdown menus ───────────────────────────────────────────── */
+[x-show] .dropdown-menu,
+.dropdown-panel {
+  border-radius: 4px !important;
+  border: 1px solid #DCE3EB !important;
+  box-shadow: 0 4px 16px rgba(11,46,107,0.10) !important;
 }
 
-/* Force main content area */
-html.dark main {
-  background-color: #020617 !important;
+/* ── Focus rings ──────────────────────────────────────────────── */
+*:focus-visible { outline: 2px solid #1D4ED8; outline-offset: 2px; }
+
+/* ── Install PWA prompt ───────────────────────────────────────── */
+.fixed.inset-x-4.bottom-\[calc\(env\(safe-area-inset-bottom\)\+5\.75rem\)\] > div {
+  border-radius: 4px !important;
 }
 
-/* ULTRA SPECIFIC - Target exact card patterns from dashboard */
-html.dark .rounded-xl.border.border-slate-200\/80.bg-white,
-html.dark .rounded-xl.bg-white,
-html.dark div[class*="rounded"][class*="border"][class*="bg-white"],
-html.dark div[class*="rounded-xl"][class*="bg-white"] {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-  border-color: #334155 !important;
-}
-
-/* Keep the public desktop header flat in dark mode. */
-html.dark .guest-logo-bar,
-html.dark .guest-desktop-nav {
-  border-radius: 0 !important;
-}
-
-/* Remove the desktop navigation underline/baseline in dark mode. */
-html.dark .guest-desktop-nav-links > a,
-html.dark .guest-desktop-nav-links > div > button {
-  border-bottom-width: 0 !important;
-  border-bottom-color: transparent !important;
-}
-
-/* Target nested white backgrounds */
-html.dark .bg-white .bg-white,
-html.dark .bg-white > div,
-html.dark .bg-white > section {
-  background-color: #0f172a !important;
-}
-
-/* Target slate backgrounds used in cards */
-html.dark .bg-slate-100,
-html.dark .bg-slate-50 {
-  background-color: #1e293b !important;
-}
-
-/* Ensure text remains visible */
-html.dark .text-slate-900 {
-  color: #e2e8f0 !important;
-}
-
-html.dark .text-slate-800,
-html.dark .text-slate-700 {
-  color: #cbd5e1 !important;
-}
-
-html.dark .text-slate-600 {
-  color: #94a3b8 !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   SMART TEXT COLOR FIX - ONLY CHANGE BLACK TEXT TO WHITE IN DARK MODE
-   ══════════════════════════════════════════════════════════════════════════════ */
-
-/* Only force dark text colors (black/gray-900/gray-800) to light in dark mode */
-/* This preserves already-light text colors and only fixes invisible black text */
-html.dark .text-gray-900,
-html.dark .text-gray-800,
-html.dark .text-slate-900,
-html.dark .text-slate-800,
-html.dark .text-black {
-  color: #e2e8f0 !important;
-}
-
-/* Fix dark gray text that's hard to read on dark backgrounds */
-html.dark .text-gray-700,
-html.dark .text-slate-700 {
-  color: #cbd5e1 !important;
-}
-
-/* Input and form elements - only if they have dark text */
-html.dark input.text-gray-900,
-html.dark textarea.text-gray-900,
-html.dark select.text-gray-900,
-html.dark input:not([class*="text-"]),
-html.dark textarea:not([class*="text-"]),
-html.dark select:not([class*="text-"]) {
-  color: #e2e8f0 !important;
-  background-color: #1e293b !important;
-  border-color: #475569 !important;
-}
-
-/* Placeholder text */
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #64748b !important;
-}
-
-/* Links - only if they're dark colored */
-html.dark a.text-gray-900,
-html.dark a.text-gray-800,
-html.dark a.text-slate-900,
-html.dark a.text-slate-800,
-html.dark a:not([class*="text-"]):not([class*="bg-"]) {
-  color: #60a5fa !important;
-}
+/* ── Animate pulse: keep for status indicators ────────────────── */
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }

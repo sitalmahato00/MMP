@@ -20,4 +20,4 @@
     id="{{ $name }}"
     rows="{{ $rows }}"
     placeholder="{{ $placeholder }}"
-    {{ $attributes->merge(['class' => 'w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000]/25 focus:border-[#8B0000] transition-all duration-150 resize-none' . ($errors->has($name) ? ' border-red-400 bg-red-50' : '')]) }}>{{ old($name, $resolvedValue) }}</textarea>
+    {{ $attributes->merge(['class' => 'w-full border border-slate-300 bg-white rounded-[8px] px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e4fee]/15 focus:border-[#0e4fee] transition duration-150 resize-none' . ($errors->has($name) ? ' border-red-400 bg-red-50' : '')]) }}>{{ old($name, $resolvedValue) }}</textarea>

@@ -2,8 +2,20 @@
 @section('title', 'Add Facility')
 
 @section('content')
-<x-page-header title="Submit Facility/Resource" subtitle="Create web pages for labs, workshops, and campus resources."
-               back="{{ route('admin.facilities.index') }}"/>
+<x-form-layout title="Submit Facility/Resource" subtitle="Create web pages for labs, workshops, and campus resources." back="{{ route('admin.facilities.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.facilities.index') }}" class="hover:text-slate-900">Facilities</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Submit Facility</span>
+        </nav>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
 
 <form method="POST" action="{{ route('admin.facilities.store') }}" enctype="multipart/form-data" class="max-w-4xl space-y-6">
     @csrf

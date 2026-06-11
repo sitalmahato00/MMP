@@ -87,35 +87,35 @@
                 <input type="search" name="search" value="{{ request('search') }}" placeholder="Search staff code, name, email..." class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
             </div>
 
-            <select name="department" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="department" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Departments</option>
                 @foreach($departments as $department)
                     <option value="{{ $department }}" @selected(request('department') === $department)>{{ $department }}</option>
                 @endforeach
             </select>
 
-            <select name="designation" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="designation" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Designations</option>
                 @foreach($designations as $designation)
                     <option value="{{ $designation }}" @selected(request('designation') === $designation)>{{ $designation }}</option>
                 @endforeach
             </select>
 
-            <select name="employment_status" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="employment_status" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Status</option>
                 @foreach(['active' => 'Active', 'leave' => 'Leave', 'resigned' => 'Resigned'] as $value => $label)
                     <option value="{{ $value }}" @selected(request('employment_status') === $value)>{{ $label }}</option>
                 @endforeach
             </select>
 
-            <select name="joined_year" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="joined_year" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All BS Years</option>
                 @foreach($joinedYears as $year)
                     <option value="{{ $year }}" @selected(request('joined_year') === $year)>{{ $year }}</option>
                 @endforeach
             </select>
 
-            <select name="featured" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="featured" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Featured</option>
                 <option value="1" @selected(request('featured') === '1')>Featured only</option>
                 <option value="0" @selected(request('featured') === '0')>Not featured</option>

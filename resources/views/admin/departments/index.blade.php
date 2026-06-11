@@ -3,23 +3,15 @@
 
 @section('content')
 <div class="space-y-6">
-    <section class="rounded-[1.6rem] border border-slate-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-black tracking-tight text-slate-950">Departments</h1>
-                <p class="mt-2 text-sm text-slate-600">Manage faculties, assign HODs, and keep academic programs organized.</p>
-            </div>
+    <x-page-header title="Departments" subtitle="Manage faculties, assign HODs, and keep academic programs organized.">
+        <x-slot name="actions">
+            <x-btn href="{{ route('admin.departments.create') }}">Add Department</x-btn>
+        </x-slot>
+    </x-page-header>
 
-            <a href="{{ route('admin.departments.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#6e0000]">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
-                </svg>
-                Add Department
-            </a>
-        </div>
-
-        <form method="GET" action="{{ route('admin.departments.index') }}" class="mt-5">
-            <div class="relative max-w-xl">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <form method="GET" action="{{ route('admin.departments.index') }}" class="mt-1">
+            <div class="relative w-full">
                 <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 106.05 6.05a7.5 7.5 0 0010.6 10.6z"/>
                 </svg>

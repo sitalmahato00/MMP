@@ -27,17 +27,21 @@
 
 {{-- Search / Filter Bar --}}
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
-    <form method="GET" class="flex flex-wrap gap-3 items-center">
-        <x-input name="search" value="{{ request('search') }}" placeholder="Search name or email…" class="flex-1 min-w-[200px]"/>
-        <x-select name="status">
-            <option value="">All Status</option>
-            <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
-            <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
-        </x-select>
-        <x-btn type="submit" variant="secondary">Filter</x-btn>
-        @if(request()->anyFilled(['search','status']))
-            <x-btn href="{{ route('admin.hods.index') }}" variant="ghost" size="sm">Clear</x-btn>
-        @endif
+    <form method="GET">
+        <div class="grid gap-3 lg:grid-cols-4 items-end">
+            <x-input name="search" value="{{ request('search') }}" placeholder="Search name or email…" class="w-full lg:col-span-2"/>
+            <x-select name="status" class="w-full">
+                <option value="">All Status</option>
+                <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
+                <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
+            </x-select>
+            <div class="flex flex-wrap gap-2 lg:col-span-1">
+                <x-btn type="submit" variant="secondary" class="w-full">Filter</x-btn>
+                @if(request()->anyFilled(['search','status']))
+                    <x-btn href="{{ route('admin.hods.index') }}" variant="ghost" size="sm" class="w-full">Clear</x-btn>
+                @endif
+            </div>
+        </div>
     </form>
 </div>
 

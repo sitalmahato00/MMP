@@ -228,12 +228,8 @@
             </article>
 
             <div class="flex flex-wrap items-center gap-3">
-                <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-[#8B0000] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#7a0000]">
-                    Save Mark
-                </button>
-                <a href="{{ route('admin.exams.show', ['exam' => $exam, 'tab' => 'marks']) }}" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
-                    Back to marks
-                </a>
+                <x-btn type="submit" variant="success">Save Mark</x-btn>
+                <x-btn href="{{ route('admin.exams.show', ['exam' => $exam, 'tab' => 'marks']) }}" variant="secondary">Back to marks</x-btn>
             </div>
         </form>
 

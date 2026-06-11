@@ -2,11 +2,23 @@
 @section('title', 'Add Alumni')
 
 @section('content')
-<x-page-header title="Add Alumni" subtitle="Manually create an alumni record with career and academic details."
-               back="{{ route('admin.alumni.index') }}"/>
+<x-form-layout title="Add Alumni" subtitle="Manually create an alumni record with career and academic details." back="{{ route('admin.alumni.index') }}">
+    <x-slot name="breadcrumb">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-900">Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('admin.alumni.index') }}" class="hover:text-slate-900">Alumni</a>
+            <span>/</span>
+            <span class="font-semibold text-slate-900">Add Alumni</span>
+        </nav>
+    </x-slot>
 
-<form method="POST" action="{{ route('admin.alumni.store') }}" enctype="multipart/form-data"
-      class="max-w-4xl space-y-6">
+    <x-slot name="sidebar">
+        <x-form-sidebar />
+    </x-slot>
+
+    <form method="POST" action="{{ route('admin.alumni.store') }}" enctype="multipart/form-data"
+          class="space-y-6">
     @csrf
 
     {{-- 1. PERSONAL INFORMATION --}}
@@ -130,9 +142,12 @@
     </x-form-section>
 
     {{-- SUBMIT --}}
-    <div class="flex items-center gap-3">
-        <x-btn type="submit">Create Alumni Record</x-btn>
-        <a href="{{ route('admin.alumni.index') }}" class="text-sm text-slate-500 hover:text-slate-700">Cancel</a>
-    </div>
-</form>
+    <x-slot name="footer">
+        <div class="flex flex-wrap items-center gap-3">
+            <x-btn type="submit">Create Alumni Record</x-btn>
+            <a href="{{ route('admin.alumni.index') }}" class="text-sm text-slate-500 hover:text-slate-700">Cancel</a>
+        </div>
+    </x-slot>
+    </form>
+</x-form-layout>
 @endsection
