@@ -62,7 +62,7 @@
     <!-- Structured data (JSON-LD) — CollegeOrUniversity + Organization -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": ["CollegeOrUniversity", "EducationalOrganization"],
       "@id": "{{ rtrim($siteUrl, '/') }}/#organization",
       "name": "Manmohan Memorial Polytechnic",
