@@ -239,7 +239,12 @@
     {{-- ══════════════════════════════════════════════════════════
          PAGE BODY — sidebar + content, starts below navbar
     ══════════════════════════════════════════════════════════ --}}
-    <div class="flex" style="padding-top: 64px; min-height: calc(100vh - 64px);">
+    <div class="flex"
+         :style="!isMobile
+             ? (sidebarCollapsed
+                 ? 'padding-top: 64px; min-height: calc(100vh - 64px); padding-left: 4.75rem;'
+                 : 'padding-top: 64px; min-height: calc(100vh - 64px); padding-left: 17rem;')
+             : 'padding-top: 64px; min-height: calc(100vh - 64px);'">
 
         {{-- SIDEBAR --}}
         <x-sidebar />
