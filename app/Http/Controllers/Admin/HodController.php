@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 
@@ -125,7 +126,6 @@ class HodController extends Controller
             'avatar'        => 'nullable|image|max:2048',
             'department_id' => 'nullable|exists:departments,id',
             'is_active'     => 'boolean',
-            'password'      => 'nullable|string|min:8|confirmed',
         ]);
 
         // Validate department doesn't already have a different HOD
@@ -154,10 +154,6 @@ class HodController extends Controller
             'address'   => $data['address'] ?? null,
             'is_active' => $data['is_active'] ?? $hod->is_active,
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));
-
-        if (!empty($data['password'])) {
-            $hod->update(['password' => Hash::make($data['password'])]);
-        }
 
         // Update department assignment
         $currentDepartment = $hod->hodDepartment;
