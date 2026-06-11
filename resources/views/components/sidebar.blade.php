@@ -345,7 +345,9 @@
     x-cloak>
 
     {{-- Navigation --}}
-    <nav class="flex-1 overflow-y-auto overflow-x-visible px-2 py-2" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;">
+    <nav class="flex-1 px-2 py-2"
+         :class="sidebarCollapsed ? 'overflow-y-hidden overflow-x-visible' : 'overflow-y-auto overflow-x-visible'"
+         style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;">
         @if($isAdmin)
             @foreach($adminGroups as $group)
                 @if(!empty($group['standalone']))
@@ -473,41 +475,47 @@
 
         {{-- Public Site link --}}
         <a href="{{ route('home') }}" target="_blank"
-           class="group flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-white/10"
+           class="group relative flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-white/10"
+           :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
            style="color: rgba(255,255,255,0.65);">
             <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
             </svg>
             <span x-show="!sidebarCollapsed" x-cloak class="truncate">Public Site</span>
             <span x-show="sidebarCollapsed" x-cloak
-                  class="pointer-events-none absolute left-full ml-3 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block"
-                  style="top: 50%; transform: translateY(-50%);">Public Site</span>
+                  class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block">
+                Public Site
+            </span>
         </a>
 
         {{-- Logout --}}
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit"
-                    class="group flex w-full items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-white/10"
+                    class="group relative flex w-full items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-white/10"
+                    :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
                     style="color: rgba(255,180,180,0.85);">
                 <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
                 <span x-show="!sidebarCollapsed" x-cloak class="truncate">Sign Out</span>
                 <span x-show="sidebarCollapsed" x-cloak
-                      class="pointer-events-none absolute left-full ml-3 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block"
-                      style="top: 50%; transform: translateY(-50%);">Sign Out</span>
+                      class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block">
+                    Sign Out
+                </span>
             </button>
         </form>
 
         {{-- Collapse toggle (desktop only) --}}
-        <div class="hidden lg:flex items-center justify-between px-4 py-2.5" style="border-top: 1px solid rgba(255,255,255,0.08);">
+        <div class="hidden lg:flex items-center px-4 py-2.5"
+             :class="sidebarCollapsed ? 'justify-center' : 'justify-between'"
+             style="border-top: 1px solid rgba(255,255,255,0.08);">
             <span x-show="!sidebarCollapsed" x-cloak class="text-[10px] font-medium uppercase tracking-widest" style="color: rgba(255,255,255,0.35);">Navigation</span>
             <button type="button"
-                @click="sidebarCollapsed = !sidebarCollapsed"
-                class="rounded p-1.5 transition-colors hover:bg-white/10"
-                style="color: rgba(255,255,255,0.5);"
-                :title="sidebarCollapsed ? 'Expand' : 'Collapse'">
+                    @click="toggleSidebarCollapse()"
+                    class="rounded p-1.5 transition-colors hover:bg-white/10"
+                    style="color: rgba(255,255,255,0.5);"
+                    :title="sidebarCollapsed ? 'Expand' : 'Collapse'">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path x-show="!sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"/>
                     <path x-show="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>

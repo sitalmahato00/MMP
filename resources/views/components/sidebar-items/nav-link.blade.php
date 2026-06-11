@@ -52,7 +52,7 @@
     <div title="{{ $label }} — Coming Soon"
          class="group relative flex items-center gap-2.5 rounded px-3 py-2 text-sm font-normal cursor-not-allowed opacity-40"
          style="color: rgba(255,255,255,0.5);"
-         :class="sidebarCollapsed ? 'lg:justify-center lg:gap-0' : 'lg:justify-start'">
+         :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : 'lg:justify-start'">
         <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded" style="background-color: rgba(255,255,255,0.07);">
             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">{!! $svgPath !!}</svg>
         </span>
@@ -67,7 +67,7 @@
        title="{{ $label }}"
        class="group relative flex items-center gap-2.5 rounded px-3 py-2 text-sm font-normal transition-colors duration-150 focus:outline-none"
        style="{{ $isActive ? 'background-color: #1D4ED8; color: #ffffff;' : 'color: rgba(255,255,255,0.78);' }}"
-       :class="sidebarCollapsed ? 'lg:justify-center lg:gap-0' : 'lg:justify-start'"
+       :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : 'lg:justify-start'"
        @if(!$isActive) onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.backgroundColor=''; this.style.color='rgba(255,255,255,0.78)';" @endif>
 
         {{-- Active left border indicator --}}

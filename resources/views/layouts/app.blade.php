@@ -187,10 +187,21 @@
         ],
     };
 @endphp
-<body class="h-full overflow-x-hidden antialiased" style="background-color: #F4F7FB;" x-data="mmpAppShell()" x-init="init()">
+<body class="h-full overflow-x-hidden antialiased" style="background-color: #F4F7FB;" x-data="mmpAppShell()" x-init="init()"
+      :class="sidebarOpen ? 'overflow-hidden' : ''">
 
-    {{-- Mobile sidebar overlay --}}
-    <div x-show="sidebarOpen" class="fixed inset-0 z-[60] bg-black/50 lg:hidden" x-cloak @click="sidebarOpen = false"></div>
+    {{-- Mobile sidebar overlay — semi-transparent, correct color --}}
+    <div x-show="sidebarOpen"
+         x-transition:enter="transition-opacity duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[49] lg:hidden"
+         style="background-color: rgba(11,46,107,0.45);"
+         x-cloak
+         @click="sidebarOpen = false"></div>
 
     {{-- PWA install prompt --}}
     <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed bottom-24 inset-x-4 z-50 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
@@ -314,6 +325,9 @@
                 installHelpVisible: false,
                 installHelpMessage: '',
                 installHelpTimer: null,
+                get isMobile() {
+                    return window.innerWidth < 1024;
+                },
                 init() {
                     if (window.mmpTheme) {
                         this.effectiveTheme = window.mmpTheme.applyTheme(localStorage.getItem('mmp.theme') || 'system');
@@ -328,6 +342,21 @@
                             this.canInstall = state.canInstall;
                             this.isStandalone = state.isInstalled;
                         });
+                    }
+
+                    // On mobile, always keep sidebar expanded (not collapsed)
+                    const ensureExpanded = () => {
+                        if (window.innerWidth < 1024) {
+                            this.sidebarCollapsed = false;
+                        }
+                    };
+                    ensureExpanded();
+                    window.addEventListener('resize', ensureExpanded);
+                },
+                toggleSidebarCollapse() {
+                    // Collapse only allowed on desktop
+                    if (window.innerWidth >= 1024) {
+                        this.sidebarCollapsed = !this.sidebarCollapsed;
                     }
                 },
                 toggleTheme() {
