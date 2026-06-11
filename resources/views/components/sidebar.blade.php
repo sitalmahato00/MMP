@@ -339,7 +339,7 @@
 
 <aside
     class="fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-[#0B2E6B] text-white shadow-xl transition-[transform,width] duration-300 ease-out lg:fixed lg:top-16 lg:h-[calc(100vh-64px)] lg:flex-shrink-0 lg:translate-x-0"
-    style="padding-top: 64px;"
+    style="padding-top: 64px; background-color: #0B2E6B;"
     :style="sidebarCollapsed ? 'width: {{ $sidebarCollapsedWidth }}' : 'width: {{ $sidebarExpandedWidth }}'"
     :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
     x-cloak>
