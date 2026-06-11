@@ -472,6 +472,31 @@ html.dark .page-title { color: #e2e8f0; }
   border-radius: 4px !important;
 }
 
+/* ── KPI / Stat Cards — always show gradient, ignore dark mode ── */
+/*
+   Cards use inline style="background: linear-gradient(...)"
+   The browser's dark-mode color-scheme filter can desaturate these.
+   We pin color-scheme: light on .kpi-card so gradients always render
+   at full vibrancy regardless of the user's theme preference.
+*/
+.kpi-card {
+  color-scheme: light !important;
+}
+/* Prevent dark-mode bg overrides from leaking into gradient cards */
+html.dark .kpi-card {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+html.dark .kpi-card p,
+html.dark .kpi-card span:not([class*="bg-"]) {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+/* Icon glassmorphism container inside cards */
+html.dark .kpi-card .kpi-icon {
+  background-color: rgba(255,255,255,0.2) !important;
+}
+
 /* ── Animate pulse: keep for status indicators ────────────────── */
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }

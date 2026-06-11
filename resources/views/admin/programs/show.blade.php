@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', $program->name . ' — Program')
 
 @section('content')
@@ -171,7 +171,7 @@
                 @endphp
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     @foreach($showKpis as $qk)
-                    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                          style="background: linear-gradient({{ $qk['grad'] }});">
                         <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
                         <div class="relative text-center">

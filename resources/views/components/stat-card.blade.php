@@ -31,7 +31,7 @@
     }
 @endphp
 
-<div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+<div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
      style="background: linear-gradient(135deg, {{ $g['from'] }}, {{ $g['to'] }});">
     {{-- Glassmorphism background circle --}}
     <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
@@ -40,7 +40,7 @@
     <div class="relative flex items-center justify-between gap-3">
         {{-- Icon --}}
         @if($icon)
-        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+        <div class="kpi-icon flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
             <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 @foreach($m[1] ?? [] as $d)
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $d }}"/>

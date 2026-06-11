@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', 'Academic Sessions')
 
 @section('content')
@@ -248,7 +248,7 @@
             </div>
 
             <div class="mt-5 grid gap-3 md:grid-cols-3">
-                <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                      style="background: linear-gradient(135deg,#F97316,#FB923C);">
                     <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
                     <div class="relative flex items-center gap-3">
@@ -263,7 +263,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                      style="background: linear-gradient(135deg,#10B981,#22C55E);">
                     <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
                     <div class="relative flex items-center gap-3">
@@ -278,7 +278,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                      style="background: linear-gradient(135deg,#4F46E5,#6366F1);">
                     <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
                     <div class="relative flex items-center gap-3">

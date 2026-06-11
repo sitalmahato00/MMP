@@ -31,7 +31,7 @@ $parentKpis = [
 @endphp
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
     @foreach($parentKpis as $kpi)
-    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+    <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
          style="background: linear-gradient({{ $kpi['grad'] }});">
         <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
         <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>

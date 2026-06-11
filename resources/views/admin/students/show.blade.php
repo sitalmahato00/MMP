@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', $student->user->name)
 
 @section('content')
@@ -226,25 +226,25 @@
 
     {{-- KPIs --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+        <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
              style="background: linear-gradient(135deg,#2563EB,#3B82F6);">
             <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
             <p class="relative text-2xl font-black text-white">{{ $attendanceTotal }}</p>
             <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Total Classes</p>
         </div>
-        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+        <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
              style="background: linear-gradient(135deg,#10B981,#22C55E);">
             <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
             <p class="relative text-2xl font-black text-white">{{ $attendancePresent }}</p>
             <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Present</p>
         </div>
-        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+        <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
              style="background: linear-gradient(135deg,#DC2626,#EF4444);">
             <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
             <p class="relative text-2xl font-black text-white">{{ $absentCount }}</p>
             <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Absent</p>
         </div>
-        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+        <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
              @php $attPct = $attendancePct; @endphp
              style="background: linear-gradient(135deg,{{ $attPct === null ? '#475569,#64748B' : ($attPct >= 75 ? '#10B981,#22C55E' : ($attPct >= 50 ? '#F59E0B,#FBBF24' : '#DC2626,#EF4444')) }});">
             <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
