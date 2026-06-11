@@ -40,6 +40,8 @@ class DashboardController extends Controller
         });
 
         $activeSession = AcademicSession::current();
+
+        // Always resolve selected session — for KPI/marks we always scope to active session
         $selectedSession = $period === 'session'
             ? $this->resolveSession($request->integer('session_id'), $sessionOptions, $activeSession)
             : $activeSession;
@@ -47,47 +49,46 @@ class DashboardController extends Controller
         $window = $this->resolveWindow($period, $selectedSession);
         $comparison = $this->resolveComparisonWindow($period, $window['start'], $window['end'], $selectedSession);
 
-        $cacheKey = sprintf('admin_dashboard_v2:%s:%s', $period, $period === 'session' ? ($selectedSession?->id ?? 'none') : 'default');
+        $cacheKey = sprintf('admin_dashboard_v3:%s:%s', $period, $selectedSession?->id ?? 'none');
 
         $payload = Cache::remember($cacheKey, 300, function () use ($period, $window, $comparison, $selectedSession, $activeSession) {
-            $currentScopeSession = $period === 'session' ? $selectedSession : null;
-            $currentAttendanceSummary = $this->attendanceSummaryForWindow($window['start'], $window['end'], $currentScopeSession);
+            // Attendance always scoped to active session when available
+            $sessionScope = $selectedSession ?? $activeSession;
+
+            $currentAttendanceSummary  = $this->attendanceSummaryForSession($sessionScope, $window['start'], $window['end']);
             $previousAttendanceSummary = $this->attendanceSummaryForWindow($comparison['start'], $comparison['end'], $comparison['session']);
 
-            $passSummary = $this->marksSummaryForWindow($window['start'], $window['end'], $currentScopeSession);
+            // Pass rate & grade distribution always use the active/selected session (all exam categories)
+            $passSummary         = $this->marksSummaryForSession($sessionScope);
             $previousPassSummary = $this->marksSummaryForWindow($comparison['start'], $comparison['end'], $comparison['session']);
 
-            $currentAdmissions = $this->countAdmissions($window['start'], $window['end'], $period === 'session' ? $selectedSession : null);
+            $currentAdmissions  = $this->countAdmissions($window['start'], $window['end'], $period === 'session' ? $selectedSession : null);
             $previousAdmissions = $this->countAdmissions($comparison['start'], $comparison['end'], $comparison['session']);
 
-            $currentStudents = Student::active()->count();
+            $currentStudents  = Student::active()->count();
             $inactiveStudents = Student::where('status', 'inactive')->count();
-            $totalTeachers = Teacher::active()->count();
+            $totalTeachers    = Teacher::active()->count();
             $inactiveTeachers = Teacher::where('is_active', false)->count();
-            $totalParents = ParentModel::count();
-            $totalAlumni = Alumni::count();
-            $departmentCount = Department::active()->count();
-            $hodCount = User::role('hod')->count();
-            $todayAttendance = Attendance::whereDate('created_at', now()->toDateString())->count();
-            $upcomingEvents = Notice::published()
+            $totalParents     = ParentModel::count();
+            $totalAlumni      = Alumni::count();
+            $departmentCount  = Department::active()->count();
+            $hodCount         = User::role('hod')->count();
+            $todayAttendance  = Attendance::whereDate('created_at', now()->toDateString())->count();
+            $upcomingEvents   = Notice::published()
                 ->where('type', 'event')
                 ->orderByDesc('published_at')
                 ->take(4)
                 ->get();
 
-            $attendanceSummary = $currentAttendanceSummary;
-            $departmentPerformance = $this->buildDepartmentPerformance($window['start'], $window['end'], $currentScopeSession);
-            $enrollmentTrend = $this->buildEnrollmentTrend($window['start'], $window['end'], $period, $selectedSession);
+            $attendanceSummary    = $currentAttendanceSummary;
+            $departmentPerformance = $this->buildDepartmentPerformance($window['start'], $window['end'], $sessionScope);
+            $enrollmentTrend      = $this->buildEnrollmentTrend($window['start'], $window['end'], $period, $selectedSession);
 
             $currentAdmissionsTrend = $this->formatTrend($currentAdmissions, $previousAdmissions);
-            $attendanceTrend = $this->formatTrend($attendanceSummary['rate'], $previousAttendanceSummary['rate']);
-            $passTrend = $this->formatTrend($passSummary['rate'], $previousPassSummary['rate']);
+            $attendanceTrend        = $this->formatTrend($attendanceSummary['rate'], $previousAttendanceSummary['rate']);
+            $passTrend              = $this->formatTrend($passSummary['rate'], $previousPassSummary['rate']);
 
-            // Semester status panel
             $runningSemesters = $this->buildSemesterStatus($activeSession);
-
-            // Department performance index (avg composite score)
-            $deptIndex = $departmentPerformance['rows']->where('has_data', true)->avg('score');
 
             $recentNotices = Notice::published()
                 ->whereIn('type', ['general', 'department', 'teachers', 'exam'])
@@ -96,11 +97,11 @@ class DashboardController extends Controller
                 ->take(4)
                 ->get();
 
-            // Attendance chart data with real Nepali dates
-            $attendanceChartData = $this->buildAttendanceChartData();
+            // Attendance chart: scoped to active session
+            $attendanceChartData = $this->buildAttendanceChartData($sessionScope);
 
-            // Grade distribution from active students' marks
-            $gradeDistribution = $this->buildGradeDistribution($window['start'], $window['end'], $currentScopeSession);
+            // Grade distribution: ALL exam categories in active session
+            $gradeDistribution = $this->buildGradeDistributionForSession($sessionScope);
 
             $alerts = $this->buildAlerts(
                 $departmentPerformance['rows'],
@@ -118,82 +119,84 @@ class DashboardController extends Controller
                 $totalAlumni,
             );
 
+            $sessionLabel = $sessionScope?->name ?? 'Current Session';
+
             $kpiCards = [
                 [
-                    'key' => 'students',
-                    'title' => 'Total Students',
-                    'value' => number_format($currentStudents),
-                    'suffix' => null,
-                    'trend' => $currentAdmissionsTrend['text'],
+                    'key'            => 'students',
+                    'title'          => 'Total Active Users',
+                    'value'          => number_format($currentStudents + $totalTeachers + $totalParents),
+                    'suffix'         => null,
+                    'trend'          => $currentAdmissionsTrend['text'],
                     'trendDirection' => $currentAdmissionsTrend['direction'],
-                    'note' => number_format($currentAdmissions) . ' new in ' . $window['label'],
-                    'icon' => 'students',
-                    'tone' => 'blue',
-                    'href' => route('admin.students.index'),
+                    'note'           => 'Students + Teachers + Parents',
+                    'icon'           => 'students',
+                    'tone'           => 'blue',
+                    'href'           => route('admin.students.index'),
                 ],
                 [
-                    'key' => 'teachers',
-                    'title' => 'Total Teachers',
-                    'value' => number_format($totalTeachers),
-                    'suffix' => null,
-                    'trend' => 'Active staff',
-                    'trendDirection' => 'flat',
-                    'note' => 'Teaching faculty',
-                    'icon' => 'teachers',
-                    'tone' => 'indigo',
-                    'href' => route('admin.teachers.index'),
-                ],
-                [
-                    'key' => 'attendance',
-                    'title' => 'Attendance Rate',
-                    'value' => number_format($attendanceSummary['rate'], 1),
-                    'suffix' => '%',
-                    'trend' => $attendanceTrend['text'],
+                    'key'            => 'attendance',
+                    'title'          => 'Attendance Rate',
+                    'value'          => number_format($attendanceSummary['rate'], 1),
+                    'suffix'         => '%',
+                    'trend'          => $attendanceTrend['text'],
                     'trendDirection' => $attendanceTrend['direction'],
-                    'note' => number_format($attendanceSummary['present']) . ' / ' . number_format($attendanceSummary['total']) . ' records',
-                    'icon' => 'attendance',
-                    'tone' => 'emerald',
-                    'href' => route('admin.attendance.index'),
+                    'note'           => number_format($attendanceSummary['present']) . ' / ' . number_format($attendanceSummary['total']) . ' present',
+                    'icon'           => 'attendance',
+                    'tone'           => 'emerald',
+                    'href'           => route('admin.attendance.index'),
                 ],
                 [
-                    'key' => 'pass',
-                    'title' => 'Pass Rate',
-                    'value' => number_format($passSummary['rate'], 1),
-                    'suffix' => '%',
-                    'trend' => $passTrend['text'],
+                    'key'            => 'pass',
+                    'title'          => 'Pass Rate',
+                    'value'          => number_format($passSummary['rate'], 1),
+                    'suffix'         => '%',
+                    'trend'          => $passTrend['text'],
                     'trendDirection' => $passTrend['direction'],
-                    'note' => number_format($passSummary['passed']) . ' / ' . number_format($passSummary['total']) . ' marks',
-                    'icon' => 'results',
-                    'tone' => 'violet',
-                    'href' => route('admin.exams.index'),
+                    'note'           => number_format($passSummary['passed']) . ' / ' . number_format($passSummary['total']) . ' passed · ' . $sessionLabel,
+                    'icon'           => 'results',
+                    'tone'           => 'violet',
+                    'href'           => route('admin.exams.index'),
+                ],
+                [
+                    'key'            => 'departments',
+                    'title'          => 'Total Departments',
+                    'value'          => number_format($departmentCount),
+                    'suffix'         => null,
+                    'trend'          => 'Active',
+                    'trendDirection' => 'flat',
+                    'note'           => 'Active departments',
+                    'icon'           => 'departments',
+                    'tone'           => 'amber',
+                    'href'           => route('admin.departments.index'),
                 ],
             ];
 
             return [
-                'kpiCards' => $kpiCards,
-                'chartData' => [
-                    'enrollment' => $enrollmentTrend,
+                'kpiCards'          => $kpiCards,
+                'chartData'         => [
+                    'enrollment'          => $enrollmentTrend,
                     'departmentPerformance' => $departmentPerformance,
                 ],
-                'runningSemesters' => $runningSemesters,
-                'alerts' => $alerts,
-                'highlight' => $highlight,
-                'recentNotices' => $recentNotices,
+                'runningSemesters'  => $runningSemesters,
+                'alerts'            => $alerts,
+                'highlight'         => $highlight,
+                'recentNotices'     => $recentNotices,
                 'attendanceChartData' => $attendanceChartData,
                 'gradeDistribution' => $gradeDistribution,
-                'currentStudents' => $currentStudents,
-                'inactiveStudents' => $inactiveStudents,
-                'totalTeachers' => $totalTeachers,
-                'inactiveTeachers' => $inactiveTeachers,
-                'totalParents' => $totalParents,
-                'totalAlumni' => $totalAlumni,
-                'departmentCount' => $departmentCount,
-                'hodCount' => $hodCount,
-                'todayAttendance' => $todayAttendance,
-                'upcomingEvents' => $upcomingEvents,
+                'currentStudents'   => $currentStudents,
+                'inactiveStudents'  => $inactiveStudents,
+                'totalTeachers'     => $totalTeachers,
+                'inactiveTeachers'  => $inactiveTeachers,
+                'totalParents'      => $totalParents,
+                'totalAlumni'       => $totalAlumni,
+                'departmentCount'   => $departmentCount,
+                'hodCount'          => $hodCount,
+                'todayAttendance'   => $todayAttendance,
+                'upcomingEvents'    => $upcomingEvents,
                 'attendanceSummary' => $attendanceSummary,
-                'passSummary' => $passSummary,
-                'activeSession' => $activeSession,
+                'passSummary'       => $passSummary,
+                'activeSession'     => $activeSession,
             ];
         });
 
@@ -204,19 +207,19 @@ class DashboardController extends Controller
         }
 
         return view('admin.dashboard-modern', array_merge($payload, [
-            'greeting' => $this->greeting(),
-            'period' => $period,
-            'periodLabel' => $window['label'],
-            'rangeStart' => $window['start'],
-            'rangeEnd' => $window['end'],
+            'greeting'       => $this->greeting(),
+            'period'         => $period,
+            'periodLabel'    => $window['label'],
+            'rangeStart'     => $window['start'],
+            'rangeEnd'       => $window['end'],
             'selectedSession' => $selectedSession,
             'sessionOptions' => $sessionOptions,
-            'periodOptions' => [
-                ['value' => 'week', 'label' => 'Week', 'hint' => 'Last 7 days'],
-                ['value' => 'month', 'label' => 'Month', 'hint' => 'Last 30 days'],
+            'periodOptions'  => [
+                ['value' => 'week',    'label' => 'Week',    'hint' => 'Last 7 days'],
+                ['value' => 'month',   'label' => 'Month',   'hint' => 'Last 30 days'],
                 ['value' => 'session', 'label' => 'Session', 'hint' => 'Full academic session'],
             ],
-            'lastUpdated' => now(),
+            'lastUpdated'    => now(),
             'dashboardState' => $dashboardState,
         ]));
     }
@@ -327,6 +330,15 @@ class DashboardController extends Controller
 
     // ─── Data loaders ──────────────────────────────────────────
 
+    /**
+     * Attendance summary scoped to a session (preferred).
+     * Falls back to date window when no session is available.
+     */
+    private function attendanceSummaryForSession(?AcademicSession $session, Carbon $start, Carbon $end): array
+    {
+        return $this->attendanceSummaryForWindow($start, $end, $session);
+    }
+
     private function attendanceSummaryForWindow(Carbon $start, Carbon $end, ?AcademicSession $session): array
     {
         $row = Attendance::query()
@@ -340,13 +352,79 @@ class DashboardController extends Controller
             ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
             ->first();
 
-        $total = (int) ($row->total ?? 0);
+        $total   = (int) ($row->total   ?? 0);
         $present = (int) ($row->present ?? 0);
 
         return [
-            'total' => $total,
+            'total'   => $total,
             'present' => $present,
-            'rate' => $total > 0 ? round(($present / $total) * 100, 1) : 0.0,
+            'rate'    => $total > 0 ? round(($present / $total) * 100, 1) : 0.0,
+        ];
+    }
+
+    /**
+     * Pass rate scoped entirely to the active/selected session.
+     * Covers BOTH exam categories:
+     *  - ctevt_final    → uses CTEVT 4-component marks + exam_subject_marking_schemes (or subject defaults)
+     *  - monthly_assessment → uses assessment_obtained_marks vs assessment_pass_marks
+     */
+    private function marksSummaryForSession(?AcademicSession $session): array
+    {
+        if (!$session) {
+            return ['total' => 0, 'passed' => 0, 'rate' => 0.0];
+        }
+
+        // Fetch all published marks for the session with everything needed to evaluate pass/fail
+        $rows = DB::table('marks')
+            ->join('exams',    'exams.id',    '=', 'marks.exam_id')
+            ->join('subjects', 'subjects.id', '=', 'marks.subject_id')
+            ->leftJoin('exam_subject_marking_schemes as esms', function ($join) {
+                $join->on('esms.exam_id',    '=', 'marks.exam_id')
+                     ->on('esms.subject_id', '=', 'marks.subject_id');
+            })
+            ->where('exams.academic_session_id', $session->id)
+            ->where('marks.status', 'published')
+            ->whereNull('exams.deleted_at')
+            ->select([
+                'marks.is_absent',
+                'marks.is_withheld',
+                'exams.category as exam_category',
+                // Assessment marks
+                'marks.assessment_obtained_marks',
+                'marks.assessment_pass_marks',
+                'marks.assessment_full_marks',
+                // CTEVT obtained marks
+                'marks.internal_theory_marks',
+                'marks.external_theory_marks',
+                'marks.internal_practical_marks',
+                'marks.external_practical_marks',
+                // Subject type (theory/practical/both)
+                'subjects.type as subject_type',
+                // Pass marks: exam scheme takes priority, fallback to subject defaults
+                DB::raw('COALESCE(esms.pass_marks_internal_theory,  subjects.pass_marks_internal_theory)  as pm_int_theory'),
+                DB::raw('COALESCE(esms.pass_marks_external_theory,  subjects.pass_marks_external_theory)  as pm_ext_theory'),
+                DB::raw('COALESCE(esms.pass_marks_internal_practical, subjects.pass_marks_internal_practical) as pm_int_practical'),
+                DB::raw('COALESCE(esms.pass_marks_external_practical, subjects.pass_marks_external_practical) as pm_ext_practical'),
+                // Full marks for practical existence check
+                DB::raw('COALESCE(esms.full_marks_internal_practical, subjects.full_marks_internal_practical) as fm_int_practical'),
+                DB::raw('COALESCE(esms.full_marks_external_practical, subjects.full_marks_external_practical) as fm_ext_practical'),
+            ])
+            ->cursor();
+
+        $total  = 0;
+        $passed = 0;
+
+        foreach ($rows as $row) {
+            $total++;
+            if ($this->markRowIsPassedFull($row)) {
+                $passed++;
+            }
+        }
+
+        return [
+            'total'  => $total,
+            'passed' => $passed,
+            'rate'   => $total > 0 ? round(($passed / $total) * 100, 1) : 0.0,
         ];
     }
 
@@ -355,7 +433,7 @@ class DashboardController extends Controller
         $rows = Mark::query()
             ->published()
             ->join('subjects', 'subjects.id', '=', 'marks.subject_id')
-            ->join('exams', 'exams.id', '=', 'marks.exam_id')
+            ->join('exams',    'exams.id',    '=', 'marks.exam_id')
             ->when(
                 $session,
                 fn ($query) => $query->where('exams.academic_session_id', $session->id),
@@ -376,7 +454,7 @@ class DashboardController extends Controller
             ])
             ->cursor();
 
-        $total = 0;
+        $total  = 0;
         $passed = 0;
 
         foreach ($rows as $row) {
@@ -387,9 +465,9 @@ class DashboardController extends Controller
         }
 
         return [
-            'total' => $total,
+            'total'  => $total,
             'passed' => $passed,
-            'rate' => $total > 0 ? round(($passed / $total) * 100, 1) : 0.0,
+            'rate'   => $total > 0 ? round(($passed / $total) * 100, 1) : 0.0,
         ];
     }
 
@@ -490,29 +568,40 @@ class DashboardController extends Controller
 
     private function markStatsByDepartment(Carbon $start, Carbon $end, ?AcademicSession $session): array
     {
-        $rows = Mark::query()
-            ->published()
+        $rows = DB::table('marks')
+            ->join('exams',    'exams.id',    '=', 'marks.exam_id')
             ->join('subjects', 'subjects.id', '=', 'marks.subject_id')
             ->join('students', 'students.id', '=', 'marks.student_id')
-            ->join('exams', 'exams.id', '=', 'marks.exam_id')
+            ->leftJoin('exam_subject_marking_schemes as esms', function ($join) {
+                $join->on('esms.exam_id',    '=', 'marks.exam_id')
+                     ->on('esms.subject_id', '=', 'marks.subject_id');
+            })
             ->when(
                 $session,
                 fn ($query) => $query->where('exams.academic_session_id', $session->id),
                 fn ($query) => $query->whereBetween('marks.updated_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
             )
+            ->where('marks.status', 'published')
+            ->whereNull('exams.deleted_at')
             ->select([
                 'students.department_id as department_id',
                 'marks.is_absent',
                 'marks.is_withheld',
+                'exams.category as exam_category',
+                'marks.assessment_obtained_marks',
+                'marks.assessment_pass_marks',
+                'marks.assessment_full_marks',
                 'marks.internal_theory_marks',
                 'marks.external_theory_marks',
                 'marks.internal_practical_marks',
                 'marks.external_practical_marks',
                 'subjects.type as subject_type',
-                'subjects.pass_marks_internal_theory',
-                'subjects.pass_marks_external_theory',
-                'subjects.pass_marks_internal_practical',
-                'subjects.pass_marks_external_practical',
+                DB::raw('COALESCE(esms.pass_marks_internal_theory,  subjects.pass_marks_internal_theory)  as pm_int_theory'),
+                DB::raw('COALESCE(esms.pass_marks_external_theory,  subjects.pass_marks_external_theory)  as pm_ext_theory'),
+                DB::raw('COALESCE(esms.pass_marks_internal_practical, subjects.pass_marks_internal_practical) as pm_int_practical'),
+                DB::raw('COALESCE(esms.pass_marks_external_practical, subjects.pass_marks_external_practical) as pm_ext_practical'),
+                DB::raw('COALESCE(esms.full_marks_internal_practical, subjects.full_marks_internal_practical) as fm_int_practical'),
+                DB::raw('COALESCE(esms.full_marks_external_practical, subjects.full_marks_external_practical) as fm_ext_practical'),
             ])
             ->cursor();
 
@@ -524,7 +613,7 @@ class DashboardController extends Controller
             }
 
             $stats[$departmentId]['total']++;
-            if ($this->markRowIsPassed($row)) {
+            if ($this->markRowIsPassedFull($row)) {
                 $stats[$departmentId]['passed']++;
             }
         }
@@ -538,13 +627,13 @@ class DashboardController extends Controller
             return false;
         }
 
-        $internalTheory = (float) ($row->internal_theory_marks ?? 0);
-        $externalTheory = (float) ($row->external_theory_marks ?? 0);
+        $internalTheory   = (float) ($row->internal_theory_marks   ?? 0);
+        $externalTheory   = (float) ($row->external_theory_marks   ?? 0);
         $internalPractical = (float) ($row->internal_practical_marks ?? 0);
         $externalPractical = (float) ($row->external_practical_marks ?? 0);
 
-        $theoryPass = $internalTheory >= (float) ($row->pass_marks_internal_theory ?? 0)
-            && $externalTheory >= (float) ($row->pass_marks_external_theory ?? 0);
+        $theoryPass = $internalTheory   >= (float) ($row->pass_marks_internal_theory   ?? 0)
+                   && $externalTheory   >= (float) ($row->pass_marks_external_theory   ?? 0);
 
         if (! $theoryPass) {
             return false;
@@ -557,6 +646,57 @@ class DashboardController extends Controller
 
         return $internalPractical >= (float) ($row->pass_marks_internal_practical ?? 0)
             && $externalPractical >= (float) ($row->pass_marks_external_practical ?? 0);
+    }
+
+    /**
+     * Full pass evaluation covering BOTH exam categories.
+     * Uses exam_subject_marking_schemes (coalesced into pm_* / fm_* columns) for CTEVT marks.
+     * Uses assessment_obtained_marks vs assessment_pass_marks for monthly assessments.
+     */
+    private function markRowIsPassedFull(object $row): bool
+    {
+        if ((bool) $row->is_absent || (bool) $row->is_withheld) {
+            return false;
+        }
+
+        if ($row->exam_category === 'monthly_assessment') {
+            $full     = (float) ($row->assessment_full_marks    ?? 0);
+            $pass     = (float) ($row->assessment_pass_marks    ?? 0);
+            $obtained = (float) ($row->assessment_obtained_marks ?? 0);
+
+            if ($full <= 0 || $row->assessment_obtained_marks === null) {
+                return false;
+            }
+
+            return $obtained >= $pass;
+        }
+
+        // CTEVT final — theory must pass
+        $pmIntTheory = (float) ($row->pm_int_theory ?? 0);
+        $pmExtTheory = (float) ($row->pm_ext_theory ?? 0);
+
+        $theoryPass = (float) ($row->internal_theory_marks ?? 0) >= $pmIntTheory
+                   && (float) ($row->external_theory_marks ?? 0) >= $pmExtTheory;
+
+        if (! $theoryPass) {
+            return false;
+        }
+
+        // Practical only applies when full marks exist
+        $fmIntPractical = (float) ($row->fm_int_practical ?? 0);
+        $fmExtPractical = (float) ($row->fm_ext_practical ?? 0);
+        $hasPractical   = $fmIntPractical > 0 || $fmExtPractical > 0
+                       || in_array((string) ($row->subject_type ?? 'theory'), ['practical', 'both'], true);
+
+        if (! $hasPractical) {
+            return true;
+        }
+
+        $pmIntPractical = (float) ($row->pm_int_practical ?? 0);
+        $pmExtPractical = (float) ($row->pm_ext_practical ?? 0);
+
+        return (float) ($row->internal_practical_marks ?? 0) >= $pmIntPractical
+            && (float) ($row->external_practical_marks ?? 0) >= $pmExtPractical;
     }
 
     private function buildAlerts(Collection $departmentRows, array $attendanceSummary, array $passSummary, int $admissions, int $previousAdmissions): array
@@ -739,22 +879,28 @@ class DashboardController extends Controller
         return match (true) { $hour < 12 => 'Good morning', $hour < 17 => 'Good afternoon', default => 'Good evening' };
     }
 
-    private function buildAttendanceChartData(): array
+    private function buildAttendanceChartData(?AcademicSession $session = null): array
     {
-        $today = Carbon::now();
+        $today         = Carbon::now();
         $thirtyDaysAgo = $today->copy()->subDays(29)->toDateString();
 
-        // Single query for last 30 days (covers both 7-day and 30-day windows)
-        $rows = DB::table('attendances')
+        $query = DB::table('attendances')
             ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
-            ->where('attendance_sessions.date', '>=', $thirtyDaysAgo)
             ->selectRaw("attendance_sessions.date as att_date,
                          COUNT(*) as total,
                          SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
             ->groupBy('attendance_sessions.date')
-            ->orderBy('attendance_sessions.date')
-            ->get()
-            ->keyBy('att_date');
+            ->orderBy('attendance_sessions.date');
+
+        // Scope to session if available, otherwise last 30 days
+        if ($session) {
+            $query->where('attendance_sessions.academic_session_id', $session->id)
+                  ->where('attendance_sessions.date', '>=', $thirtyDaysAgo);
+        } else {
+            $query->where('attendance_sessions.date', '>=', $thirtyDaysAgo);
+        }
+
+        $rows = $query->get()->keyBy('att_date');
 
         $sevenDaysLabels  = [];
         $sevenDaysData    = [];
@@ -762,13 +908,13 @@ class DashboardController extends Controller
         $thirtyDaysData   = [];
 
         for ($i = 29; $i >= 0; $i--) {
-            $date  = $today->copy()->subDays($i);
-            $key   = $date->toDateString();
-            $label = bsDate($date, 'F d');
-            $row   = $rows->get($key);
+            $date    = $today->copy()->subDays($i);
+            $key     = $date->toDateString();
+            $label   = bsDate($date, 'F d');
+            $row     = $rows->get($key);
             $total   = (int) ($row->total   ?? 0);
             $present = (int) ($row->present ?? 0);
-            $rate  = $total > 0 ? round(($present / $total) * 100, 1) : 0;
+            $rate    = $total > 0 ? round(($present / $total) * 100, 1) : 0;
 
             $thirtyDaysLabels[] = $label;
             $thirtyDaysData[]   = $rate;
@@ -780,92 +926,106 @@ class DashboardController extends Controller
         }
 
         return [
-            '7'  => ['labels' => $sevenDaysLabels,  'data' => $sevenDaysData],
-            '30' => ['labels' => $thirtyDaysLabels, 'data' => $thirtyDaysData],
+            '7'  => ['labels' => $sevenDaysLabels,   'data' => $sevenDaysData],
+            '30' => ['labels' => $thirtyDaysLabels,  'data' => $thirtyDaysData],
         ];
     }
 
-    private function buildGradeDistribution(Carbon $start, Carbon $end, ?AcademicSession $session): array
+    /**
+     * Grade distribution for the active/selected session.
+     * Covers BOTH exam categories:
+     *  - ctevt_final:        percentage = (theory_obtained + practical_obtained) / (theory_full + practical_full)
+     *  - monthly_assessment: percentage = assessment_obtained_marks / assessment_full_marks
+     * Uses exam_subject_marking_schemes full marks (with subject default fallback) for CTEVT marks.
+     */
+    private function buildGradeDistributionForSession(?AcademicSession $session): array
     {
-        // Get marks for active students only
-        $marks = Mark::query()
-            ->published()
+        if (!$session) {
+            return $this->emptyGradeDistribution();
+        }
+
+        $marks = DB::table('marks')
+            ->join('exams',    'exams.id',    '=', 'marks.exam_id')
             ->join('students', 'students.id', '=', 'marks.student_id')
             ->join('subjects', 'subjects.id', '=', 'marks.subject_id')
-            ->join('exams', 'exams.id', '=', 'marks.exam_id')
-            ->where('students.status', 'active') // Only active students
+            ->leftJoin('exam_subject_marking_schemes as esms', function ($join) {
+                $join->on('esms.exam_id',    '=', 'marks.exam_id')
+                     ->on('esms.subject_id', '=', 'marks.subject_id');
+            })
+            ->where('exams.academic_session_id', $session->id)
+            ->where('marks.status', 'published')
+            ->where('students.status', 'active')
             ->where('students.is_archived', false)
-            ->when(
-                $session,
-                fn ($query) => $query->where('exams.academic_session_id', $session->id),
-                fn ($query) => $query->whereBetween('marks.updated_at', [$start->copy()->startOfDay(), $end->copy()->endOfDay()])
-            )
+            ->whereNull('exams.deleted_at')
+            ->where('marks.is_absent',   false)
+            ->where('marks.is_withheld', false)
             ->select([
+                'exams.category as exam_category',
+                'subjects.type  as subject_type',
+                // Assessment marks
+                'marks.assessment_obtained_marks',
+                'marks.assessment_full_marks',
+                // CTEVT obtained
                 'marks.internal_theory_marks',
                 'marks.external_theory_marks',
                 'marks.internal_practical_marks',
                 'marks.external_practical_marks',
-                'marks.is_absent',
-                'marks.is_withheld',
-                'subjects.type as subject_type',
-                'subjects.full_marks_internal_theory',
-                'subjects.full_marks_external_theory',
-                'subjects.full_marks_internal_practical',
-                'subjects.full_marks_external_practical',
+                // Full marks: exam scheme first, subject fallback
+                DB::raw('COALESCE(esms.full_marks_internal_theory,   subjects.full_marks_internal_theory)   as fm_int_theory'),
+                DB::raw('COALESCE(esms.full_marks_external_theory,   subjects.full_marks_external_theory)   as fm_ext_theory'),
+                DB::raw('COALESCE(esms.full_marks_internal_practical, subjects.full_marks_internal_practical) as fm_int_practical'),
+                DB::raw('COALESCE(esms.full_marks_external_practical, subjects.full_marks_external_practical) as fm_ext_practical'),
             ])
             ->get();
 
-        $gradeCounts = [
-            'A+' => 0,  // 90-100%
-            'A' => 0,   // 80-89%
-            'B+' => 0,  // 70-79%
-            'B' => 0,   // 60-69%
-            'C' => 0,   // 50-59%
-            'F' => 0,   // <50%
-        ];
-
+        $gradeCounts = ['A+' => 0, 'A' => 0, 'B+' => 0, 'B' => 0, 'C' => 0, 'F' => 0];
         $total = 0;
 
         foreach ($marks as $mark) {
-            // Skip absent or withheld
-            if ($mark->is_absent || $mark->is_withheld) {
-                continue;
+            if ($mark->exam_category === 'monthly_assessment') {
+                $full     = (float) ($mark->assessment_full_marks    ?? 0);
+                $obtained = (float) ($mark->assessment_obtained_marks ?? 0);
+
+                if ($full <= 0 || $mark->assessment_obtained_marks === null) {
+                    continue;
+                }
+
+                $percentage = ($obtained / $full) * 100;
+            } else {
+                // CTEVT final
+                $obtained = (float) ($mark->internal_theory_marks   ?? 0)
+                          + (float) ($mark->external_theory_marks   ?? 0);
+                $full     = (float) ($mark->fm_int_theory ?? 0)
+                          + (float) ($mark->fm_ext_theory ?? 0);
+
+                $hasPractical = in_array((string) ($mark->subject_type ?? 'theory'), ['practical', 'both'], true)
+                             || (float) ($mark->fm_int_practical ?? 0) > 0
+                             || (float) ($mark->fm_ext_practical ?? 0) > 0;
+
+                if ($hasPractical) {
+                    $obtained += (float) ($mark->internal_practical_marks ?? 0)
+                               + (float) ($mark->external_practical_marks ?? 0);
+                    $full     += (float) ($mark->fm_int_practical ?? 0)
+                               + (float) ($mark->fm_ext_practical ?? 0);
+                }
+
+                if ($full <= 0) {
+                    continue;
+                }
+
+                $percentage = ($obtained / $full) * 100;
             }
 
-            // Calculate total marks
-            $obtainedMarks = ($mark->internal_theory_marks ?? 0) + ($mark->external_theory_marks ?? 0);
-            $fullMarks = ($mark->full_marks_internal_theory ?? 0) + ($mark->full_marks_external_theory ?? 0);
-
-            // Add practical if applicable
-            if (in_array($mark->subject_type, ['practical', 'both'])) {
-                $obtainedMarks += ($mark->internal_practical_marks ?? 0) + ($mark->external_practical_marks ?? 0);
-                $fullMarks += ($mark->full_marks_internal_practical ?? 0) + ($mark->full_marks_external_practical ?? 0);
-            }
-
-            if ($fullMarks <= 0) {
-                continue;
-            }
-
-            $percentage = ($obtainedMarks / $fullMarks) * 100;
             $total++;
 
-            // Categorize by grade
-            if ($percentage >= 90) {
-                $gradeCounts['A+']++;
-            } elseif ($percentage >= 80) {
-                $gradeCounts['A']++;
-            } elseif ($percentage >= 70) {
-                $gradeCounts['B+']++;
-            } elseif ($percentage >= 60) {
-                $gradeCounts['B']++;
-            } elseif ($percentage >= 50) {
-                $gradeCounts['C']++;
-            } else {
-                $gradeCounts['F']++;
-            }
+            if ($percentage >= 90)      { $gradeCounts['A+']++; }
+            elseif ($percentage >= 80)  { $gradeCounts['A']++;  }
+            elseif ($percentage >= 70)  { $gradeCounts['B+']++; }
+            elseif ($percentage >= 60)  { $gradeCounts['B']++;  }
+            elseif ($percentage >= 50)  { $gradeCounts['C']++;  }
+            else                        { $gradeCounts['F']++;  }
         }
 
-        // Convert to percentages
         $gradePercentages = [];
         foreach ($gradeCounts as $grade => $count) {
             $gradePercentages[$grade] = $total > 0 ? round(($count / $total) * 100, 1) : 0;
@@ -873,24 +1033,26 @@ class DashboardController extends Controller
 
         return [
             'labels' => ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'],
-            'data' => [
-                $gradePercentages['A+'],
-                $gradePercentages['A'],
-                $gradePercentages['B+'],
-                $gradePercentages['B'],
-                $gradePercentages['C'],
-                $gradePercentages['F'],
-            ],
-            'counts' => [
-                $gradeCounts['A+'],
-                $gradeCounts['A'],
-                $gradeCounts['B+'],
-                $gradeCounts['B'],
-                $gradeCounts['C'],
-                $gradeCounts['F'],
-            ],
-            'total' => $total,
+            'data'   => array_values($gradePercentages),
+            'counts' => array_values($gradeCounts),
+            'total'  => $total,
             'hasData' => $total > 0,
         ];
+    }
+
+    private function emptyGradeDistribution(): array
+    {
+        return [
+            'labels'  => ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'],
+            'data'    => [0, 0, 0, 0, 0, 0],
+            'counts'  => [0, 0, 0, 0, 0, 0],
+            'total'   => 0,
+            'hasData' => false,
+        ];
+    }
+
+    private function buildGradeDistribution(Carbon $start, Carbon $end, ?AcademicSession $session): array
+    {
+        return $this->buildGradeDistributionForSession($session);
     }
 }
