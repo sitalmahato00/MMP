@@ -52,17 +52,22 @@ return Application::configure(basePath: dirname(__DIR__))
             'audit' => \App\Http\Middleware\AuditActivity::class,
             'prevent.back' => \App\Http\Middleware\PreventBackHistory::class,
             'force.json' => \App\Http\Middleware\ForceJsonResponse::class,
+            'force.https' => \App\Http\Middleware\ForceHttps::class,
+            'seo.headers' => \App\Http\Middleware\SeoHeaders::class,
         ]);
+
+        // HTTPS enforcement + security headers (applied to all web routes)
+        $middleware->prependToGroup('web', \App\Http\Middleware\ForceHttps::class);
 
         // Apply audit middleware to all web routes
         $middleware->appendToGroup('web', \App\Http\Middleware\AuditActivity::class);
-        
+
         // Prevent browser back button cache for authenticated routes
         $middleware->appendToGroup('web', \App\Http\Middleware\PreventBackHistory::class);
-        
+
         // Force JSON responses for all API routes
         $middleware->appendToGroup('api', \App\Http\Middleware\ForceJsonResponse::class);
-        
+
         // Configure rate limiters
         $middleware->throttleApi();
     })

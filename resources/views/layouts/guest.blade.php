@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="color-scheme" content="light dark">
-    <title>@yield('title', 'Manmohan Memorial Polytechnic') | Best Technical College — Koshi Province, Nepal</title>
-    <meta name="description" content="@yield('meta_description', 'Manmohan Memorial Polytechnic (MMP) — Best Technical College in Koshi Province, Nepal. CTEVT Diploma programs in IT, Civil, Electrical, Mechanical & Electronics Engineering.')">
-    <meta name="keywords" content="Manmohan Memorial Polytechnic, MMP, technical college Nepal, diploma engineering, CTEVT, Koshi Province, Morang">
-    <link rel="canonical" href="{{ url()->current() }}">
-    <meta property="og:title" content="@yield('title', 'Manmohan Memorial Polytechnic')">
-    <meta property="og:description" content="@yield('meta_description', 'Best Technical College in Koshi Province offering CTEVT diploma programs.')">
-    <meta property="og:type" content="website">
+
+    {{-- ── Enterprise SEO Head ───────────────────────────────────── --}}
+    @php
+        // Views set $seo via view()->share() from controllers.
+        // Fallback: build defaults if a view did not set $seo.
+        $seo ??= \App\Services\SeoService::build([
+            'title'       => trim($__env->yieldContent('title', '')),
+            'description' => trim($__env->yieldContent('meta_description', '')),
+        ]);
+    @endphp
+    <x-seo-head :seo="$seo" />
     <link rel="manifest" href="{{ asset('manifest.json') }}?v=4">
     <meta name="application-name" content="Manmohan Memorial Polytechnic">
     <meta name="apple-mobile-web-app-title" content="Manmohan Memorial Polytechnic">

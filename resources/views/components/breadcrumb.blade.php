@@ -1,35 +1,33 @@
 {{--
-    x-breadcrumb
-    A breadcrumb navigation component that automatically handles separators
-    
-    Usage:
-    <x-breadcrumb>
-        <x-breadcrumb-item href="/dashboard" icon="home">Dashboard</x-breadcrumb-item>
-        <x-breadcrumb-item href="/students">Students</x-breadcrumb-item>
-        <x-breadcrumb-item>John Doe</x-breadcrumb-item>
-    </x-breadcrumb>
+    SEO Breadcrumb Component
+    Usage: <x-breadcrumb :items="$seo['breadcrumbs']" />
+    Items: [['name' => 'Home', 'url' => '/'], ['name' => 'Courses', 'url' => '/departments']]
 --}}
+@props(['items' => [], 'class' => ''])
 
-<nav class="mb-4" aria-label="Breadcrumb">
-    <ol class="flex items-center space-x-0">
-        {{ $slot }}
+@if(count($items) > 1)
+<nav aria-label="Breadcrumb" class="{{ $class }}">
+    <ol class="flex flex-wrap items-center gap-1 text-xs text-blue-200" itemscope itemtype="https://schema.org/BreadcrumbList">
+        @foreach($items as $i => $crumb)
+            <li class="flex items-center gap-1"
+                itemprop="itemListElement"
+                itemscope
+                itemtype="https://schema.org/ListItem">
+                @if(!$loop->last)
+                    <a href="{{ $crumb['url'] }}"
+                       itemprop="item"
+                       class="hover:text-white transition-colors">
+                        <span itemprop="name">{{ $crumb['name'] }}</span>
+                    </a>
+                    <meta itemprop="position" content="{{ $i + 1 }}">
+                    <span aria-hidden="true" class="text-blue-400">›</span>
+                @else
+                    <span itemprop="name" class="text-yellow-300">{{ $crumb['name'] }}</span>
+                    <meta itemprop="item" content="{{ $crumb['url'] }}">
+                    <meta itemprop="position" content="{{ $i + 1 }}">
+                @endif
+            </li>
+        @endforeach
     </ol>
 </nav>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Add separators between breadcrumb items
-    const breadcrumbs = document.querySelectorAll('nav[aria-label="Breadcrumb"] ol');
-    breadcrumbs.forEach(function(breadcrumb) {
-        const items = breadcrumb.querySelectorAll('li');
-        items.forEach(function(item, index) {
-            if (index > 0) {
-                const separator = document.createElement('li');
-                separator.className = 'flex items-center mx-2';
-                separator.innerHTML = '<svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
-                breadcrumb.insertBefore(separator, item);
-            }
-        });
-    });
-});
-</script>
+@endif

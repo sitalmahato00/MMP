@@ -62,5 +62,13 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('publicCourses', $publicCourses);
         });
+
+        // Share SEO defaults to all guest/public views (controllers override per-page)
+        View::composer('layouts.guest', function ($view): void {
+            // Only set $seo if no controller has already set it
+            if (! array_key_exists('seo', $view->getData())) {
+                $view->with('seo', \App\Services\SeoService::build());
+            }
+        });
     }
 }

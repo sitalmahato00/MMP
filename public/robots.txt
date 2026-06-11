@@ -1,2 +1,63 @@
+# robots.txt — Manmohan Memorial Polytechnic (www.mmp.edu.np)
+# Generated for enterprise SEO — preserves existing Google rankings
+
 User-agent: *
-Disallow:
+Allow: /
+
+# Block admin and authenticated portals
+Disallow: /admin/
+Disallow: /hod/
+Disallow: /teacher/
+Disallow: /student/
+Disallow: /parent/
+Disallow: /alumni/
+
+# Block auth pages (no value to index)
+Disallow: /login
+Disallow: /logout
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /register
+Disallow: /dashboard
+
+# Block internal/utility routes
+Disallow: /api/
+Disallow: /up
+Disallow: /horizon/
+Disallow: /_ignition/
+Disallow: /storage/
+Disallow: /vendor/
+
+# Allow important static assets
+Allow: /images/
+Allow: /css/
+Allow: /js/
+Allow: /build/
+Allow: /favicon.ico
+Allow: /manifest.json
+
+# Block result POST submit (not indexable)
+Disallow: /result/submit
+
+# Allow Googlebot specific rules
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /hod/
+Disallow: /teacher/
+Disallow: /student/
+Disallow: /parent/
+Disallow: /alumni/
+Disallow: /login
+Disallow: /api/
+
+# Block archival bot from heavy downloads
+User-agent: ia_archiver
+Disallow: /downloads/
+Disallow: /storage/
+
+# Crawl-delay for general bots
+Crawl-delay: 10
+
+# Sitemap declaration
+Sitemap: https://www.mmp.edu.np/sitemap.xml

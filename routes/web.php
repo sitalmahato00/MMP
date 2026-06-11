@@ -16,6 +16,35 @@ Route::get('/pwa-icon-{size}.png', [PwaIconController::class, 'icon'])
     ->where('size', '[0-9]+')
     ->name('pwa.icon');
 
+// ─── Sitemap Routes ───────────────────────────────────────────────────────────
+Route::get('/sitemap.xml',              [\App\Http\Controllers\Public\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap-static.xml',      [\App\Http\Controllers\Public\SitemapController::class, 'staticPages']);
+Route::get('/sitemap-departments.xml', [\App\Http\Controllers\Public\SitemapController::class, 'departments']);
+Route::get('/sitemap-notices.xml',     [\App\Http\Controllers\Public\SitemapController::class, 'notices']);
+Route::get('/sitemap-news.xml',        [\App\Http\Controllers\Public\SitemapController::class, 'news']);
+Route::get('/sitemap-downloads.xml',   [\App\Http\Controllers\Public\SitemapController::class, 'downloads']);
+
+// ─── SEO Legacy / 301 Redirects (preserve existing Google rankings) ───────────
+// These are the exact URLs Google has indexed from the old site.
+Route::permanentRedirect('/entrance-result',    '/result');
+Route::permanentRedirect('/contact-us',         '/contact');
+Route::permanentRedirect('/principal-message',  '/leadership');
+Route::permanentRedirect('/courses',            '/departments');
+Route::permanentRedirect('/courses/{any}',      '/departments/{any}')->where('any', '.*');
+Route::permanentRedirect('/about-us',           '/page/what-is-mmp');
+Route::permanentRedirect('/about',              '/page/what-is-mmp');
+Route::permanentRedirect('/news',               '/news-events');
+Route::permanentRedirect('/events',             '/news-events');
+Route::permanentRedirect('/circular',           '/notices');
+Route::permanentRedirect('/notice',             '/notices');
+Route::permanentRedirect('/download',           '/downloads');
+Route::permanentRedirect('/faculty',            '/people');
+Route::permanentRedirect('/teachers',           '/people');
+Route::permanentRedirect('/administration',     '/staff');
+Route::permanentRedirect('/management',         '/leadership');
+Route::permanentRedirect('/programs',           '/departments');
+Route::permanentRedirect('/official',           '/page/what-is-mmp');
+
 // ─── Public Routes (SEO-optimized) ────────────────────────
 
 Route::get('/brand-logo', function () {
