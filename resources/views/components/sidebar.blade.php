@@ -338,8 +338,8 @@
 @endphp
 
 <aside
-    class="fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-[#0B2E6B] text-white shadow-xl transition-[transform,width] duration-300 ease-out lg:fixed lg:top-16 lg:h-[calc(100vh-64px)] lg:flex-shrink-0 lg:translate-x-0"
-    style="padding-top: 64px; background-color: #0B2E6B;"
+    class="fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-[#0B2E6B] text-white shadow-xl transition-[transform,width] duration-300 ease-out lg:z-30 lg:fixed lg:top-16 lg:h-[calc(100vh-64px)] lg:flex-shrink-0 lg:translate-x-0"
+    style="padding-top: 64px; background-color: #0B2E6B; opacity: 1; border-right: 1px solid rgba(255,255,255,0.08);"
     :style="sidebarCollapsed ? 'width: {{ $sidebarCollapsedWidth }}' : 'width: {{ $sidebarExpandedWidth }}'"
     :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
     x-cloak>
