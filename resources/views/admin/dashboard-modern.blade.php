@@ -4,333 +4,368 @@
 
 @section('content')
 @php
-    $dashboardUrl = function (string $periodValue) use ($selectedSession) {
-        $params = ['period' => $periodValue];
-        if ($selectedSession?->id) $params['session_id'] = $selectedSession->id;
-        return route('admin.dashboard', $params);
-    };
-
-    $toneMap = [
-        'blue'    => ['bg' => 'bg-blue-50', 'text' => 'text-blue-600', 'ring' => 'ring-blue-100', 'bar' => 'bg-blue-500'],
-        'emerald' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'ring' => 'ring-emerald-100', 'bar' => 'bg-emerald-500'],
-        'violet'  => ['bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'ring' => 'ring-violet-100', 'bar' => 'bg-violet-500'],
-        'amber'   => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'ring' => 'ring-amber-100', 'bar' => 'bg-amber-500'],
-        'indigo'  => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-600', 'ring' => 'ring-indigo-100', 'bar' => 'bg-indigo-500'],
-        'rose'    => ['bg' => 'bg-rose-50', 'text' => 'text-rose-600', 'ring' => 'ring-rose-100', 'bar' => 'bg-rose-500'],
-    ];
-
-    $iconPaths = [
-        'students'     => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z',
-        'teachers'     => 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z M12 14l9-5-9-5-9 5 9 5z',
-        'attendance'   => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
-        'results'      => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-        'semesters'    => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
-        'departments'  => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
-    ];
-
-    $alertTones = [
-        'danger'  => ['bg' => 'bg-rose-50', 'border' => 'border-rose-200', 'icon' => 'text-rose-500', 'dot' => 'bg-rose-500'],
-        'warning' => ['bg' => 'bg-amber-50', 'border' => 'border-amber-200', 'icon' => 'text-amber-500', 'dot' => 'bg-amber-500'],
-        'success' => ['bg' => 'bg-emerald-50', 'border' => 'border-emerald-200', 'icon' => 'text-emerald-500', 'dot' => 'bg-emerald-500'],
-        'info'    => ['bg' => 'bg-sky-50', 'border' => 'border-sky-200', 'icon' => 'text-sky-500', 'dot' => 'bg-sky-500'],
-    ];
-
-    $statusColors = [
-        'pending'   => 'bg-amber-100 text-amber-700',
-        'reviewed'  => 'bg-sky-100 text-sky-700',
-        'contacted' => 'bg-violet-100 text-violet-700',
-        'accepted'  => 'bg-emerald-100 text-emerald-700',
-        'rejected'  => 'bg-rose-100 text-rose-700',
-    ];
-
     $semesterStatusColors = [
-        'running'   => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-700', 'dot' => 'bg-emerald-500', 'bar' => 'bg-emerald-500'],
-        'delayed'   => ['bg' => 'bg-amber-100', 'text' => 'text-amber-700', 'dot' => 'bg-amber-500', 'bar' => 'bg-amber-500'],
-        'completed' => ['bg' => 'bg-slate-100', 'text' => 'text-slate-600', 'dot' => 'bg-slate-400', 'bar' => 'bg-slate-400'],
+        'running'   => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-700', 'dot' => 'bg-emerald-500'],
+        'delayed'   => ['bg' => 'bg-amber-100',   'text' => 'text-amber-700',   'dot' => 'bg-amber-500'],
+        'completed' => ['bg' => 'bg-slate-100',   'text' => 'text-slate-600',   'dot' => 'bg-slate-400'],
     ];
 
     $sessionName = $selectedSession?->name ?? $activeSession?->name ?? 'Current session';
-$rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' – ' . bsDate($rangeEnd, 'Y, F d') : null;
-    $semesters = $runningSemesters ?? [];
-    $dashboardStateJson = json_encode($dashboardState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+    $rangeLabel  = isset($rangeStart, $rangeEnd)
+        ? bsDate($rangeStart, 'Y, F d') . ' – ' . bsDate($rangeEnd, 'Y, F d')
+        : null;
+    $semesters   = $runningSemesters ?? [];
+
+    $totalActiveUsers  = ($currentStudents ?? 0) + ($totalTeachers ?? 0) + ($totalParents ?? 0);
+    $attendanceRate    = $attendanceSummary['rate'] ?? 0;
+    $passRate          = $passSummary['rate'] ?? 0;
+    $attendancePresent = $attendanceSummary['present'] ?? 0;
+    $attendanceTotal   = $attendanceSummary['total'] ?? 0;
+    $passPassed        = $passSummary['passed'] ?? 0;
+    $passTotal         = $passSummary['total'] ?? 0;
+
+    $gd          = $gradeDistribution;
+    $gradeColors = ['#22c55e','#3b82f6','#a855f7','#f97316','#eab308','#ef4444'];
+    $gradeLabels = ['A+ (90-100)','A (80-89)','B+ (70-79)','B (60-69)','C (50-59)','F (<50)'];
+
+    $alertDotColors = [
+        'danger'  => 'bg-rose-500',
+        'warning' => 'bg-amber-500',
+        'success' => 'bg-emerald-500',
+        'info'    => 'bg-sky-500',
+    ];
+
+    $dashboardStateJson    = json_encode($dashboardState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
     $dashboardStateEncoded = $dashboardStateJson ? base64_encode($dashboardStateJson) : '';
+
+    $hasAttendance = !empty($attendanceChartData['7']['data']) && array_sum($attendanceChartData['7']['data']) > 0;
+    $internalNotices = $recentNotices->whereIn('type', ['general','department','teachers','exam'])->take(4);
+    $publicNotices   = $recentNotices->where('type', 'event')->take(4);
 @endphp
 
 <div id="principal-dashboard"
-    class="mx-auto max-w-[1440px] px-6 py-6 space-y-6"
-    data-principal-dashboard
-    data-dashboard-endpoint="{{ route('admin.dashboard') }}"
-    data-dashboard-state="{{ $dashboardStateEncoded }}">
+     class="mx-auto max-w-[1440px] space-y-4"
+     data-principal-dashboard
+     data-dashboard-endpoint="{{ route('admin.dashboard') }}"
+     data-dashboard-state="{{ $dashboardStateEncoded }}">
 
-    {{-- ═══════════════════════════════════════════════════════════
-         1. TOP HEADER – Smart Control Bar
-    ═══════════════════════════════════════════════════════════ --}}
-    <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="px-6 py-5 sm:px-6 sm:py-6 lg:px-8">
-            {{-- Row 1: Greeting + Quick Actions --}}
-            <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
-                <div>
-                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Principal Dashboard</p>
-                    <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
-                        {{ $greeting }}, {{ auth()->user()->name ?? 'Principal' }}
-                    </h1>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <a href="{{ route('admin.students.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800">
-                        <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Add Student
-                    </a>
-                    <a href="{{ route('admin.notices.create') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
-                        Create Notice
-                    </a>
-                    {{-- Manage Admissions button removed --}}
-                    <a href="{{ route('admin.attendance.index') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
-                        <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                        Attendance Overview
-                    </a>
-                </div>
+    {{-- ══════════════════════════════════════════════
+         ROW 1 · HEADER
+    ══════════════════════════════════════════════ --}}
+    <div class="rounded-lg border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Principal Dashboard</p>
+                <h1 class="mt-0.5 text-2xl font-bold tracking-tight text-slate-900">
+                    {{ $greeting }}, {{ auth()->user()->name ?? 'Admin' }}
+                </h1>
             </div>
-
-            {{-- Row 2: Session + Semester Chips + Date Range --}}
-            <div class="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 sm:gap-3 border-t border-slate-100 pt-4">
-                <div class="flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium text-slate-600">
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                    <span data-dashboard-session-display>{{ $sessionName }}</span>
-                </div>
-
-                @foreach($semesters as $sem)
-                    @php $semColor = $semesterStatusColors[$sem['status']] ?? $semesterStatusColors['running']; @endphp
-                    <span class="inline-flex items-center gap-1.5 rounded-lg {{ $semColor['bg'] }} px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold {{ $semColor['text'] }}">
-                        <span class="h-1.5 w-1.5 rounded-full {{ $semColor['dot'] }}"></span>
-                        Sem {{ $sem['number'] }}
-                    </span>
-                @endforeach
-
-                <div class="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[11px] sm:text-xs text-slate-500">
-                    @if($rangeLabel)
-                        <span data-dashboard-range-display>{{ $rangeLabel }}</span>
-                        <span class="text-slate-300">|</span>
-                    @endif
-                    <span data-dashboard-updated-display>Updated {{ bsDate($lastUpdated, 'Y, F d') }}, {{ $lastUpdated->format('h:i A') }}</span>
-                </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('admin.students.create') }}"
+                   class="inline-flex items-center gap-1.5 rounded border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add Student
+                </a>
+                <a href="{{ route('admin.notices.create') }}"
+                   class="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
+                    Create Notice
+                </a>
+                <a href="{{ route('admin.attendance.index') }}"
+                   class="inline-flex items-center gap-1.5 rounded bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                    Attendance Overview
+                </a>
             </div>
         </div>
-    </section>
 
-    {{-- ═══════════════════════════════════════════════════════════
-         2. SIMPLE STATS CARDS
-    ═══════════════════════════════════════════════════════════ --}}
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
-        {{-- Total Active Users Card --}}
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm h-full">
-            <div class="flex items-center justify-between">
+        <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+            <span class="inline-flex items-center gap-1.5 rounded bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                <span data-dashboard-session-display>{{ $sessionName }}</span>
+            </span>
+            @foreach($semesters as $sem)
+                @php $sc = $semesterStatusColors[$sem['status']] ?? $semesterStatusColors['running']; @endphp
+                <span class="inline-flex items-center gap-1 rounded {{ $sc['bg'] }} px-2.5 py-1 text-[11px] font-semibold {{ $sc['text'] }}">
+                    <span class="h-1.5 w-1.5 rounded-full {{ $sc['dot'] }}"></span>
+                    Sem {{ $sem['number'] }}
+                </span>
+            @endforeach
+            <div class="ml-auto flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+                @if($rangeLabel)
+                    <span data-dashboard-range-display>{{ $rangeLabel }}</span>
+                    <span class="text-slate-300">|</span>
+                @endif
+                <span data-dashboard-updated-display>Updated {{ bsDate($lastUpdated, 'Y, F d') }}, {{ $lastUpdated->format('h:i A') }}</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════
+         ROW 2 · KPI CARDS (4 equal columns)
+    ══════════════════════════════════════════════ --}}
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-3">
                 <div>
                     <p class="text-sm text-slate-500">Total Active Users</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($currentStudents + $totalTeachers + $totalParents) }}</p>
-                    <p class="mt-1 text-xs text-slate-400">Students + Teachers + Parents</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($totalActiveUsers) }}</p>
+                    <p class="mt-2 text-xs text-slate-400">Students + Teachers + Parents</p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
-                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                    <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        {{-- Attendance Percentage Card --}}
-        <a href="{{ route('admin.attendance.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition h-full">
-            <div class="flex items-center justify-between">
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-3">
                 <div>
                     <p class="text-sm text-slate-500">Attendance Rate</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($attendanceSummary['rate'], 1) }}%</p>
-                    <p class="mt-1 text-xs text-slate-400">{{ number_format($attendanceSummary['present']) }} / {{ number_format($attendanceSummary['total']) }} present</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($attendanceRate, 1) }}%</p>
+                    <p class="mt-2 text-xs text-slate-400">{{ number_format($attendancePresent) }} / {{ number_format($attendanceTotal) }} present</p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50">
-                    <svg class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-50">
+                    <svg class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
-        </a>
+        </div>
 
-        {{-- Pass Rate Card --}}
-        <a href="{{ route('admin.exams.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition h-full">
-            <div class="flex items-center justify-between">
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-3">
                 <div>
                     <p class="text-sm text-slate-500">Pass Rate</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format($passSummary['rate'], 1) }}%</p>
-                    <p class="mt-1 text-xs text-slate-400">{{ number_format($passSummary['passed']) }} / {{ number_format($passSummary['total']) }} passed</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($passRate, 1) }}%</p>
+                    <p class="mt-2 text-xs text-slate-400">{{ number_format($passPassed) }} / {{ number_format($passTotal) }} passed</p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-violet-50">
-                    <svg class="h-6 w-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-violet-50">
+                    <svg class="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
-        </a>
+        </div>
 
-        {{-- Total Departments Card --}}
-        <a href="{{ route('admin.departments.index') }}" class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition h-full">
-            <div class="flex items-center justify-between">
+        <a href="{{ route('admin.departments.index') }}"
+           class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+            <div class="flex items-start justify-between gap-3">
                 <div>
                     <p class="text-sm text-slate-500">Total Departments</p>
-                    <p class="mt-1 text-3xl font-bold text-slate-900">{{ number_format(App\Models\Department::active()->count()) }}</p>
-                    <p class="mt-1 text-xs text-slate-400">Active departments</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($departmentCount) }}</p>
+                    <p class="mt-2 text-xs text-slate-400">Active departments</p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-50">
-                    <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-amber-50">
+                    <svg class="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>
             </div>
         </a>
-    </section>
+    </div>
 
-    {{-- ═══════════════════════════════════════════════════════════
-         3. MAIN ANALYTICS – Charts + Notices Panel
-    ═══════════════════════════════════════════════════════════ --}}
-    <section id="main-insights" class="grid gap-6 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_24rem]">
-        {{-- LEFT: Charts --}}
-        <div class="space-y-5">
-            {{-- Attendance Curve Chart --}}
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm h-full">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                    <div>
-                        <h2 class="text-sm font-semibold text-slate-900">Attendance Trend</h2>
-                        <p class="text-xs text-slate-500">Daily attendance percentage over time</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md bg-blue-50 text-blue-600" data-period="7">7 Days</button>
-                        <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-50" data-period="30">30 Days</button>
-                        <button class="attendance-filter-btn px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-50" data-period="session">Session</button>
-                    </div>
-                </div>
-                <div class="h-[200px] sm:h-[250px] flex items-center justify-center">
-                    @php $hasAttendance = isset($attendanceChartData['7']['data']) && collect($attendanceChartData['7']['data'])->sum() > 0; @endphp
-                    @if($hasAttendance)
-                        <canvas id="attendance-curve-chart"></canvas>
-                    @else
-                        <div class="text-center text-slate-400 w-full">No attendance data available.</div>
-                    @endif
-                </div>
-            </div>
+    {{-- ══════════════════════════════════════════════
+         ROW 3 · CHARTS — side by side, full width
+    ══════════════════════════════════════════════ --}}
+    <div class="grid gap-4 md:grid-cols-2">
 
-            {{-- Grade Distribution Donut Chart --}}
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm h-full">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-sm font-semibold text-slate-900">Grade Distribution</h2>
-                        <p class="text-xs text-slate-500">Student performance breakdown by grade</p>
-                    </div>
+        {{-- Attendance Trend --}}
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+                <div>
+                    <p class="text-sm font-semibold text-slate-900">Attendance Trend</p>
+                    <p class="mt-0.5 text-xs text-slate-400">Daily attendance percentage over time</p>
                 </div>
-                <div class="h-[200px] sm:h-[250px] flex items-center justify-center">
-                    @php $hasGrades = isset($gradeDistribution['hasData']) && $gradeDistribution['hasData']; @endphp
-                    @if($hasGrades)
-                        <canvas id="grade-donut-chart"></canvas>
-                    @else
-                        <div class="text-center text-slate-400 w-full">No grade data available.</div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- RIGHT: Notices + Community --}}
-        <div class="space-y-5">
-            {{-- Notices & Updates --}}
-            <div class="rounded-xl border border-slate-200 bg-white shadow-sm h-full" x-data="{ activeNoticeTab: 'internal' }">
-                <div class="border-b border-slate-100 px-4 py-3">
-                    <h2 class="text-sm font-semibold text-slate-900">Notices & Updates</h2>
-                </div>
-
-                {{-- Tabs --}}
-                <div class="flex border-b border-slate-100 bg-slate-50">
-                    <button @click="activeNoticeTab = 'internal'" :class="activeNoticeTab === 'internal' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-600 hover:text-slate-900'" class="flex-1 px-3 py-2.5 text-xs font-semibold transition">
-                        Internal
+                <div class="flex items-center gap-0.5 rounded border border-slate-200 p-0.5 text-xs font-medium">
+                    <button type="button" data-att-period="7"
+                            class="att-filter-btn rounded bg-blue-600 px-3 py-1.5 text-white transition">
+                        7 Days
+                    </button>
+                    <button type="button" data-att-period="30"
+                            class="att-filter-btn rounded px-3 py-1.5 text-slate-600 transition hover:bg-slate-50">
+                        30 Days
+                    </button>
+                    <button type="button" data-att-period="session"
+                            class="att-filter-btn rounded px-3 py-1.5 text-slate-600 transition hover:bg-slate-50">
+                        Session
                     </button>
                 </div>
+            </div>
+            <div class="px-5 py-5">
+                @if(!$hasAttendance)
+                    <div class="flex flex-col items-center justify-center gap-3" style="height: 200px;">
+                        {{-- Placeholder bar icon --}}
+                        <svg class="h-10 w-10 text-slate-200" fill="currentColor" viewBox="0 0 24 24">
+                            <rect x="3" y="12" width="4" height="9" rx="1"/>
+                            <rect x="10" y="7" width="4" height="14" rx="1"/>
+                            <rect x="17" y="3" width="4" height="18" rx="1"/>
+                        </svg>
+                        <span class="text-sm text-slate-400">No attendance data available.</span>
+                    </div>
+                @else
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="attendance-trend-chart"></canvas>
+                    </div>
+                @endif
+            </div>
+        </div>
 
-                {{-- Internal Notices Tab --}}
-                <div x-show="activeNoticeTab === 'internal'" class="divide-y divide-slate-100 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
-                    @forelse($recentNotices as $notice)
-                        <a href="{{ route('admin.notices.edit', $notice) }}" class="flex items-start gap-2.5 px-4 py-3 transition hover:bg-slate-50">
-                            <div class="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                                <span class="text-[7px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
-                                <span class="text-xs font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
-                                <span class="text-[6px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
-                            </div>
+        {{-- Grade Distribution --}}
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-5 py-4">
+                <p class="text-sm font-semibold text-slate-900">Grade Distribution</p>
+                <p class="mt-0.5 text-xs text-slate-400">Student performance breakdown by grade</p>
+            </div>
+            <div class="flex items-center gap-6 px-5 py-5">
+                <div style="width: 160px; height: 160px; flex-shrink: 0; position: relative;">
+                    <canvas id="grade-donut-chart"></canvas>
+                </div>
+                <div class="flex-1 min-w-0 space-y-2">
+                    @foreach($gradeLabels as $i => $gl)
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="h-2 w-2 flex-shrink-0 rounded-full" style="background-color: {{ $gradeColors[$i] }};"></span>
+                            <span class="text-slate-600">{{ $gl }}</span>
+                            <span class="ml-auto flex-shrink-0 font-medium text-slate-700">({{ $gd['data'][$i] ?? 0 }}%)</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════
+         ROW 4 · BOTTOM — 3 equal columns
+    ══════════════════════════════════════════════ --}}
+    <div class="grid gap-4 md:grid-cols-3">
+
+        {{-- Notices & Updates --}}
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-5 py-4">
+                <p class="text-sm font-semibold text-slate-900">Notices & Updates</p>
+            </div>
+            {{-- Tabs --}}
+            <div class="border-b border-slate-100">
+                <div class="flex">
+                    <button type="button" id="tab-internal"
+                            class="notice-tab border-b-2 border-blue-600 px-5 py-2.5 text-xs font-semibold text-blue-600"
+                            data-tab="internal">
+                        Internal
+                    </button>
+                    <button type="button" id="tab-public"
+                            class="notice-tab border-b-2 border-transparent px-5 py-2.5 text-xs font-medium text-slate-500 hover:text-slate-700"
+                            data-tab="public">
+                        Public
+                    </button>
+                </div>
+            </div>
+            {{-- Internal --}}
+            <div id="notices-internal">
+                @if($internalNotices->isEmpty())
+                    <div class="flex items-center justify-center py-8 text-xs text-slate-400">
+                        No recent notices.
+                    </div>
+                @else
+                    <div class="divide-y divide-slate-100">
+                        @foreach($internalNotices as $notice)
+                            <a href="{{ route('admin.notices.edit', $notice) }}"
+                               class="block px-5 py-3 transition hover:bg-slate-50">
+                                <p class="text-xs font-medium text-slate-800 line-clamp-1">{{ $notice->title }}</p>
+                                <p class="mt-0.5 text-[11px] text-slate-400">
+                                    {{ bsDate($notice->published_at ?? $notice->created_at, 'F d, Y') }}
+                                    &middot; {{ ucfirst($notice->type) }}
+                                </p>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            {{-- Public --}}
+            <div id="notices-public" class="hidden">
+                @if($publicNotices->isEmpty())
+                    <div class="flex items-center justify-center py-8 text-xs text-slate-400">
+                        No public notices.
+                    </div>
+                @else
+                    <div class="divide-y divide-slate-100">
+                        @foreach($publicNotices as $notice)
+                            <a href="{{ route('admin.notices.edit', $notice) }}"
+                               class="block px-5 py-3 transition hover:bg-slate-50">
+                                <p class="text-xs font-medium text-slate-800 line-clamp-1">{{ $notice->title }}</p>
+                                <p class="mt-0.5 text-[11px] text-slate-400">
+                                    {{ bsDate($notice->published_at ?? $notice->created_at, 'F d, Y') }}
+                                </p>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Community --}}
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-5 py-4">
+                <p class="text-sm font-semibold text-slate-900">Community</p>
+            </div>
+            <div class="grid grid-cols-3 divide-x divide-slate-100">
+                <a href="{{ route('admin.teachers.index') }}"
+                   class="flex flex-col items-center gap-1 py-6 text-center transition hover:bg-slate-50">
+                    <span class="text-2xl font-bold text-slate-900">{{ number_format($totalTeachers ?? 0) }}</span>
+                    <span class="text-xs text-slate-500">Teachers</span>
+                </a>
+                <a href="{{ route('admin.parents.index') }}"
+                   class="flex flex-col items-center gap-1 py-6 text-center transition hover:bg-slate-50">
+                    <span class="text-2xl font-bold text-slate-900">{{ number_format($totalParents ?? 0) }}</span>
+                    <span class="text-xs text-slate-500">Parents</span>
+                </a>
+                <a href="{{ route('admin.alumni.index') }}"
+                   class="flex flex-col items-center gap-1 py-6 text-center transition hover:bg-slate-50">
+                    <span class="text-2xl font-bold text-slate-900">{{ number_format($totalAlumni ?? 0) }}</span>
+                    <span class="text-xs text-slate-500">Alumni</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Insights & Alerts --}}
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-5 py-4">
+                <p class="text-sm font-semibold text-slate-900">Insights & Alerts</p>
+                <p class="mt-0.5 text-[11px] text-slate-400">Important notifications and observations</p>
+            </div>
+            <div class="divide-y divide-slate-100" data-dashboard-alert-list>
+                @forelse($alerts as $alert)
+                    <div class="px-5 py-3.5">
+                        <div class="flex items-start gap-2.5">
+                            <span class="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full {{ $alertDotColors[$alert['tone']] ?? 'bg-slate-400' }}"></span>
                             <div class="min-w-0 flex-1">
-                                <p class="line-clamp-2 text-xs font-medium text-slate-900">{{ $notice->title }}</p>
-                                <p class="mt-0.5 text-[10px] text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }}</p>
+                                <p class="text-xs font-semibold text-slate-900">{{ $alert['title'] }}</p>
+                                <p class="mt-0.5 text-[11px] text-slate-500">{{ $alert['message'] }}</p>
                             </div>
-                        </a>
-                    @empty
-                        <div class="py-8 text-center">
-                            <p class="text-xs text-slate-400">No recent notices.</p>
                         </div>
-                    @endforelse
-                    @if($recentNotices->isNotEmpty())
-                        <div class="px-4 py-2.5 bg-slate-50">
-                            <a href="{{ route('admin.notices.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View all →</a>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            {{-- Community Stats --}}
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm h-full">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Community</p>
-                <div class="mt-3 grid grid-cols-3 gap-2">
-                    <div class="text-center">
-                        <p class="text-base font-bold text-slate-900">{{ number_format($totalTeachers ?? 0) }}</p>
-                        <p class="text-[9px] text-slate-500">Teachers</p>
+                        @if(!empty($alert['actionHref']))
+                            <div class="mt-2 flex justify-end">
+                                <a href="{{ $alert['actionHref'] }}"
+                                   class="text-[11px] font-semibold text-slate-600 transition hover:text-blue-600">
+                                    {{ $alert['actionLabel'] ?? 'View' }}
+                                </a>
+                            </div>
+                        @endif
                     </div>
-                    <div class="text-center">
-                        <p class="text-base font-bold text-slate-900">{{ number_format($totalParents ?? 0) }}</p>
-                        <p class="text-[9px] text-slate-500">Parents</p>
+                @empty
+                    <div class="flex items-center justify-center py-8 text-xs text-slate-400">
+                        No alerts at this time.
                     </div>
-                    <div class="text-center">
-                        <p class="text-base font-bold text-slate-900">{{ number_format($totalAlumni ?? 0) }}</p>
-                        <p class="text-[9px] text-slate-500">Alumni</p>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
-    </section>
 
-    {{-- ═══════════════════════════════════════════════════════════
-         4. ALERTS & INSIGHTS
-    ═══════════════════════════════════════════════════════════ --}}
-    <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <div>
-                <h2 class="text-sm font-semibold text-slate-900">Insights & Alerts</h2>
-                <p class="text-xs text-slate-500">Important notifications and observations</p>
-            </div>
-        </div>
-        <div data-dashboard-alert-list class="divide-y divide-slate-100 px-5">
-            @forelse($alerts as $alert)
-                @php $at = $alertTones[$alert['tone']] ?? $alertTones['info']; @endphp
-                <div class="flex items-start gap-3 py-3.5">
-                    <div class="mt-0.5 h-2 w-2 shrink-0 rounded-full {{ $at['dot'] }}"></div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-slate-900">{{ $alert['title'] }}</p>
-                        <p class="mt-0.5 text-xs text-slate-500">{{ $alert['message'] }}</p>
-                    </div>
-                    @if(!empty($alert['actionHref']))
-                        <a href="{{ $alert['actionHref'] }}" class="shrink-0 rounded-md border border-slate-200 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
-                            {{ $alert['actionLabel'] ?? 'View' }}
-                        </a>
-                    @endif
-                </div>
-            @empty
-                <div class="py-8 text-center">
-                    <p class="text-xs text-slate-400">No alerts for this period.</p>
-                </div>
-            @endforelse
-        </div>
-    </section>
-
+    </div>
 
 </div>
 @endsection
@@ -338,159 +373,134 @@ $rangeLabel = isset($rangeStart, $rangeEnd) ? bsDate($rangeStart, 'Y, F d') . ' 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get real Nepali dates from backend
-    const attendanceChartData = @json($attendanceChartData ?? []);
-    
-    // Sample data - replace with actual data from backend
-    const attendanceData = {
-        '7': {
-            labels: attendanceChartData['7']?.labels || ['बै 1', 'बै 2', 'बै 3', 'बै 4', 'बै 5', 'बै 6', 'बै 7'],
-            data: attendanceChartData['7']?.data || [85, 88, 82, 90, 87, 89, 91]
-        },
-        '30': {
-            labels: attendanceChartData['30']?.labels || Array.from({length: 30}, (_, i) => `बै ${i + 1}`),
-            data: attendanceChartData['30']?.data || Array.from({length: 30}, () => Math.floor(Math.random() * 20) + 75)
-        },
-        'session': {
-            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
-            data: [82, 85, 87, 86, 88, 90, 89, 91]
-        }
+(function () {
+
+    // ── Attendance Trend ─────────────────────────────────────────────
+    const attData = @json($attendanceChartData ?? []);
+    const attSets = {
+        '7':       { labels: attData?.['7']?.labels   ?? [], data: attData?.['7']?.data   ?? [] },
+        '30':      { labels: attData?.['30']?.labels  ?? [], data: attData?.['30']?.data  ?? [] },
+        'session': { labels: attData?.['30']?.labels  ?? [], data: attData?.['30']?.data  ?? [] },
     };
 
-    // Attendance Curve Chart
-    const attendanceCtx = document.getElementById('attendance-curve-chart');
-    let attendanceChart = new Chart(attendanceCtx, {
-        type: 'line',
-        data: {
-            labels: attendanceData['7'].labels,
-            datasets: [{
-                label: 'Attendance %',
-                data: attendanceData['7'].data,
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.4,
-                fill: true,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return 'Attendance: ' + context.parsed.y + '%';
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 70,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                }
-            }
-        }
-    });
+    const attCanvas = document.getElementById('attendance-trend-chart');
+    let attChart = null;
 
-    // Filter buttons for attendance chart
-    document.querySelectorAll('.attendance-filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const period = this.dataset.period;
-            
-            // Update button styles
-            document.querySelectorAll('.attendance-filter-btn').forEach(b => {
-                b.classList.remove('bg-blue-50', 'text-blue-600');
-                b.classList.add('text-slate-600', 'hover:bg-slate-50');
-            });
-            this.classList.add('bg-blue-50', 'text-blue-600');
-            this.classList.remove('text-slate-600', 'hover:bg-slate-50');
-            
-            // Update chart data
-            attendanceChart.data.labels = attendanceData[period].labels;
-            attendanceChart.data.datasets[0].data = attendanceData[period].data;
-            attendanceChart.update();
-        });
-    });
+    if (attCanvas) {
+        const ctx = attCanvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 0, 200);
+        grad.addColorStop(0, 'rgba(59,130,246,0.22)');
+        grad.addColorStop(1, 'rgba(59,130,246,0.02)');
 
-    // Grade Distribution Donut Chart
-    const gradeCtx = document.getElementById('grade-donut-chart');
-    const gradeData = @json($gradeDistribution);
-    
-    if (gradeData.hasData) {
-        new Chart(gradeCtx, {
-            type: 'doughnut',
+        attChart = new Chart(attCanvas, {
+            type: 'line',
             data: {
-                labels: gradeData.labels,
+                labels: attSets['7'].labels,
                 datasets: [{
-                    data: gradeData.data,
-                    backgroundColor: [
-                        'rgb(34, 197, 94)',   // Green for A+
-                        'rgb(59, 130, 246)',  // Blue for A
-                        'rgb(168, 85, 247)',  // Purple for B+
-                        'rgb(251, 146, 60)',  // Orange for B
-                        'rgb(251, 191, 36)',  // Yellow for C
-                        'rgb(239, 68, 68)'    // Red for F
-                    ],
+                    label: 'Attendance %',
+                    data: attSets['7'].data,
+                    borderColor: '#3b82f6',
+                    backgroundColor: grad,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
                     borderWidth: 2,
-                    borderColor: '#fff'
-                }]
+                }],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            padding: 15,
-                            font: {
-                                size: 11
-                            },
-                            generateLabels: function(chart) {
-                                const data = chart.data;
-                                return data.labels.map((label, i) => ({
-                                    text: label + ' (' + data.datasets[0].data[i] + '%)',
-                                    fillStyle: data.datasets[0].backgroundColor[i],
-                                    hidden: false,
-                                    index: i
-                                }));
-                            }
-                        }
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', maxRotation: 0, font: { size: 10 } },
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const count = gradeData.counts[context.dataIndex];
-                                return context.label + ': ' + context.parsed + '% (' + count + ' students)';
-                            }
-                        }
-                    }
-                }
-            }
+                    y: {
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                        grid: { color: 'rgba(148,163,184,0.12)' },
+                        ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => v + '%' },
+                    },
+                },
+            },
         });
-    } else {
-        // Show "No data" message
-        gradeCtx.parentElement.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">No grade data available for this period</div>';
-    }
-});
-</script>
 
-<script>
+        document.querySelectorAll('.att-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.att-filter-btn').forEach(b => {
+                    b.classList.remove('bg-blue-600', 'text-white');
+                    b.classList.add('text-slate-600');
+                });
+                this.classList.remove('text-slate-600');
+                this.classList.add('bg-blue-600', 'text-white');
+
+                const set = attSets[this.dataset.attPeriod];
+                attChart.data.labels = set.labels;
+                attChart.data.datasets[0].data = set.data;
+                attChart.update();
+            });
+        });
+    }
+
+    // ── Grade Donut ──────────────────────────────────────────────────
+    const gradeCanvas = document.getElementById('grade-donut-chart');
+    if (gradeCanvas) {
+        const gd = @json($gradeDistribution);
+        const colors = ['#22c55e','#3b82f6','#a855f7','#f97316','#eab308','#ef4444'];
+        const chartData = gd.hasData
+            ? gd.data
+            : [0, 0, 0, 0, 0, 100]; // red fallback when no data
+
+        new Chart(gradeCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: gd.labels,
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    hoverOffset: 4,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: gd.hasData,
+                        callbacks: {
+                            label: ctx => {
+                                const count = gd.counts?.[ctx.dataIndex];
+                                return ctx.label + ': ' + ctx.parsed + '%' + (count ? ' (' + count + ' students)' : '');
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    // ── Notice Tabs ──────────────────────────────────────────────────
+    document.querySelectorAll('.notice-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.notice-tab').forEach(t => {
+                t.classList.remove('border-blue-600', 'text-blue-600');
+                t.classList.add('border-transparent', 'text-slate-500');
+            });
+            this.classList.add('border-blue-600', 'text-blue-600');
+            this.classList.remove('border-transparent', 'text-slate-500');
+
+            const tab = this.dataset.tab;
+            document.getElementById('notices-internal').classList.toggle('hidden', tab !== 'internal');
+            document.getElementById('notices-public').classList.toggle('hidden', tab !== 'public');
+        });
+    });
+
+})();
 </script>
 @endpush
-
-
-

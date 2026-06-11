@@ -13,6 +13,7 @@ use App\Models\Notice;
 use App\Models\ParentModel;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\User;
 use App\Services\PublicDataService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -60,9 +61,19 @@ class DashboardController extends Controller
             $previousAdmissions = $this->countAdmissions($comparison['start'], $comparison['end'], $comparison['session']);
 
             $currentStudents = Student::active()->count();
+            $inactiveStudents = Student::where('status', 'inactive')->count();
             $totalTeachers = Teacher::active()->count();
+            $inactiveTeachers = Teacher::where('is_active', false)->count();
             $totalParents = ParentModel::count();
             $totalAlumni = Alumni::count();
+            $departmentCount = Department::active()->count();
+            $hodCount = User::role('hod')->count();
+            $todayAttendance = Attendance::whereDate('created_at', now()->toDateString())->count();
+            $upcomingEvents = Notice::published()
+                ->where('type', 'event')
+                ->orderByDesc('published_at')
+                ->take(4)
+                ->get();
 
             $attendanceSummary = $currentAttendanceSummary;
             $departmentPerformance = $this->buildDepartmentPerformance($window['start'], $window['end'], $currentScopeSession);
@@ -171,9 +182,15 @@ class DashboardController extends Controller
                 'attendanceChartData' => $attendanceChartData,
                 'gradeDistribution' => $gradeDistribution,
                 'currentStudents' => $currentStudents,
+                'inactiveStudents' => $inactiveStudents,
                 'totalTeachers' => $totalTeachers,
+                'inactiveTeachers' => $inactiveTeachers,
                 'totalParents' => $totalParents,
                 'totalAlumni' => $totalAlumni,
+                'departmentCount' => $departmentCount,
+                'hodCount' => $hodCount,
+                'todayAttendance' => $todayAttendance,
+                'upcomingEvents' => $upcomingEvents,
                 'attendanceSummary' => $attendanceSummary,
                 'passSummary' => $passSummary,
                 'activeSession' => $activeSession,
