@@ -45,43 +45,54 @@
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Open Graph -->
-    <meta property="og:site_name" content="{{ $collegeName }}">
-    <meta property="og:title" content="@yield('title', $collegeName)">
-    <meta property="og:description" content="Official website of {{ $collegeName }}.">
+    <meta property="og:site_name" content="Manmohan Memorial Polytechnic">
+    <meta property="og:title" content="@yield('title', 'Manmohan Memorial Polytechnic') | Manmohan Memorial Polytechnic">
+    <meta property="og:description" content="Official portal of Manmohan Memorial Polytechnic — {{ $collegeName }}.">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{ $logoUrl }}">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('title', $collegeName)">
-    <meta name="twitter:description" content="Official website of {{ $collegeName }}.">
+    <meta name="twitter:site" content="@mmp_edu_np">
+    <meta name="twitter:title" content="Manmohan Memorial Polytechnic">
+    <meta name="twitter:description" content="Official portal of Manmohan Memorial Polytechnic — {{ $collegeName }}.">
     <meta name="twitter:image" content="{{ $logoUrl }}">
 
-    <!-- Structured data (JSON-LD) for College/Organization -->
+    <!-- Structured data (JSON-LD) — CollegeOrUniversity + Organization -->
     <script type="application/ld+json">
     {
-      "@@context": "https://schema.org",
-      "@@type": "CollegeOrUniversity",
-      "name": "{{ $collegeName }}",
-      "url": "{{ $siteUrl }}",
-      "logo": "{{ $logoUrl }}"
-      @if(!empty($sameAs)),
-      "sameAs": {!! json_encode($sameAs) !!}
-      @endif
+      "@context": "https://schema.org",
+      "@type": ["CollegeOrUniversity", "EducationalOrganization"],
+      "@id": "{{ rtrim($siteUrl, '/') }}/#organization",
+      "name": "Manmohan Memorial Polytechnic",
+      "alternateName": "MMP",
+      "url": "{{ rtrim($siteUrl, '/') }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ $logoUrl }}",
+        "caption": "Manmohan Memorial Polytechnic Logo"
+      },
+      "foundingDate": "2008"
       @if(!empty($contactPhone)),
       "telephone": "{{ $contactPhone }}"
       @endif
       @if(!empty($contactAddress)),
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "{{ addslashes($contactAddress) }}"
+        "streetAddress": "{{ addslashes($contactAddress) }}",
+        "addressLocality": "Morang",
+        "addressRegion": "Koshi Province",
+        "addressCountry": "NP"
       }
+      @endif
+      @if(!empty($sameAs)),
+      "sameAs": {!! json_encode($sameAs) !!}
       @endif
     }
     </script>
 
-    <title>@yield('title', 'MMP CMS') | {{ config('app.name') }}</title>
+    <title>@yield('title', 'MMP CMS') | Manmohan Memorial Polytechnic</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

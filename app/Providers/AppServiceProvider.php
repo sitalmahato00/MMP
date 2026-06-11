@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Cache;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -63,9 +64,42 @@ class AppServiceProvider extends ServiceProvider
             $view->with('publicCourses', $publicCourses);
         });
 
-        // Share SEO defaults to all guest/public views (controllers override per-page)
+        // Share layout-level contact info + site identity to guest layout.
+        // Uses cached SiteSettings when available, falls back to config/seo.php values
+        // (which themselves read from APP_URL, SEO_SITE_NAME, CONTACT_EMAIL in .env).
         View::composer('layouts.guest', function ($view): void {
-            // Only set $seo if no controller has already set it
+            $guestMeta = \Illuminate\Support\Facades\Cache::remember('guest_layout_meta', 600, function () {
+                $settings = collect();
+
+                if (Schema::hasTable('site_settings')) {
+                    $settings = \App\Models\SiteSetting::all()->pluck('value', 'key');
+                }
+
+                $appUrl    = rtrim(config('app.url', ''), '/');
+                $appDomain = parse_url($appUrl, PHP_URL_HOST) ?? $appUrl;
+
+                return [
+                    'site_name' => $settings->get('college_name')
+                                ?? config('seo.site_name', 'Manmohan Memorial Polytechnic'),
+                    'email'     => $settings->get('contact_email')
+                                ?? config('seo.organization.email', ''),
+                    'phone'     => $settings->get('contact_phone')
+                                ?? implode(' / ', config('seo.organization.telephone', [])),
+                    'address'   => $settings->get('contact_address')
+                                ?? trim(implode(', ', array_filter([
+                                    config('seo.organization.address.street',   ''),
+                                    config('seo.organization.address.locality', ''),
+                                    config('seo.organization.address.region',   ''),
+                                    'Nepal',
+                                ]))),
+                    'app_url'    => $appUrl,
+                    'app_domain' => $appDomain,
+                ];
+            });
+
+            $view->with('guestMeta', $guestMeta);
+
+            // SEO defaults — controllers override per-page via $seo variable
             if (! array_key_exists('seo', $view->getData())) {
                 $view->with('seo', \App\Services\SeoService::build());
             }

@@ -363,24 +363,33 @@
     </header>
 
     {{-- ── TOP INFO BAR (CTEVT Blue) ─────────────── --}}
+    @php
+        $topEmail   = $guestMeta['email']      ?? '';
+        $topPhone   = $guestMeta['phone']      ?? '';
+        $topAddress = $guestMeta['address']    ?? '';
+        $appDomain  = $guestMeta['app_domain'] ?? config('app.url');
+        $siteName   = $guestMeta['site_name']  ?? config('seo.site_name', 'Manmohan Memorial Polytechnic');
+    @endphp
     <div style="background-color: #003D82;" class="hidden py-1.5 text-xs text-white lg:block">
         <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto flex justify-between items-center">
             <div class="flex items-center gap-5">
                 <span class="flex items-center gap-1.5">
                     <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    Budhiganga-4, Morang, Koshi Province, Nepal
+                    {{ $topAddress }}
                 </span>
                 <span class="text-blue-400">|</span>
                 <span class="flex items-center gap-1.5">
                     <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                    +977 21 590696, +977 21 590697
+                    {{ $topPhone }}
                 </span>
             </div>
             <div class="flex items-center gap-4">
-                <a href="mailto:info@mmp.edu.np" class="flex items-center gap-1.5 hover:text-yellow-400 transition-colors">
+                @if($topEmail)
+                <a href="mailto:{{ $topEmail }}" class="flex items-center gap-1.5 hover:text-yellow-400 transition-colors">
                     <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    info@mmp.edu.np
+                    {{ $topEmail }}
                 </a>
+                @endif
                 <button type="button" @click="toggleTheme()" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white transition hover:bg-white/10">
                     <svg x-show="effectiveTheme !== 'dark'" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.354 15.354A9 9 0 018.646 3.646 9 9 0 1012 21a8.96 8.96 0 008.354-5.646z"/>
@@ -415,7 +424,7 @@
                     <div class="text-base sm:text-xl font-semibold font-serif leading-tight text-[#003D82] line-clamp-1">Manmohan Memorial Polytechnic</div>
                     <div class="text-[11px] sm:text-sm font-normal text-[#DAA520] line-clamp-1">Best Technical College in Koshi Province</div>
                     <div class="hidden sm:block text-xs text-gray-500 font-normal">A Constituent College of Manmohan Technical University</div>
-                    <div class="sm:hidden text-[10px] font-normal text-gray-500">mmp.edu.np</div>
+                    <div class="sm:hidden text-[10px] font-normal text-gray-500">{{ $appDomain }}</div>
                 </div>
             </a>
         </div>
@@ -715,7 +724,7 @@
                     <ul class="space-y-3 text-sm text-blue-200">
                         <li class="flex items-start gap-2"><span class="mt-0.5 text-blue-400">📍</span><span>Budhiganga-4, Morang, Koshi Province, Nepal</span></li>
                         <li class="flex items-start gap-2"><span class="text-blue-400">📞</span><span>+977 21 590696 / 590697</span></li>
-                        <li class="flex items-start gap-2"><span class="text-blue-400">✉️</span><span>info@mmp.edu.np</span></li>
+                        <li class="flex items-start gap-2"><span class="text-blue-400">✉️</span><span>{{ $topEmail }}</span></li>
                         <li class="mt-4">
                             <p class="text-xs text-blue-300 font-semibold uppercase tracking-wider mb-2">Useful Links</p>
                             <div class="space-y-1">
@@ -730,8 +739,8 @@
 
             {{-- Copyright --}}
             <div style="background-color: #001F4D;" class="-mx-4 px-4 py-4 mt-0 text-center text-sm text-blue-300">
-                <p>© {{ date('Y') }} Manmohan Memorial Polytechnic (www.mmp.edu.np). All Rights Reserved.</p>
-                <p class="text-xs mt-1 text-blue-400">Budhiganga-4, Morang, Koshi Province, Nepal | Phone: +977 21 590696 | info@mmp.edu.np</p>
+                <p>© {{ date('Y') }} {{ $siteName }} ({{ $appDomain }}). All Rights Reserved.</p>
+                <p class="text-xs mt-1 text-blue-400">{{ $topAddress }} | {{ $topPhone }}@if($topEmail) | {{ $topEmail }}@endif</p>
             </div>
         </div>
     </footer>

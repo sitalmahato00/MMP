@@ -19,7 +19,8 @@ class SeoService
 
     private static function baseUrl(): string
     {
-        return rtrim(config('seo.url', config('app.url', 'https://www.mmp.edu.np')), '/');
+        // Always derive from config which reads APP_URL — never hardcode a domain here
+        return rtrim(config('seo.url', config('app.url')), '/');
     }
 
     // ─── Core tag builder ──────────────────────────────────────────────────
@@ -44,8 +45,10 @@ class SeoService
         $canonical = self::normaliseCanonical($canonical, $baseUrl);
 
         $rawTitle   = $overrides['title']       ?? $siteName;
-        $suffix     = config('seo.title_suffix', ' | MMP');
-        $fullTitle  = str_ends_with($rawTitle, 'MMP') || str_contains($rawTitle, 'Manmohan Memorial')
+        $suffix     = config('seo.title_suffix', ' — Manmohan Memorial Polytechnic');
+
+        // Always append the institution name unless the title already contains it
+        $fullTitle  = str_contains($rawTitle, 'Manmohan Memorial Polytechnic')
             ? $rawTitle
             : $rawTitle . $suffix;
 
@@ -61,6 +64,10 @@ class SeoService
 
         $twitterCard = $overrides['twitter_card'] ?? 'summary_large_image';
 
+        // og:title and twitter:title — always the full institution-branded title
+        $brandedOgTitle      = $overrides['og_title']  ?? $fullTitle;
+        $brandedTwitterTitle = $overrides['og_title']  ?? $fullTitle;
+
         return [
             'title'           => $fullTitle,
             'raw_title'       => $rawTitle,
@@ -68,19 +75,19 @@ class SeoService
             'keywords'        => $keywords,
             'robots'          => $robots,
             'canonical'       => $canonical,
-            'og_title'        => $overrides['og_title']       ?? $rawTitle,
+            'og_title'        => $brandedOgTitle,
             'og_description'  => $overrides['og_description'] ?? $description,
             'og_type'         => $ogType,
             'og_image'        => $ogImage,
             'og_image_width'  => $overrides['og_image_width']  ?? config('seo.default_og_image_width',  1200),
             'og_image_height' => $overrides['og_image_height'] ?? config('seo.default_og_image_height', 630),
             'og_url'          => $canonical,
-            'og_site_name'    => $siteName,
+            'og_site_name'    => 'Manmohan Memorial Polytechnic',
             'og_locale'       => config('seo.locale', 'en_US'),
             'twitter_card'    => $twitterCard,
             'twitter_site'    => config('seo.twitter_site',    ''),
             'twitter_creator' => config('seo.twitter_creator', ''),
-            'twitter_title'   => $overrides['og_title']       ?? $rawTitle,
+            'twitter_title'   => $brandedTwitterTitle,
             'twitter_description' => $overrides['og_description'] ?? $description,
             'twitter_image'   => $ogImage,
 
@@ -104,7 +111,7 @@ class SeoService
     public static function home(): array
     {
         return self::build([
-            'title'       => 'Manmohan Memorial Polytechnic | Best Technical College — Koshi Province, Nepal',
+            'title'       => 'Manmohan Memorial Polytechnic | Technical Education in Nepal',
             'description' => 'Manmohan Memorial Polytechnic (MMP), Budhiganga-4 Morang — the leading CTEVT-affiliated technical college in Koshi Province. Diploma programs in IT, Civil, Electrical, Mechanical & Electronics Engineering.',
             'og_type'     => 'website',
             'breadcrumbs' => [],
@@ -114,7 +121,7 @@ class SeoService
     public static function departments(): array
     {
         return self::build([
-            'title'       => 'Departments & Programs',
+            'title'       => 'Departments & Programs — Manmohan Memorial Polytechnic',
             'description' => 'Explore all diploma programs at Manmohan Memorial Polytechnic — Civil, Electrical, Mechanical, Electronics & IT Engineering. CTEVT affiliated, Morang Nepal.',
             'breadcrumbs' => [
                 ['name' => 'Home',        'url' => url('/')],
@@ -126,7 +133,7 @@ class SeoService
     public static function department(object $dept): array
     {
         return self::build([
-            'title'       => $dept->name . ' Department',
+            'title'       => $dept->name . ' Department — Manmohan Memorial Polytechnic',
             'description' => $dept->description ?? 'Learn about the ' . $dept->name . ' department at Manmohan Memorial Polytechnic, Morang Nepal.',
             'canonical'   => url('/departments/' . $dept->slug),
             'breadcrumbs' => [
@@ -140,7 +147,7 @@ class SeoService
     public static function contact(): array
     {
         return self::build([
-            'title'       => 'Contact Us',
+            'title'       => 'Contact Us — Manmohan Memorial Polytechnic',
             'description' => 'Contact Manmohan Memorial Polytechnic. Address: Budhiganga-4, Morang, Nepal. Phone: +977-21-590696. Email: info@mmp.edu.np.',
             'breadcrumbs' => [
                 ['name' => 'Home',       'url' => url('/')],
@@ -152,7 +159,7 @@ class SeoService
     public static function notices(): array
     {
         return self::build([
-            'title'       => 'Notice Board',
+            'title'       => 'Notice Board — Manmohan Memorial Polytechnic',
             'description' => 'Official notices, circulars and announcements from Manmohan Memorial Polytechnic, Morang Nepal.',
             'breadcrumbs' => [
                 ['name' => 'Home',    'url' => url('/')],
@@ -164,7 +171,7 @@ class SeoService
     public static function notice(object $notice): array
     {
         return self::build([
-            'title'       => $notice->title,
+            'title'       => $notice->title . ' — Manmohan Memorial Polytechnic',
             'description' => $notice->excerpt ?? strip_tags((string) $notice->content ?? ''),
             'canonical'   => url('/notices/' . $notice->slug),
             'og_type'     => 'article',
@@ -179,7 +186,7 @@ class SeoService
     public static function newsEvents(): array
     {
         return self::build([
-            'title'       => 'News & Events',
+            'title'       => 'News & Events — Manmohan Memorial Polytechnic',
             'description' => 'Latest news and events from Manmohan Memorial Polytechnic, Morang Nepal.',
             'breadcrumbs' => [
                 ['name' => 'Home',         'url' => url('/')],
@@ -191,7 +198,7 @@ class SeoService
     public static function newsEvent(object $item): array
     {
         return self::build([
-            'title'       => $item->title,
+            'title'       => $item->title . ' — Manmohan Memorial Polytechnic',
             'description' => $item->excerpt ?? strip_tags((string) $item->content ?? ''),
             'canonical'   => url('/news-events/' . $item->slug),
             'og_type'     => 'article',
@@ -206,7 +213,7 @@ class SeoService
     public static function result(): array
     {
         return self::build([
-            'title'       => 'Entrance / CTEVT Result',
+            'title'       => 'Entrance / CTEVT Result — Manmohan Memorial Polytechnic',
             'description' => 'Check CTEVT exam results, entrance results and academic results for Manmohan Memorial Polytechnic students.',
             'breadcrumbs' => [
                 ['name' => 'Home',           'url' => url('/')],
@@ -218,7 +225,7 @@ class SeoService
     public static function leadership(): array
     {
         return self::build([
-            'title'       => 'Presidents & Principal Message',
+            'title'       => 'Presidents & Principal Message — Manmohan Memorial Polytechnic',
             'description' => 'Meet the leadership team of Manmohan Memorial Polytechnic — Principal, Presidents and senior executives.',
             'breadcrumbs' => [
                 ['name' => 'Home',       'url' => url('/')],
@@ -230,7 +237,7 @@ class SeoService
     public static function people(): array
     {
         return self::build([
-            'title'       => 'Our People — Faculty & Staff',
+            'title'       => 'Faculty & Staff — Manmohan Memorial Polytechnic',
             'description' => 'Meet the faculty, department heads, teachers and administrative staff of Manmohan Memorial Polytechnic, Morang Nepal.',
             'breadcrumbs' => [
                 ['name' => 'Home',   'url' => url('/')],
@@ -242,7 +249,7 @@ class SeoService
     public static function staff(): array
     {
         return self::build([
-            'title'       => 'Administrative Staff',
+            'title'       => 'Administrative Staff — Manmohan Memorial Polytechnic',
             'description' => 'Administrative and support staff directory of Manmohan Memorial Polytechnic.',
             'breadcrumbs' => [
                 ['name' => 'Home',  'url' => url('/')],
@@ -254,7 +261,7 @@ class SeoService
     public static function gallery(): array
     {
         return self::build([
-            'title'       => 'Photo Gallery',
+            'title'       => 'Photo Gallery — Manmohan Memorial Polytechnic',
             'description' => 'Photo gallery of Manmohan Memorial Polytechnic — campus life, events, labs and activities.',
             'breadcrumbs' => [
                 ['name' => 'Home',    'url' => url('/')],
@@ -266,7 +273,7 @@ class SeoService
     public static function downloads(): array
     {
         return self::build([
-            'title'       => 'Downloads & Resources',
+            'title'       => 'Downloads & Resources — Manmohan Memorial Polytechnic',
             'description' => 'Download official forms, syllabus, notes and other documents from Manmohan Memorial Polytechnic.',
             'breadcrumbs' => [
                 ['name' => 'Home',      'url' => url('/')],
@@ -278,7 +285,7 @@ class SeoService
     public static function alumni(): array
     {
         return self::build([
-            'title'       => 'Alumni Directory',
+            'title'       => 'Alumni Directory — Manmohan Memorial Polytechnic',
             'description' => 'Connect with MMP alumni. Find graduates of Manmohan Memorial Polytechnic across various industries.',
             'breadcrumbs' => [
                 ['name' => 'Home',   'url' => url('/')],
@@ -290,7 +297,7 @@ class SeoService
     public static function facilities(): array
     {
         return self::build([
-            'title'       => 'Campus Facilities & Resources',
+            'title'       => 'Campus Facilities & Resources — Manmohan Memorial Polytechnic',
             'description' => 'Explore the campus facilities at Manmohan Memorial Polytechnic — labs, library, workshops and more.',
             'breadcrumbs' => [
                 ['name' => 'Home',       'url' => url('/')],
@@ -301,13 +308,14 @@ class SeoService
 
     public static function page(object $page): array
     {
+        $pageTitle = $page->title ?? 'Page';
         return self::build([
-            'title'       => $page->title ?? 'Page',
+            'title'       => $pageTitle . ' — Manmohan Memorial Polytechnic',
             'description' => $page->meta_description ?? strip_tags((string) ($page->content ?? '')),
             'canonical'   => url('/page/' . $page->slug),
             'breadcrumbs' => [
-                ['name' => 'Home',          'url' => url('/')],
-                ['name' => $page->title ?? 'Page', 'url' => url('/page/' . $page->slug)],
+                ['name' => 'Home',     'url' => url('/')],
+                ['name' => $pageTitle, 'url' => url('/page/' . $page->slug)],
             ],
         ]);
     }
@@ -363,8 +371,8 @@ class SeoService
             '@context'    => 'https://schema.org',
             '@type'       => ['CollegeOrUniversity', 'EducationalOrganization'],
             '@id'         => $base . '/#organization',
-            'name'        => $org['name'] ?? 'Manmohan Memorial Polytechnic',
-            'alternateName' => $org['alternate_name'] ?? 'MMP',
+            'name'        => $org['name'] ?? config('seo.site_name'),
+            'alternateName' => $org['alternate_name'] ?? config('seo.short_name'),
             'url'         => $org['url'] ?? $base,
             'logo' => [
                 '@type'  => 'ImageObject',
@@ -374,7 +382,7 @@ class SeoService
             ],
             'foundingDate' => $org['founded'] ?? '2008',
             'telephone'    => count($phones) === 1 ? $phones[0] : $phones,
-            'email'        => $org['email'] ?? 'info@mmp.edu.np',
+            'email'        => $org['email'] ?? config('seo.organization.email', ''),
             'address' => [
                 '@type'           => 'PostalAddress',
                 'streetAddress'   => $org['address']['street']   ?? 'Budhiganga-4',
@@ -390,7 +398,7 @@ class SeoService
             ],
             'contactPoint' => [
                 '@type'             => 'ContactPoint',
-                'telephone'         => $phones[0] ?? '+977-21-590696',
+                'telephone'         => $phones[0] ?? '',
                 'contactType'       => 'admissions',
                 'areaServed'        => 'NP',
                 'availableLanguage' => ['English', 'Nepali'],
@@ -411,8 +419,8 @@ class SeoService
             '@type'    => 'WebSite',
             '@id'      => $base . '/#website',
             'url'      => $base,
-            'name'     => $org['name'] ?? 'Manmohan Memorial Polytechnic',
-            'alternateName' => $org['alternate_name'] ?? 'MMP',
+            'name'     => $org['name'] ?? config('seo.site_name'),
+            'alternateName' => $org['alternate_name'] ?? config('seo.short_name'),
             'publisher' => [
                 '@id' => $base . '/#organization',
             ],
@@ -437,10 +445,10 @@ class SeoService
             '@context' => 'https://schema.org',
             '@type'    => 'LocalBusiness',
             '@id'      => $base . '/#localbusiness',
-            'name'     => $org['name'] ?? 'Manmohan Memorial Polytechnic',
+            'name'     => $org['name'] ?? config('seo.site_name'),
             'image'    => $org['logo'] ?? ($base . '/brand-logo'),
             'url'      => $org['url'] ?? $base,
-            'telephone' => $phones[0] ?? '+977-21-590696',
+            'telephone' => $phones[0] ?? '',
             'address' => [
                 '@type'           => 'PostalAddress',
                 'streetAddress'   => $org['address']['street']   ?? 'Budhiganga-4',
