@@ -22,6 +22,10 @@
 !/public/sw.js
 !/public/offline.html
 !/public/.htaccess
+!/public/build/
+!/public/build/**
+!/public/assets/
+!/public/assets/**
 /storage/*.key
 /storage/pail
 /storage/framework/views-test
