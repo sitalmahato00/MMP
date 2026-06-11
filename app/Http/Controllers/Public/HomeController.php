@@ -515,3 +515,4 @@ class HomeController extends Controller
         return view('public.about', compact('siteSettings', 'seo'));
     }
 }
+

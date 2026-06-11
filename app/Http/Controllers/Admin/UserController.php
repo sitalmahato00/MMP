@@ -7,6 +7,7 @@ use App\Helpers\NepaliDateHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 
@@ -64,7 +65,6 @@ class UserController extends Controller
             'avatar'   => 'nullable|image|max:2048',
             'role'     => 'required|in:principal,hod,teacher,student,parent,alumni',
             'is_active'=> 'boolean',
-            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -80,13 +80,13 @@ class UserController extends Controller
             'address'   => $data['address'] ?? null,
             'avatar'    => $data['avatar'] ?? null,
             'is_active' => $data['is_active'] ?? true,
-            'password'  => Hash::make($data['password']),
+            'password'  => Hash::make(Str::random(40)),
         ]);
 
         $user->assignRole($data['role']);
 
         app(\App\Services\PortalNotificationService::class)
-            ->sendNewAccountCredentials($user, $data['password'], auth()->user());
+            ->sendNewAccountCredentials($user, auth()->user());
 
         return redirect()->route('admin.users.index')
             ->with('success', "User {$user->name} created successfully.");
@@ -115,7 +115,6 @@ class UserController extends Controller
             'avatar'    => 'nullable|image|max:2048',
             'role'      => 'required|in:principal,hod,teacher,student,parent,alumni',
             'is_active' => 'boolean',
-            'password'  => 'nullable|string|min:8|confirmed',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -136,10 +135,6 @@ class UserController extends Controller
             'address'   => $data['address'] ?? null,
             'is_active' => $data['is_active'] ?? $user->is_active,
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));
-
-        if (!empty($data['password'])) {
-            $user->update(['password' => Hash::make($data['password'])]);
-        }
 
         $user->syncRoles([$data['role']]);
 

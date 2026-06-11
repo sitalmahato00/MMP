@@ -7,6 +7,7 @@ use App\Models\Alumni as Alumnus;
 use App\Models\{Department, Program, User};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Storage};
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AlumniController extends Controller
@@ -64,7 +65,6 @@ class AlumniController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'avatar' => 'nullable|image|max:2048',
-            'password' => 'required|string|min:8',
             'department_id' => 'required|exists:departments,id',
             'program_id' => 'required|exists:programs,id',
             'graduation_year' => 'required|string|max:4',
@@ -95,7 +95,7 @@ class AlumniController extends Controller
                 'phone' => $validated['phone'] ?? null,
                 'address' => $validated['address'] ?? null,
                 'avatar' => $avatarPath,
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make(Str::random(40)),
                 'is_active' => true,
             ]);
             $user->assignRole('alumni');
@@ -125,7 +125,7 @@ class AlumniController extends Controller
 
         if ($createdUser) {
             app(\App\Services\PortalNotificationService::class)
-                ->sendNewAccountCredentials($createdUser, $validated['password'], auth()->user());
+                ->sendNewAccountCredentials($createdUser, auth()->user());
         }
 
         return redirect()->route('admin.alumni.index')->with('success', 'Alumni record created successfully.');

@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -92,7 +93,6 @@ class StudentController extends Controller
             'dob'                 => 'nullable|string|max:10',
             'address'             => 'nullable|string',
             'avatar'              => 'nullable|image|max:2048',
-            'password'            => 'required|string|min:8',
             // Enrollment
             'student_no'          => 'required|string|max:50|unique:students,student_no',
             'registration_number' => 'nullable|string|max:50',
@@ -136,11 +136,11 @@ class StudentController extends Controller
                 'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
                 'address'   => $data['address'] ?? null,
                 'avatar'    => $data['avatar'] ?? null,
-                'password'  => Hash::make($data['password']),
+                'password'  => Hash::make(Str::random(40)),
                 'is_active' => true,
             ]);
             $user->assignRole('student');
-            $createdAccounts[] = ['user' => $user, 'password' => $data['password']];
+            $createdAccounts[] = ['user' => $user];
 
             $student = Student::create([
                 'user_id'             => $user->id,
@@ -166,11 +166,11 @@ class StudentController extends Controller
                     'name'      => $data['parent_name'],
                     'email'     => $data['parent_email'],
                     'phone'     => $data['parent_phone'] ?? null,
-                    'password'  => Hash::make($data['password']),
+                    'password'  => Hash::make(Str::random(40)),
                     'is_active' => true,
                 ]);
                 $parentUser->assignRole('parent');
-                $createdAccounts[] = ['user' => $parentUser, 'password' => $data['password']];
+                $createdAccounts[] = ['user' => $parentUser];
 
                 $parentModel = ParentModel::create([
                     'user_id'             => $parentUser->id,
@@ -184,7 +184,7 @@ class StudentController extends Controller
 
         $notificationService = app(\App\Services\PortalNotificationService::class);
         foreach ($createdAccounts as $account) {
-            $notificationService->sendNewAccountCredentials($account['user'], $account['password'], auth()->user());
+            $notificationService->sendNewAccountCredentials($account['user'], auth()->user());
         }
 
         return redirect()->route('admin.students.index')->with('success', 'Student enrolled successfully.');

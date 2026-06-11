@@ -27,9 +27,9 @@
             <x-form-field label="Phone Number" name="phone">
                 <x-input name="phone" :value="old('phone')" placeholder="98XXXXXXXX"/>
             </x-form-field>
-            <x-form-field label="Password" name="password" :required="true">
-                <x-input name="password" type="password" :required="true" placeholder="Min. 8 characters"/>
-            </x-form-field>
+            <div class="sm:col-span-12">
+                <p class="text-sm text-slate-600">A password reset link will be sent to the student after account creation.</p>
+            </div>
             <x-form-field label="Gender" name="gender">
                 <x-select name="gender">
                     <option value="">Select Gender</option>
@@ -144,7 +144,7 @@
                 <p class="mt-0.5 text-xs text-slate-500 leading-relaxed">
                     A login account will be created for the parent and linked to this student.
                     They can view attendance, marks, and notices via the parent portal.
-                    The student's password is used as the initial parent password.
+                    A password reset link will be sent to the parent after account creation.
                 </p>
             </div>
         </label>

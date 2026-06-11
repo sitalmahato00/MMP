@@ -12,6 +12,7 @@ use App\Notifications\PortalNoticeNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Testing\Fakes\NotificationFake;
 
 class PortalNotificationService
@@ -22,14 +23,16 @@ class PortalNotificationService
     ) {
     }
 
-    public function sendNewAccountCredentials(User $user, string $plainPassword, ?User $createdBy = null): void
+    public function sendNewAccountCredentials(User $user, ?User $createdBy = null): void
     {
         if (! filled($user->email) || $this->shouldSuppressMailDuringTests()) {
             return;
         }
 
+        $token = Password::broker()->createToken($user);
+
         $user->notify(new NewPortalAccountNotification(
-            plainPassword: $plainPassword,
+            token: $token,
             roleLabel: $this->roleLabel($user),
             createdByName: $createdBy?->name,
         ));

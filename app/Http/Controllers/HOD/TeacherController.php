@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -101,7 +102,6 @@ class TeacherController extends HodController
             'dob' => 'nullable|string|max:10',
             'address' => 'nullable|string',
             'avatar' => 'nullable|image|max:2048',
-            'password' => 'required|string|min:8',
             // Professional
             'employee_id' => 'required|string|max:50|unique:teachers,employee_id', // Already required
             'designation' => 'required|in:Teacher', // HODs can only create regular teachers
@@ -138,7 +138,7 @@ class TeacherController extends HodController
                 'dob' => NepaliDateHelper::toAD($data['dob'] ?? null),
                 'address' => $data['address'] ?? null,
                 'avatar' => $data['avatar'] ?? null,
-                'password' => Hash::make($data['password']),
+                'password' => Hash::make(Str::random(40)),
                 'is_active' => true,
             ]);
 
@@ -178,7 +178,7 @@ class TeacherController extends HodController
 
         if ($createdUser) {
             app(\App\Services\PortalNotificationService::class)
-                ->sendNewAccountCredentials($createdUser, $data['password'], auth()->user());
+                ->sendNewAccountCredentials($createdUser, auth()->user());
         }
 
         return redirect()

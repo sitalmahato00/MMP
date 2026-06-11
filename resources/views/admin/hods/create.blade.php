@@ -68,8 +68,7 @@
 
                     <div class="md:col-span-2">
                         <x-label for="avatar">Profile Photo</x-label>
-                        <input type="file" id="avatar" name="avatar" accept="image/*"
-                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                        <x-file-input name="avatar" accept="image/*" label="Upload Profile Photo"/>
                         <x-error field="avatar"/>
                     </div>
                 </div>
@@ -97,15 +96,8 @@
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <x-label for="password" required>Password</x-label>
-                        <x-input type="password" id="password" name="password" required/>
-                        <x-error field="password"/>
-                    </div>
-
-                    <div>
-                        <x-label for="password_confirmation" required>Confirm Password</x-label>
-                        <x-input type="password" id="password_confirmation" name="password_confirmation" required/>
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-slate-600">A password reset link will be sent to the HOD after account creation.</p>
                     </div>
 
                     <div class="md:col-span-2">

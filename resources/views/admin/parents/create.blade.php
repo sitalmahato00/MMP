@@ -17,7 +17,7 @@
         <x-form-sidebar />
     </x-slot>
 
-    <form method="POST" action="{{ route('admin.parents.store') }}" enctype="multipart/form-data"
+    <form id="parents-create-form" method="POST" action="{{ route('admin.parents.store') }}" enctype="multipart/form-data"
           class="space-y-6">
     @csrf
 
@@ -33,9 +33,7 @@
             <x-form-field label="Phone Number" name="phone">
                 <x-input name="phone" :value="old('phone')" placeholder="98XXXXXXXX"/>
             </x-form-field>
-            <x-form-field label="Password" name="password" :required="true">
-                <x-input name="password" type="password" :required="true" placeholder="Min. 8 characters"/>
-            </x-form-field>
+            <p class="mt-4 text-sm text-slate-600">A password reset link will be sent to the parent after account creation.</p>
             <x-form-field label="Address" name="address" span="full">
                 <x-textarea name="address" rows="2" placeholder="District, Province, Country">{{ old('address') }}</x-textarea>
             </x-form-field>
@@ -93,7 +91,7 @@
     {{-- SUBMIT --}}
     <x-slot name="footer">
         <div class="flex flex-wrap items-center gap-3">
-            <x-btn type="submit">Create Parent Account</x-btn>
+            <x-btn type="submit" form="parents-create-form">Create Parent Account</x-btn>
             <a href="{{ route('admin.parents.index') }}" class="text-sm text-slate-500 hover:text-slate-700">Cancel</a>
         </div>
     </x-slot>

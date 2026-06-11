@@ -81,19 +81,8 @@
                 @error('phone')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Password <span class="text-red-500">*</span></label>
-                <input type="password" name="password" required
-                       class="w-full rounded-xl border {{ $errors->has('password') ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50' }} px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-[#1d4ed8]/20 transition"
-                       placeholder="Minimum 8 characters"/>
-                @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Confirm Password <span class="text-red-500">*</span></label>
-                <input type="password" name="password_confirmation" required
-                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-[#1d4ed8]/20 transition"
-                       placeholder="Re-enter password"/>
+            <div class="sm:col-span-2">
+                <p class="text-sm text-slate-600">A password reset link will be sent to the teacher after account creation.</p>
             </div>
 
             <div>

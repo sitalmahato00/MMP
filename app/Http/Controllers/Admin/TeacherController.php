@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class TeacherController extends Controller
@@ -125,7 +126,6 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'dob'             => 'nullable|string|max:12',
             'address'         => 'nullable|string|max:500',
             'avatar'          => 'nullable|image|max:2048',
-            'password'        => 'required|string|min:8|confirmed',
             'department_id'   => 'nullable|exists:departments,id',
             'employee_id'     => 'nullable|string|max:50|unique:teachers,employee_id',
             'designation'     => 'nullable|in:Teacher',
@@ -150,7 +150,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
                 'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
                 'address'   => $data['address'] ?? null,
                 'avatar'    => $avatarPath,
-                'password'  => Hash::make($data['password']),
+                'password'  => Hash::make(Str::random(40)),
                 'is_active' => true,
             ]);
             
@@ -173,7 +173,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
 
         if ($createdUser) {
             app(\App\Services\PortalNotificationService::class)
-                ->sendNewAccountCredentials($createdUser, $data['password'], auth()->user());
+                ->sendNewAccountCredentials($createdUser, auth()->user());
         }
 
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher added successfully.');

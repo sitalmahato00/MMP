@@ -22,17 +22,6 @@
         @method('PUT')
 
         <div class="space-y-6">
-            {{-- Current Avatar --}}
-            @if($hod->avatar)
-            <div class="flex items-center gap-4">
-                <img src="{{ $hod->avatar_url }}" alt="{{ $hod->name }}" class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100">
-                <div>
-                    <p class="text-sm font-medium text-gray-900">Current Profile Photo</p>
-                    <p class="text-xs text-gray-500">Upload a new photo to replace</p>
-                </div>
-            </div>
-            @endif
-
             {{-- Basic Information --}}
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
@@ -80,8 +69,7 @@
 
                     <div class="md:col-span-2">
                         <x-label for="avatar">Profile Photo</x-label>
-                        <input type="file" id="avatar" name="avatar" accept="image/*"
-                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                        <x-file-input name="avatar" accept="image/*" label="Upload Profile Photo" :current="$hod->avatar"/>
                         <x-error field="avatar"/>
                     </div>
                 </div>
@@ -109,18 +97,6 @@
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <x-label for="password">New Password</x-label>
-                        <x-input type="password" id="password" name="password"/>
-                        <p class="mt-1 text-xs text-gray-500">Leave blank to keep current password</p>
-                        <x-error field="password"/>
-                    </div>
-
-                    <div>
-                        <x-label for="password_confirmation">Confirm New Password</x-label>
-                        <x-input type="password" id="password_confirmation" name="password_confirmation"/>
-                    </div>
-
                     <div class="md:col-span-2">
                         <label class="flex items-center gap-2">
                             <input type="checkbox" name="is_active" value="1" {{ old('is_active', $hod->is_active) ? 'checked' : '' }}

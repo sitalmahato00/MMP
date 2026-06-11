@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -79,7 +80,6 @@ class ParentController extends Controller
             'phone'             => 'nullable|string|max:20',
             'address'           => 'nullable|string',
             'avatar'            => 'nullable|image|max:2048',
-            'password'          => 'required|string|min:8',
             'occupation'        => 'nullable|string|max:100',
             'relation_to_student' => 'nullable|string|max:50',
             'student_ids'       => 'nullable|array',
@@ -99,7 +99,7 @@ class ParentController extends Controller
                 'phone'     => $data['phone'] ?? null,
                 'address'   => $data['address'] ?? null,
                 'avatar'    => $data['avatar'] ?? null,
-                'password'  => Hash::make($data['password']),
+                'password'  => Hash::make(Str::random(40)),
                 'is_active' => true,
             ]);
             $user->assignRole('parent');
@@ -118,7 +118,7 @@ class ParentController extends Controller
 
         if ($createdUser) {
             app(\App\Services\PortalNotificationService::class)
-                ->sendNewAccountCredentials($createdUser, $data['password'], auth()->user());
+                ->sendNewAccountCredentials($createdUser, auth()->user());
         }
 
         return redirect()->route('admin.parents.index')

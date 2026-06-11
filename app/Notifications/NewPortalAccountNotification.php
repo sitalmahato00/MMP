@@ -11,7 +11,7 @@ class NewPortalAccountNotification extends Notification
     use Queueable;
 
     public function __construct(
-        private readonly string $plainPassword,
+        private readonly string $token,
         private readonly string $roleLabel,
         private readonly ?string $createdByName = null,
     ) {
@@ -25,13 +25,16 @@ class NewPortalAccountNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your MMP portal account is ready')
+            ->subject('Activate your MMP portal account')
             ->view('emails.accounts.created', [
                 'user' => $notifiable,
-                'plainPassword' => $this->plainPassword,
                 'roleLabel' => $this->roleLabel,
                 'createdByName' => $this->createdByName,
-                'loginUrl' => route('login'),
+                'resetUrl' => route('password.reset', [
+                    'token' => $this->token,
+                    'email' => $notifiable->getEmailForPasswordReset(),
+                ]),
+                'expiryMinutes' => (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60),
             ]);
     }
 }

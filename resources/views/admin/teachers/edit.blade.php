@@ -83,21 +83,6 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">New Password <span class="text-slate-400 font-normal">(leave blank to keep current)</span></label>
-                <input type="password" name="password"
-                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition"
-                       placeholder="New password (optional)"/>
-                @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Confirm New Password</label>
-                <input type="password" name="password_confirmation"
-                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition"
-                       placeholder="Confirm new password"/>
-            </div>
-
-            <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">Gender</label>
                 <select name="gender"
                         class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition">

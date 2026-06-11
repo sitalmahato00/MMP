@@ -17,7 +17,7 @@
         <x-form-sidebar />
     </x-slot>
 
-    <form method="POST" action="{{ route('admin.alumni.update', $alumnus) }}" enctype="multipart/form-data"
+    <form id="alumni-edit-form" method="POST" action="{{ route('admin.alumni.update', $alumnus) }}" enctype="multipart/form-data"
           class="space-y-6">
     @csrf @method('PUT')
 
@@ -159,7 +159,7 @@
     {{-- SUBMIT --}}
     <x-slot name="footer">
         <div class="flex flex-wrap items-center gap-3">
-            <x-btn type="submit">Update Alumni</x-btn>
+            <x-btn type="submit" form="alumni-edit-form">Update Alumni</x-btn>
             <a href="{{ route('admin.alumni.show', $alumnus) }}" class="text-sm text-slate-500 hover:text-slate-700">Cancel</a>
         </div>
     </x-slot>

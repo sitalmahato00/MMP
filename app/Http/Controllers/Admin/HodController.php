@@ -49,7 +49,6 @@ class HodController extends Controller
             'avatar'        => 'nullable|image|max:2048',
             'department_id' => 'nullable|exists:departments,id',
             'is_active'     => 'boolean',
-            'password'      => 'required|string|min:8|confirmed',
         ]);
 
         // Validate department doesn't already have an HOD
@@ -73,7 +72,7 @@ class HodController extends Controller
             'address'   => $data['address'] ?? null,
             'avatar'    => $data['avatar'] ?? null,
             'is_active' => $data['is_active'] ?? true,
-            'password'  => Hash::make($data['password']),
+            'password'  => Hash::make(Str::random(40)),
         ]);
 
         $user->assignRole('hod');
@@ -84,7 +83,7 @@ class HodController extends Controller
         }
 
         app(\App\Services\PortalNotificationService::class)
-            ->sendNewAccountCredentials($user, $data['password'], auth()->user());
+            ->sendNewAccountCredentials($user, auth()->user());
 
         return redirect()->route('admin.hods.index')
             ->with('success', "HOD {$user->name} created successfully.");

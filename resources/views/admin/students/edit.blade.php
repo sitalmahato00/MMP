@@ -17,7 +17,7 @@
         <x-form-sidebar />
     </x-slot>
 
-    <form method="POST" action="{{ route('admin.students.update', $student) }}" enctype="multipart/form-data"
+    <form id="students-edit-form" method="POST" action="{{ route('admin.students.update', $student) }}" enctype="multipart/form-data"
           x-data="{
               selectedProgram: '{{ $student->program_id }}',
               programs: {{ $programs->map(fn($p) => ['id'=>$p->id,'name'=>$p->name,'dept'=>$p->department?->name,'semesters'=>$p->total_semesters])->toJson() }},
@@ -155,7 +155,7 @@
 
     <x-slot name="footer">
         <div class="flex flex-wrap items-center gap-3">
-            <x-btn type="submit">Save Changes</x-btn>
+            <x-btn type="submit" form="students-edit-form">Save Changes</x-btn>
             <x-btn href="{{ route('admin.students.index') }}" variant="secondary">Cancel</x-btn>
         </div>
     </x-slot>

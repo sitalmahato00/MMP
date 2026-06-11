@@ -13,7 +13,7 @@
         </nav>
     </x-slot>
 
-    <form method="POST" action="{{ route('admin.users.update', $user) }}" enctype="multipart/form-data" class="space-y-6">
+    <form id="users-edit-form" method="POST" action="{{ route('admin.users.update', $user) }}" enctype="multipart/form-data" class="space-y-6">
     @csrf @method('PUT')
     
     <x-form-section title="Basic Information">
@@ -70,29 +70,18 @@
         </x-form-row>
     </x-form-section>
 
-    <x-form-section title="Change Password (leave blank to keep current)">
-        <x-form-row>
-            <x-form-field label="New Password" name="password">
-                <x-input name="password" type="password"/>
-            </x-form-field>
-            <x-form-field label="Confirm Password" name="password_confirmation">
-                <x-input name="password_confirmation" type="password"/>
-            </x-form-field>
-        </x-form-row>
-    </x-form-section>
-
     <x-slot name="sidebar">
         <x-form-sidebar>
             <div class="rounded-[8px] border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="text-sm font-semibold text-slate-900 mb-3">Action Notes</div>
-                <p class="text-sm leading-6 text-slate-600">Use this page to update user roles, status, and login credentials in a single centralized form. Leave password fields blank if you do not wish to change the password.</p>
+                <p class="text-sm leading-6 text-slate-600">Use this page to update user roles and status. Password changes are managed separately.</p>
             </div>
         </x-form-sidebar>
     </x-slot>
 
     <x-slot name="footer">
         <div class="flex flex-wrap items-center gap-3">
-            <x-btn type="submit" variant="success">Save Changes</x-btn>
+            <x-btn type="submit" variant="success" form="users-edit-form">Save Changes</x-btn>
             <x-btn type="reset" variant="ghost">Reset</x-btn>
             <x-btn href="{{ route('admin.users.index') }}" variant="secondary">Cancel</x-btn>
         </div>

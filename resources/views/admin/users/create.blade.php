@@ -13,7 +13,7 @@
         </nav>
     </x-slot>
 
-    <form method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data" class="space-y-6">
+    <form id="users-create-form" method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data" class="space-y-6">
     @csrf
     <x-form-section title="Basic Information">
         <x-form-row>
@@ -69,12 +69,7 @@
 
     <x-form-section title="Security">
         <x-form-row>
-            <x-form-field label="Password" name="password" :required="true">
-                <x-input name="password" type="password" :required="true"/>
-            </x-form-field>
-            <x-form-field label="Confirm Password" name="password_confirmation" :required="true">
-                <x-input name="password_confirmation" type="password" :required="true"/>
-            </x-form-field>
+            <p class="mt-4 text-sm text-slate-600">A password reset link will be sent to the user after account creation.</p>
         </x-form-row>
     </x-form-section>
 
@@ -95,7 +90,7 @@
 
     <x-slot name="footer">
         <div class="flex flex-wrap items-center gap-3">
-            <x-btn type="submit" variant="success">Create User</x-btn>
+            <x-btn type="submit" variant="success" form="users-create-form">Create User</x-btn>
             <x-btn type="reset" variant="ghost">Reset</x-btn>
             <x-btn href="{{ route('admin.users.index') }}" variant="secondary">Cancel</x-btn>
         </div>

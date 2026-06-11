@@ -17,7 +17,7 @@
         <x-form-sidebar />
     </x-slot>
 
-    <form method="POST" action="{{ route('admin.parents.update', $parent) }}" enctype="multipart/form-data"
+    <form id="parents-edit-form" method="POST" action="{{ route('admin.parents.update', $parent) }}" enctype="multipart/form-data"
           class="space-y-6">
     @csrf @method('PUT')
 
@@ -112,7 +112,7 @@
     {{-- SUBMIT --}}
     <x-slot name="footer">
         <div class="flex flex-wrap items-center gap-3">
-            <x-btn type="submit">Update Parent</x-btn>
+            <x-btn type="submit" form="parents-edit-form">Update Parent</x-btn>
             <a href="{{ route('admin.parents.show', $parent) }}" class="text-sm text-slate-500 hover:text-slate-700">Cancel</a>
         </div>
     </x-slot>
