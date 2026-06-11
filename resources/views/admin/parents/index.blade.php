@@ -21,27 +21,31 @@
 </x-page-header>
 
 {{-- KPI CARDS --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    @php
-        $kpis = [
-            ['label'=>'Total Parents',   'value'=>$totalParents,   'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'color'=>'blue',    'tag'=>'Total'],
-            ['label'=>'Linked Children', 'value'=>$linkedChildren, 'icon'=>'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',                                                                                             'color'=>'green',   'tag'=>'Children'],
-            ['label'=>'Unlinked Parents','value'=>$unlinkedParents,'icon'=>'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636',                                                                                                               'color'=>'amber',   'tag'=>'Unlinked'],
-            ['label'=>'Recently Added',  'value'=>$recentlyAdded,  'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',                                                                                                                    'color'=>'violet',  'tag'=>'30 Days'],
-        ];
-    @endphp
-    @foreach($kpis as $kpi)
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-{{ $kpi['color'] }}-50">
-                <svg class="w-5 h-5 text-{{ $kpi['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+@php
+$parentKpis = [
+    ['label'=>'Total Parents',    'value'=>number_format($totalParents),   'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'grad'=>'135deg,#2563EB,#3B82F6'],
+    ['label'=>'Linked Children',  'value'=>number_format($linkedChildren), 'icon'=>'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', 'grad'=>'135deg,#10B981,#22C55E'],
+    ['label'=>'Unlinked Parents', 'value'=>number_format($unlinkedParents),'icon'=>'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636', 'grad'=>'135deg,#DC2626,#EF4444'],
+    ['label'=>'Recently Added',   'value'=>number_format($recentlyAdded),  'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'grad'=>'135deg,#7C3AED,#A855F7'],
+];
+@endphp
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    @foreach($parentKpis as $kpi)
+    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+         style="background: linear-gradient({{ $kpi['grad'] }});">
+        <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+        <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+        <div class="relative flex items-center gap-3">
+            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $kpi['icon'] }}"/>
                 </svg>
             </div>
-            <span class="rounded-full bg-{{ $kpi['color'] }}-50 px-2 py-0.5 text-[11px] font-bold text-{{ $kpi['color'] }}-700">{{ $kpi['tag'] }}</span>
+            <div class="min-w-0 flex-1">
+                <p class="text-xl font-black leading-tight text-white">{{ $kpi['value'] }}</p>
+                <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 truncate">{{ $kpi['label'] }}</p>
+            </div>
         </div>
-        <p class="mt-3 text-3xl font-black text-slate-900">{{ number_format($kpi['value']) }}</p>
-        <p class="mt-0.5 text-xs text-slate-500">{{ $kpi['label'] }}</p>
     </div>
     @endforeach
 </div>

@@ -107,67 +107,83 @@
     {{-- ══════════════════════════════════════════════
          ROW 2 · KPI CARDS (4 equal columns)
     ══════════════════════════════════════════════ --}}
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
 
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-start justify-between gap-3">
-                <div>
-                    <p class="text-sm text-slate-500">Total Active Users</p>
-                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($totalActiveUsers) }}</p>
-                    <p class="mt-2 text-xs text-slate-400">Students + Teachers + Parents</p>
-                </div>
-                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                    <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        {{-- Total Active Users — Blue --}}
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+             style="background: linear-gradient(135deg, #2563EB, #3B82F6);">
+            <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+            <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+            <div class="relative flex items-center gap-3">
+                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
                 </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xl font-black leading-tight text-white">{{ number_format($totalActiveUsers) }}</p>
+                    <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Total Active Users</p>
+                </div>
             </div>
+            <p class="relative mt-2 text-[11px] text-white/60">Students + Teachers + Parents</p>
         </div>
 
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-start justify-between gap-3">
-                <div>
-                    <p class="text-sm text-slate-500">Attendance Rate</p>
-                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($attendanceRate, 1) }}%</p>
-                    <p class="mt-2 text-xs text-slate-400">{{ number_format($attendancePresent) }} / {{ number_format($attendanceTotal) }} present</p>
-                </div>
-                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-50">
-                    <svg class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        {{-- Attendance Rate — Green --}}
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+             style="background: linear-gradient(135deg, #10B981, #22C55E);">
+            <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+            <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+            <div class="relative flex items-center gap-3">
+                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xl font-black leading-tight text-white">{{ number_format($attendanceRate, 1) }}%</p>
+                    <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Attendance Rate</p>
+                </div>
             </div>
+            <p class="relative mt-2 text-[11px] text-white/60">{{ number_format($attendancePresent) }} / {{ number_format($attendanceTotal) }} present</p>
         </div>
 
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-start justify-between gap-3">
-                <div>
-                    <p class="text-sm text-slate-500">Pass Rate</p>
-                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($passRate, 1) }}%</p>
-                    <p class="mt-2 text-xs text-slate-400">{{ number_format($passPassed) }} / {{ number_format($passTotal) }} passed</p>
-                </div>
-                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-violet-50">
-                    <svg class="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        {{-- Pass Rate — Purple --}}
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+             style="background: linear-gradient(135deg, #7C3AED, #A855F7);">
+            <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+            <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+            <div class="relative flex items-center gap-3">
+                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xl font-black leading-tight text-white">{{ number_format($passRate, 1) }}%</p>
+                    <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Pass Rate</p>
+                </div>
             </div>
+            <p class="relative mt-2 text-[11px] text-white/60">{{ number_format($passPassed) }} / {{ number_format($passTotal) }} passed</p>
         </div>
 
+        {{-- Total Departments — Orange --}}
         <a href="{{ route('admin.departments.index') }}"
-           class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div class="flex items-start justify-between gap-3">
-                <div>
-                    <p class="text-sm text-slate-500">Total Departments</p>
-                    <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($departmentCount) }}</p>
-                    <p class="mt-2 text-xs text-slate-400">Active departments</p>
-                </div>
-                <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-amber-50">
-                    <svg class="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+           class="relative block overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+           style="background: linear-gradient(135deg, #F97316, #FB923C);">
+            <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+            <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+            <div class="relative flex items-center gap-3">
+                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xl font-black leading-tight text-white">{{ number_format($departmentCount) }}</p>
+                    <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Total Departments</p>
+                </div>
             </div>
+            <p class="relative mt-2 text-[11px] text-white/60">Active departments</p>
         </a>
     </div>
 

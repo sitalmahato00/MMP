@@ -45,35 +45,41 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
         @php
-            $kpis = [
-                ['label' => 'Total Staff', 'value' => $totalStaff, 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'color' => 'blue'],
-                ['label' => 'Active', 'value' => $activeStaff, 'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'color' => 'green'],
-                ['label' => 'Resigned', 'value' => $resignedStaff, 'icon' => 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', 'color' => 'amber'],
-                ['label' => 'This Year', 'value' => $addedThisYear, 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'color' => 'violet'],
-                ['label' => 'Top Department', 'value' => $topDepartment?->department ?? 'None', 'meta' => $topDepartment?->total ? $topDepartment->total . ' staff' : 'No records yet', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', 'color' => 'slate'],
+            $staffKpis = [
+                ['label' => 'Total Staff',      'value' => $totalStaff,                                      'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'grad' => '135deg,#2563EB,#3B82F6'],
+                ['label' => 'Active',            'value' => $activeStaff,                                     'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'grad' => '135deg,#10B981,#22C55E'],
+                ['label' => 'Resigned',          'value' => $resignedStaff,                                   'icon' => 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', 'grad' => '135deg,#DC2626,#EF4444'],
+                ['label' => 'This Year',         'value' => $addedThisYear,                                   'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'grad' => '135deg,#7C3AED,#A855F7'],
+                ['label' => 'Top Department',    'value' => $topDepartment?->department ?? 'None',            'meta' => $topDepartment?->total ? $topDepartment->total . ' staff' : 'No records yet', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', 'grad' => '135deg,#0F766E,#14B8A6'],
             ];
         @endphp
-        @foreach($kpis as $kpi)
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-{{ $kpi['color'] }}-50">
-                    <svg class="h-5 w-5 text-{{ $kpi['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        @foreach($staffKpis as $kpi)
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+             style="background: linear-gradient({{ $kpi['grad'] }});">
+            <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+            <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+            <div class="relative flex items-center gap-3">
+                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $kpi['icon'] }}"/>
                     </svg>
                 </div>
-                <span class="rounded-full bg-{{ $kpi['color'] }}-50 px-2 py-0.5 text-[11px] font-bold text-{{ $kpi['color'] }}-700">{{ $kpi['label'] === 'Top Department' ? ($kpi['meta'] ?? 'Staff') : 'Staff' }}</span>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xl font-black leading-tight text-white truncate">
+                        @if(is_numeric($kpi['value']))
+                            {{ number_format($kpi['value']) }}
+                        @else
+                            {{ $kpi['value'] }}
+                        @endif
+                    </p>
+                    <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 truncate">{{ $kpi['label'] }}</p>
+                    @if(!empty($kpi['meta']))
+                        <p class="mt-0.5 text-[10px] text-white/60 truncate">{{ $kpi['meta'] }}</p>
+                    @endif
+                </div>
             </div>
-            @if(is_numeric($kpi['value']))
-                <p class="mt-3 text-3xl font-black text-slate-900">{{ number_format($kpi['value']) }}</p>
-            @else
-                <p class="mt-3 text-2xl font-black tracking-tight text-slate-900">{{ $kpi['value'] }}</p>
-            @endif
-            <p class="mt-0.5 text-sm text-slate-500">{{ $kpi['label'] }}</p>
-            @if(! is_numeric($kpi['value']) && ! empty($kpi['meta']))
-                <p class="mt-1 text-xs text-slate-400">{{ $kpi['meta'] }}</p>
-            @endif
         </div>
         @endforeach
     </div>
@@ -226,18 +232,35 @@
                             </td>
                             <td class="px-6 py-5 align-top">
                                 <div class="flex flex-wrap justify-end gap-2">
-                                    <a href="{{ route('admin.staff.show', $member) }}" class="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-[#8B0000] hover:text-[#8B0000]">View</a>
-                                    <a href="{{ route('admin.staff.edit', $member) }}" class="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-[#8B0000] hover:text-[#8B0000]">Edit</a>
-                                    <a href="{{ route('admin.staff.documents', $member) }}" class="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-[#8B0000] hover:text-[#8B0000]">Docs</a>
-
-                                    <form method="POST" action="{{ route('admin.staff.toggle-public', $member) }}">
+                                    {{-- View --}}
+                                    <a href="{{ route('admin.staff.show', $member) }}"
+                                       class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        View
+                                    </a>
+                                    {{-- Edit --}}
+                                    <a href="{{ route('admin.staff.edit', $member) }}"
+                                       class="inline-flex items-center gap-1 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-600">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                        Edit
+                                    </a>
+                                    {{-- Delete --}}
+                                    <form method="POST" action="{{ route('admin.staff.destroy', $member) }}"
+                                          onsubmit="return confirm('Delete {{ addslashes($member->name) }}? This cannot be undone.')">
                                         @csrf
-                                        <button type="submit" class="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-[#8B0000] hover:text-[#8B0000]">{{ $member->public_visible ? 'Hide' : 'Publish' }}</button>
-                                    </form>
-
-                                    <form method="POST" action="{{ route('admin.staff.toggle-featured', $member) }}">
-                                        @csrf
-                                        <button type="submit" class="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-[#8B0000] hover:text-[#8B0000]">{{ $member->featured ? 'Unfeature' : 'Feature' }}</button>
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                class="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700">
+                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Delete
+                                        </button>
                                     </form>
                                 </div>
                             </td>
@@ -298,9 +321,34 @@
                             <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold {{ $member->public_visible ? 'bg-sky-50 text-sky-700' : 'bg-slate-100 text-slate-500' }}">{{ $member->public_visible ? 'Public' : 'Hidden' }}</span>
                             <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold {{ $member->featured ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }}">{{ $member->featured ? 'Featured' : 'Standard' }}</span>
                         </div>
-                        <div class="mt-4 grid grid-cols-2 gap-2">
-                            <a href="{{ route('admin.staff.show', $member) }}" class="rounded-lg border border-slate-200 py-1.5 text-center text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">View</a>
-                            <a href="{{ route('admin.staff.edit', $member) }}" class="rounded-lg bg-slate-900 py-1.5 text-center text-xs font-bold text-white hover:bg-slate-700 transition">Edit</a>
+                        <div class="mt-4 grid grid-cols-3 gap-2">
+                            <a href="{{ route('admin.staff.show', $member) }}"
+                               class="inline-flex items-center justify-center gap-1 rounded-lg bg-blue-600 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                View
+                            </a>
+                            <a href="{{ route('admin.staff.edit', $member) }}"
+                               class="inline-flex items-center justify-center gap-1 rounded-lg bg-amber-500 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-600">
+                                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit
+                            </a>
+                            <form method="POST" action="{{ route('admin.staff.destroy', $member) }}"
+                                  onsubmit="return confirm('Delete {{ addslashes($member->name) }}? This cannot be undone.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="inline-flex w-full items-center justify-center gap-1 rounded-lg bg-red-600 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @endforeach

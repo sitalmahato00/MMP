@@ -1,40 +1,66 @@
-@props(['title', 'value', 'icon', 'tone' => 'blue', 'trend' => null])
+@props(['title', 'value', 'icon' => null, 'color' => 'blue', 'tone' => null, 'trend' => null])
 
 @php
-    $toneMap = [
-        'blue'    => ['accent' => '#1D4ED8', 'iconBg' => '#EFF6FF', 'iconColor' => '#1D4ED8', 'bar' => '#1D4ED8'],
-        'emerald' => ['accent' => '#059669', 'iconBg' => '#ECFDF5', 'iconColor' => '#059669', 'bar' => '#059669'],
-        'violet'  => ['accent' => '#7C3AED', 'iconBg' => '#F5F3FF', 'iconColor' => '#7C3AED', 'bar' => '#7C3AED'],
-        'amber'   => ['accent' => '#D97706', 'iconBg' => '#FFFBEB', 'iconColor' => '#D97706', 'bar' => '#D97706'],
-        'rose'    => ['accent' => '#E11D48', 'iconBg' => '#FFF1F2', 'iconColor' => '#E11D48', 'bar' => '#E11D48'],
-        'cyan'    => ['accent' => '#0891B2', 'iconBg' => '#ECFEFF', 'iconColor' => '#0891B2', 'bar' => '#0891B2'],
+    // Support both 'color' (old) and 'tone' (old) prop names
+    $c = $color ?? $tone ?? 'blue';
+    $gradients = [
+        'blue'    => ['from' => '#2563EB', 'to' => '#3B82F6'],
+        'green'   => ['from' => '#10B981', 'to' => '#22C55E'],
+        'emerald' => ['from' => '#10B981', 'to' => '#22C55E'],
+        'purple'  => ['from' => '#7C3AED', 'to' => '#A855F7'],
+        'violet'  => ['from' => '#7C3AED', 'to' => '#A855F7'],
+        'orange'  => ['from' => '#F97316', 'to' => '#FB923C'],
+        'amber'   => ['from' => '#F59E0B', 'to' => '#FBBF24'],
+        'cyan'    => ['from' => '#06B6D4', 'to' => '#22D3EE'],
+        'indigo'  => ['from' => '#4F46E5', 'to' => '#6366F1'],
+        'teal'    => ['from' => '#0F766E', 'to' => '#14B8A6'],
+        'red'     => ['from' => '#DC2626', 'to' => '#EF4444'],
+        'rose'    => ['from' => '#DC2626', 'to' => '#EF4444'],
+        'slate'   => ['from' => '#475569', 'to' => '#64748B'],
+        'gray'    => ['from' => '#475569', 'to' => '#64748B'],
+        'sky'     => ['from' => '#0284C7', 'to' => '#38BDF8'],
+        'zinc'    => ['from' => '#52525B', 'to' => '#71717A'],
     ];
-    $t = $toneMap[$tone] ?? $toneMap['blue'];
+    $g = $gradients[$c] ?? $gradients['blue'];
+
+    // Extract icon path from HTML string if passed as full SVG
+    $iconPath = '';
+    if ($icon) {
+        preg_match_all('/d=["\']([^"\']+)["\']/', $icon, $m);
+        $iconPath = implode(' ', $m[1] ?? []);
+    }
 @endphp
 
-<div class="relative overflow-hidden bg-white" style="border: 1px solid #DCE3EB; border-radius: 4px; padding: 1rem;">
-    {{-- Top accent bar --}}
-    <div class="absolute top-0 left-0 right-0 h-0.5" style="background-color: {{ $t['bar'] }};"></div>
+<div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+     style="background: linear-gradient(135deg, {{ $g['from'] }}, {{ $g['to'] }});">
+    {{-- Glassmorphism background circle --}}
+    <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+    <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
 
-    <div class="flex items-start justify-between">
-        <div class="flex h-9 w-9 items-center justify-center rounded" style="background-color: {{ $t['iconBg'] }};">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: {{ $t['iconColor'] }};">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
+    <div class="relative flex items-center justify-between gap-3">
+        {{-- Icon --}}
+        @if($icon)
+        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @foreach($m[1] ?? [] as $d)
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $d }}"/>
+                @endforeach
             </svg>
         </div>
-        @if($trend)
-            <span class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold"
-                  style="{{ $trend['positive'] ? 'background-color: #DCFCE7; color: #15803D;' : 'background-color: #FEE2E2; color: #B91C1C;' }}">
-                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M{{ $trend['positive'] ? '12 7a1 1 0 110 2H9.414l5.293 5.293a1 1 0 01-1.414 1.414L8 10.414v2.586a1 1 0 11-2 0V9a1 1 0 011-1h5z' : '8 13a1 1 0 110-2h2.586L5.293 5.707a1 1 0 011.414-1.414L10 9.586V7a1 1 0 112 0v5a1 1 0 01-1 1H8z' }}" clip-rule="evenodd" />
-                </svg>
-                {{ $trend['value'] }}
-            </span>
         @endif
+
+        {{-- Value + label --}}
+        <div class="{{ $icon ? 'text-right' : '' }} flex-1 min-w-0">
+            <p class="text-xl font-black text-white leading-tight tracking-tight">{{ $value }}</p>
+            <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 truncate">{{ $title }}</p>
+        </div>
     </div>
 
-    <div class="mt-3">
-        <div class="text-2xl font-bold tracking-tight" style="color: #111827;">{{ $value }}</div>
-        <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider" style="color: #6B7280;">{{ $title }}</p>
+    @if($trend)
+    <div class="relative mt-2.5 flex items-center gap-1">
+        <span class="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold text-white">
+            {{ $trend['value'] }}
+        </span>
     </div>
+    @endif
 </div>

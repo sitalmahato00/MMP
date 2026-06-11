@@ -8,19 +8,55 @@
     </x-slot>
 </x-page-header>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <x-card class="border-l-4 border-l-[#8B0000]">
-        <p class="text-xs font-bold uppercase tracking-widest text-gray-500">Roles</p>
-        <p class="mt-2 text-2xl font-black text-gray-900">{{ number_format($stats['roles']) }}</p>
-    </x-card>
-    <x-card class="border-l-4 border-l-blue-500">
-        <p class="text-xs font-bold uppercase tracking-widest text-gray-500">Permissions</p>
-        <p class="mt-2 text-2xl font-black text-gray-900">{{ number_format($stats['permissions']) }}</p>
-    </x-card>
-    <x-card class="border-l-4 border-l-emerald-500">
-        <p class="text-xs font-bold uppercase tracking-widest text-gray-500">Role-Permission Links</p>
-        <p class="mt-2 text-2xl font-black text-gray-900">{{ number_format($stats['assigned_links']) }}</p>
-    </x-card>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+         style="background: linear-gradient(135deg,#0F2E6E,#2563EB);">
+        <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+        <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+        <div class="relative flex items-center gap-3">
+            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="text-xl font-black leading-tight text-white">{{ number_format($stats['roles']) }}</p>
+                <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Roles</p>
+            </div>
+        </div>
+    </div>
+    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+         style="background: linear-gradient(135deg,#2563EB,#3B82F6);">
+        <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+        <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+        <div class="relative flex items-center gap-3">
+            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="text-xl font-black leading-tight text-white">{{ number_format($stats['permissions']) }}</p>
+                <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Permissions</p>
+            </div>
+        </div>
+    </div>
+    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+         style="background: linear-gradient(135deg,#10B981,#22C55E);">
+        <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+        <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+        <div class="relative flex items-center gap-3">
+            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="text-xl font-black leading-tight text-white">{{ number_format($stats['assigned_links']) }}</p>
+                <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Role-Permission Links</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">

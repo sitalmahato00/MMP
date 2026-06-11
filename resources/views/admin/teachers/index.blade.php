@@ -94,28 +94,32 @@
 </div>
 
 {{-- ── KPI CARDS ───────────────────────────────────────────── --}}
-<div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-    @php
-        $kpis = [
-            ['label'=>'Total Teachers',     'value'=>$totalTeachers,  'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'color'=>'blue',   'tag'=>'Faculty'],
-            ['label'=>'Active',             'value'=>$activeTeachers, 'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',                                                                                                                                                                                                                                                'color'=>'green',  'tag'=>'Active'],
-            ['label'=>'HODs',               'value'=>$hodCount,       'icon'=>'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z',                                                                                                                                                                                  'color'=>'purple', 'tag'=>'Department Heads'],
-            ['label'=>'Subjects Assigned',  'value'=>$totalSubjects,  'icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',                                        'color'=>'indigo', 'tag'=>'Total'],
-            ['label'=>'Avg Sessions/Month', 'value'=>$avgSessions,   'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',                                                                                                                                                                                                   'color'=>'amber',  'tag'=>'Attendance'],
-        ];
-    @endphp
-    @foreach($kpis as $kpi)
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-{{ $kpi['color'] }}-50">
-                <svg class="w-5 h-5 text-{{ $kpi['color'] }}-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+@php
+$teacherKpis = [
+    ['label'=>'Total Teachers',     'value'=>$totalTeachers,  'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'grad'=>'135deg,#06B6D4,#22D3EE'],
+    ['label'=>'Active',             'value'=>$activeTeachers, 'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',                                                                                                                                                                                                                                                'grad'=>'135deg,#10B981,#22C55E'],
+    ['label'=>'HODs',               'value'=>$hodCount,       'icon'=>'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z',                                                                                                                                                                                  'grad'=>'135deg,#7C3AED,#A855F7'],
+    ['label'=>'Subjects Assigned',  'value'=>$totalSubjects,  'icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'grad'=>'135deg,#4F46E5,#6366F1'],
+    ['label'=>'Avg Sessions/Month', 'value'=>$avgSessions,   'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',                                                                                                                                                                                                   'grad'=>'135deg,#F97316,#FB923C'],
+];
+@endphp
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+    @foreach($teacherKpis as $kpi)
+    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+         style="background: linear-gradient({{ $kpi['grad'] }});">
+        <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+        <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+        <div class="relative flex items-center gap-3">
+            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $kpi['icon'] }}"/>
                 </svg>
             </div>
-            <span class="rounded-full bg-{{ $kpi['color'] }}-50 px-2 py-0.5 text-[11px] font-bold text-{{ $kpi['color'] }}-600">{{ $kpi['tag'] }}</span>
+            <div class="min-w-0 flex-1">
+                <p class="text-xl font-black leading-tight text-white">{{ $kpi['value'] }}</p>
+                <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 truncate">{{ $kpi['label'] }}</p>
+            </div>
         </div>
-        <p class="mt-3 text-3xl font-black text-slate-900">{{ $kpi['value'] }}</p>
-        <p class="mt-0.5 text-sm text-slate-500">{{ $kpi['label'] }}</p>
     </div>
     @endforeach
 </div>

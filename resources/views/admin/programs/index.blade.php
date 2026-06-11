@@ -62,33 +62,38 @@
     </div>
 
     {{-- ── KPI BAR ── --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        @php
-        $kpis = [
-            ['icon'=>'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
-              'label'=>'Total Programs', 'value'=>$totalPrograms, 'sub'=>$activePrograms.' active', 'color'=>'bg-[#8B0000]/10 text-[#8B0000]'],
-            ['icon'=>'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
-              'label'=>'Departments Active', 'value'=>$deptCount, 'sub'=>'with programs', 'color'=>'bg-violet-100 text-violet-700'],
-            ['icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0',
-              'label'=>'Total Students', 'value'=>$totalStudents, 'sub'=>'across programs', 'color'=>'bg-blue-100 text-blue-700'],
-            ['icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
-              'label'=>'Total Subjects', 'value'=>$totalSubjects, 'sub'=>'across all semesters', 'color'=>'bg-emerald-100 text-emerald-700'],
-            ['icon'=>'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
-              'label'=>'Active Programs', 'value'=>$activePrograms, 'sub'=>($totalPrograms-$activePrograms).' inactive', 'color'=>'bg-amber-100 text-amber-700'],
-        ];
-        @endphp
-        @foreach($kpis as $kpi)
-        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl {{ $kpi['color'] }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    @php
+    $progKpis = [
+        ['icon'=>'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+          'label'=>'Total Programs', 'value'=>$totalPrograms, 'sub'=>$activePrograms.' active', 'grad'=>'135deg,#0F2E6E,#2563EB'],
+        ['icon'=>'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+          'label'=>'Departments Active', 'value'=>$deptCount, 'sub'=>'with programs', 'grad'=>'135deg,#7C3AED,#A855F7'],
+        ['icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0',
+          'label'=>'Total Students', 'value'=>$totalStudents, 'sub'=>'across programs', 'grad'=>'135deg,#4F46E5,#6366F1'],
+        ['icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+          'label'=>'Total Subjects', 'value'=>$totalSubjects, 'sub'=>'across all semesters', 'grad'=>'135deg,#10B981,#22C55E'],
+        ['icon'=>'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
+          'label'=>'Active Programs', 'value'=>$activePrograms, 'sub'=>($totalPrograms-$activePrograms).' inactive', 'grad'=>'135deg,#F97316,#FB923C'],
+    ];
+    @endphp
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        @foreach($progKpis as $kpi)
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+             style="background: linear-gradient({{ $kpi['grad'] }});">
+            <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+            <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+            <div class="relative flex items-center gap-3">
+                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $kpi['icon'] }}"/>
                     </svg>
                 </div>
-                <span class="text-2xl font-black text-slate-900">{{ number_format($kpi['value']) }}</span>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xl font-black leading-tight text-white">{{ number_format($kpi['value']) }}</p>
+                    <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 truncate">{{ $kpi['label'] }}</p>
+                    <p class="text-[10px] text-white/60 truncate">{{ $kpi['sub'] }}</p>
+                </div>
             </div>
-            <p class="text-xs font-bold text-slate-700">{{ $kpi['label'] }}</p>
-            <p class="mt-0.5 text-[11px] text-slate-400">{{ $kpi['sub'] }}</p>
         </div>
         @endforeach
     </div>

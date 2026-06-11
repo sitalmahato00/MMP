@@ -248,17 +248,50 @@
             </div>
 
             <div class="mt-5 grid gap-3 md:grid-cols-3">
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Total Departments</p>
-                    <p class="mt-2 text-2xl font-black text-slate-900">{{ number_format($overview['departments']) }}</p>
+                <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                     style="background: linear-gradient(135deg,#F97316,#FB923C);">
+                    <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+                    <div class="relative flex items-center gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xl font-black leading-tight text-white">{{ number_format($overview['departments']) }}</p>
+                            <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Total Departments</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Running Semesters</p>
-                    <p class="mt-2 text-2xl font-black text-slate-900">{{ number_format($overview['runningSemesters']) }}</p>
+                <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                     style="background: linear-gradient(135deg,#10B981,#22C55E);">
+                    <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+                    <div class="relative flex items-center gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xl font-black leading-tight text-white">{{ number_format($overview['runningSemesters']) }}</p>
+                            <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Running Semesters</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Enrolled Students</p>
-                    <p class="mt-2 text-2xl font-black text-slate-900">{{ number_format($overview['students']) }}</p>
+                <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                     style="background: linear-gradient(135deg,#4F46E5,#6366F1);">
+                    <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+                    <div class="relative flex items-center gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xl font-black leading-tight text-white">{{ number_format($overview['students']) }}</p>
+                            <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Enrolled Students</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

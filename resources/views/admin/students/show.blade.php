@@ -225,23 +225,31 @@
 <div x-show="tab === 'attendance'" class="space-y-5">
 
     {{-- KPIs --}}
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center">
-            <p class="text-3xl font-black text-slate-800">{{ $attendanceTotal }}</p>
-            <p class="mt-1 text-xs text-slate-500">Total Classes</p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+             style="background: linear-gradient(135deg,#2563EB,#3B82F6);">
+            <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
+            <p class="relative text-2xl font-black text-white">{{ $attendanceTotal }}</p>
+            <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Total Classes</p>
         </div>
-        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm text-center">
-            <p class="text-3xl font-black text-emerald-600">{{ $attendancePresent }}</p>
-            <p class="mt-1 text-xs text-slate-500">Present</p>
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+             style="background: linear-gradient(135deg,#10B981,#22C55E);">
+            <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
+            <p class="relative text-2xl font-black text-white">{{ $attendancePresent }}</p>
+            <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Present</p>
         </div>
-        <div class="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm text-center">
-            <p class="text-3xl font-black text-red-500">{{ $absentCount }}</p>
-            <p class="mt-1 text-xs text-slate-500">Absent</p>
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+             style="background: linear-gradient(135deg,#DC2626,#EF4444);">
+            <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
+            <p class="relative text-2xl font-black text-white">{{ $absentCount }}</p>
+            <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Absent</p>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center">
-            @php $attPct = $attendancePct; $attClr = $attPct === null ? 'text-slate-500' : ($attPct >= 75 ? 'text-emerald-600' : ($attPct >= 50 ? 'text-amber-600' : 'text-red-600')); @endphp
-            <p class="text-3xl font-black {{ $attClr }}">{{ $attPct !== null ? $attPct.'%' : '—' }}</p>
-            <p class="mt-1 text-xs text-slate-500">Attendance Rate</p>
+        <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
+             @php $attPct = $attendancePct; @endphp
+             style="background: linear-gradient(135deg,{{ $attPct === null ? '#475569,#64748B' : ($attPct >= 75 ? '#10B981,#22C55E' : ($attPct >= 50 ? '#F59E0B,#FBBF24' : '#DC2626,#EF4444')) }});">
+            <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
+            <p class="relative text-2xl font-black text-white">{{ $attPct !== null ? $attPct.'%' : '—' }}</p>
+            <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Attendance Rate</p>
         </div>
     </div>
 

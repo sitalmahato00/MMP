@@ -161,17 +161,23 @@
                 </div>
 
                 {{-- Quick stats grid --}}
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    @php $qKpis = [
-                        ['v'=>$stats['totalStudents'],    'l'=>'Students',       'c'=>'bg-blue-50 text-blue-600',    'ic'=>'bg-blue-100'],
-                        ['v'=>$program->subjects->count(),'l'=>'Subjects',       'c'=>'bg-emerald-50 text-emerald-600','ic'=>'bg-emerald-100'],
-                        ['v'=>$stats['theoryCount'],       'l'=>'Theory',         'c'=>'bg-violet-50 text-violet-600', 'ic'=>'bg-violet-100'],
-                        ['v'=>$stats['practicalCount'],    'l'=>'Practical',      'c'=>'bg-amber-50 text-amber-600',   'ic'=>'bg-amber-100'],
-                    ]; @endphp
-                    @foreach($qKpis as $qk)
-                    <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm text-center">
-                        <p class="text-3xl font-black text-slate-900">{{ $qk['v'] }}</p>
-                        <p class="mt-1 text-xs font-bold text-slate-500">{{ $qk['l'] }}</p>
+                @php
+                $showKpis = [
+                    ['v'=>$stats['totalStudents'],     'l'=>'Students',  'grad'=>'135deg,#4F46E5,#6366F1', 'ic'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
+                    ['v'=>$program->subjects->count(), 'l'=>'Subjects',  'grad'=>'135deg,#10B981,#22C55E', 'ic'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
+                    ['v'=>$stats['theoryCount'],        'l'=>'Theory',    'grad'=>'135deg,#7C3AED,#A855F7', 'ic'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
+                    ['v'=>$stats['practicalCount'],     'l'=>'Practical', 'grad'=>'135deg,#F59E0B,#FBBF24', 'ic'=>'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z'],
+                ];
+                @endphp
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    @foreach($showKpis as $qk)
+                    <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                         style="background: linear-gradient({{ $qk['grad'] }});">
+                        <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
+                        <div class="relative text-center">
+                            <p class="text-2xl font-black text-white">{{ $qk['v'] }}</p>
+                            <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">{{ $qk['l'] }}</p>
+                        </div>
                     </div>
                     @endforeach
                 </div>

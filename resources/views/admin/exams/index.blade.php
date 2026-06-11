@@ -41,12 +41,30 @@
     </div>
 
     {{-- KPI Cards --}}
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-6">
-        @foreach($kpis as $kpi)
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-xs font-semibold text-slate-500">{{ $kpi['label'] }}</p>
-                <p class="mt-2 text-3xl font-black text-slate-900">{{ $kpi['value'] }}</p>
-                <p class="mt-1 text-xs text-slate-400">{{ $kpi['note'] }}</p>
+    @php
+    $examGrads = ['135deg,#7C3AED,#A855F7','135deg,#10B981,#22C55E','135deg,#DC2626,#EF4444','135deg,#F97316,#FB923C','135deg,#2563EB,#3B82F6','135deg,#0F766E,#14B8A6'];
+    $examIcons = ['M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4','M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z','M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636','M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z','M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z','M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z'];
+    @endphp
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-6">
+        @foreach($kpis as $i => $kpi)
+            <div class="relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                 style="background: linear-gradient({{ $examGrads[$i % count($examGrads)] }});">
+                <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
+                <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+                <div class="relative">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $examIcons[$i % count($examIcons)] }}"/>
+                            </svg>
+                        </div>
+                        <p class="text-lg font-black leading-tight text-white">{{ $kpi['value'] }}</p>
+                    </div>
+                    <p class="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 truncate">{{ $kpi['label'] }}</p>
+                    @if(!empty($kpi['note']))
+                        <p class="mt-0.5 text-[10px] text-white/60 truncate">{{ $kpi['note'] }}</p>
+                    @endif
+                </div>
             </div>
         @endforeach
     </div>
