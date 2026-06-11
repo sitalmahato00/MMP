@@ -20,17 +20,19 @@
 
 @php
     $variants = [
-        'primary'   => 'bg-[#8B0000] text-white hover:bg-[#6a0000] shadow-sm',
-        'secondary' => 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 shadow-sm',
-        'danger'    => 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
-        'ghost'     => 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
+        'primary'   => 'bg-[#0e4fee] text-white hover:bg-[#0b3dd8] shadow-sm',
+        'view'      => 'bg-[#0e4fee] text-white hover:bg-[#0b3dd8] shadow-sm',
+        'edit'      => 'bg-[#f7b239] text-white hover:bg-[#d89f1f] shadow-sm',
+        'secondary' => 'bg-white text-[#4b4b4b] border border-[#dbdbdb] hover:bg-[#f5f5f5] shadow-sm',
+        'danger'    => 'bg-[#ea3938] text-white hover:bg-[#d72f2a] shadow-sm',
+        'ghost'     => 'text-[#0e4fee] hover:text-[#0b3dd8] hover:bg-[#eff4ff]',
     ];
     $sizes = [
         'sm' => 'text-xs px-3 py-1.5',
         'md' => 'text-sm px-5 py-2.5',
         'lg' => 'text-base px-6 py-3',
     ];
-    $base    = 'inline-flex items-center gap-2 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#8B0000]/40';
+    $base    = 'inline-flex items-center gap-2 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0e4fee]/40';
     $classes = "$base {$variants[$variant]} {$sizes[$size]}";
 @endphp
 
