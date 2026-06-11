@@ -11,10 +11,17 @@ class SeoService
 
     private static function siteSettings(): array
     {
-        return Cache::remember('public:site_settings', 600, function () {
+        $settings = Cache::remember('public:site_settings', 600, function () {
             SiteSetting::ensureDefaults();
             return SiteSetting::all()->pluck('value', 'key')->toArray();
         });
+
+        if ($settings instanceof \Illuminate\Support\Collection) {
+            $settings = $settings->toArray();
+            Cache::put('public:site_settings', $settings, 600);
+        }
+
+        return is_array($settings) ? $settings : (array) $settings;
     }
 
     private static function baseUrl(): string
