@@ -300,7 +300,7 @@ class StudentController extends Controller
     }
 
     /**
-     * Get Subjects
+     * Get Subjects — fetched by student's program + current semester
      */
     public function subjects(Request $request): JsonResponse
     {
@@ -308,15 +308,31 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $subjects = $student->subjects ?? collect();
+            $subjects = Subject::where('program_id', $student->program_id)
+                ->where('semester', $student->current_semester)
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
 
             return response()->json([
                 'success' => true,
                 'data' => $subjects->map(fn($subject) => [
-                    'id' => $subject->id,
-                    'name' => $subject->name,
-                    'code' => $subject->code,
-                ])
+                    'id'                         => $subject->id,
+                    'name'                       => $subject->name,
+                    'code'                       => $subject->code,
+                    'type'                       => $subject->type,
+                    'credit_hours'               => $subject->credit_hours,
+                    'full_marks_theory'          => $subject->full_marks_internal_theory + $subject->full_marks_external_theory,
+                    'full_marks_practical'       => $subject->full_marks_internal_practical + $subject->full_marks_external_practical,
+                    'pass_marks_theory'          => $subject->pass_marks_internal_theory + $subject->pass_marks_external_theory,
+                    'pass_marks_practical'       => $subject->pass_marks_internal_practical + $subject->pass_marks_external_practical,
+                    'syllabus_url'               => $subject->syllabus_url,
+                ]),
+                'meta' => [
+                    'program'  => $student->program?->name,
+                    'semester' => $student->current_semester,
+                    'total'    => $subjects->count(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
