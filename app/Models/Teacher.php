@@ -17,6 +17,7 @@ class Teacher extends Model
     ];
 
     protected $casts = [
+        'department_id' => 'integer',
         'join_date' => 'date',
         'is_active' => 'boolean',
     ];

@@ -92,7 +92,7 @@ class SubjectController extends HodController
     public function store(Request $request)
     {
         $department = $this->currentDepartment($request);
-        $deptId = $department->id;
+        $deptId = (int) $department->id;
 
         $validated = $request->validate([
             'program_id' => 'required|exists:programs,id',
@@ -120,7 +120,7 @@ class SubjectController extends HodController
 
         // Verify program belongs to department
         $program = Program::findOrFail($validated['program_id']);
-        if ($program->department_id !== $deptId) {
+        if ((int) $program->department_id !== $deptId) {
             abort(403, 'This program does not belong to your department.');
         }
 
@@ -163,10 +163,10 @@ class SubjectController extends HodController
     public function show(Request $request, Subject $subject)
     {
         $department = $this->currentDepartment($request);
-        $deptId = $department->id;
+        $deptId = (int) $department->id;
 
         // Verify subject belongs to department
-        if ($subject->program->department_id !== $deptId) {
+        if ((int) $subject->program->department_id !== $deptId) {
             abort(403, 'This subject does not belong to your department.');
         }
 
@@ -203,10 +203,10 @@ class SubjectController extends HodController
     public function drawer(Request $request, Subject $subject)
     {
         $department = $this->currentDepartment($request);
-        $deptId = $department->id;
+        $deptId = (int) $department->id;
 
         // Verify subject belongs to department
-        if ($subject->program->department_id !== $deptId) {
+        if ((int) $subject->program->department_id !== $deptId) {
             abort(403, 'This subject does not belong to your department.');
         }
 
@@ -234,10 +234,10 @@ class SubjectController extends HodController
     public function edit(Request $request, Subject $subject)
     {
         $department = $this->currentDepartment($request);
-        $deptId = $department->id;
+        $deptId = (int) $department->id;
 
         // Verify subject belongs to department
-        if ($subject->program->department_id !== $deptId) {
+        if ((int) $subject->program->department_id !== $deptId) {
             abort(403, 'This subject does not belong to your department.');
         }
 
@@ -280,10 +280,10 @@ class SubjectController extends HodController
     public function update(Request $request, Subject $subject)
     {
         $department = $this->currentDepartment($request);
-        $deptId = $department->id;
+        $deptId = (int) $department->id;
 
         // Verify subject belongs to department
-        if ($subject->program->department_id !== $deptId) {
+        if ((int) $subject->program->department_id !== $deptId) {
             abort(403, 'This subject does not belong to your department.');
         }
 
@@ -309,7 +309,7 @@ class SubjectController extends HodController
 
         // Verify program belongs to department
         $program = Program::findOrFail($validated['program_id']);
-        if ($program->department_id !== $deptId) {
+        if ((int) $program->department_id !== $deptId) {
             abort(403, 'This program does not belong to your department.');
         }
 
@@ -341,10 +341,10 @@ class SubjectController extends HodController
     public function assignTeacher(Request $request, Subject $subject)
     {
         $department = $this->currentDepartment($request);
-        $deptId = $department->id;
+        $deptId = (int) $department->id;
 
         // Verify subject belongs to department
-        if ($subject->program->department_id !== $deptId) {
+        if ((int) $subject->program->department_id !== $deptId) {
             abort(403, 'This subject does not belong to your department.');
         }
 
@@ -356,7 +356,7 @@ class SubjectController extends HodController
 
         // Verify teacher belongs to department
         $teacher = Teacher::findOrFail($validated['teacher_id']);
-        if ($teacher->department_id !== $deptId) {
+        if ((int) $teacher->department_id !== $deptId) {
             abort(403, 'This teacher does not belong to your department.');
         }
 
@@ -432,15 +432,15 @@ class SubjectController extends HodController
     public function removeTeacher(Request $request, Subject $subject, Teacher $teacher)
     {
         $department = $this->currentDepartment($request);
-        $deptId = $department->id;
+        $deptId = (int) $department->id;
 
         // Verify subject belongs to department
-        if ($subject->program->department_id !== $deptId) {
+        if ((int) $subject->program->department_id !== $deptId) {
             abort(403, 'This subject does not belong to your department.');
         }
 
         // Verify teacher belongs to department
-        if ($teacher->department_id !== $deptId) {
+        if ((int) $teacher->department_id !== $deptId) {
             abort(403, 'This teacher does not belong to your department.');
         }
 
@@ -465,8 +465,9 @@ class SubjectController extends HodController
     public function destroy(Request $request, Subject $subject)
     {
         $department = $this->currentDepartment($request);
+        $deptId = (int) $department->id;
 
-        if ($subject->program->department_id !== $department->id) {
+        if ((int) $subject->program->department_id !== $deptId) {
             abort(403, 'This subject does not belong to your department.');
         }
 

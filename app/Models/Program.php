@@ -19,6 +19,7 @@ class Program extends Model
     ];
 
     protected $casts = [
+        'department_id' => 'integer',
         'total_semesters' => 'integer',
         'duration_years' => 'integer',
         'is_active' => 'boolean',

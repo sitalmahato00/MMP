@@ -20,6 +20,7 @@ class Department extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'seat_capacity' => 'integer',
+        'hod_id' => 'integer',
     ];
 
     protected $appends = ['photo_url'];
