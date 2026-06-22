@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\ParentController;
 use App\Http\Controllers\Api\HodController;
 use App\Http\Controllers\Api\AlumniController;
+use App\Http\Controllers\Api\ManagementController;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTHENTICATION ROUTES (Public - No Auth Required)
@@ -106,6 +107,7 @@ Route::prefix('v1')->group(function () {
 
             // Profile
             Route::get('/profile', [StudentController::class, 'profile']);
+            Route::put('/profile', [StudentController::class, 'updateProfile']);
         });
 
         // ───────────────────────────────────────────────────────────────────
@@ -156,6 +158,10 @@ Route::prefix('v1')->group(function () {
             // Reports
             Route::get('/reports/attendance', [TeacherController::class, 'attendanceReport']);
             Route::get('/reports/marks', [TeacherController::class, 'marksReport']);
+
+            // Profile
+            Route::get('/profile', [TeacherController::class, 'profile']);
+            Route::put('/profile', [TeacherController::class, 'updateProfile']);
         });
 
         // ───────────────────────────────────────────────────────────────────
@@ -196,6 +202,10 @@ Route::prefix('v1')->group(function () {
 
             // Child Timetable
             Route::get('/child/{child}/timetable', [ParentController::class, 'childTimetable']);
+
+            // Profile
+            Route::get('/profile', [ParentController::class, 'profile']);
+            Route::put('/profile', [ParentController::class, 'updateProfile']);
         });
 
         // ───────────────────────────────────────────────────────────────────
@@ -275,12 +285,39 @@ Route::prefix('v1')->group(function () {
         });
 
         // ───────────────────────────────────────────────────────────────────
-        // ADMIN MODULE (Role: admin) - Optional
+        // ADMIN MODULE (Role: admin) - Full CRUD Management
         // ───────────────────────────────────────────────────────────────────
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
             Route::get('/users', [AdminController::class, 'users']);
             Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
+
+            // Teacher Management
+            Route::prefix('teachers')->group(function () {
+                Route::get('/', [ManagementController::class, 'teachersIndex']);
+                Route::get('/{id}', [ManagementController::class, 'teachersShow']);
+                Route::post('/', [ManagementController::class, 'teachersStore']);
+                Route::put('/{id}', [ManagementController::class, 'teachersUpdate']);
+                Route::delete('/{id}', [ManagementController::class, 'teachersDestroy']);
+            });
+
+            // Student Management
+            Route::prefix('students')->group(function () {
+                Route::get('/', [ManagementController::class, 'studentsIndex']);
+                Route::get('/{id}', [ManagementController::class, 'studentsShow']);
+                Route::post('/', [ManagementController::class, 'studentsStore']);
+                Route::put('/{id}', [ManagementController::class, 'studentsUpdate']);
+                Route::delete('/{id}', [ManagementController::class, 'studentsDestroy']);
+            });
+
+            // Parent Management
+            Route::prefix('parents')->group(function () {
+                Route::get('/', [ManagementController::class, 'parentsIndex']);
+                Route::get('/{id}', [ManagementController::class, 'parentsShow']);
+                Route::post('/', [ManagementController::class, 'parentsStore']);
+                Route::put('/{id}', [ManagementController::class, 'parentsUpdate']);
+                Route::delete('/{id}', [ManagementController::class, 'parentsDestroy']);
+            });
         });
     });
 });

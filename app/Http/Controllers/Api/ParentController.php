@@ -484,4 +484,86 @@ class ParentController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get Parent Profile
+     */
+    public function profile(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $parent = \App\Models\ParentModel::where('user_id', $user->id)->firstOrFail();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'avatar_url' => $user->avatar_url,
+                    'occupation' => $parent->occupation,
+                    'relation_to_student' => $parent->relation_to_student,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch profile: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update Parent Profile
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'phone' => 'sometimes|string|max:20',
+                'address' => 'nullable|string|max:500',
+                'avatar' => 'nullable|image|max:2048',
+                'occupation' => 'nullable|string|max:100',
+            ]);
+
+            $user = $request->user();
+            $parent = \App\Models\ParentModel::where('user_id', $user->id)->firstOrFail();
+
+            if (isset($validated['name'])) {
+                $user->name = $validated['name'];
+            }
+            if (isset($validated['phone'])) {
+                $user->phone = $validated['phone'];
+            }
+            if (isset($validated['address'])) {
+                $user->address = $validated['address'];
+            }
+            if ($request->hasFile('avatar')) {
+                $user->avatar = $request->file('avatar')->store('avatars', 'public');
+            }
+            $user->save();
+
+            if (isset($validated['occupation'])) {
+                $parent->occupation = $validated['occupation'];
+            }
+            $parent->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'avatar_url' => $user->avatar_url,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -593,4 +593,95 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get Teacher Profile
+     */
+    public function profile(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'avatar_url' => $user->avatar_url,
+                    'employee_id' => $teacher->employee_id,
+                    'designation' => $teacher->designation,
+                    'department' => $teacher->department?->name,
+                    'qualification' => $teacher->qualification,
+                    'specialization' => $teacher->specialization,
+                    'employment_type' => $teacher->employment_type,
+                    'join_date' => $teacher->join_date?->toDateString(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch profile: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update Teacher Profile
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'phone' => 'sometimes|string|max:20',
+                'address' => 'nullable|string|max:500',
+                'avatar' => 'nullable|image|max:2048',
+                'qualification' => 'nullable|string|max:255',
+                'specialization' => 'nullable|string|max:255',
+            ]);
+
+            $user = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            if (isset($validated['name'])) {
+                $user->name = $validated['name'];
+            }
+            if (isset($validated['phone'])) {
+                $user->phone = $validated['phone'];
+            }
+            if (isset($validated['address'])) {
+                $user->address = $validated['address'];
+            }
+            if ($request->hasFile('avatar')) {
+                $user->avatar = $request->file('avatar')->store('avatars', 'public');
+            }
+            $user->save();
+
+            if (isset($validated['qualification'])) {
+                $teacher->qualification = $validated['qualification'];
+            }
+            if (isset($validated['specialization'])) {
+                $teacher->specialization = $validated['specialization'];
+            }
+            $teacher->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'avatar_url' => $user->avatar_url,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

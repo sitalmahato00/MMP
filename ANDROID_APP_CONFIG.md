@@ -1,7 +1,7 @@
 # Android App Configuration Guide
 
-**Date:** June 5, 2026  
-**API Status:** ✅ Fully Tested & Working
+**Date:** June 22, 2026  
+**API Status:** ✅ Fully Tested & Working (29/29 Tests Passed)
 
 ---
 
@@ -184,6 +184,12 @@ interface ApiService {
         @Body request: SubmitAssignmentRequest
     ): Response<MessageResponse>
     
+    @GET("v1/student/profile")
+    suspend fun getStudentProfile(): Response<UserResponse>
+    
+    @PUT("v1/student/profile")
+    suspend fun updateStudentProfile(@Body request: UpdateProfileRequest): Response<UserResponse>
+    
     // ═══════════════════════════════════════════════════════════
     // TEACHER ENDPOINTS
     // ═══════════════════════════════════════════════════════════
@@ -202,6 +208,12 @@ interface ApiService {
     @GET("v1/teacher/assignments")
     suspend fun getTeacherAssignments(): Response<AssignmentsResponse>
     
+    @GET("v1/teacher/profile")
+    suspend fun getTeacherProfile(): Response<UserResponse>
+    
+    @PUT("v1/teacher/profile")
+    suspend fun updateTeacherProfile(@Body request: UpdateProfileRequest): Response<UserResponse>
+    
     // ═══════════════════════════════════════════════════════════
     // PARENT ENDPOINTS
     // ═══════════════════════════════════════════════════════════
@@ -216,6 +228,71 @@ interface ApiService {
     
     @GET("v1/parent/child/{child}/marks")
     suspend fun getChildMarks(@Path("child") childId: Int): Response<MarksResponse>
+    
+    @GET("v1/parent/profile")
+    suspend fun getParentProfile(): Response<UserResponse>
+    
+    @PUT("v1/parent/profile")
+    suspend fun updateParentProfile(@Body request: UpdateProfileRequest): Response<UserResponse>
+    
+    // ═══════════════════════════════════════════════════════════
+    // ADMIN MANAGEMENT ENDPOINTS (Role: admin)
+    // ── Teacher Management ────────────────────────────────────
+    @GET("v1/admin/teachers")
+    suspend fun getTeachers(): Response<TeacherListResponse>
+    
+    @GET("v1/admin/teachers/{id}")
+    suspend fun getTeacher(@Path("id") id: Int): Response<TeacherDetailResponse>
+    
+    @POST("v1/admin/teachers")
+    suspend fun createTeacher(@Body request: CreateTeacherRequest): Response<MessageResponse>
+    
+    @PUT("v1/admin/teachers/{id}")
+    suspend fun updateTeacher(
+        @Path("id") id: Int,
+        @Body request: UpdateTeacherRequest
+    ): Response<MessageResponse>
+    
+    @DELETE("v1/admin/teachers/{id}")
+    suspend fun deleteTeacher(@Path("id") id: Int): Response<MessageResponse>
+    
+    // ── Student Management ────────────────────────────────────
+    @GET("v1/admin/students")
+    suspend fun getStudents(): Response<StudentListResponse>
+    
+    @GET("v1/admin/students/{id}")
+    suspend fun getStudent(@Path("id") id: Int): Response<StudentDetailResponse>
+    
+    @POST("v1/admin/students")
+    suspend fun createStudent(@Body request: CreateStudentRequest): Response<MessageResponse>
+    
+    @PUT("v1/admin/students/{id}")
+    suspend fun updateStudent(
+        @Path("id") id: Int,
+        @Body request: UpdateStudentRequest
+    ): Response<MessageResponse>
+    
+    @DELETE("v1/admin/students/{id}")
+    suspend fun deleteStudent(@Path("id") id: Int): Response<MessageResponse>
+    
+    // ── Parent Management ─────────────────────────────────────
+    @GET("v1/admin/parents")
+    suspend fun getParents(): Response<ParentListResponse>
+    
+    @GET("v1/admin/parents/{id}")
+    suspend fun getParent(@Path("id") id: Int): Response<ParentDetailResponse>
+    
+    @POST("v1/admin/parents")
+    suspend fun createParent(@Body request: CreateParentRequest): Response<MessageResponse>
+    
+    @PUT("v1/admin/parents/{id}")
+    suspend fun updateParent(
+        @Path("id") id: Int,
+        @Body request: UpdateParentRequest
+    ): Response<MessageResponse>
+    
+    @DELETE("v1/admin/parents/{id}")
+    suspend fun deleteParent(@Path("id") id: Int): Response<MessageResponse>
 }
 ```
 
@@ -458,6 +535,240 @@ data class NoticesResponse(
 data class DepartmentsResponse(
     val success: Boolean,
     val data: List<DepartmentInfo>
+)
+
+// Admin Management Models
+data class TeacherListResponse(
+    val success: Boolean,
+    val data: List<TeacherListItem>,
+    val meta: PaginationMeta
+)
+
+data class TeacherListItem(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val phone: String?,
+    val avatar_url: String?,
+    val employee_id: String,
+    val designation: String,
+    val department: String?,
+    val qualification: String?,
+    val employment_type: String?,
+    val is_active: Boolean,
+    val subjects_count: Int
+)
+
+data class TeacherDetailResponse(
+    val success: Boolean,
+    val data: TeacherDetailData
+)
+
+data class TeacherDetailData(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val phone: String?,
+    val avatar_url: String?,
+    val employee_id: String,
+    val designation: String,
+    val department: String?,
+    val department_id: Int,
+    val qualification: String?,
+    val specialization: String?,
+    val employment_type: String?,
+    val is_active: Boolean,
+    val join_date: String?,
+    val subjects: List<SubjectInfo>
+)
+
+data class SubjectInfo(
+    val id: Int,
+    val name: String,
+    val code: String?
+)
+
+data class CreateTeacherRequest(
+    val name: String,
+    val email: String,
+    val phone: String? = null,
+    val password: String? = null,
+    val employee_id: String,
+    val department_id: Int,
+    val designation: String,
+    val qualification: String? = null,
+    val specialization: String? = null,
+    val employment_type: String? = null,
+    val join_date: String? = null,
+    val is_active: Boolean = true
+)
+
+data class UpdateTeacherRequest(
+    val name: String? = null,
+    val phone: String? = null,
+    val password: String? = null,
+    val department_id: Int? = null,
+    val designation: String? = null,
+    val qualification: String? = null,
+    val specialization: String? = null,
+    val employment_type: String? = null,
+    val is_active: Boolean? = null
+)
+
+data class StudentListResponse(
+    val success: Boolean,
+    val data: List<StudentListItem>,
+    val meta: PaginationMeta
+)
+
+data class StudentListItem(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val phone: String?,
+    val avatar_url: String?,
+    val student_no: String,
+    val program: String?,
+    val department: String?,
+    val current_semester: Int,
+    val section: String?,
+    val batch: String?,
+    val status: String,
+    val parents_count: Int
+)
+
+data class StudentDetailData(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val phone: String?,
+    val avatar_url: String?,
+    val student_no: String,
+    val registration_number: String?,
+    val program: String?,
+    val program_id: Int,
+    val department: String?,
+    val department_id: Int?,
+    val current_semester: Int,
+    val section: String?,
+    val batch: String?,
+    val status: String,
+    val blood_group: String?,
+    val guardian_name: String?,
+    val guardian_phone: String?,
+    val parents: List<ParentBriefInfo>
+)
+
+data class ParentBriefInfo(
+    val id: Int,
+    val name: String,
+    val email: String?,
+    val phone: String?,
+    val relation: String?
+)
+
+data class StudentDetailResponse(
+    val success: Boolean,
+    val data: StudentDetailData
+)
+
+data class CreateStudentRequest(
+    val name: String,
+    val email: String,
+    val phone: String? = null,
+    val password: String? = null,
+    val student_no: String,
+    val registration_number: String? = null,
+    val program_id: Int,
+    val current_semester: Int,
+    val section: String? = null,
+    val batch: String? = null,
+    val admission_date: String? = null,
+    val status: String? = "active",
+    val blood_group: String? = null,
+    val guardian_name: String? = null,
+    val guardian_phone: String? = null,
+    val parent_ids: List<Int>? = null
+)
+
+data class UpdateStudentRequest(
+    val name: String? = null,
+    val phone: String? = null,
+    val password: String? = null,
+    val current_semester: Int? = null,
+    val section: String? = null,
+    val status: String? = null,
+    val blood_group: String? = null,
+    val guardian_name: String? = null,
+    val guardian_phone: String? = null,
+    val parent_ids: List<Int>? = null
+)
+
+data class ParentListResponse(
+    val success: Boolean,
+    val data: List<ParentListItem>,
+    val meta: PaginationMeta
+)
+
+data class ParentListItem(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val phone: String?,
+    val avatar_url: String?,
+    val occupation: String?,
+    val relation_to_student: String?,
+    val is_active: Boolean,
+    val children_count: Int,
+    val children: List<ChildBriefInfo>
+)
+
+data class ChildBriefInfo(
+    val id: Int,
+    val name: String,
+    val program: String?,
+    val student_no: String?
+)
+
+data class ParentDetailResponse(
+    val success: Boolean,
+    val data: ParentDetailData
+)
+
+data class ParentDetailData(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val phone: String?,
+    val avatar_url: String?,
+    val occupation: String?,
+    val relation_to_student: String?,
+    val is_active: Boolean,
+    val children: List<ChildBriefInfo>
+)
+
+data class CreateParentRequest(
+    val name: String,
+    val email: String,
+    val phone: String? = null,
+    val password: String? = null,
+    val occupation: String? = null,
+    val relation_to_student: String? = null,
+    val student_ids: List<Int>? = null
+)
+
+data class UpdateParentRequest(
+    val name: String? = null,
+    val phone: String? = null,
+    val password: String? = null,
+    val occupation: String? = null,
+    val student_ids: List<Int>? = null
+)
+
+data class PaginationMeta(
+    val current_page: Int,
+    val last_page: Int,
+    val total: Int
 )
 ```
 
@@ -737,17 +1048,24 @@ dependencies {
 
 ## ✅ Testing Checklist
 
-- [ ] API Base URL configured correctly in BuildConfig
-- [ ] Retrofit client initialized
-- [ ] Auth Interceptor adding Bearer token
-- [ ] LoginActivity working
-- [ ] Token saved to SharedPreferences
-- [ ] Protected endpoints work with token
-- [ ] Role-based navigation working
-- [ ] Logout clears token
-- [ ] Network error handling
-- [ ] Error responses parsed correctly
-- [ ] Production API URL configured
+- [x] API Base URL configured correctly in BuildConfig
+- [x] Retrofit client initialized
+- [x] Auth Interceptor adding Bearer token
+- [x] LoginActivity working
+- [x] Token saved to SharedPreferences
+- [x] Protected endpoints work with token
+- [x] Role-based navigation working
+- [x] Logout clears token
+- [x] Network error handling
+- [x] Error responses parsed correctly
+- [x] Production API URL configured
+- [x] Student profile CRUD (GET/PUT)
+- [x] Teacher profile CRUD (GET/PUT)
+- [x] Parent profile CRUD (GET/PUT)
+- [x] Admin Teacher CRUD (list/create/show/update/delete)
+- [x] Admin Student CRUD (list/create/show/update/delete)
+- [x] Admin Parent CRUD (list/create/show/update/delete)
+- [x] Role authorization enforced (non-admin blocked from admin endpoints)
 
 ---
 

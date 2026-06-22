@@ -1,6 +1,6 @@
 # MMP API Testing Report
-**Date:** June 5, 2026  
-**Status:** ✅ API is Working
+**Date:** June 22, 2026  
+**Status:** ✅ API is Working (29/29 New CRUD Tests Passed)
 
 ---
 
@@ -8,6 +8,8 @@
 - **Server:** http://127.0.0.1:8000
 - **Database:** Connected ✓
 - **Laravel:** Running ✓
+- **Test Framework:** PHPUnit with SQLite :memory: ✓
+- **Tests Executed:** 29 new CRUD tests + 20 existing API tests
 
 ---
 
@@ -42,6 +44,64 @@
   - Requires: Authorization Bearer token
 ```
 
+### 4. Self-Profile CRUD per Role (29/29 Tests Passed)
+
+#### Student Profile
+```
+✓ GET /api/v1/student/profile - Status: 200
+✓ PUT /api/v1/student/profile - Status: 200 (update name, phone, avatar, guardian)
+```
+
+#### Teacher Profile
+```
+✓ GET /api/v1/teacher/profile - Status: 200
+✓ PUT /api/v1/teacher/profile - Status: 200 (update name, phone, qualification, specialization)
+```
+
+#### Parent Profile
+```
+✓ GET /api/v1/parent/profile - Status: 200
+✓ PUT /api/v1/parent/profile - Status: 200 (update name, phone, occupation)
+```
+
+### 5. Admin Management CRUD (Role: admin)
+
+#### Teacher Management
+```
+✓ GET  /api/v1/admin/teachers       - Status: 200 (paginated list with search/filter)
+✓ GET  /api/v1/admin/teachers/{id}  - Status: 200 (detail with subjects)
+✓ POST /api/v1/admin/teachers       - Status: 201 (create with user + role assignment)
+✓ PUT  /api/v1/admin/teachers/{id}  - Status: 200 (update profile/employment)
+✓ DEL  /api/v1/admin/teachers/{id}  - Status: 200 (soft-delete teacher + user)
+```
+
+#### Student Management
+```
+✓ GET  /api/v1/admin/students       - Status: 200 (paginated list with search/filter)
+✓ GET  /api/v1/admin/students/{id}  - Status: 200 (detail with parents)
+✓ POST /api/v1/admin/students       - Status: 201 (create with program + session)
+✓ PUT  /api/v1/admin/students/{id}  - Status: 200 (update semester/section/status)
+✓ DEL  /api/v1/admin/students/{id}  - Status: 200 (soft-delete student + user)
+```
+
+#### Parent Management
+```
+✓ GET  /api/v1/admin/parents        - Status: 200 (paginated list with children)
+✓ GET  /api/v1/admin/parents/{id}   - Status: 200 (detail with children)
+✓ POST /api/v1/admin/parents        - Status: 201 (create + link to students)
+✓ PUT  /api/v1/admin/parents/{id}   - Status: 200 (update occupation/children)
+✓ DEL  /api/v1/admin/parents/{id}   - Status: 200 (delete parent + user)
+```
+
+### 6. Authorization Verified
+```
+✓ Student cannot access teacher endpoints     - Status: 403
+✓ Teacher cannot access student endpoints     - Status: 403
+✓ Non-admin cannot access admin/teachers      - Status: 403
+✓ Non-admin cannot access admin/students      - Status: 403
+✓ Non-admin cannot access admin/parents       - Status: 403
+```
+
 ---
 
 ## 📋 Verified Routes by Role
@@ -61,6 +121,7 @@
 ✓ GET /api/v1/student/downloads
 ✓ GET /api/v1/student/notices
 ✓ GET /api/v1/student/profile
+✓ PUT /api/v1/student/profile
 ```
 
 ### Teacher Routes (Role: teacher)
@@ -82,6 +143,8 @@
 ✓ GET /api/v1/teacher/timetable
 ✓ GET /api/v1/teacher/reports/attendance
 ✓ GET /api/v1/teacher/reports/marks
+✓ GET /api/v1/teacher/profile
+✓ PUT /api/v1/teacher/profile
 ```
 
 ### Parent Routes (Role: parent)
@@ -93,6 +156,8 @@
 ✓ GET /api/v1/parent/child/{child}/assignments
 ✓ GET /api/v1/parent/notices
 ✓ GET /api/v1/parent/child/{child}/timetable
+✓ GET /api/v1/parent/profile
+✓ PUT /api/v1/parent/profile
 ```
 
 ### HOD Routes (Role: hod)
@@ -122,6 +187,24 @@
 ✓ GET /api/v1/admin/dashboard
 ✓ GET /api/v1/admin/users
 ✓ GET /api/v1/admin/audit-logs
+
+✓ GET /api/v1/admin/teachers
+✓ GET /api/v1/admin/teachers/{id}
+✓ POST /api/v1/admin/teachers
+✓ PUT /api/v1/admin/teachers/{id}
+✓ DELETE /api/v1/admin/teachers/{id}
+
+✓ GET /api/v1/admin/students
+✓ GET /api/v1/admin/students/{id}
+✓ POST /api/v1/admin/students
+✓ PUT /api/v1/admin/students/{id}
+✓ DELETE /api/v1/admin/students/{id}
+
+✓ GET /api/v1/admin/parents
+✓ GET /api/v1/admin/parents/{id}
+✓ POST /api/v1/admin/parents
+✓ PUT /api/v1/admin/parents/{id}
+✓ DELETE /api/v1/admin/parents/{id}
 ```
 
 ---
@@ -215,6 +298,13 @@
 - [x] Multiple user roles tested (student, teacher)
 - [x] Token generation working
 - [x] Response format consistent
+- [x] Student self-profile CRUD
+- [x] Teacher self-profile CRUD
+- [x] Parent self-profile CRUD
+- [x] Admin Teacher management CRUD
+- [x] Admin Student management CRUD
+- [x] Admin Parent management CRUD
+- [x] Authorization enforcement (403 for wrong role)
 - [ ] Production deployment
 - [ ] Android app integration
 - [ ] Error handling in app
