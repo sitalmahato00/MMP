@@ -35,14 +35,50 @@
 /* ── Base ─────────────────────────────────────────────────────── */
 html { scroll-behavior: smooth; }
 html, body { border-radius: 0 !important; }
-:root { color-scheme: light; }
-html.dark { color-scheme: dark; }
+:root {
+  color-scheme: light;
+  --page-bg: #F4F7FB;
+  --card-bg: #ffffff;
+  --card-bg-alt: #F4F7FB;
+  --card-border: #DCE3EB;
+  --card-hover-bg: #F8FAFD;
+  --section-divider: #F0F3F7;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --input-bg: #ffffff;
+  --input-border: #DCE3EB;
+  --input-color: #111827;
+  --table-head-bg: #F4F7FB;
+  --table-head-color: #374151;
+  --table-border: #F0F3F7;
+  --table-head-border: #DCE3EB;
+}
+html.dark {
+  color-scheme: dark;
+  --page-bg: #0D1B35;
+  --card-bg: #132044;
+  --card-bg-alt: #0D1B35;
+  --card-border: #1e3a5f;
+  --card-hover-bg: #1e3a5f;
+  --section-divider: #1e3a5f;
+  --text-primary: #f0f4f8;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --input-bg: #1a2f50;
+  --input-border: #2d4a70;
+  --input-color: #e2e8f0;
+  --table-head-bg: #1a2f50;
+  --table-head-color: #94a3b8;
+  --table-border: #1e3a5f;
+  --table-head-border: #2d4a70;
+}
 
 body {
   font-family: 'Inter', 'Noto Sans', sans-serif;
   font-size: 0.875rem;
-  background-color: #F4F7FB;
-  color: #374151;
+  background-color: var(--page-bg);
+  color: var(--text-secondary);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -88,8 +124,8 @@ html.dark main, html.dark .page-content { background-color: #0D1B35 !important; 
 .course-card,
 .feature-card,
 .bg-white {
-  background-color: #ffffff;
-  border: 1px solid #DCE3EB;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 4px;
   box-shadow: 0 1px 2px rgba(11, 46, 107, 0.05);
 }
@@ -123,12 +159,57 @@ html.dark .bg-slate-100 {
 }
 html.dark main { background-color: #0D1B35 !important; }
 
+/*
+ * Dark mode: flip ALL divs/sections/articles that have inline
+ * style="background-color: #F4F7FB" or "background-color: #ffffff"
+ * or "background-color: #F8FAFC" set by Blade views.
+ * We do this with attribute CSS selectors.
+ */
+html.dark div[style*="background-color: #F4F7FB"],
+html.dark div[style*="background-color: #f4f7fb"],
+html.dark section[style*="background-color: #F4F7FB"],
+html.dark section[style*="background-color: #f4f7fb"] {
+  background-color: #0D1B35 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark div[style*="background-color: #ffffff"],
+html.dark div[style*="background-color: #FFFFFF"],
+html.dark section[style*="background-color: #ffffff"],
+html.dark section[style*="background-color: #FFFFFF"],
+html.dark div[style*="background-color: white"],
+html.dark section[style*="background-color: white"] {
+  background-color: #132044 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark div[style*="background-color: #F8FAFC"],
+html.dark div[style*="background-color: #f8fafc"],
+html.dark div[style*="background-color: #F8FAFD"],
+html.dark div[style*="background-color: #f8fafd"] {
+  background-color: #0D1B35 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Section dividers & borders in dark mode */
+html.dark div[style*="border-bottom: 1px solid #F0F3F7"],
+html.dark div[style*="border-top: 1px solid #F0F3F7"],
+html.dark div[style*="border-bottom: 1px solid #DCE3EB"],
+html.dark div[style*="border-top: 1px solid #DCE3EB"] {
+  border-color: #1e3a5f !important;
+}
+
 /* ── Border overrides ─────────────────────────────────────────── */
 html.dark .border-gray-100,
 html.dark .border-gray-200,
 html.dark .border-slate-100,
 html.dark .border-slate-200,
 html.dark .border-slate-200\/80 { border-color: #1e3a5f !important; }
+
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + *,
+html.dark .divide-gray-100 > * + *,
+html.dark .divide-gray-200 > * + * { border-color: #1e3a5f !important; }
 
 /* ── Text overrides in dark mode ──────────────────────────────── */
 html.dark .text-gray-900, html.dark .text-slate-900 { color: #f0f4f8 !important; }
@@ -500,3 +581,89 @@ html.dark .kpi-card .kpi-icon {
 /* ── Animate pulse: keep for status indicators ────────────────── */
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+/* ── Dark-mode: flip hardcoded #0f172a / #1e293b inline cards ── */
+/* Attendance KPI cards hardcode a dark slate bg — fix in light mode */
+:root:not(.dark) div[style*="background:#0f172a"],
+:root:not(.dark) div[style*="background: #0f172a"],
+:root:not(.dark) section[style*="background:#0f172a"],
+:root:not(.dark) section[style*="background: #0f172a"] {
+  background: #ffffff !important;
+  border-color: #DCE3EB !important;
+  color: #374151 !important;
+}
+/* keep them dark in dark mode */
+html.dark div[style*="background:#0f172a"],
+html.dark div[style*="background: #0f172a"],
+html.dark section[style*="background:#0f172a"],
+html.dark section[style*="background: #0f172a"] {
+  background: #132044 !important;
+  border-color: #1e3a5f !important;
+  color: #e2e8f0 !important;
+}
+/* text colours inside those cards */
+:root:not(.dark) div[style*="background:#0f172a"] [style*="color:#e2e8f0"],
+:root:not(.dark) div[style*="background:#0f172a"] span[style*="color:#e2e8f0"],
+:root:not(.dark) section[style*="background:#0f172a"] [style*="color:#e2e8f0"] {
+  color: #111827 !important;
+}
+:root:not(.dark) div[style*="background:#0f172a"] [style*="color:#475569"],
+:root:not(.dark) section[style*="background:#0f172a"] [style*="color:#475569"] {
+  color: #6B7280 !important;
+}
+
+/* ── Gradient page headers: prevent white bleed in dark mode ──── */
+/* Assignments / Marks / Downloads / Timetable etc. use bg-gradient-to-br from-slate-50 via-white */
+html.dark .bg-gradient-to-br {
+  background-image: none !important;
+}
+/* The absolute overlay div inside those headers */
+html.dark .absolute.inset-0.bg-gradient-to-br {
+  background-image: none !important;
+  background-color: transparent !important;
+}
+/* Notices: bg-slate-50\/70 in thead */
+html.dark .bg-slate-50\/70 {
+  background-color: #1a2f50 !important;
+}
+
+/* ── Border-slate-300 dark override ─────────────────────────────── */
+html.dark .border-slate-300 { border-color: #2d4a70 !important; }
+
+/* ── hover:bg-slate-50\/60 ──────────────────────────────────────── */
+html.dark .hover\:bg-slate-50\/60:hover { background-color: #1e3a5f !important; }
+
+/* ── Attendance progress bar track ─────────────────────────────── */
+html.dark .bg-slate-200 { background-color: #1e3a5f !important; }
+
+/* ── Coloured light icon backgrounds: dark variants ────────────── */
+html.dark .bg-blue-50   { background-color: rgba(59,130,246,0.15) !important; }
+html.dark .bg-emerald-50{ background-color: rgba(16,185,129,0.15) !important; }
+html.dark .bg-red-50    { background-color: rgba(239,68,68,0.15)  !important; }
+html.dark .bg-amber-50  { background-color: rgba(245,158,11,0.15) !important; }
+html.dark .bg-violet-50 { background-color: rgba(139,92,246,0.15) !important; }
+html.dark .bg-yellow-50 { background-color: rgba(234,179,8,0.15)  !important; }
+
+/* ── Coloured light badge backgrounds: dark variants ────────────── */
+html.dark .bg-blue-50.text-blue-700,
+html.dark .bg-blue-50.text-blue-600   { color: #93c5fd !important; }
+html.dark .bg-emerald-50.text-emerald-700,
+html.dark .bg-emerald-50.text-emerald-600 { color: #6ee7b7 !important; }
+html.dark .bg-amber-50.text-amber-700 { color: #fcd34d !important; }
+html.dark .bg-red-50.text-red-700     { color: #fca5a5 !important; }
+html.dark .bg-violet-50.text-violet-700 { color: #c4b5fd !important; }
+html.dark .bg-yellow-50.text-yellow-700,
+html.dark .bg-yellow-50.text-yellow-800 { color: #fde68a !important; background-color: rgba(234,179,8,0.12) !important; }
+
+/* ── Analytics modal in attendance ─────────────────────────────── */
+html.dark #analyticsModal .bg-white {
+  background-color: #132044 !important;
+  color: #e2e8f0 !important;
+}
+html.dark #analyticsModal .border-slate-200 { border-color: #1e3a5f !important; }
+html.dark #analyticsModal .bg-blue-50   { background-color: rgba(59,130,246,0.15) !important; }
+html.dark #analyticsModal .bg-emerald-50{ background-color: rgba(16,185,129,0.15) !important; }
+html.dark #analyticsModal .bg-red-50    { background-color: rgba(239,68,68,0.15)  !important; }
+html.dark #analyticsModal .bg-amber-50  { background-color: rgba(245,158,11,0.15) !important; }
+html.dark #analyticsModal .bg-slate-50  { background-color: #0D1B35 !important; }
+html.dark #analyticsModal .bg-yellow-50 { background-color: rgba(234,179,8,0.10) !important; }

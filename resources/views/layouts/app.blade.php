@@ -198,7 +198,7 @@
         ],
     };
 @endphp
-<body class="h-full overflow-x-hidden antialiased" style="background-color: #F4F7FB;" x-data="mmpAppShell()" x-init="init()"
+<body class="h-full overflow-x-hidden antialiased bg-[#F4F7FB] dark:bg-[#0D1B35]" x-data="mmpAppShell()" x-init="init()"
       :class="sidebarOpen ? 'overflow-hidden' : ''">
 
     {{-- Mobile sidebar overlay — semi-transparent, correct color --}}
@@ -216,16 +216,16 @@
 
     {{-- PWA install prompt --}}
     <div x-show="!isStandalone && !installDismissed" x-cloak class="fixed bottom-24 inset-x-4 z-50 flex justify-center lg:inset-x-auto lg:right-6 lg:bottom-6">
-        <div class="w-full max-w-md bg-white p-4 shadow-xl" style="border: 1px solid #DCE3EB; border-radius: 4px;">
+        <div class="w-full max-w-md bg-white dark:bg-[#132044] p-4 shadow-xl" style="border: 1px solid #DCE3EB; border-radius: 4px;">
             <div class="flex items-center gap-3">
                 <img src="{{ route('public.brand-logo') }}?v={{ logoVersion() }}" alt="MMP logo" class="h-12 w-12 shrink-0 rounded object-contain" style="border: 1px solid #DCE3EB;">
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-bold text-gray-900">Install MMP App</p>
-                    <p class="text-xs text-gray-500 mt-0.5">Faster access · Offline support · Notifications</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-slate-100">Install MMP App</p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Faster access · Offline support · Notifications</p>
                 </div>
             </div>
             <div class="mt-3 flex items-center justify-end gap-2">
-                <button type="button" @click="dismissInstall()" class="px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:text-gray-900" style="border: 1px solid #DCE3EB; border-radius: 3px;">Not now</button>
+                <button type="button" @click="dismissInstall()" class="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-slate-300 transition hover:text-gray-900 dark:hover:text-white" style="border: 1px solid #DCE3EB; border-radius: 3px;">Not now</button>
                 <button type="button" @click="installApp()" class="px-4 py-1.5 text-xs font-semibold text-white transition" style="background: #1D4ED8; border-radius: 3px;">Download</button>
             </div>
         </div>
@@ -250,7 +250,7 @@
         <x-sidebar />
 
         {{-- MAIN CONTENT --}}
-        <div class="flex min-w-0 flex-1 flex-col">
+        <div class="flex min-w-0 flex-1 flex-col bg-[#F4F7FB] dark:bg-[#0D1B35]">
 
             {{-- Mobile header (only on small screens, fixed) --}}
             <header class="fixed inset-x-0 top-0 z-[35] flex h-14 items-center justify-between px-4 lg:hidden"
@@ -282,8 +282,8 @@
             </header>
 
             {{-- Page content --}}
-            <main class="flex-1 overflow-x-hidden px-4 py-5 pt-16 lg:px-6 lg:py-6 lg:pt-6 pb-24 lg:pb-6"
-                  style="background-color: #F4F7FB; min-height: 100%;">
+            <main class="flex-1 overflow-x-hidden px-4 py-5 pt-16 lg:px-6 lg:py-6 lg:pt-6 pb-24 lg:pb-6 bg-[#F4F7FB] dark:bg-[#0D1B35]"
+                  style="min-height: 100%;">
                 <div class="mx-auto w-full max-w-full">
                     @if (session('success'))
                         <x-alert type="success" :message="session('success')" class="mb-5" />

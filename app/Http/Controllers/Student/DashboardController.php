@@ -47,7 +47,7 @@ class DashboardController extends Controller
                 ->get();
         });
 
-        $chartData = Cache::remember("student_chart_{$student->id}_v1", 300, function () use ($student, $marksSummary) {
+        $chartData = Cache::remember("student_chart_{$student->id}_v3", 300, function () use ($student, $marksSummary) {
             return $this->getChartData($student, $marksSummary);
         });
         $greeting = $this->greeting();
@@ -68,8 +68,69 @@ class DashboardController extends Controller
     private function getChartData($student, array $marksSummary): array
     {
         return [
-            'attendance' => $this->getAttendanceChartData($student),
-            'grades' => $this->getGradeDistribution($marksSummary),
+            'attendance'     => $this->getAttendanceChartData($student),
+            'grades'         => $this->getGradeDistribution($marksSummary),
+            'semester_marks' => $this->getSemesterMarksChart($student),
+        ];
+    }
+
+    /**
+     * Per-semester bar chart: CTEVT % vs Assessment % side-by-side.
+     * Always shows all 6 semesters; semesters without data show null (bar hidden).
+     */
+    private function getSemesterMarksChart($student): array
+    {
+        $marks = $this->studentRecordService->getVisiblePublishedMarks($student);
+
+        // Pre-group by semester for fast lookup
+        $bySemester = $marks->groupBy('semester');
+
+        $labels         = [];
+        $ctevtData      = [];
+        $assessmentData = [];
+
+        for ($sem = 1; $sem <= 6; $sem++) {
+            $labels[] = 'Sem ' . $sem;
+
+            $semMarks = $bySemester->get($sem, collect());
+
+            if ($semMarks->isEmpty()) {
+                $ctevtData[]      = null;
+                $assessmentData[] = null;
+                continue;
+            }
+
+            $ctevtObtained = 0.0;  $ctevtFull = 0.0;
+            $asmtObtained  = 0.0;  $asmtFull  = 0.0;
+
+            foreach ($semMarks as $mark) {
+                $isAssessment = ($mark->exam?->category ?? '') === 'monthly_assessment';
+                $obtained = ($mark->internal_theory_marks    ?? 0)
+                          + ($mark->external_theory_marks    ?? 0)
+                          + ($mark->internal_practical_marks ?? 0)
+                          + ($mark->external_practical_marks ?? 0);
+                $full = (float) (($mark->subject?->full_marks_internal_theory   ?? 0)
+                      + ($mark->subject?->full_marks_external_theory             ?? 0)
+                      + ($mark->subject?->full_marks_internal_practical          ?? 0)
+                      + ($mark->subject?->full_marks_external_practical          ?? 0));
+
+                if ($isAssessment) {
+                    $asmtObtained += $obtained;
+                    $asmtFull     += ($mark->assessment_full_marks ?? $full);
+                } else {
+                    $ctevtObtained += $obtained;
+                    $ctevtFull     += $full;
+                }
+            }
+
+            $ctevtData[]      = $ctevtFull  > 0 ? round(($ctevtObtained  / $ctevtFull)  * 100, 1) : null;
+            $assessmentData[] = $asmtFull   > 0 ? round(($asmtObtained   / $asmtFull)   * 100, 1) : null;
+        }
+
+        return [
+            'labels'     => $labels,
+            'ctevt'      => $ctevtData,
+            'assessment' => $assessmentData,
         ];
     }
 

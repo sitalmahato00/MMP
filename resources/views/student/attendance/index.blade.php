@@ -4,69 +4,53 @@
 
 @section('content')
 <div class="space-y-6">
-    {{-- Header --}}
-    <section class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40"></div>
-        <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
-            <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Academic Record</p>
-                    <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
-                        My Attendance
-                    </h1>
-                    <p class="mt-1 text-sm text-slate-600">Track your class attendance and participation - {{ bsDate(now(), 'F d, Y l') }}</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     {{-- KPI Cards --}}
     <section class="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <div class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
             <div class="flex items-start justify-between">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30">
                     <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
             </div>
             <div class="mt-3">
-                <span class="text-2xl font-bold tracking-tight text-slate-900">{{ number_format($totalClasses) }}</span>
-                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">Total Classes</p>
+                <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ number_format($totalClasses) }}</span>
+                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">Total Classes</p>
             </div>
         </div>
 
-        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <div class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
             <div class="flex items-start justify-between">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
                     <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
             <div class="mt-3">
-                <span class="text-2xl font-bold tracking-tight text-slate-900">{{ number_format($presentCount) }}</span>
-                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">Present</p>
+                <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ number_format($presentCount) }}</span>
+                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">Present</p>
             </div>
         </div>
 
-        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <div class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
             <div class="flex items-start justify-between">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/30">
                     <svg class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </div>
             </div>
             <div class="mt-3">
-                <span class="text-2xl font-bold tracking-tight text-slate-900">{{ number_format($absentCount) }}</span>
-                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">Absent</p>
+                <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ number_format($absentCount) }}</span>
+                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">Absent</p>
             </div>
         </div>
 
-        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <div class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
             <div class="flex items-start justify-between">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-900/30">
                     <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                     </svg>
@@ -74,21 +58,21 @@
             </div>
             <div class="mt-3">
                 <div class="flex items-baseline gap-1">
-                    <span class="text-2xl font-bold tracking-tight text-slate-900">{{ number_format($attendanceRate, 1) }}</span>
-                    <span class="text-sm font-medium text-slate-400">%</span>
+                    <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ number_format($attendanceRate, 1) }}</span>
+                    <span class="text-sm font-medium text-slate-400 dark:text-slate-500">%</span>
                 </div>
-                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">Attendance Rate</p>
+                <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">Attendance Rate</p>
             </div>
         </div>
     </section>
 
     {{-- Filters --}}
-    <section class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+    <section class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="min-w-[150px]">
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Subject</label>
-                    <select name="subject_id" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Subject</label>
+                    <select name="subject_id" class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500">
                         <option value="">All Subjects</option>
                         @foreach($subjects as $subject)
                             <option value="{{ $subject->id }}" {{ request('subject_id') == $subject->id ? 'selected' : '' }}>
@@ -99,22 +83,22 @@
                 </div>
 
                 <div class="min-w-[150px]">
-                    <label class="block text-xs font-medium text-slate-700 mb-1">From Date (BS)</label>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">From Date (BS)</label>
                     <x-bs-date-picker 
                         name="from_date" 
                         value="{{ $displayFromDate ?? bsDate(now()->startOfMonth(), 'Y-m-d') }}" 
                         placeholder="YYYY-MM-DD"
-                        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                        class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500"
                     />
                 </div>
 
                 <div class="min-w-[150px]">
-                    <label class="block text-xs font-medium text-slate-700 mb-1">To Date (BS)</label>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">To Date (BS)</label>
                     <x-bs-date-picker 
                         name="to_date" 
                         value="{{ $displayToDate ?? bsDate(now(), 'Y-m-d') }}" 
                         placeholder="YYYY-MM-DD"
-                        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                        class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500"
                     />
                 </div>
 
@@ -122,7 +106,7 @@
                     <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                         Filter
                     </button>
-                    <a href="{{ route('student.attendance.index') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    <a href="{{ route('student.attendance.index') }}" class="rounded-lg border border-slate-300 dark:border-[#2d4a70] px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1e3a5f]">
                         Clear
                     </a>
                 </div>
@@ -136,7 +120,7 @@
                     </svg>
                     Analytics
                 </button>
-                <button onclick="exportAttendance()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                <button onclick="exportAttendance()" class="rounded-lg border border-slate-300 dark:border-[#2d4a70] px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1e3a5f] flex items-center gap-2">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
@@ -148,15 +132,15 @@
 
     {{-- Subject-wise Breakdown --}}
     @if($subjectWise->count() > 0)
-    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-5 py-4">
-            <h2 class="text-sm font-semibold text-slate-900">Subject-wise Attendance</h2>
-            <p class="text-xs text-slate-500">Attendance breakdown by subject</p>
+    <section class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] shadow-sm">
+        <div class="border-b border-slate-100 dark:border-[#1e3a5f] px-5 py-4">
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Subject-wise Attendance</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Attendance breakdown by subject</p>
         </div>
         
         <div class="overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <thead class="bg-slate-50 dark:bg-[#0D1B35] text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     <tr>
                         <th class="px-5 py-3 text-left">Subject</th>
                         <th class="px-5 py-3 text-center">Total Classes</th>
@@ -166,15 +150,15 @@
                         <th class="px-5 py-3 text-left">Attendance Rate</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-[#1e3a5f]">
                     @foreach($subjectWise as $data)
-                        <tr class="hover:bg-slate-50">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-[#1e3a5f]">
                             <td class="px-5 py-4">
-                                <div class="text-sm font-medium text-slate-900">{{ $data['subject']->name }}</div>
-                                <div class="text-xs text-slate-500">{{ $data['subject']->code }}</div>
+                                <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ $data['subject']->name }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">{{ $data['subject']->code }}</div>
                             </td>
                             <td class="px-5 py-4 text-center">
-                                <span class="text-sm text-slate-900">{{ $data['total'] }}</span>
+                                <span class="text-sm text-slate-900 dark:text-slate-100">{{ $data['total'] }}</span>
                             </td>
                             <td class="px-5 py-4 text-center">
                                 <span class="text-sm font-medium text-emerald-600">{{ $data['present'] }}</span>
@@ -187,8 +171,8 @@
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
-                                    <div class="text-sm font-medium text-slate-900">{{ $data['rate'] }}%</div>
-                                    <div class="w-24 bg-slate-200 rounded-full h-1.5">
+                                    <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ $data['rate'] }}%</div>
+                                    <div class="w-24 bg-slate-200 dark:bg-[#1e3a5f] rounded-full h-1.5">
                                         <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ $data['rate'] }}%"></div>
                                     </div>
                                 </div>
@@ -202,15 +186,15 @@
     @endif
 
     {{-- Attendance Records --}}
-    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-5 py-4">
-            <h2 class="text-sm font-semibold text-slate-900">Attendance Records</h2>
-            <p class="text-xs text-slate-500">Detailed attendance history</p>
+    <section class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] shadow-sm">
+        <div class="border-b border-slate-100 dark:border-[#1e3a5f] px-5 py-4">
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Attendance Records</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Detailed attendance history</p>
         </div>
         
         <div class="overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <thead class="bg-slate-50 dark:bg-[#0D1B35] text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     <tr>
                         <th class="px-5 py-3 text-left">Date</th>
                         <th class="px-5 py-3 text-left">Subject</th>
@@ -219,22 +203,22 @@
                         <th class="px-5 py-3 text-center">Status</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-[#1e3a5f]">
                     @forelse($attendances->sortByDesc('attendanceSession.date') as $attendance)
-                        <tr class="hover:bg-slate-50">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-[#1e3a5f]">
                             <td class="px-5 py-4">
-                                <div class="text-sm font-medium text-slate-900">{{ bsDate($attendance->attendanceSession->date, 'F d, Y') }}</div>
-                                <div class="text-xs text-slate-500">{{ bsDate($attendance->attendanceSession->date, 'l') }}</div>
+                                <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ bsDate($attendance->attendanceSession->date, 'F d, Y') }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">{{ bsDate($attendance->attendanceSession->date, 'l') }}</div>
                             </td>
                             <td class="px-5 py-4">
-                                <div class="text-sm text-slate-900">{{ $attendance->attendanceSession->subject->name }}</div>
-                                <div class="text-xs text-slate-500">{{ $attendance->attendanceSession->subject->code }}</div>
+                                <div class="text-sm text-slate-900 dark:text-slate-100">{{ $attendance->attendanceSession->subject->name }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">{{ $attendance->attendanceSession->subject->code }}</div>
                             </td>
                             <td class="px-5 py-4">
-                                <div class="text-sm text-slate-900">{{ $attendance->attendanceSession->teacher->user->name ?? 'N/A' }}</div>
+                                <div class="text-sm text-slate-900 dark:text-slate-100">{{ $attendance->attendanceSession->teacher->user->name ?? 'N/A' }}</div>
                             </td>
                             <td class="px-5 py-4">
-                                <div class="text-sm text-slate-900">{{ $attendance->attendanceSession->period ?? 'N/A' }}</div>
+                                <div class="text-sm text-slate-900 dark:text-slate-100">{{ $attendance->attendanceSession->period ?? 'N/A' }}</div>
                             </td>
                             <td class="px-5 py-4 text-center">
                                 @php
@@ -256,7 +240,7 @@
                                 <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
-                                <p class="mt-2 text-sm text-slate-500">No attendance records found</p>
+                                <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">No attendance records found</p>
                             </td>
                         </tr>
                     @endforelse
@@ -271,10 +255,10 @@
     <div class="flex min-h-screen items-center justify-center p-4">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onclick="closeAnalyticsModal()"></div>
         
-        <div class="relative w-full max-w-4xl rounded-xl bg-white shadow-xl">
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-                <h3 class="text-lg font-semibold text-slate-900">Attendance Analytics</h3>
-                <button onclick="closeAnalyticsModal()" class="text-slate-400 hover:text-slate-600">
+        <div class="relative w-full max-w-4xl rounded-xl bg-white dark:bg-[#132044] shadow-xl">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1e3a5f] px-6 py-4">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Attendance Analytics</h3>
+                <button onclick="closeAnalyticsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -304,16 +288,16 @@
 
                 {{-- Subject Performance Chart --}}
                 <div class="mb-6">
-                    <h4 class="text-sm font-semibold text-slate-900 mb-3">Subject-wise Performance</h4>
-                    <div class="bg-slate-50 rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Subject-wise Performance</h4>
+                    <div class="bg-slate-50 dark:bg-[#0D1B35] rounded-lg p-4">
                         <canvas id="subjectChart" width="400" height="200"></canvas>
                     </div>
                 </div>
 
                 {{-- Monthly Trend --}}
                 <div class="mb-6">
-                    <h4 class="text-sm font-semibold text-slate-900 mb-3">Monthly Attendance Trend</h4>
-                    <div class="bg-slate-50 rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Monthly Attendance Trend</h4>
+                    <div class="bg-slate-50 dark:bg-[#0D1B35] rounded-lg p-4">
                         <canvas id="trendChart" width="400" height="200"></canvas>
                     </div>
                 </div>

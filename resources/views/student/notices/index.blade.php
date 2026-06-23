@@ -10,8 +10,8 @@
 {{-- ── HEADER ─────────────────────────────────────────────── --}}
 <div class="flex flex-wrap items-start justify-between gap-4">
     <div>
-        <h1 class="text-2xl font-black tracking-tight text-slate-900">Notices</h1>
-        <p class="mt-0.5 text-sm text-slate-500">
+        <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">Notices</h1>
+        <p class="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
             {{ $student->program->department->name }} — stay updated with important announcements
         </p>
     </div>
@@ -27,24 +27,24 @@
         ];
     @endphp
     @foreach($kpis as $kpi)
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-5 shadow-sm">
         <div class="flex items-center justify-between">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-{{ $kpi['color'] }}-50">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-{{ $kpi['color'] }}-50 dark:bg-{{ $kpi['color'] }}-900/30">
                 <svg class="w-5 h-5 text-{{ $kpi['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $kpi['icon'] }}"/>
                 </svg>
             </div>
-            <span class="rounded-full bg-{{ $kpi['color'] }}-50 px-2 py-0.5 text-[11px] font-bold text-{{ $kpi['color'] }}-700">{{ $kpi['tag'] }}</span>
+            <span class="rounded-full bg-{{ $kpi['color'] }}-50 dark:bg-{{ $kpi['color'] }}-900/30 px-2 py-0.5 text-[11px] font-bold text-{{ $kpi['color'] }}-700">{{ $kpi['tag'] }}</span>
         </div>
-        <p class="mt-3 text-3xl font-black text-slate-900">{{ number_format($kpi['value']) }}</p>
-        <p class="mt-0.5 text-xs text-slate-500">{{ $kpi['label'] }}</p>
+        <p class="mt-3 text-3xl font-black text-slate-900 dark:text-slate-100">{{ number_format($kpi['value']) }}</p>
+        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ $kpi['label'] }}</p>
     </div>
     @endforeach
 </div>
 
 {{-- Filters & Actions --}}
 <form method="GET" action="{{ route('student.notices.index') }}"
-      class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      class="rounded-2xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
     <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         {{-- Search --}}
         <div class="relative lg:col-span-2">
@@ -53,14 +53,14 @@
             </svg>
             <input type="text" name="search" value="{{ request('search') }}"
                    placeholder="Search notices..."
-                   class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100"/>
+                   class="w-full rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#1a2f50] py-2.5 pl-9 pr-4 text-sm text-slate-700 dark:text-slate-300 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100"/>
         </div>
         {{-- Type --}}
-        <select name="type" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
+        <select name="type" class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#1a2f50] px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
             <option value="internal" @selected(request('type', 'internal') === 'internal')>Department Notices</option>
         </select>
         {{-- Status (only for internal notices) --}}
-        <select name="status" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100" {{ false ? 'disabled' : '' }}>
+        <select name="status" class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#1a2f50] px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100" {{ false ? 'disabled' : '' }}>
             <option value="">All Status</option>
             <option value="published" @selected(request('status') === 'published')>Published</option>
         </select>
@@ -72,7 +72,7 @@
         </button>
         @if(request()->hasAny(['search','type','status']))
         <a href="{{ route('student.notices.index') }}"
-           class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition" title="Clear filters">
+           class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-[#1e3a5f] px-3 py-2.5 text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1e3a5f] transition" title="Clear filters">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </a>
         @endif
@@ -80,21 +80,21 @@
 </form>
 
 {{-- ── MAIN CONTENT PANEL ──────────────────────────────────── --}}
-<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+<div class="rounded-2xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] shadow-sm overflow-hidden">
 
     {{-- Panel header: result count + view toggle --}}
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
-        <p class="text-sm text-slate-500">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-[#1e3a5f] px-5 py-3.5">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
             @if(false)
                 @if($notices->count() > 0)
-                    Showing <span class="font-semibold text-slate-700">{{ $notices->count() }}</span> CTEVT notices
+                    Showing <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $notices->count() }}</span> CTEVT notices
                 @else
                     No CTEVT notices match your filters
                 @endif
             @else
                 @if($notices->total() > 0)
-                    Showing <span class="font-semibold text-slate-700">{{ $notices->firstItem() }}–{{ $notices->lastItem() }}</span>
-                    of <span class="font-semibold text-slate-700">{{ number_format($notices->total()) }}</span> notices
+                    Showing <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $notices->firstItem() }}–{{ $notices->lastItem() }}</span>
+                    of <span class="font-semibold text-slate-700 dark:text-slate-300">{{ number_format($notices->total()) }}</span> notices
                 @else
                     No notices match your filters
                 @endif
@@ -102,15 +102,15 @@
         </p>
 
         {{-- View toggle --}}
-        <div class="flex items-center rounded-xl border border-slate-200 p-1 gap-0.5 flex-shrink-0">
+        <div class="flex items-center rounded-xl border border-slate-200 dark:border-[#1e3a5f] p-1 gap-0.5 flex-shrink-0">
             <button type="button" @click="setView('table')"
-                    :class="view === 'table' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700'"
+                    :class="view === 'table' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
                     class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
                 Table
             </button>
             <button type="button" @click="setView('cards')"
-                    :class="view === 'cards' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700'"
+                    :class="view === 'cards' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
                     class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                 Cards
@@ -122,37 +122,37 @@
     <div x-show="view === 'table'" x-cloak>
         @if((false && $notices->isEmpty()) || (request('type') !== 'ctevt' && $notices->isEmpty()))
             <div class="flex flex-col items-center justify-center py-20 text-center">
-                <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 mb-4">
+                <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 dark:bg-[#1e3a5f] mb-4">
                     <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 </div>
-                <h3 class="text-base font-bold text-slate-800">No notices found</h3>
-                <p class="mt-1 text-sm text-slate-500 max-w-xs">Try adjusting your search or filters to find notices.</p>
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">No notices found</h3>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400 max-w-xs">Try adjusting your search or filters to find notices.</p>
             </div>
         @else
         <div class="mmp-table-wrap">
             <table class="mmp-table w-full text-sm">
                 <thead>
-                    <tr class="bg-slate-50/70 border-b border-slate-100">
-                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Title</th>
-                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Type</th>
-                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Source</th>
-                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Date</th>
-                        <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500">Actions</th>
+                    <tr class="bg-slate-50/70 dark:bg-[#0D1B35] border-b border-slate-100 dark:border-[#1e3a5f]">
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Title</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Type</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hidden lg:table-cell">Source</th>
+                        <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hidden lg:table-cell">Date</th>
+                        <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-[#1e3a5f]">
                     @if(false)
                         @foreach($notices as $notice)
-                        <tr class="group hover:bg-slate-50/60 transition-colors">
+                        <tr class="group hover:bg-slate-50/60 dark:hover:bg-[#1e3a5f] transition-colors">
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-50">
+                                    <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/30">
                                         <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/>
                                         </svg>
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="font-semibold text-slate-900 truncate text-sm">{{ $notice['title'] }}</p>
+                                        <p class="font-semibold text-slate-900 dark:text-slate-100 truncate text-sm">{{ $notice['title'] }}</p>
                                         <p class="text-[11px] text-slate-400 truncate">{{ Str::limit(strip_tags($notice['content']), 60) }}</p>
                                     </div>
                                 </div>
@@ -162,7 +162,7 @@
                                     CTEVT
                                 </span>
                             </td>
-                            <td class="px-5 py-3.5 text-xs text-slate-500 hidden lg:table-cell">
+                            <td class="px-5 py-3.5 text-xs text-slate-500 dark:text-slate-400 hidden lg:table-cell">
                                 CTEVT Official
                             </td>
                             <td class="px-5 py-3.5 text-xs text-slate-400 hidden lg:table-cell">
@@ -182,17 +182,17 @@
                         @endforeach
                     @else
                         @foreach($notices as $notice)
-                        <tr class="group hover:bg-slate-50/60 transition-colors">
+                        <tr class="group hover:bg-slate-50/60 dark:hover:bg-[#1e3a5f] transition-colors">
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                                    <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30">
                                         <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                                         </svg>
                                     </div>
                                     <div class="min-w-0">
                                         <div class="flex items-center gap-2">
-                                            <p class="font-semibold text-slate-900 truncate text-sm">{{ $notice->title }}</p>
+                                            <p class="font-semibold text-slate-900 dark:text-slate-100 truncate text-sm">{{ $notice->title }}</p>
                                             @if($notice->attachment || $notice->attachments->count() > 0)
                                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="Has attachments">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
@@ -204,11 +204,11 @@
                                 </div>
                             </td>
                             <td class="px-5 py-3.5">
-                                <span class="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                                <span class="inline-flex items-center rounded-lg bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 text-xs font-semibold text-blue-700">
                                     {{ ucfirst($notice->type) }}
                                 </span>
                             </td>
-                            <td class="px-5 py-3.5 text-xs text-slate-500 hidden lg:table-cell">
+                            <td class="px-5 py-3.5 text-xs text-slate-500 dark:text-slate-400 hidden lg:table-cell">
                                 @if($notice->department)
                                     {{ $notice->department->name }}
                                 @elseif($notice->author)
@@ -244,7 +244,7 @@
             </table>
         </div>
         @if(request('type') !== 'ctevt' && $notices->hasPages())
-        <div class="border-t border-slate-100 px-5 py-4">{{ $notices->links() }}</div>
+        <div class="border-t border-slate-100 dark:border-[#1e3a5f] px-5 py-4">{{ $notices->links() }}</div>
         @endif
         @endif
     </div>
@@ -253,27 +253,27 @@
     <div x-show="view === 'cards'" x-cloak>
         @if((false && $notices->isEmpty()) || (request('type') !== 'ctevt' && $notices->isEmpty()))
             <div class="flex flex-col items-center justify-center py-20 text-center">
-                <h3 class="text-base font-bold text-slate-800">No notices found</h3>
-                <p class="mt-1 text-sm text-slate-500">Try adjusting your filters to find notices.</p>
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">No notices found</h3>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Try adjusting your filters to find notices.</p>
             </div>
         @else
         <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @if(false)
                 @foreach($notices as $notice)
-                <div class="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150">
+                <div class="group relative rounded-2xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-5 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-[#2d4a70] transition-all duration-150">
                     {{-- Icon --}}
                     <div class="flex flex-col items-center text-center">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-900/30">
                             <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/>
                             </svg>
                         </div>
-                        <h3 class="mt-3 text-sm font-bold text-slate-900 leading-tight text-center line-clamp-2">{{ $notice['title'] }}</h3>
+                        <h3 class="mt-3 text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight text-center line-clamp-2">{{ $notice['title'] }}</h3>
                         <p class="mt-1 text-[11px] text-slate-400 line-clamp-2">{{ Str::limit(strip_tags($notice['content']), 80) }}</p>
                     </div>
                     {{-- Badges --}}
                     <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">
-                        <span class="rounded-lg bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">CTEVT</span>
+                        <span class="rounded-lg bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 text-[11px] font-semibold text-amber-700">CTEVT</span>
                     </div>
                     {{-- Meta info --}}
                     <div class="mt-3 space-y-0.5 text-center">
@@ -286,29 +286,29 @@
                             <a href="{{ $notice['file_url'] }}" target="_blank"
                                class="rounded-lg bg-slate-900 py-1.5 text-center text-xs font-bold text-white hover:bg-slate-700 transition">Download</a>
                         @else
-                            <span class="rounded-lg bg-slate-100 py-1.5 text-center text-xs font-semibold text-slate-400 cursor-not-allowed">No File</span>
+                            <span class="rounded-lg bg-slate-100 dark:bg-[#1e3a5f] py-1.5 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 cursor-not-allowed">No File</span>
                         @endif
                     </div>
                 </div>
                 @endforeach
             @else
                 @foreach($notices as $notice)
-                <div class="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150">
+                <div class="group relative rounded-2xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-5 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-[#2d4a70] transition-all duration-150">
                     {{-- Icon --}}
                     <div class="flex flex-col items-center text-center">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-900/30">
                             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                             </svg>
                         </div>
-                        <h3 class="mt-3 text-sm font-bold text-slate-900 leading-tight text-center line-clamp-2">{{ $notice->title }}</h3>
+                        <h3 class="mt-3 text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight text-center line-clamp-2">{{ $notice->title }}</h3>
                         <p class="mt-1 text-[11px] text-slate-400 line-clamp-2">{{ Str::limit(strip_tags($notice->content), 80) }}</p>
                     </div>
                     {{-- Badges --}}
                     <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">
-                        <span class="rounded-lg bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">{{ ucfirst($notice->type) }}</span>
+                        <span class="rounded-lg bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-[11px] font-semibold text-blue-700">{{ ucfirst($notice->type) }}</span>
                         @if($notice->is_published)
-                            <span class="rounded-lg bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Published</span>
+                            <span class="rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Published</span>
                         @endif
                     </div>
                     {{-- Meta info --}}
@@ -332,7 +332,7 @@
             @endif
         </div>
         @if(request('type') !== 'ctevt' && $notices->hasPages())
-        <div class="border-t border-slate-100 px-5 py-4">{{ $notices->links() }}</div>
+        <div class="border-t border-slate-100 dark:border-[#1e3a5f] px-5 py-4">{{ $notices->links() }}</div>
         @endif
         @endif
     </div>

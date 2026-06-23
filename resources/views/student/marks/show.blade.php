@@ -6,7 +6,7 @@
 <div class="max-w-6xl mx-auto space-y-6">
     <!-- Back Button -->
     <div class="flex items-center justify-between print:hidden">
-        <a href="{{ route('student.marks.index') }}" class="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 transition">
+        <a href="{{ route('student.marks.index') }}" class="inline-flex items-center text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Marksheet Card -->
-    <div class="bg-white rounded-xl shadow-lg border-2 border-slate-200 overflow-hidden print:shadow-none print:border print:rounded-none print:mt-0">
+    <div class="bg-white rounded-xl shadow-lg border-2 border-slate-200 dark:border-[#1e3a5f] overflow-hidden print:shadow-none print:border print:rounded-none print:mt-0">
         <!-- Header with College Info -->
         <div class="border-b-4 border-slate-900 bg-gradient-to-r from-slate-50 to-white px-8 py-6 print:bg-white">
             <div class="flex items-start gap-6">
