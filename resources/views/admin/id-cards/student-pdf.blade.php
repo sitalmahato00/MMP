@@ -113,18 +113,8 @@
         </div>
         <div class="details-section">
             <div class="detail-row"><span class="detail-label">Student ID No:&nbsp;</span><span class="detail-value">{{ $studentNo }}</span></div>
-            @if($dob)
-            <div class="detail-row"><span class="detail-label">Date of Birth:&nbsp;</span><span class="detail-value">{{ $dob }}</span></div>
-            @endif
-            @if($studentAddress)
-            <div class="detail-row"><span class="detail-label">Address:&nbsp;</span><span class="detail-value">{{ $studentAddress }}</span></div>
-            @endif
-            @if($address)
-            <div class="detail-row"><span class="detail-label">Campus:&nbsp;</span><span class="detail-value">{{ $address }}</span></div>
-            @endif
-            @if($issueDateBS)
-            <div class="detail-row"><span class="detail-label">Issue Date:&nbsp;</span><span class="detail-value">{{ $issueDateBS }}</span></div>
-            @endif
+            <div class="detail-row"><span class="detail-label">Date of Birth:-&nbsp;</span><span class="detail-value">{{ $dob ?: '—' }}</span></div>
+            <div class="detail-row"><span class="detail-label">Address:-&nbsp;</span><span class="detail-value">{{ $studentAddress ?: '—' }}</span></div>
             @if($validUptoBS)
             <div class="detail-row"><span class="detail-label">Valid up to:&nbsp;</span><span class="detail-value">{{ $validUptoBS }}</span></div>
             @endif

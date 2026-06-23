@@ -223,86 +223,103 @@
                     <p class="text-sm">Select a student to preview the ID card</p>
                 </div>
 
-                {{-- Live card preview ── matches the PDF design ── --}}
+                {{-- Live card preview ── new design matching student portal ── --}}
                 <div x-show="student" x-cloak class="flex justify-center" id="id-card-preview">
-                    <div class="w-72 overflow-hidden rounded-2xl shadow-2xl" style="font-family: 'Segoe UI', Arial, sans-serif;">
-
-                        {{-- Header: extra bottom padding creates space so photo doesn't cover the text --}}
-                        <div :style="`background:${cardColor}; padding:14px 12px 52px; display:flex; align-items:center; gap:10px;`">
-                            <img
-                                :src="logoUrl || 'https://ui-avatars.com/api/?name=MMP&background=fff&color=8B0000&size=60'"
-                                style="width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);object-fit:cover;flex-shrink:0;">
-                            <div style="color:white;font-weight:700;font-size:13px;line-height:1.25;letter-spacing:0.3px;">
-                                <span x-text="collegeName.toUpperCase()"></span><br>
-                                <span style="font-size:10px;font-weight:400;opacity:0.85;" x-text="affiliation"></span>
+                    <div style="
+                        position: relative;
+                        width: 288px;
+                        height: 458px;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+                        font-family: 'Montserrat', Arial, sans-serif;
+                        font-weight: 700;
+                        user-select: none;
+                        flex-shrink: 0;
+                        background: #fff;
+                        display: flex;
+                        flex-direction: column;
+                    ">
+                        {{-- Header band (134px) --}}
+                        <div :style="`position:relative;background:${cardColor};height:134px;box-sizing:border-box;flex-shrink:0;`">
+                            {{-- College title --}}
+                            <div style="position:absolute;top:10px;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:18.8px;line-height:1.2;text-transform:uppercase;letter-spacing:0.45px;padding:0 16px;">
+                                MANMOHAN MEMORIAL<br>POLYTECHNIC
+                            </div>
+                            {{-- Logo circle --}}
+                            <div style="position:absolute;top:40px;left:12px;width:42px;height:42px;border-radius:50%;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:1;padding:2px;box-sizing:border-box;">
+                                <img :src="logoUrl || '/favicon.ico'"
+                                     style="width:100%;height:100%;object-fit:contain;display:block;"
+                                     @error="$event.target.style.display='none'">
                             </div>
                         </div>
 
-                        {{-- White body: photo centered at the header/body boundary via absolute position --}}
-                        <div style="background:white; position:relative; padding-top:58px;">
+                        {{-- Floating photo (top=62, left=88, 112×112) --}}
+                        <div style="position:absolute;top:62px;left:88px;width:112px;height:112px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
+                            <img :src="student?.photo_url || ''"
+                                 x-show="student?.photo_url"
+                                 style="width:100%;height:100%;object-fit:cover;display:block;">
+                            <svg x-show="!student?.photo_url" viewBox="0 0 88 88" width="112" height="112">
+                                <rect width="88" height="88" fill="#e5e7eb"/>
+                                <circle cx="44" cy="32" r="17" fill="#9ca3af"/>
+                                <ellipse cx="44" cy="72" rx="27" ry="19" fill="#9ca3af"/>
+                            </svg>
+                        </div>
 
-                            {{-- Photo circle overlapping the header bottom --}}
-                            <div style="position:absolute; top:-48px; left:0; right:0; display:flex; justify-content:center;">
-                                <div style="width:96px; height:96px; border-radius:50%; background:white; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                    <img
-                                        :src="student?.photo_url || 'https://ui-avatars.com/api/?name=S&background=8B0000&color=fff&size=120'"
-                                        style="width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;">
+                        {{-- White body --}}
+                        <div style="background:#fff;padding-top:62px;flex:1;display:flex;flex-direction:column;min-height:0;">
+                            <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
+
+                                {{-- Name --}}
+                                <div style="text-align:center;padding:2px 14px 2px;font-size:14px;font-weight:700;color:#24378d;text-transform:uppercase;letter-spacing:0.2px;line-height:1.24;"
+                                     x-text="(student?.name || 'STUDENT NAME').toUpperCase()"></div>
+
+                                {{-- Program --}}
+                                <div style="text-align:center;padding:2px 12px 0;font-size:11.7px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:0.15px;line-height:1.24;"
+                                     x-text="(student?.program || 'PROGRAM / FACULTY').toUpperCase()"></div>
+
+                                {{-- Detail fields --}}
+                                <div style="padding:8px 14px 0;font-size:13px;color:#1b1b1b;font-weight:600;line-height:1.4;text-align:center;word-break:break-word;">
+                                    <div>Student ID No.: <strong style="font-weight:600;" x-text="student?.student_no || '—'"></strong></div>
+                                    <div style="margin-top:2px;">Date of Birth:- <strong style="font-weight:600;" x-text="student?.dob || '—'"></strong></div>
+                                    <div style="margin-top:2px;">Address:- <strong style="font-weight:600;" x-text="student?.address || '—'"></strong></div>
+                                    <div style="margin-top:2px;">Valid up to: <strong style="font-weight:600;" x-text="validUpto || '—'"></strong></div>
                                 </div>
-                            </div>
 
-                            {{-- Name & Program --}}
-                            <div style="text-align:center; padding:4px 14px 6px;">
-                                <div style="font-size:16px; font-weight:900; color:#1e3a5f; letter-spacing:1px; text-transform:uppercase;" x-text="student?.name?.toUpperCase() || 'STUDENT NAME'"></div>
-                                <div style="font-size:10.5px; font-weight:800; color:#1a1a1a; text-transform:uppercase; margin-top:2px; letter-spacing:0.8px;" x-text="student?.program?.toUpperCase() || 'PROGRAM NAME'"></div>
-                            </div>
-
-                            {{-- Details (center-aligned) --}}
-                            <div style="padding:2px 16px 6px; font-size:10px; color:#1e293b; line-height:1.85; text-align:center;">
-                                <div><span style="color:#475569;">Student ID No:</span> &nbsp;<strong x-text="student?.student_no || '—'"></strong></div>
-                                <div x-show="student?.dob"><span style="color:#475569;">Date of Birth:</span> &nbsp;<strong x-text="student?.dob"></strong></div>
-                                <div x-show="student?.address"><span style="color:#475569;">Address:</span> &nbsp;<strong x-text="student?.address"></strong></div>
-                                <div x-show="address"><span style="color:#475569;">Campus:</span> &nbsp;<strong x-text="address"></strong></div>
-                                <div x-show="validUpto"><span style="color:#475569;">Valid up to:</span> &nbsp;<strong x-text="validUpto"></strong></div>
-                            </div>
-
-                            {{-- Barcode + QR + Signature --}}
-                            <div style="padding:8px 14px; display:flex; justify-content:space-between; align-items:flex-end; gap:6px;">
-                                {{-- Barcode --}}
-                                <div x-show="barcodeType === 'barcode' || barcodeType === 'both'" style="flex:1;min-width:0;">
-                                    <div style="display:flex;gap:1px;height:28px;align-items:stretch;overflow:hidden;">
-                                        <template x-for="i in 40">
-                                            <div :style="`background: ${(i*7 + (student?.student_no?.charCodeAt(i % (student?.student_no?.length||1)) || 65)) % 3 !== 2 ? '#000' : '#fff'}; width: ${(i*3) % 4 === 0 ? 3 : 1.5}px; height: 100%; flex-shrink: 0;`"></div>
-                                        </template>
+                                {{-- Barcode + Signature row --}}
+                                <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:2px 12px 1px;gap:10px;margin-top:auto;">
+                                    {{-- Decorative barcode --}}
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="display:flex;gap:1px;height:32px;align-items:stretch;overflow:hidden;">
+                                            <template x-for="i in 68">
+                                                <div :style="`background:${(i*7+(student?.student_no?.charCodeAt(i%(student?.student_no?.length||1))||65))%3!==2?'#000':'#fff'};width:${(i*3)%4===0?3:1.5}px;height:100%;flex-shrink:0;`"></div>
+                                            </template>
+                                        </div>
+                                        <div style="font-size:6.4px;text-align:center;margin-top:2px;font-family:'Montserrat',Arial,sans-serif;font-weight:700;letter-spacing:0.9px;color:#333;"
+                                             x-text="student?.student_no || '—'"></div>
                                     </div>
-                                    <div style="font-size:7px;text-align:center;margin-top:2px;font-family:monospace;letter-spacing:1px;" x-text="student?.student_no"></div>
+                                    {{-- Signature --}}
+                                    <div style="flex-shrink:0;text-align:center;width:79px;font-size:11px;font-weight:700;color:#3f3f46;">
+                                        <div style="height:20px;"></div>
+                                        <div style="padding-top:0;margin-top:0;" x-text="principal || 'Principal'"></div>
+                                    </div>
                                 </div>
-                                {{-- QR --}}
-                                <div x-show="barcodeType === 'qr' || barcodeType === 'both'" style="flex-shrink:0;">
-                                    <img
-                                        :src="qrDataUrl || (student ? `https://api.qrserver.com/v1/create-qr-code/?size=55x55&data=${encodeURIComponent(student.student_no)}` : '')"
-                                        style="width:50px;height:50px;" alt="QR">
-                                </div>
-                                {{-- Signature --}}
-                                <div style="flex-shrink:0;text-align:center;font-size:8px;color:#475569;width:56px;">
-                                    <div style="border-top:1px solid #475569;padding-top:3px;" x-text="principal || 'Principal'"></div>
+
+                            </div>
+
+                            {{-- Red address footer --}}
+                            <div :style="`background:${cardColor};color:#fff;text-align:center;font-size:11px;font-weight:500;line-height:1.58;letter-spacing:0.05px;padding:9px 4px 8px;flex-shrink:0;`">
+                                <div style="transform:scaleX(1.02);transform-origin:center center;">Budhiganga-4, Morang, Koshi Province, Nepal</div>
+                                <div style="transform:scaleX(1.02);transform-origin:center center;">
+                                    Ph: <span x-text="phone || '021-622058'"></span>
+                                    <template x-if="email"> | Email: <span x-text="email"></span></template>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- College info footer --}}
-                        <div :style="`background:${cardColor};color:white;padding:7px 10px;font-size:8px;text-align:center;line-height:1.6;`">
-                            <span x-text="address"></span><br>
-                            <template x-if="phone">
-                                <span>Ph: <span x-text="phone"></span></span>
-                            </template>
-                            <template x-if="email">
-                                <span> | Email: <span x-text="email"></span></span>
-                            </template>
-                        </div>
-
-                        {{-- Bottom strip --}}
-                        <div style="background:#1a1a1a;color:white;text-align:center;padding:7px;font-size:11px;font-weight:700;letter-spacing:3px;">
-                            STUDENT IDENTITY CARD
+                            {{-- Identity strip --}}
+                            <div style="background:#1a1a1a;color:#fff;text-align:center;font-family:'Georgia','Times New Roman',serif;font-size:15px;font-weight:700;letter-spacing:0.45px;display:flex;align-items:center;justify-content:center;height:34px;padding:0 4px;text-transform:uppercase;line-height:1;flex-shrink:0;">
+                                <span style="display:block;width:100%;white-space:nowrap;transform:scaleX(1.04);transform-origin:center center;">STUDENT IDENTITY CARD</span>
+                            </div>
                         </div>
                     </div>
                 </div>
