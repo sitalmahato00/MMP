@@ -231,7 +231,7 @@ class TimetableController extends HodController
                 'room_number' => $slot->room_number,
                 'type' => $slot->type ?? 'theory',
                 'group' => $slot->group,
-                'duration' => $slot->duration ?? 1,
+                'duration' => (int) ($slot->duration ?? 1),
             ];
         })->values();
 
@@ -257,6 +257,27 @@ class TimetableController extends HodController
 
         $department = $this->currentDepartment($request);
         $deptId = $department->id;
+
+        // Normalise empty strings in slots to null before validation
+        if ($request->has('slots')) {
+            $slots = $request->input('slots', []);
+            $validTypes = ['theory', 'practical', 'lab', 'library', 'break'];
+            foreach ($slots as $i => $slot) {
+                foreach (['subject_id', 'teacher_id', 'room_number', 'group'] as $nullable) {
+                    if (isset($slots[$i][$nullable]) && $slots[$i][$nullable] === '') {
+                        $slots[$i][$nullable] = null;
+                    }
+                }
+                // Ensure type is always a valid value
+                if (empty($slots[$i]['type']) || !in_array($slots[$i]['type'], $validTypes)) {
+                    $slots[$i]['type'] = 'theory';
+                }
+                // Ensure duration is always a valid integer 1-4
+                $dur = (int) ($slots[$i]['duration'] ?? 1);
+                $slots[$i]['duration'] = max(1, min(4, $dur ?: 1));
+            }
+            $request->merge(['slots' => $slots]);
+        }
 
         $data = $request->validate([
             'academic_session_id' => 'required|exists:academic_sessions,id',
@@ -344,7 +365,7 @@ class TimetableController extends HodController
                         'teacher_id' => $slotData['teacher_id'] ?? null,
                         'room_number' => $slotData['room_number'] ?? null,
                         'type' => $slotData['type'] ?? 'theory',
-                        'group' => $slotData['group'] ?? null,
+                        'group' => ($slotData['group'] ?? '') ?: null, // empty string → null
                         'duration' => $slotData['duration'] ?? 1,
                     ]);
                 }
@@ -760,11 +781,18 @@ class TimetableController extends HodController
                         'role' => 'teacher'
                     ];
                 });
+
+            return response()->json([
+                'teachers' => $assignedTeachers,
+                'subject_type' => $subject->type ?? 'theory',
+                'has_assigned' => false,
+            ]);
         }
 
         return response()->json([
             'teachers' => $assignedTeachers,
-            'subject_type' => $subject->type ?? 'theory'
+            'subject_type' => $subject->type ?? 'theory',
+            'has_assigned' => true,
         ]);
     }
 
@@ -807,7 +835,7 @@ class TimetableController extends HodController
     private function ensureSlotCollectionHasNoConflicts(array $slots): void
     {
         foreach ($slots as $index => $slot) {
-            $slotGroup = $slot['group'] ?? null;
+            $slotGroup = ($slot['group'] ?? '') ?: null; // normalise "" → null
 
             foreach ($slots as $otherIndex => $otherSlot) {
                 if ($index >= $otherIndex) {
@@ -822,7 +850,8 @@ class TimetableController extends HodController
                     continue;
                 }
 
-                if ($this->slotGroupsOverlap($slotGroup, $otherSlot['group'] ?? null)) {
+                $otherGroup = ($otherSlot['group'] ?? '') ?: null;
+                if ($this->slotGroupsOverlap($slotGroup, $otherGroup)) {
                     throw \Illuminate\Validation\ValidationException::withMessages([
                         'slots' => [
                             'Slot #' . ($index + 1) . ' conflicts with slot #' . ($otherIndex + 1) . ' on ' . ucfirst($slot['day_of_week']) . '.',

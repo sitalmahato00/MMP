@@ -64,12 +64,25 @@
 
     <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Teacher</label>
-        <x-select name="teacher_id" x-model="editingSlot.teacher_id" @change="checkTeacherConflicts()" class="w-full" x-show="editingSlot.type !== 'break'" :required="false">
-            <option value="">Select Teacher</option>
-            <template x-for="teacher in availableTeachers" :key="teacher.id">
-                <option :value="teacher.id" x-text="teacher.name || teacher.user?.name"></option>
-            </template>
-        </x-select>
+        <div class="relative">
+            <select name="teacher_id" x-model="editingSlot.teacher_id"
+                    @change="checkTeacherConflicts()"
+                    x-show="editingSlot.type !== 'break'"
+                    :disabled="loadingTeachers"
+                    class="w-full border border-slate-300 bg-white rounded-[8px] px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 transition duration-150 disabled:bg-slate-100 disabled:cursor-wait">
+                <option value="" x-text="loadingTeachers ? 'Loading teachers…' : 'Select Teacher'"></option>
+                <template x-for="teacher in availableTeachers" :key="teacher.id">
+                    <option :value="teacher.id" x-text="teacher.name || teacher.user?.name"></option>
+                </template>
+            </select>
+            <div x-show="loadingTeachers && editingSlot.type !== 'break'"
+                 class="pointer-events-none absolute inset-y-0 right-8 flex items-center pr-2">
+                <svg class="h-4 w-4 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+            </div>
+        </div>
         <div x-show="teacherConflicts.length > 0 && editingSlot.type !== 'break'" class="mt-1 text-xs text-red-600">
             <div class="font-medium">⚠️ Teacher Conflicts:</div>
             <template x-for="conflict in teacherConflicts" :key="conflict">

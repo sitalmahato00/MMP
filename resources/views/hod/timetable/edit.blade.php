@@ -7,6 +7,25 @@
 @section('content')
 <div x-data="timetableEditor()" x-init="init()" class="space-y-4">
 
+    {{-- Validation errors --}}
+    @if($errors->any())
+        <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+            <div class="flex items-start gap-3">
+                <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <p class="text-sm font-semibold text-red-800">Timetable could not be saved — please fix the following:</p>
+                    <ul class="mt-1 list-disc list-inside space-y-0.5 text-sm text-red-700">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Header --}}
     <x-page-header 
         title="Edit Timetable" 
@@ -372,6 +391,7 @@ function timetableEditor() {
         days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
         allTeachers: teachers,
         availableTeachers: teachers,
+        loadingTeachers: false,
         showEditModal: false,
         editingSlot: null,
         saving: false,
@@ -527,7 +547,7 @@ function timetableEditor() {
             this.openAddSlotModal(day, timeRange, '');
         },
         
-        editSlotByData(slot) {
+        async editSlotByData(slot) {
             this.editingSlot = {
                 ...slot,
                 start_time: this.hi(slot.start_time),
@@ -537,14 +557,28 @@ function timetableEditor() {
             };
             this.checkTeacherConflicts();
             this.checkDurationConflicts();
-            this.updateAvailableTeachers();
+            // If slot has a subject pre-selected, load its assigned teachers
+            if (this.editingSlot.subject_id) {
+                await this.onSubjectChange(true); // keepExistingTeacher = true
+            } else {
+                this.updateAvailableTeachers();
+            }
             this.showEditModal = true;
         },
 
-        async onSubjectChange() {
-            if (!this.editingSlot.subject_id) return;
+        async onSubjectChange(keepExistingTeacher = false) {
+            if (!this.editingSlot.subject_id) {
+                this.availableTeachers = this.allTeachers;
+                return;
+            }
+
+            // When the user manually changes the subject, clear the teacher selection
+            if (!keepExistingTeacher) {
+                this.editingSlot.teacher_id = null;
+            }
             
             // Get subject teachers from API
+            this.loadingTeachers = true;
             try {
                 const response = await fetch(`{{ route('hod.timetable.subject-teachers', $timetable) }}?subject_id=${this.editingSlot.subject_id}`, {
                     headers: {
@@ -558,26 +592,31 @@ function timetableEditor() {
                 // Update available teachers
                 this.availableTeachers = data.teachers;
                 
-                // Auto-set type based on subject
-                this.editingSlot.type = data.subject_type || 'theory';
-                
-                // Auto-select teacher if only one available
-                if (this.availableTeachers.length === 1) {
-                    this.editingSlot.teacher_id = this.availableTeachers[0].id;
-                    await this.checkTeacherConflicts();
+                // Auto-set type based on subject (only when user changes subject, not on open)
+                if (!keepExistingTeacher) {
+                    this.editingSlot.type = data.subject_type || 'theory';
                 }
                 
-                // Auto-select lab teacher for lab subjects
-                if (data.subject_type === 'lab' || data.subject_type === 'practical') {
-                    const labTeacher = this.availableTeachers.find(t => t.role === 'lab_assistant');
-                    if (labTeacher) {
-                        this.editingSlot.teacher_id = labTeacher.id;
+                // Auto-select teacher if none already chosen
+                if (!this.editingSlot.teacher_id && this.availableTeachers.length > 0) {
+                    // Prefer a specifically assigned teacher (non-empty role means assigned)
+                    // data.has_assigned tells us if these are specifically assigned vs dept fallback
+                    if (data.has_assigned) {
+                        // Subject has specific assigned teachers — auto-select first one
+                        this.editingSlot.teacher_id = this.availableTeachers[0].id;
+                    } else if (this.availableTeachers.length === 1) {
+                        // Only one dept teacher available — auto-select them
+                        this.editingSlot.teacher_id = this.availableTeachers[0].id;
+                    }
+                    if (this.editingSlot.teacher_id) {
                         await this.checkTeacherConflicts();
                     }
                 }
                 
             } catch (error) {
                 console.error('Error fetching subject teachers:', error);
+            } finally {
+                this.loadingTeachers = false;
             }
         },
 
@@ -850,7 +889,9 @@ function timetableEditor() {
         
         getTeacherName(teacherId) {
             const teacher = teachers.find(t => t.id == teacherId);
-            return teacher ? teacher.user.name : 'No Teacher';
+            if (!teacher) return 'No Teacher';
+            // original PHP format has nested user.name; API format has flat name
+            return teacher.user?.name || teacher.name || 'No Teacher';
         },
         
         getDayLabel(day) {
@@ -901,7 +942,13 @@ function timetableEditor() {
                     if (key === 'type') {
                         input.value = slot.type || 'theory';
                     } else if (key === 'duration') {
-                        input.value = slot.duration ?? 1;
+                        input.value = parseInt(slot.duration) || 1;
+                    } else if (key === 'subject_id' || key === 'teacher_id') {
+                        // Send empty string for null so Laravel's nullable rule passes
+                        input.value = slot[key] ?? '';
+                    } else if (key === 'group') {
+                        // Send empty string for null/undefined group (All Groups)
+                        input.value = slot[key] ?? '';
                     } else {
                         input.value = slot[key] ?? '';
                     }
