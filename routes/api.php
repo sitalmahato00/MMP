@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ParentController;
 use App\Http\Controllers\Api\HodController;
 use App\Http\Controllers\Api\AlumniController;
 use App\Http\Controllers\Api\ManagementController;
+use App\Http\Controllers\Api\AdminController;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTHENTICATION ROUTES (Public - No Auth Required)

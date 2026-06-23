@@ -116,20 +116,28 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $attendanceRecords = Attendance::with(['subject', 'attendanceSession'])
+            $attendanceRecords = Attendance::with(['attendanceSession.subject'])
                 ->where('student_id', $student->id)
-                ->orderBy('created_at', 'desc')
+                ->orderByDesc('created_at')
                 ->paginate(20);
 
             return response()->json([
                 'success' => true,
                 'data' => $attendanceRecords->map(fn($record) => [
-                    'id' => $record->id,
-                    'subject' => $record->subject?->name,
-                    'date' => $record->created_at->toDateString(),
-                    'status' => $record->status,
-                    'session' => $record->attendanceSession?->name,
-                ])
+                    'id'      => $record->id,
+                    'subject' => $record->attendanceSession?->subject?->name,
+                    'date'    => $record->attendanceSession?->date?->toDateString()
+                                 ?? $record->created_at->toDateString(),
+                    'period'  => $record->attendanceSession?->period,
+                    'status'  => $record->status,
+                    'remarks' => $record->remarks,
+                ]),
+                'pagination' => [
+                    'current_page' => $attendanceRecords->currentPage(),
+                    'last_page'    => $attendanceRecords->lastPage(),
+                    'per_page'     => $attendanceRecords->perPage(),
+                    'total'        => $attendanceRecords->total(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -148,22 +156,22 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $records = Attendance::where('student_id', $student->id)
-                ->where('subject_id', $subject->id)
+            $records = Attendance::whereHas('attendanceSession', fn($q) => $q->where('subject_id', $subject->id))
+                ->where('student_id', $student->id)
                 ->get();
 
-            $total = $records->count();
+            $total   = $records->count();
             $present = $records->where('status', 'present')->count();
             $percentage = $total > 0 ? ($present / $total) * 100 : 0;
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'subject' => $subject->name,
-                    'total_classes' => $total,
-                    'present' => $present,
-                    'absent' => $records->where('status', 'absent')->count(),
-                    'late' => $records->where('status', 'late')->count(),
+                    'subject'               => $subject->name,
+                    'total_classes'         => $total,
+                    'present'               => $present,
+                    'absent'                => $records->where('status', 'absent')->count(),
+                    'late'                  => $records->where('status', 'late')->count(),
                     'attendance_percentage' => round($percentage, 2),
                 ]
             ], 200);
@@ -176,7 +184,7 @@ class StudentController extends Controller
     }
 
     /**
-     * Marks Summary
+     * Marks Summary — grouped by exam, using real Mark model columns
      */
     public function marksSummary(Request $request): JsonResponse
     {
@@ -184,26 +192,45 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $marks = Mark::with('subject', 'exam')
-                ->where('student_id', $student->id)
-                ->groupBy('exam_id')
-                ->get();
+            // Get distinct exam IDs for this student, then load marks per exam
+            $examIds = Mark::where('student_id', $student->id)
+                ->distinct()
+                ->pluck('exam_id');
 
-            $averageMarks = Mark::where('student_id', $student->id)->avg('obtained_marks');
+            $results = [];
+            foreach ($examIds as $examId) {
+                $marks = Mark::with(['subject', 'exam'])
+                    ->where('student_id', $student->id)
+                    ->where('exam_id', $examId)
+                    ->get();
+
+                $exam = $marks->first()?->exam;
+                if (!$exam) continue;
+
+                $results[] = [
+                    'exam_id'    => $examId,
+                    'exam_name'  => $exam->name,
+                    'category'   => $exam->category ?? null,
+                    'start_date' => $exam->start_date?->toDateString(),
+                    'subjects'   => $marks->map(fn($m) => [
+                        'subject'            => $m->subject?->name,
+                        'code'               => $m->subject?->code,
+                        'internal_theory'    => $m->internal_theory_marks,
+                        'external_theory'    => $m->external_theory_marks,
+                        'internal_practical' => $m->internal_practical_marks,
+                        'external_practical' => $m->external_practical_marks,
+                        'total'              => $m->total_marks,
+                        'result'             => $m->result_remark,
+                        'is_passed'          => $m->is_passed,
+                        'is_absent'          => $m->is_absent,
+                    ]),
+                ];
+            }
 
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'average_marks' => round($averageMarks, 2),
-                    'total_exams' => $marks->count(),
-                    'exams' => $marks->map(fn($mark) => [
-                        'exam_id' => $mark->exam_id,
-                        'exam_name' => $mark->exam?->name,
-                        'total_marks' => $mark->exam?->total_marks,
-                        'obtained_marks' => $mark->obtained_marks,
-                        'percentage' => round(($mark->obtained_marks / ($mark->exam?->total_marks ?? 1)) * 100, 2),
-                    ])
-                ]
+                'data'    => $results,
+                'meta'    => ['total_exams' => count($results)],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -522,7 +549,11 @@ class StudentController extends Controller
     public function downloads(Request $request): JsonResponse
     {
         try {
-            $downloads = Download::where('is_active', true)
+            $user = $request->user();
+            $student = Student::where('user_id', $user->id)->firstOrFail();
+
+            $downloads = Download::visibleToStudent($student)
+                ->where('is_public', true)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
@@ -571,7 +602,11 @@ class StudentController extends Controller
     public function notices(Request $request): JsonResponse
     {
         try {
-            $notices = Notice::where('is_active', true)
+            $user = $request->user();
+            $student = Student::where('user_id', $user->id)->firstOrFail();
+
+            $notices = Notice::where('is_published', true)
+                ->visibleToStudent($student)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
@@ -624,8 +659,12 @@ class StudentController extends Controller
     public function noticesByCategory(Request $request, $category): JsonResponse
     {
         try {
-            $notices = Notice::where('category', $category)
-                ->where('is_active', true)
+            $user = $request->user();
+            $student = Student::where('user_id', $user->id)->firstOrFail();
+
+            $notices = Notice::where('type', $category)
+                ->where('is_published', true)
+                ->visibleToStudent($student)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
