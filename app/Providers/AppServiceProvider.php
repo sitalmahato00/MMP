@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\AcademicSession;
 use App\Services\PublicDataService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -62,6 +63,20 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with('publicCourses', $publicCourses);
+        });
+
+        // Share active academic session with all views that use the app layout / navbar
+        View::composer(['layouts.app', 'components.navbar'], function ($view): void {
+            if (! Schema::hasTable('academic_sessions')) {
+                $view->with('activeSession', null);
+                return;
+            }
+
+            $activeSession = Cache::remember('active_academic_session_obj', 300, function () {
+                return AcademicSession::where('is_active', true)->first();
+            });
+
+            $view->with('activeSession', $activeSession);
         });
 
         // Share layout-level contact info + site identity to guest layout.

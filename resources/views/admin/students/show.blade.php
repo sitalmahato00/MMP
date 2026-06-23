@@ -245,7 +245,7 @@
             <p class="relative mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80">Absent</p>
         </div>
         <div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md text-center"
-             @php $attPct = $attendancePct; @endphp
+             @php $attPct = $attendancePct; $attClr = $attPct === null ? 'text-slate-500' : ($attPct >= 75 ? 'text-emerald-600' : ($attPct >= 50 ? 'text-amber-600' : 'text-red-600')); @endphp
              style="background: linear-gradient(135deg,{{ $attPct === null ? '#475569,#64748B' : ($attPct >= 75 ? '#10B981,#22C55E' : ($attPct >= 50 ? '#F59E0B,#FBBF24' : '#DC2626,#EF4444')) }});">
             <div class="pointer-events-none absolute -right-3 -top-3 h-16 w-16 rounded-full bg-white/10"></div>
             <p class="relative text-2xl font-black text-white">{{ $attPct !== null ? $attPct.'%' : '—' }}</p>
@@ -279,7 +279,9 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h3 class="mb-4 text-sm font-bold text-slate-700">Monthly Chart</h3>
-            <canvas id="attendanceChart" height="200"></canvas>
+            <div style="position:relative; height:220px;">
+                <canvas id="attendanceChart"></canvas>
+            </div>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
             <table class="w-full text-sm">

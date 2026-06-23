@@ -83,7 +83,7 @@ class StudentController extends Controller
             $attendanceRecords = Attendance::where('student_id', $student->id)->get();
             $totalClasses = $attendanceRecords->count();
             $presentClasses = $attendanceRecords->where('status', 'present')->count();
-            $absentClasses = $attendanceRecords->where('status', 'absent')->count();
+            $absentClasses = $totalClasses - $presentClasses;  // everything that isn't present
             $lateClasses = $attendanceRecords->where('status', 'late')->count();
 
             $attendancePercentage = $totalClasses > 0 ? ($presentClasses / $totalClasses) * 100 : 0;
@@ -91,11 +91,13 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'total_classes' => $totalClasses,
-                    'present' => $presentClasses,
-                    'absent' => $absentClasses,
-                    'late' => $lateClasses,
-                    'attendance_percentage' => round($attendancePercentage, 2),
+                    'student_id'             => $student->id,
+                    'student_no'             => $student->student_no,
+                    'total_classes'          => $totalClasses,
+                    'present'                => $presentClasses,
+                    'absent'                 => $absentClasses,
+                    'late'                   => $lateClasses,
+                    'attendance_percentage'  => round($attendancePercentage, 2),
                     'status' => $attendancePercentage >= 75 ? 'good' : ($attendancePercentage >= 60 ? 'medium' : 'low'),
                 ]
             ], 200);
