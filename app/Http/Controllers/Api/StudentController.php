@@ -753,20 +753,28 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $notices = Notice::where('is_published', true)
+            $notices = Notice::with('attachments')
+                ->where('is_published', true)
                 ->visibleToStudent($student)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('published_at', 'desc')
                 ->paginate(10);
 
             return response()->json([
                 'success' => true,
                 'data' => $notices->map(fn($n) => [
-                    'id' => $n->id,
-                    'title' => $n->title,
-                    'description' => $n->description,
-                    'category' => $n->category,
-                    'published_at' => $n->created_at,
-                ])
+                    'id'               => $n->id,
+                    'title'            => $n->title,
+                    'content'          => $n->content,
+                    'type'             => $n->type,
+                    'attachment_count' => $n->attachments->count(),
+                    'published_at'     => $n->published_at ?? $n->created_at,
+                ]),
+                'pagination' => [
+                    'current_page' => $notices->currentPage(),
+                    'last_page'    => $notices->lastPage(),
+                    'per_page'     => $notices->perPage(),
+                    'total'        => $notices->total(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -782,15 +790,24 @@ class StudentController extends Controller
     public function noticeDetail(Request $request, Notice $notice): JsonResponse
     {
         try {
+            $notice->load('attachments');
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'id' => $notice->id,
-                    'title' => $notice->title,
-                    'description' => $notice->description,
-                    'category' => $notice->category,
-                    'attachments' => $notice->attachments ?? [],
-                    'published_at' => $notice->created_at,
+                    'id'           => $notice->id,
+                    'title'        => $notice->title,
+                    'content'      => $notice->content,
+                    'type'         => $notice->type,
+                    'attachments'  => $notice->attachments->map(fn($a) => [
+                        'id'        => $a->id,
+                        'file_name' => $a->file_name,
+                        'file_type' => $a->file_type,
+                        'file_size' => $a->file_size,
+                        'url'       => $a->url,
+                        'is_image'  => $a->is_image,
+                        'is_pdf'    => $a->is_pdf,
+                    ]),
+                    'published_at' => $notice->published_at ?? $notice->created_at,
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -802,7 +819,7 @@ class StudentController extends Controller
     }
 
     /**
-     * Notices by Category
+     * Notices by Category/Type
      */
     public function noticesByCategory(Request $request, $category): JsonResponse
     {
@@ -813,17 +830,24 @@ class StudentController extends Controller
             $notices = Notice::where('type', $category)
                 ->where('is_published', true)
                 ->visibleToStudent($student)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('published_at', 'desc')
                 ->paginate(10);
 
             return response()->json([
                 'success' => true,
                 'data' => $notices->map(fn($n) => [
-                    'id' => $n->id,
-                    'title' => $n->title,
-                    'description' => $n->description,
-                    'published_at' => $n->created_at,
-                ])
+                    'id'           => $n->id,
+                    'title'        => $n->title,
+                    'content'      => $n->content,
+                    'type'         => $n->type,
+                    'published_at' => $n->published_at ?? $n->created_at,
+                ]),
+                'pagination' => [
+                    'current_page' => $notices->currentPage(),
+                    'last_page'    => $notices->lastPage(),
+                    'per_page'     => $notices->perPage(),
+                    'total'        => $notices->total(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
