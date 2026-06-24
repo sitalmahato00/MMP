@@ -220,21 +220,26 @@ class StudentController extends Controller
                 if (!$exam) continue;
 
                 $results[] = [
-                    'exam_id'    => $examId,
-                    'exam_name'  => $exam->name,
-                    'category'   => $exam->category ?? null,
-                    'start_date' => $exam->start_date?->toDateString(),
-                    'subjects'   => $marks->map(fn($m) => [
-                        'subject'            => $m->subject?->name,
-                        'code'               => $m->subject?->code,
-                        'internal_theory'    => $m->internal_theory_marks,
-                        'external_theory'    => $m->external_theory_marks,
-                        'internal_practical' => $m->internal_practical_marks,
-                        'external_practical' => $m->external_practical_marks,
-                        'total'              => $m->total_marks,
-                        'result'             => $m->result_remark,
-                        'is_passed'          => $m->is_passed,
-                        'is_absent'          => $m->is_absent,
+                    'exam_id'              => $examId,
+                    'exam_name'            => $exam->name,
+                    'category'             => $exam->category ?? null,
+                    'start_date'           => $exam->start_date?->toDateString(),
+                    'assessment_full_marks'=> $exam->assessment_full_marks ?? null,
+                    'assessment_pass_marks'=> $exam->assessment_pass_marks ?? null,
+                    'subjects'             => $marks->map(fn($m) => [
+                        'subject'                    => $m->subject?->name,
+                        'code'                       => $m->subject?->code,
+                        'internal_theory'            => $m->internal_theory_marks,
+                        'external_theory'            => $m->external_theory_marks,
+                        'internal_practical'         => $m->internal_practical_marks,
+                        'external_practical'         => $m->external_practical_marks,
+                        'total'                      => $m->total_marks,
+                        'full_marks'                 => $m->assessment_full_marks ?? null,
+                        'pass_marks'                 => $m->assessment_pass_marks ?? null,
+                        'attendance_percent'         => $m->assessment_attendance_percent ?? null,
+                        'result'                     => $m->result_remark,
+                        'is_passed'                  => $m->is_passed,
+                        'is_absent'                  => $m->is_absent,
                     ]),
                 ];
             }
