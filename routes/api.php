@@ -80,6 +80,7 @@ Route::prefix('v1')->group(function () {
 
             // Subjects
             Route::get('/subjects', [StudentController::class, 'subjects']);
+            Route::get('/subjects/{subject}', [StudentController::class, 'subjectDetail']);
 
             // Assignments
             Route::prefix('assignments')->group(function () {

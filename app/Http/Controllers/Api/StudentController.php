@@ -36,11 +36,17 @@ class StudentController extends Controller
             $averageMarks = $marks->count() > 0 ? $marks->avg('obtained_marks') : 0;
 
             // Count pending assignments
-            $pendingAssignments = AssignmentSubmission::whereHas('assignment', function ($q) use ($student) {
-                $q->where('subject_id', '!=', null);
-            })->where('student_id', $student->id)
-                ->where('status', 'pending')
-                ->count();
+            $pendingAssignments = Assignment::whereHas('subject', function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->where('semester', $student->current_semester);
+            })->where(function ($q) use ($student) {
+                $q->whereDoesntHave('submissions', function ($sq) use ($student) {
+                    $sq->where('student_id', $student->id);
+                })->orWhereHas('submissions', function ($sq) use ($student) {
+                    $sq->where('student_id', $student->id)
+                       ->where('status', 'pending');
+                });
+            })->count();
 
             // Count unread notices
             $unreadNotices = Notice::where('created_at', '>=', now()->subDays(7))->count();
@@ -333,6 +339,75 @@ class StudentController extends Controller
     }
 
     /**
+     * Subject Detail — full info including marks breakdown, teachers, documents, syllabus
+     */
+    public function subjectDetail(Request $request, Subject $subject): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $student = Student::where('user_id', $user->id)->firstOrFail();
+
+            // Security: subject must belong to the student's program
+            if ($subject->program_id !== $student->program_id) {
+                return response()->json(['success' => false, 'message' => 'Subject not found.'], 404);
+            }
+
+            // Load assigned teachers via pivot
+            $teachers = $subject->teachers()->get()->map(fn($t) => [
+                'id'         => $t->id,
+                'name'       => $t->user?->name,
+                'avatar_url' => $t->user?->avatar_url,
+                'designation'=> $t->designation,
+            ]);
+
+            // Load subject-specific documents
+            $documents = Download::where('subject_id', $subject->id)
+                ->where('is_public', true)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(fn($d) => [
+                    'id'          => $d->id,
+                    'title'       => $d->title,
+                    'description' => $d->description,
+                    'category'    => $d->category,
+                    'file_url'    => $d->file_url,
+                    'file_type'   => $d->file_type,
+                    'uploaded_at' => $d->created_at,
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id'                      => $subject->id,
+                    'name'                    => $subject->name,
+                    'code'                    => $subject->code,
+                    'type'                    => $subject->type,
+                    'credit_hours'            => $subject->credit_hours,
+                    'details'                 => $subject->details,
+                    'syllabus_url'            => $subject->syllabus_url,
+                    'marks' => [
+                        'full_marks_theory'       => $subject->full_marks_internal_theory + $subject->full_marks_external_theory,
+                        'full_marks_practical'     => $subject->full_marks_internal_practical + $subject->full_marks_external_practical,
+                        'pass_marks_theory'        => $subject->pass_marks_internal_theory + $subject->pass_marks_external_theory,
+                        'pass_marks_practical'     => $subject->pass_marks_internal_practical + $subject->pass_marks_external_practical,
+                        'internal_theory'          => $subject->full_marks_internal_theory,
+                        'external_theory'          => $subject->full_marks_external_theory,
+                        'internal_practical'       => $subject->full_marks_internal_practical,
+                        'external_practical'       => $subject->full_marks_external_practical,
+                    ],
+                    'teachers'   => $teachers,
+                    'documents'  => $documents,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch subject details: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Get Subjects — fetched by student's program + current semester
      */
     public function subjects(Request $request): JsonResponse
@@ -384,24 +459,47 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $assignments = Assignment::with('subject')
-                ->whereHas('submissions', function ($q) use ($student) {
-                    $q->where('student_id', $student->id);
-                })
-                ->orderBy('due_date', 'asc')
-                ->paginate(10);
+            $assignments = Assignment::with(['subject', 'submissions' => function ($q) use ($student) {
+                $q->where('student_id', $student->id);
+            }])
+            ->whereHas('subject', function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->where('semester', $student->current_semester);
+            })
+            ->orderBy('due_date', 'asc')
+            ->paginate(10);
 
             return response()->json([
                 'success' => true,
-                'data' => $assignments->map(fn($a) => [
-                    'id' => $a->id,
-                    'title' => $a->title,
-                    'subject' => $a->subject?->name,
-                    'description' => $a->description,
-                    'due_date' => $a->due_date,
-                    'max_marks' => $a->max_marks,
-                    'status' => $a->submissions->first()?->status ?? 'pending',
-                ])
+                'data' => $assignments->getCollection()->map(function ($a) {
+                    $submission = $a->submissions->first();
+                    $status = 'not_submitted';
+                    if ($submission) {
+                        if ($submission->status === 'graded') {
+                            $status = 'graded';
+                        } elseif ($submission->status === 'pending') {
+                            $status = 'pending';
+                        } else {
+                            $status = 'submitted';
+                        }
+                    }
+
+                    return [
+                        'id' => $a->id,
+                        'title' => $a->title,
+                        'subject' => $a->subject?->name,
+                        'description' => $a->description,
+                        'due_date' => $a->due_date,
+                        'max_marks' => $a->max_marks,
+                        'status' => $status,
+                    ];
+                }),
+                'pagination' => [
+                    'current_page' => $assignments->currentPage(),
+                    'last_page'    => $assignments->lastPage(),
+                    'per_page'     => $assignments->perPage(),
+                    'total'        => $assignments->total(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -550,7 +648,7 @@ class StudentController extends Controller
     }
 
     /**
-     * Get Downloads
+     * Get Downloads — optionally filtered by ?subject_id=
      */
     public function downloads(Request $request): JsonResponse
     {
@@ -558,20 +656,34 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $downloads = Download::visibleToStudent($student)
-                ->where('is_public', true)
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
+            $query = Download::visibleToStudent($student)
+                ->where('is_public', true);
+
+            // Optional subject filter
+            if ($request->filled('subject_id')) {
+                $query->where('subject_id', (int) $request->subject_id);
+            }
+
+            $downloads = $query->orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
                 'data' => $downloads->map(fn($d) => [
-                    'id' => $d->id,
-                    'title' => $d->title,
+                    'id'          => $d->id,
+                    'title'       => $d->title,
                     'description' => $d->description,
-                    'file_url' => $d->file_url,
+                    'category'    => $d->category,
+                    'file_url'    => $d->file_url,
+                    'file_type'   => $d->file_type,
+                    'subject_id'  => $d->subject_id,
                     'uploaded_at' => $d->created_at,
-                ])
+                ]),
+                'pagination' => [
+                    'current_page' => $downloads->currentPage(),
+                    'last_page'    => $downloads->lastPage(),
+                    'per_page'     => $downloads->perPage(),
+                    'total'        => $downloads->total(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
