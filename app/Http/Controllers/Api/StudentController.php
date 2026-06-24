@@ -13,6 +13,7 @@ use App\Models\Download;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
@@ -554,25 +555,44 @@ class StudentController extends Controller
             $user = $request->user();
             $student = Student::where('user_id', $user->id)->firstOrFail();
 
-            $fileUrl = null;
+            // Check if already submitted
+            $existing = AssignmentSubmission::where('assignment_id', $assignment->id)
+                ->where('student_id', $student->id)
+                ->first();
+
+            if ($existing) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Assignment already submitted.',
+                    'data' => [
+                        'submission_id' => $existing->id,
+                        'status' => $existing->status,
+                    ]
+                ], 409);
+            }
+
+            $attachment = null;
             if ($request->hasFile('file')) {
-                $fileUrl = $request->file('file')->store('assignments', 'public');
+                $attachment = $request->file('file')->store('assignments', 'public');
             }
 
             $submission = AssignmentSubmission::create([
                 'assignment_id' => $assignment->id,
-                'student_id' => $student->id,
-                'content' => $validated['content'],
-                'file_url' => $fileUrl,
-                'submitted_at' => now(),
+                'student_id'    => $student->id,
+                'student_note'  => $validated['content'] ?? null,
+                'attachment'    => $attachment,
+                'status'        => 'pending',
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Assignment submitted successfully',
                 'data' => [
-                    'submission_id' => $submission->id,
-                    'submitted_at' => $submission->submitted_at,
+                    'submission_id'  => $submission->id,
+                    'status'         => $submission->status,
+                    'attachment_url' => $submission->attachment
+                        ? \Storage::disk('public')->url($submission->attachment)
+                        : null,
                 ]
             ], 201);
         } catch (\Exception $e) {
@@ -589,16 +609,21 @@ class StudentController extends Controller
     public function submissionStatus(Request $request, AssignmentSubmission $submission): JsonResponse
     {
         try {
+            $submission->load('assignment');
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'id' => $submission->id,
-                    'status' => $submission->status,
-                    'submitted_at' => $submission->submitted_at,
-                    'graded_at' => $submission->graded_at,
+                    'id'             => $submission->id,
+                    'status'         => $submission->status,
+                    'student_note'   => $submission->student_note,
+                    'attachment_url' => $submission->attachment
+                        ? \Storage::disk('public')->url($submission->attachment)
+                        : null,
                     'marks_obtained' => $submission->marks_obtained,
-                    'max_marks' => $submission->assignment?->max_marks,
-                    'feedback' => $submission->feedback,
+                    'max_marks'      => $submission->assignment?->max_marks ?? null,
+                    'feedback'       => $submission->teacher_feedback,
+                    'created_at'     => $submission->created_at,
+                    'updated_at'     => $submission->updated_at,
                 ]
             ], 200);
         } catch (\Exception $e) {
