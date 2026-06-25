@@ -18,10 +18,10 @@ use App\Http\Controllers\Api\AdminController;
 Route::prefix('auth')->middleware('throttle:3,1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
-    Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 });
 
-// Logout route (requires authentication)
+// Token refresh and logout (require authentication)
+Route::post('/auth/refresh-token', [AuthController::class, 'refreshToken'])->middleware('auth:sanctum');
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -53,8 +53,9 @@ Route::prefix('v1')->group(function () {
         // User profile and auth info
         Route::get('/user', [AuthController::class, 'user']);
         Route::put('/user/profile', [AuthController::class, 'updateProfile']);
-        Route::put('/user/notification-preferences', [AuthController::class, 'updateNotificationPreferences']);
         Route::post('/user/change-password', [AuthController::class, 'changePassword']);
+        Route::put('/user/notification-preferences', [AuthController::class, 'updateNotificationPreferences']);
+        Route::put('/user/two-factor', [AuthController::class, 'updateTwoFactor']);
 
         // ───────────────────────────────────────────────────────────────────
         // STUDENT MODULE (Role: student)

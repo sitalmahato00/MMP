@@ -12,6 +12,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -267,6 +270,208 @@ class AuthController extends Controller
             'success' => true,
             'data' => [
                 'user' => $this->formatUserResponse($user),
+            ],
+        ], 200);
+    }
+
+    /**
+     * Refresh Sanctum token — revoke current, issue new
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function refreshToken(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // Revoke current token
+        $user->currentAccessToken()->delete();
+
+        // Issue a fresh token
+        $token = $user->createToken('mobile-app', ['*'])->plainTextToken;
+
+        Log::info("Token refreshed for user: {$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Token refreshed successfully',
+            'data' => [
+                'token'      => $token,
+                'token_type' => 'Bearer',
+            ],
+        ], 200);
+    }
+
+    /**
+     * Update the authenticated user's profile
+     * Fields: name, phone, gender, dob, address, avatar (file)
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'   => ['sometimes', 'string', 'max:255'],
+            'phone'  => ['sometimes', 'nullable', 'string', 'max:20', Rule::unique('users', 'phone')->ignore($user->id)],
+            'gender' => ['sometimes', 'nullable', Rule::in(['male', 'female', 'other'])],
+            'dob'    => ['sometimes', 'nullable', 'date', 'before:today'],
+            'address'=> ['sometimes', 'nullable', 'string', 'max:500'],
+            'avatar' => ['sometimes', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        // Handle avatar upload
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if it exists and is stored locally
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($validated);
+
+        Log::info("Profile updated for user: {$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'data' => [
+                'user' => $this->formatUserResponse($user->fresh()),
+            ],
+        ], 200);
+    }
+
+    /**
+     * Change the authenticated user's password
+     * Requires current_password verification
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changePassword(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'password'         => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
+        ]);
+
+        // Verify current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current password is incorrect',
+            ], 422);
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+
+        // Revoke all tokens so other sessions are logged out
+        $user->tokens()->delete();
+
+        // Issue a new token for the current session
+        $token = $user->createToken('mobile-app', ['*'])->plainTextToken;
+
+        Log::info("Password changed for user: {$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully. Please log in again on other devices.',
+            'data' => [
+                'token'      => $token,
+                'token_type' => 'Bearer',
+            ],
+        ], 200);
+    }
+
+    /**
+     * Update notification preferences
+     * Stores a JSON map of notification channel toggles
+     *
+     * Expected body example:
+     * {
+     *   "email_notices": true,
+     *   "email_marks": false,
+     *   "push_notices": true,
+     *   "push_assignments": true
+     * }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateNotificationPreferences(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'notification_preferences'                    => ['required', 'array'],
+            'notification_preferences.email_notices'      => ['sometimes', 'boolean'],
+            'notification_preferences.email_marks'        => ['sometimes', 'boolean'],
+            'notification_preferences.email_assignments'  => ['sometimes', 'boolean'],
+            'notification_preferences.push_notices'       => ['sometimes', 'boolean'],
+            'notification_preferences.push_marks'         => ['sometimes', 'boolean'],
+            'notification_preferences.push_assignments'   => ['sometimes', 'boolean'],
+            'notification_preferences.push_attendance'    => ['sometimes', 'boolean'],
+        ]);
+
+        // Merge with existing preferences so partial updates don't wipe other keys
+        $existing = $user->notification_preferences ?? [];
+        $merged   = array_merge($existing, $request->notification_preferences);
+
+        $user->update(['notification_preferences' => $merged]);
+
+        Log::info("Notification preferences updated for user: {$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification preferences updated',
+            'data' => [
+                'notification_preferences' => $user->fresh()->notification_preferences,
+            ],
+        ], 200);
+    }
+
+    /**
+     * Toggle two-factor authentication on/off and set the preferred method
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateTwoFactor(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'two_factor_enabled' => ['required', 'boolean'],
+            'two_factor_method'  => ['required_if:two_factor_enabled,true', Rule::in(['email', 'phone'])],
+        ]);
+
+        // If enabling 2FA via phone, make sure a phone number is on file
+        if ($request->two_factor_enabled && $request->two_factor_method === 'phone' && !$user->phone) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A phone number is required to enable phone-based 2FA. Please add one to your profile first.',
+            ], 422);
+        }
+
+        $user->update([
+            'two_factor_enabled' => $request->two_factor_enabled,
+            'two_factor_method'  => $request->two_factor_method ?? $user->two_factor_method,
+        ]);
+
+        $status = $request->two_factor_enabled ? 'enabled' : 'disabled';
+        Log::info("2FA {$status} for user: {$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => "Two-factor authentication {$status} successfully",
+            'data' => [
+                'two_factor_enabled' => $user->fresh()->two_factor_enabled,
+                'two_factor_method'  => $user->fresh()->two_factor_method,
             ],
         ], 200);
     }
