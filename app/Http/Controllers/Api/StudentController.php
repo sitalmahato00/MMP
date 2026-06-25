@@ -11,6 +11,7 @@ use App\Models\AssignmentSubmission;
 use App\Models\Notice;
 use App\Models\Download;
 use App\Models\Subject;
+use App\Models\Timetable;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -635,16 +636,65 @@ class StudentController extends Controller
     }
 
     /**
-     * Get Timetable
+     * Get Timetable — full weekly schedule grouped by day
      */
     public function timetable(Request $request): JsonResponse
     {
         try {
-            // Placeholder - would fetch actual timetable data
+            $user = $request->user();
+            $student = Student::where('user_id', $user->id)->firstOrFail();
+
+            $timetable = Timetable::with(['slots.subject', 'slots.teacher.user', 'academicSession'])
+                ->where('program_id', $student->program_id)
+                ->where('semester', $student->current_semester)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$timetable) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'has_timetable' => false,
+                        'timetable'     => [],
+                    ]
+                ], 200);
+            }
+
+            $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            $slotsByDay = $timetable->slots()
+                ->with(['subject', 'teacher.user'])
+                ->orderBy('start_time')
+                ->get()
+                ->groupBy('day_of_week');
+
+            $result = [];
+            foreach ($days as $day) {
+                $daySlots = $slotsByDay->get($day, collect());
+                $result[] = [
+                    'day'     => $day,
+                    'classes' => $daySlots->map(fn($s) => [
+                        'id'          => $s->id,
+                        'subject'     => $s->subject?->name,
+                        'subject_code'=> $s->subject?->code,
+                        'teacher'     => $s->teacher?->user?->name,
+                        'start_time'  => substr($s->start_time, 0, 5),
+                        'end_time'    => substr($s->end_time, 0, 5),
+                        'room'        => $s->room_number,
+                        'type'        => $s->type,
+                        'duration'    => $s->duration,
+                    ])->values(),
+                ];
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'timetable' => [],
+                    'has_timetable'   => true,
+                    'semester'        => $timetable->semester,
+                    'section'         => $timetable->section,
+                    'effective_from'  => $timetable->effective_from?->toDateString(),
+                    'academic_session'=> $timetable->academicSession?->name,
+                    'timetable'       => $result,
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -661,12 +711,42 @@ class StudentController extends Controller
     public function timetableByDay(Request $request, $day): JsonResponse
     {
         try {
-            // Placeholder - would fetch timetable for specific day
+            $user = $request->user();
+            $student = Student::where('user_id', $user->id)->firstOrFail();
+
+            $timetable = Timetable::where('program_id', $student->program_id)
+                ->where('semester', $student->current_semester)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$timetable) {
+                return response()->json([
+                    'success' => true,
+                    'data'    => ['day' => $day, 'classes' => []]
+                ], 200);
+            }
+
+            $slots = $timetable->slots()
+                ->with(['subject', 'teacher.user'])
+                ->where('day_of_week', $day)
+                ->orderBy('start_time')
+                ->get();
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'day' => $day,
-                    'classes' => [],
+                    'day'     => $day,
+                    'classes' => $slots->map(fn($s) => [
+                        'id'          => $s->id,
+                        'subject'     => $s->subject?->name,
+                        'subject_code'=> $s->subject?->code,
+                        'teacher'     => $s->teacher?->user?->name,
+                        'start_time'  => substr($s->start_time, 0, 5),
+                        'end_time'    => substr($s->end_time, 0, 5),
+                        'room'        => $s->room_number,
+                        'type'        => $s->type,
+                        'duration'    => $s->duration,
+                    ])->values(),
                 ]
             ], 200);
         } catch (\Exception $e) {
