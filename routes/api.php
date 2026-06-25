@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\ParentController;
 use App\Http\Controllers\Api\HodController;
 use App\Http\Controllers\Api\AlumniController;
 use App\Http\Controllers\Api\ManagementController;
-use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\NotificationApiController;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTHENTICATION ROUTES (Public - No Auth Required)
@@ -56,6 +56,15 @@ Route::prefix('v1')->group(function () {
         Route::post('/user/change-password', [AuthController::class, 'changePassword']);
         Route::put('/user/notification-preferences', [AuthController::class, 'updateNotificationPreferences']);
         Route::put('/user/two-factor', [AuthController::class, 'updateTwoFactor']);
+
+        // In-app notifications (database notifications)
+        Route::prefix('notifications')->group(function () {
+            Route::get('/',                              [NotificationApiController::class, 'index']);
+            Route::get('/unread-count',                  [NotificationApiController::class, 'unreadCount']);
+            Route::post('/mark-all-read',                [NotificationApiController::class, 'markAllRead']);
+            Route::post('/{notification}/mark-read',     [NotificationApiController::class, 'markRead']);
+            Route::delete('/{notification}',             [NotificationApiController::class, 'destroy']);
+        });
 
         // ───────────────────────────────────────────────────────────────────
         // STUDENT MODULE (Role: student)
