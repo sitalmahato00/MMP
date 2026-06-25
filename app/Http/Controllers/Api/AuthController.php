@@ -496,13 +496,19 @@ class AuthController extends Controller
     private function formatUserResponse(User $user): array
     {
         return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'avatar_url' => $user->avatar_url,
-            'role' => $user->primaryRole(),
-            'panel_type' => $this->getPanelType($user),
+            'id'                  => $user->id,
+            'name'                => $user->name,
+            'email'               => $user->email,
+            'phone'               => $user->phone,
+            'gender'              => $user->gender,
+            'dob'                 => $user->dob?->toDateString(),
+            'address'             => $user->address,
+            'avatar_url'          => $user->avatar_url,
+            'role'                => $user->primaryRole(),
+            'panel_type'          => $this->getPanelType($user),
+            'two_factor_enabled'  => $user->two_factor_enabled,
+            'two_factor_method'   => $user->two_factor_method,
+            'notification_preferences' => $user->notification_preferences,
         ];
     }
 }
