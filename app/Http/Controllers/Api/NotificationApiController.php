@@ -88,12 +88,12 @@ class NotificationApiController extends Controller
      * @param DatabaseNotification $notification
      * @return JsonResponse
      */
-    public function markRead(Request $request, DatabaseNotification $notification): JsonResponse
+    public function markRead(Request $request, string $notification): JsonResponse
     {
         // Ensure the notification belongs to the authenticated user
         $notification = $request->user()
             ->notifications()
-            ->whereKey($notification->id)
+            ->whereKey($notification)
             ->firstOrFail();
 
         if (is_null($notification->read_at)) {
@@ -137,11 +137,11 @@ class NotificationApiController extends Controller
      * @param DatabaseNotification $notification
      * @return JsonResponse
      */
-    public function destroy(Request $request, DatabaseNotification $notification): JsonResponse
+    public function destroy(Request $request, string $notification): JsonResponse
     {
         $request->user()
             ->notifications()
-            ->whereKey($notification->id)
+            ->whereKey($notification)
             ->firstOrFail()
             ->delete();
 
@@ -157,7 +157,7 @@ class NotificationApiController extends Controller
      * @param DatabaseNotification $notification
      * @return array
      */
-    private function formatNotification(DatabaseNotification $notification): array
+    private function formatNotification($notification): array
     {
         $data = $notification->data;
 
