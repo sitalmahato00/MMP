@@ -452,12 +452,29 @@
 
 @push('scripts')
 <script>
-if (typeof Alpine === 'undefined') {
-    const alpineScript = document.createElement('script');
-    alpineScript.src = 'https://unpkg.com/alpinejs@3.15.11/dist/cdn.min.js';
-    alpineScript.defer = true;
-    document.head.appendChild(alpineScript);
-}
+(function() {
+    const loadAlpine = () => {
+        if (typeof Alpine === 'undefined') {
+            const alpineScript = document.createElement('script');
+            alpineScript.src = 'https://unpkg.com/alpinejs@3.15.11/dist/cdn.min.js';
+            alpineScript.defer = true;
+            alpineScript.onload = () => {
+                if (window.Alpine && typeof window.Alpine.start === 'function') {
+                    window.Alpine.start();
+                }
+            };
+            document.head.appendChild(alpineScript);
+        } else if (typeof Alpine.start === 'function') {
+            Alpine.start();
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadAlpine);
+    } else {
+        loadAlpine();
+    }
+})();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script>
