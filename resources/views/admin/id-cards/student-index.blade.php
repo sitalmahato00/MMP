@@ -254,12 +254,12 @@
                             </div>
                         </div>
 
-                        {{-- Floating photo (top=62, left=88, 112×112) --}}
-                        <div style="position:absolute;top:62px;left:88px;width:112px;height:112px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
+                        {{-- Floating photo (top=69, left=79, 130×130 centered) --}}
+                        <div style="position:absolute;top:69px;left:50%;transform:translateX(-50%);width:130px;height:130px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
                             <img :src="student?.photo_url || ''"
                                  x-show="student?.photo_url"
                                  style="width:100%;height:100%;object-fit:cover;display:block;">
-                            <svg x-show="!student?.photo_url" viewBox="0 0 88 88" width="112" height="112">
+                            <svg x-show="!student?.photo_url" viewBox="0 0 88 88" width="130" height="130">
                                 <rect width="88" height="88" fill="#e5e7eb"/>
                                 <circle cx="44" cy="32" r="17" fill="#9ca3af"/>
                                 <ellipse cx="44" cy="72" rx="27" ry="19" fill="#9ca3af"/>
@@ -267,7 +267,7 @@
                         </div>
 
                         {{-- White body --}}
-                        <div style="background:#fff;padding-top:62px;flex:1;display:flex;flex-direction:column;min-height:0;">
+                        <div style="background:#fff;padding-top:78px;flex:1;display:flex;flex-direction:column;min-height:0;">
                             <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
 
                                 {{-- Name --}}
@@ -279,29 +279,27 @@
                                      x-text="(student?.program || 'PROGRAM / FACULTY').toUpperCase()"></div>
 
                                 {{-- Detail fields --}}
-                                <div style="padding:8px 14px 0;font-size:13px;color:#1b1b1b;font-weight:600;line-height:1.4;text-align:center;word-break:break-word;">
-                                    <div>Student ID No.: <strong style="font-weight:600;" x-text="student?.student_no || '—'"></strong></div>
-                                    <div style="margin-top:2px;">Date of Birth:- <strong style="font-weight:600;" x-text="student?.dob || '—'"></strong></div>
-                                    <div style="margin-top:2px;">Address:- <strong style="font-weight:600;" x-text="student?.address || '—'"></strong></div>
-                                    <div style="margin-top:2px;">Valid up to: <strong style="font-weight:600;" x-text="validUpto || '—'"></strong></div>
+                                <div style="padding:8px 14px 0;font-size:13px;color:#1b1b1b;font-weight:700;line-height:1.4;text-align:center;word-break:break-word;">
+                                    <div style="margin-top:2px;font-weight:700;">Date of Birth:- <strong style="font-weight:700;" x-text="student?.dob || '—'"></strong></div>
+                                    <div style="margin-top:2px;font-weight:700;">Address:- <strong style="font-weight:700;" x-text="student?.address || '—'"></strong></div>
+                                    <div style="margin-top:2px;font-weight:700;">Valid up to: <strong style="font-weight:700;" x-text="validUpto || '—'"></strong></div>
                                 </div>
 
                                 {{-- Barcode + Signature row --}}
-                                <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:2px 12px 1px;gap:10px;margin-top:auto;">
+                                <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:2px 12px 0;gap:10px;margin-top:4px;">
                                     {{-- Decorative barcode --}}
-                                    <div style="flex:1;min-width:0;">
-                                        <div style="display:flex;gap:1px;height:32px;align-items:stretch;overflow:hidden;">
+                                    <div style="flex:0 0 64%;max-width:64%;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;">
+                                        <div style="display:flex;gap:1px;height:30px;align-items:stretch;overflow:hidden;width:100%;">
                                             <template x-for="i in 68">
-                                                <div :style="`background:${(i*7+(student?.student_no?.charCodeAt(i%(student?.student_no?.length||1))||65))%3!==2?'#000':'#fff'};width:${(i*3)%4===0?3:1.5}px;height:100%;flex-shrink:0;`"></div>
+                                                <div :style="`background:${(i*7+((student?.principal_name || principal || 'PRINCIPAL').charCodeAt(i % ((student?.principal_name || principal || 'PRINCIPAL').length || 1)) || 65)) % 3 !== 2 ? '#000' : '#fff'};width:${(i*3)%4===0 ? 3 : 1.5}px;height:100%;flex-shrink:0;`"></div>
                                             </template>
                                         </div>
-                                        <div style="font-size:6.4px;text-align:center;margin-top:2px;font-family:'Montserrat',Arial,sans-serif;font-weight:700;letter-spacing:0.9px;color:#333;"
-                                             x-text="student?.student_no || '—'"></div>
+                                        <div style="font-size:6.4px;text-align:center;margin-top:4px;font-family:'Montserrat',Arial,sans-serif;font-weight:700;letter-spacing:0.9px;color:#333;" x-text="student?.student_no || '—'"></div>
                                     </div>
                                     {{-- Signature --}}
-                                    <div style="flex-shrink:0;text-align:center;width:79px;font-size:11px;font-weight:700;color:#3f3f46;">
+                                    <div style="flex-shrink:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;width:70px;font-size:10px;font-weight:700;color:#3f3f46;">
                                         <div style="height:20px;"></div>
-                                        <div style="padding-top:0;margin-top:0;" x-text="principal || 'Principal'"></div>
+                                        <div style="margin-top:2px;font-size:10px;font-weight:700;line-height:1.1;text-transform:uppercase;">Principal</div>
                                     </div>
                                 </div>
 
@@ -532,11 +530,12 @@ function idCardGen(config) {
 <html>
 <head>
 <title>Export ID Card — ${this.student.name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 html, body {
     background: #e5e7eb;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -548,8 +547,10 @@ html, body {
     overflow: hidden;
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
     background: #fff;
+    position: relative;
 }
 .card-wrap * { box-sizing: border-box; }
 .tip {
@@ -566,19 +567,28 @@ html, body {
     pointer-events: none;
 }
 @media print {
-    @page { size: A4 portrait; margin: 0; }
+    @page { size: A4 portrait; margin: 0; padding: 0; }
     html, body {
         background: #fff;
-        padding: 0;
+        padding: 20mm;
         display: flex;
         justify-content: center;
-        align-items: flex-start;
-        padding-top: 80px;
-        width: 210mm;
-        min-height: 0;
+        align-items: center;
+        width: 100%;
+        min-height: 100%;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
-    .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
+    .card-wrap { 
+        width: 86mm; 
+        border-radius: 12px;
+        box-shadow: none;
+        position: relative;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
     .tip { display: none; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 </style>
 </head>
@@ -621,48 +631,69 @@ html, body {
             if (!this.student) return;
             const cardEl = document.querySelector('#card-print-area');
             if (!cardEl) return;
-            const win = window.open('', '_blank', 'width=360,height=700');
+            const win = window.open('', '_blank', 'width=900,height=1200');
             win.document.write(`<!DOCTYPE html>
 <html>
 <head>
 <title>Print ID Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Georgia:wght@700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
-    background: #e5e7eb;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    display: block;
+    width: 100%;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+.card-wrapper {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    padding: 24px;
-    height: auto;
+    margin-bottom: 40px;
 }
 .card-wrap {
     width: 288px;
     overflow: hidden;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-    font-family: 'Segoe UI', Arial, sans-serif;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
     flex-shrink: 0;
     background: #fff;
+    position: relative;
 }
-.card-wrap * { box-sizing: border-box; }
+.card-wrap * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 @media print {
-    @page { size: 86mm auto; margin: 0; }
+    @page { size: A4; margin: 0; }
     html, body {
         background: #fff;
-        padding: 0;
+        padding: 20mm;
         display: block;
-        width: 86mm;
-        height: auto;
-        min-height: 0;
+        width: 100%;
+        min-height: 100vh;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
-    .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
+    .card-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20mm;
+    }
+    .card-wrap { 
+        width: 86mm; 
+        border-radius: 12px;
+        box-shadow: none;
+        position: relative;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 </style>
 </head>
 <body>
-<div class="card-wrap">${cardEl.innerHTML}</div>
+<div class="card-wrapper"><div class="card-wrap">${cardEl.innerHTML}</div></div>
 </body>
 </html>`);
             win.document.close();
