@@ -451,6 +451,14 @@
 </div>
 
 @push('scripts')
+<script>
+if (typeof Alpine === 'undefined') {
+    const alpineScript = document.createElement('script');
+    alpineScript.src = 'https://unpkg.com/alpinejs@3.15.11/dist/cdn.min.js';
+    alpineScript.defer = true;
+    document.head.appendChild(alpineScript);
+}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script>
 function idCardGen(config) {
