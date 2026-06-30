@@ -78,4 +78,5 @@ document.getElementById('files')?.addEventListener('change', function() {
     });
 });
 </script>
+</x-form-layout>
 @endsection

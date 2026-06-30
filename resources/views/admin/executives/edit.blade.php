@@ -100,4 +100,5 @@
         <x-btn type="submit" variant="danger" onclick="return confirm('Are you sure you want to permanently delete this historical record?')">Delete History Record</x-btn>
     </form>
 </div>
+</x-form-layout>
 @endsection

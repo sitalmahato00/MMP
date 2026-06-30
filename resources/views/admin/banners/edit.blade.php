@@ -46,4 +46,5 @@
         <x-btn href="{{ route('admin.banners.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+</x-form-layout>
 @endsection

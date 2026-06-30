@@ -104,4 +104,5 @@
         <x-btn href="{{ route('admin.facilities.index') }}" variant="secondary">Cancel</x-btn>
     </div>
 </form>
+</x-form-layout>
 @endsection
