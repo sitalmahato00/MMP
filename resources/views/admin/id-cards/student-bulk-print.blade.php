@@ -6,59 +6,28 @@
 <title>Bulk Student ID Cards</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #e5e7eb;
-}
-
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #e5e7eb; }
 .card-page {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 40px 24px;
-    min-height: 100vh;
-    background: #e5e7eb;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 40px 24px; min-height: 100vh; background: #e5e7eb;
 }
-
 .card-wrap {
-    width: 288px;
-    overflow: hidden;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    background: #fff;
+    width: 288px; overflow: hidden; border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18); background: #fff;
     font-family: 'Segoe UI', Arial, sans-serif;
 }
-
 .card-wrap * { box-sizing: border-box; }
-
 @media print {
     @page { size: A4 portrait; margin: 0; }
-
     body { background: #fff; }
-
     .card-page {
-        background: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding-top: 80px;
-        width: 210mm;
-        min-height: 297mm;
-        page-break-after: always;
-        break-after: page;
+        background: #fff; display: flex; justify-content: center;
+        align-items: flex-start; padding-top: 80px;
+        width: 210mm; min-height: 297mm;
+        page-break-after: always; break-after: page;
     }
-
-    .card-page:last-child {
-        page-break-after: avoid;
-        break-after: avoid;
-    }
-
-    .card-wrap {
-        width: 86mm;
-        border-radius: 0;
-        box-shadow: none;
-    }
+    .card-page:last-child { page-break-after: avoid; break-after: avoid; }
+    .card-wrap { width: 86mm; border-radius: 0; box-shadow: none; }
 }
 </style>
 </head>
@@ -66,12 +35,11 @@ body {
 
 @php
     $collegeName = $settings['college_name']        ?? 'Manmohan Memorial Polytechnic';
-    $affiliation = $settings['college_affiliation'] ?? 'CTEVT';
     $address     = $settings['contact_address']     ?? '';
     $phone       = $settings['contact_phone']       ?? '';
     $email       = $settings['contact_email']       ?? '';
     $principal   = $settings['principal_name']      ?? 'Principal';
-    $headerColor = $cardConfig['header_color']      ?? '#8B0000';
+    $headerColor = $cardConfig['header_color']      ?? '#a0161d';
     $barcodeType = $cardConfig['barcode_type']      ?? 'both';
     $validUpto   = $cardConfig['valid_upto']        ?? '';
 @endphp
@@ -85,129 +53,107 @@ body {
     $stdAddress = $student->user?->address ?? null;
     $qrBase64   = $qrMap[$student->id] ?? null;
 
-    // Barcode — flex div bars matching the preview card logic
+    // Decorative barcode — 68 bars matching React logic
     $barHtml = '';
     if (in_array($barcodeType, ['both', 'barcode'])) {
-        $sno    = $student->student_no ?: str_pad((string) $student->id, 8, '0', STR_PAD_LEFT);
+        $sno    = $studentNo;
         $snoLen = max(strlen($sno), 1);
-        for ($i = 1; $i <= 40; $i++) {
-            $charCode = ord($sno[($i - 1) % $snoLen]);
-            $cv       = $i * 7 + $charCode;
-            $bg       = ($cv % 3 !== 2) ? '#000' : '#fff';
-            $w        = ($i * 3) % 4 === 0 ? '3px' : '1.5px';
+        for ($i = 0; $i < 68; $i++) {
+            $charVal = ord($sno[$i % $snoLen]);
+            $bg      = (($i * 7 + $charVal) % 3 !== 2) ? '#000' : '#fff';
+            $w       = (($i * 3) % 4 === 0) ? '3px' : '1.5px';
             $barHtml .= "<div style=\"display:inline-block;background:{$bg};width:{$w};height:100%;flex-shrink:0;\"></div>";
         }
     }
 @endphp
 
 <div class="card-page">
-    <div class="card-wrap">
+    <div class="card-wrap" style="border-radius:12px;">
 
-        {{-- ── Header ── --}}
-        <div style="background:{{ $headerColor }}; padding:14px 12px 52px; display:flex; align-items:center; gap:10px;">
-            @if($logoBase64)
-                <img src="{{ $logoBase64 }}"
-                     style="width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);object-fit:cover;flex-shrink:0;">
-            @else
-                <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.6);flex-shrink:0;"></div>
-            @endif
-            <div style="color:white;font-weight:700;font-size:13px;line-height:1.25;letter-spacing:0.3px;">
-                {{ mb_strtoupper($collegeName) }}<br>
-                <span style="font-size:10px;font-weight:400;opacity:0.85;">{{ $affiliation }}</span>
+        {{-- ══════════ HEADER BAND (134px) ══════════ --}}
+        <div style="position:relative;background:{{ $headerColor }};height:134px;box-sizing:border-box;flex-shrink:0;">
+            <div style="position:absolute;top:10px;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:18.8px;line-height:1.2;text-transform:uppercase;letter-spacing:0.45px;padding:0 16px;">
+                MANMOHAN MEMORIAL<br>POLYTECHNIC
             </div>
+            @if($logoBase64)
+            <div style="position:absolute;top:40px;left:12px;width:42px;height:42px;border-radius:50%;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:1;padding:2px;box-sizing:border-box;">
+                <img src="{{ $logoBase64 }}" alt="Logo" style="width:100%;height:100%;object-fit:contain;display:block;">
+            </div>
+            @endif
         </div>
 
-        {{-- ── White body ── --}}
-        <div style="background:white; position:relative; padding-top:58px;">
+        {{-- ══════════ FLOATING PHOTO (top=62, left=88, 112×112) ══════════ --}}
+        <div style="position:absolute;top:62px;left:88px;width:112px;height:112px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
+            @if($student->photo_b64)
+                <img src="{{ $student->photo_b64 }}" style="width:100%;height:100%;object-fit:cover;display:block;">
+            @else
+                <svg viewBox="0 0 88 88" width="112" height="112">
+                    <rect width="88" height="88" fill="#e5e7eb"/>
+                    <circle cx="44" cy="32" r="17" fill="#9ca3af"/>
+                    <ellipse cx="44" cy="72" rx="27" ry="19" fill="#9ca3af"/>
+                </svg>
+            @endif
+        </div>
 
-            {{-- Photo circle overlapping the header bottom --}}
-            <div style="position:absolute; top:-48px; left:0; right:0; display:flex; justify-content:center;">
-                <div style="width:96px;height:96px;border-radius:50%;background:white;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    @if($student->photo_b64)
-                        <img src="{{ $student->photo_b64 }}"
-                             style="width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;">
-                    @else
-                        <div style="width:96px;height:96px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#94a3b8;">
-                            {{ mb_strtoupper(mb_substr($name, 0, 1)) }}
-                        </div>
-                    @endif
-                </div>
+        {{-- ══════════ WHITE BODY ══════════ --}}
+        <div style="background:#fff;padding-top:62px;flex:1;display:flex;flex-direction:column;min-height:0;">
+
+            {{-- Name --}}
+            <div style="text-align:center;padding:2px 14px 2px;font-size:14px;font-weight:700;color:#24378d;text-transform:uppercase;letter-spacing:0.2px;line-height:1.24;">
+                {{ strtoupper($name) }}
             </div>
 
-            {{-- Name & Program --}}
-            <div style="text-align:center; padding:4px 14px 6px;">
-                <div style="font-size:16px;font-weight:900;color:#1e3a5f;letter-spacing:1px;text-transform:uppercase;">
-                    {{ mb_strtoupper($name) }}
-                </div>
-                <div style="font-size:10.5px;font-weight:800;color:#1a1a1a;text-transform:uppercase;margin-top:2px;letter-spacing:0.8px;">
-                    {{ mb_strtoupper($program) }}
-                </div>
+            {{-- Program --}}
+            <div style="text-align:center;padding:2px 12px 0;font-size:11.7px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:0.15px;line-height:1.24;">
+                {{ strtoupper($program) }}
             </div>
 
-            {{-- Details --}}
-            <div style="padding:2px 16px 6px; font-size:10px; color:#1e293b; line-height:1.85; text-align:center;">
-                <div><span style="color:#475569;">Student ID No:</span> &nbsp;<strong>{{ $studentNo }}</strong></div>
-                @if($dob)
-                    <div><span style="color:#475569;">Date of Birth:</span> &nbsp;<strong>{{ $dob }}</strong></div>
-                @endif
-                @if($stdAddress)
-                    <div><span style="color:#475569;">Address:</span> &nbsp;<strong>{{ $stdAddress }}</strong></div>
-                @endif
-                @if($address)
-                    <div><span style="color:#475569;">Campus:</span> &nbsp;<strong>{{ $address }}</strong></div>
-                @endif
-                @if($validUpto)
-                    <div><span style="color:#475569;">Valid up to:</span> &nbsp;<strong>{{ $validUpto }}</strong></div>
-                @endif
+            {{-- Detail fields --}}
+            <div style="padding:8px 14px 0;font-size:13px;color:#1b1b1b;font-weight:600;line-height:1.4;text-align:center;word-break:break-word;">
+                <div>Student ID No.: <strong style="font-weight:600;">{{ $studentNo }}</strong></div>
+                <div style="margin-top:2px;">Date of Birth:- <strong style="font-weight:600;">{{ $dob ?: '—' }}</strong></div>
+                <div style="margin-top:2px;">Address:- <strong style="font-weight:600;">{{ $stdAddress ?: '—' }}</strong></div>
+                <div style="margin-top:2px;">Valid up to: <strong style="font-weight:600;">{{ $validUpto ?: '—' }}</strong></div>
             </div>
 
-            {{-- Barcode + QR + Signature --}}
-            <div style="padding:8px 14px; display:flex; justify-content:space-between; align-items:flex-end; gap:6px;">
-
-                {{-- Barcode --}}
+            {{-- Barcode + Signature row --}}
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:2px 12px 1px;gap:10px;margin-top:auto;">
                 @if(in_array($barcodeType, ['both', 'barcode']))
                 <div style="flex:1;min-width:0;">
-                    <div style="display:flex;gap:1px;height:28px;align-items:stretch;overflow:hidden;">
+                    <div style="display:flex;gap:1px;height:32px;align-items:stretch;overflow:hidden;">
                         {!! $barHtml !!}
                     </div>
-                    <div style="font-size:7px;text-align:center;margin-top:2px;font-family:monospace;letter-spacing:1px;">{{ $studentNo }}</div>
+                    <div style="font-size:6.4px;text-align:center;margin-top:2px;font-family:'Montserrat',Arial,sans-serif;font-weight:700;letter-spacing:0.9px;color:#333;">
+                        {{ $studentNo }}
+                    </div>
                 </div>
+                @else
+                <div style="flex:1;min-width:0;"></div>
                 @endif
-
-                {{-- QR --}}
-                @if(in_array($barcodeType, ['both', 'qr']))
-                <div style="flex-shrink:0;">
-                    @if($qrBase64)
-                        <img src="{{ $qrBase64 }}" style="width:50px;height:50px;" alt="QR">
-                    @else
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=55x55&data={{ urlencode($studentNo) }}"
-                             style="width:50px;height:50px;" alt="QR">
-                    @endif
+                <div style="flex-shrink:0;text-align:center;width:79px;font-size:11px;font-weight:700;color:#3f3f46;">
+                    <div style="height:20px;"></div>
+                    <div>{{ $principal }}</div>
                 </div>
-                @endif
-
-                {{-- Signature --}}
-                <div style="flex-shrink:0;text-align:center;font-size:8px;color:#475569;width:56px;">
-                    <div style="border-top:1px solid #475569;padding-top:3px;">{{ $principal }}</div>
-                </div>
-
             </div>
-        </div>{{-- end white body --}}
 
-        {{-- ── Footer ── --}}
-        <div style="background:{{ $headerColor }};color:white;padding:7px 10px;font-size:8px;text-align:center;line-height:1.6;">
-            {{ $address }}<br>
-            @if($phone)<span>Ph: {{ $phone }}</span>@endif
-            @if($email)<span> | {{ $email }}</span>@endif
-        </div>
+            {{-- RED ADDRESS FOOTER --}}
+            <div style="background:{{ $headerColor }};color:#fff;text-align:center;font-size:11px;font-weight:500;line-height:1.58;letter-spacing:0.05px;padding:9px 4px 8px;flex-shrink:0;">
+                <div>Budhiganga-4, Morang, Koshi Province, Nepal</div>
+                <div>
+                    Ph: {{ $phone ?: '021-622058' }}
+                    @if($email) | Email: {{ $email }} @endif
+                </div>
+            </div>
 
-        {{-- ── Bottom strip ── --}}
-        <div style="background:#1a1a1a;color:white;text-align:center;padding:7px;font-size:11px;font-weight:700;letter-spacing:3px;">
-            STUDENT IDENTITY CARD
-        </div>
+            {{-- BLACK IDENTITY STRIP --}}
+            <div style="background:#1a1a1a;color:#fff;text-align:center;font-family:'Georgia','Times New Roman',serif;font-size:15px;font-weight:700;letter-spacing:0.45px;display:flex;align-items:center;justify-content:center;height:34px;padding:0 4px;text-transform:uppercase;line-height:1;flex-shrink:0;">
+                <span style="display:block;width:100%;white-space:nowrap;">STUDENT IDENTITY CARD</span>
+            </div>
 
-    </div>
-</div>
+        </div>{{-- /white body --}}
+
+    </div>{{-- /card-wrap --}}
+</div>{{-- /card-page --}}
 @endforeach
 
 <script>

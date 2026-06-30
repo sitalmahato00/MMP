@@ -223,9 +223,9 @@
                     <p class="text-sm">Select a student to preview the ID card</p>
                 </div>
 
-                {{-- Live card preview ── new design matching student portal ── --}}
+                {{-- Live card preview ── exact React IDCardPreview replica ── --}}
                 <div x-show="student" x-cloak class="flex justify-center" id="id-card-preview">
-                    <div style="
+                    <div id="card-print-area" style="
                         position: relative;
                         width: 288px;
                         height: 458px;
@@ -250,7 +250,7 @@
                             <div style="position:absolute;top:40px;left:12px;width:42px;height:42px;border-radius:50%;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:1;padding:2px;box-sizing:border-box;">
                                 <img :src="logoUrl || '/favicon.ico'"
                                      style="width:100%;height:100%;object-fit:contain;display:block;"
-                                     @error="$event.target.style.display='none'">
+                                     x-on:error="$event.target.style.display='none'">
                             </div>
                         </div>
 
@@ -525,7 +525,7 @@ function idCardGen(config) {
 
         generateCard() {
             if (!this.student) return;
-            const cardEl = document.querySelector('#id-card-preview .w-72');
+            const cardEl = document.querySelector('#card-print-area');
             if (!cardEl) return;
             const win = window.open('', '_blank', 'width=800,height=900');
             win.document.write(`<!DOCTYPE html>
@@ -594,7 +594,7 @@ html, body {
 
         async downloadImage() {
             if (!this.student) return;
-            const el = document.querySelector('#id-card-preview .w-72');
+            const el = document.querySelector('#card-print-area');
             if (!el) return;
             this.generating = true;
             try {
@@ -619,7 +619,7 @@ html, body {
 
         printCard() {
             if (!this.student) return;
-            const cardEl = document.querySelector('#id-card-preview .w-72');
+            const cardEl = document.querySelector('#card-print-area');
             if (!cardEl) return;
             const win = window.open('', '_blank', 'width=360,height=700');
             win.document.write(`<!DOCTYPE html>
