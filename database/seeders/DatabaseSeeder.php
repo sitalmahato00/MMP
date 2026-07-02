@@ -87,6 +87,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $this->call(FormManagementSeeder::class);
+
         $this->command->info('Database seeded successfully.');
         $this->command->info('Admin account: sitalmahato077@gmail.com');
         $this->command->info('Password: password');

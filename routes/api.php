@@ -11,6 +11,11 @@ use App\Http\Controllers\Api\HodController;
 use App\Http\Controllers\Api\AlumniController;
 use App\Http\Controllers\Api\ManagementController;
 use App\Http\Controllers\Api\NotificationApiController;
+use App\Http\Controllers\Api\Forms\DashboardController;
+use App\Http\Controllers\Api\Forms\MaterialRequestController;
+use App\Http\Controllers\Api\Forms\RepairOrderController;
+use App\Http\Controllers\Api\Forms\ApprovalController;
+use App\Http\Controllers\Api\Forms\ReportController;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTHENTICATION ROUTES (Public - No Auth Required)
@@ -330,6 +335,61 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}', [ManagementController::class, 'parentsUpdate']);
                 Route::delete('/{id}', [ManagementController::class, 'parentsDestroy']);
             });
+        });
+
+        // ───────────────────────────────────────────────────────────────────
+        // DIGITAL FORM MANAGEMENT SYSTEM MODULE
+        // ───────────────────────────────────────────────────────────────────
+        Route::prefix('forms')->group(function () {
+            // Dashboard
+            Route::get('/dashboard', [DashboardController::class, 'index']);
+
+            // Material Requests
+            Route::prefix('material-requests')->group(function () {
+                Route::get('/', [MaterialRequestController::class, 'index']);
+                Route::post('/', [MaterialRequestController::class, 'store']);
+                Route::get('/{id}', [MaterialRequestController::class, 'show']);
+                Route::put('/{id}', [MaterialRequestController::class, 'update']);
+                Route::delete('/{id}', [MaterialRequestController::class, 'destroy']);
+                Route::post('/{id}/submit', [MaterialRequestController::class, 'submit']);
+                Route::post('/{id}/duplicate', [MaterialRequestController::class, 'duplicate']);
+                Route::get('/{id}/pdf', [MaterialRequestController::class, 'pdf']);
+            });
+
+            // Repair Orders
+            Route::prefix('repair-orders')->group(function () {
+                Route::get('/', [RepairOrderController::class, 'index']);
+                Route::post('/', [RepairOrderController::class, 'store']);
+                Route::get('/{id}', [RepairOrderController::class, 'show']);
+                Route::put('/{id}', [RepairOrderController::class, 'update']);
+                Route::delete('/{id}', [RepairOrderController::class, 'destroy']);
+                Route::post('/{id}/submit', [RepairOrderController::class, 'submit']);
+                Route::get('/{id}/pdf', [RepairOrderController::class, 'pdf']);
+            });
+
+            // Approvals
+            Route::prefix('approvals')->group(function () {
+                Route::get('/pending', [ApprovalController::class, 'pending']);
+                Route::get('/history', [ApprovalController::class, 'history']);
+                Route::post('/{type}/{id}/recommend', [ApprovalController::class, 'recommend']);
+                Route::post('/{type}/{id}/approve', [ApprovalController::class, 'approve']);
+                Route::post('/{type}/{id}/reject', [ApprovalController::class, 'reject']);
+            });
+
+            // Reports
+            Route::prefix('reports')->group(function () {
+                Route::get('/', [ReportController::class, 'index']);
+                Route::get('/pdf', [ReportController::class, 'pdf']);
+                Route::get('/excel', [ReportController::class, 'excel']);
+            });
+        });
+
+        // Departments (shared)
+        Route::get('/departments', function () {
+            return response()->json([
+                'success' => true,
+                'data' => \App\Models\Department::where('is_active', true)->get()
+            ]);
         });
     });
 });
