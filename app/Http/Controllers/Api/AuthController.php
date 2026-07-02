@@ -333,7 +333,13 @@ class AuthController extends Controller
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-            $user->avatar = $file->store('avatars', 'public');
+            $path = $file->store('avatars', 'public');
+            if ($path !== false) {
+                $user->avatar = $path;
+                Log::info("Avatar saved: {$path}");
+            } else {
+                Log::error("Avatar store() returned false for user: {$user->id}");
+            }
         }
 
         // Update text fields

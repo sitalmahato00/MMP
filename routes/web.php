@@ -11,6 +11,29 @@ use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\MobilePreviewController;
 use App\Http\Controllers\PwaIconController;
 
+// ─── TEMP: Avatar upload debug (remove after use) ────────────────────────────
+Route::post('/dev-avatar-test', function (\Illuminate\Http\Request $request) {
+    $info = [
+        'has_file'         => $request->hasFile('avatar'),
+        'all_files'        => array_keys($request->allFiles()),
+        'all_input'        => array_keys($request->all()),
+        'content_type'     => $request->header('Content-Type'),
+    ];
+    if ($request->hasFile('avatar')) {
+        $file = $request->file('avatar');
+        $info['file_valid']    = $file->isValid();
+        $info['file_mime']     = $file->getMimeType();
+        $info['file_size']     = $file->getSize();
+        $info['file_error']    = $file->getError();
+        // Try to store
+        $path = $file->store('avatars', 'public');
+        $info['stored_path']   = $path;
+        $info['storage_exists']= \Illuminate\Support\Facades\Storage::disk('public')->exists($path ?: '');
+        $info['full_url']      = $path ? \Illuminate\Support\Facades\Storage::disk('public')->url($path) : null;
+    }
+    return response()->json($info);
+})->middleware('auth:sanctum');
+
 // ─── PWA Icon Routes ────────────────────────
 Route::get('/pwa-icon-{size}.png', [PwaIconController::class, 'icon'])
     ->where('size', '[0-9]+')

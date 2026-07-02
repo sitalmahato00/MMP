@@ -19,6 +19,7 @@ class User extends Authenticatable
         'name', 'email', 'phone', 'avatar', 'gender', 'dob',
         'address', 'is_active', 'password', 'preferences', 'notification_preferences',
         'two_factor_enabled', 'two_factor_method',
+        'department_id', 'signature', 'designation',
     ];
 
     protected $hidden = [
