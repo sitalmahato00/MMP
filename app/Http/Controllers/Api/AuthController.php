@@ -323,17 +323,20 @@ class AuthController extends Controller
         ]);
 
         // Handle avatar upload separately — always check hasFile directly
-        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
-            $file = $request->file('avatar');
+        // NOTE: PHP does not natively parse multipart/form-data for PUT.
+        // Check both hasFile() and files() to handle all cases.
+        $avatarFile = $request->file('avatar') ?? $request->files->get('avatar');
+
+        if ($avatarFile && $avatarFile->isValid()) {
             Log::info("Avatar upload", [
                 'user_id' => $user->id,
-                'mime'    => $file->getMimeType(),
-                'size'    => $file->getSize(),
+                'mime'    => $avatarFile->getMimeType(),
+                'size'    => $avatarFile->getSize(),
             ]);
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-            $path = $file->store('avatars', 'public');
+            $path = $avatarFile->store('avatars', 'public');
             if ($path !== false) {
                 $user->avatar = $path;
                 Log::info("Avatar saved: {$path}");

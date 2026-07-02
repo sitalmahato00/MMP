@@ -58,6 +58,7 @@ Route::prefix('v1')->group(function () {
         // User profile and auth info
         Route::get('/user', [AuthController::class, 'user']);
         Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+        Route::post('/user/profile', [AuthController::class, 'updateProfile']); // for multipart (PHP doesn't parse PUT multipart)
         Route::post('/user/change-password', [AuthController::class, 'changePassword']);
         Route::put('/user/notification-preferences', [AuthController::class, 'updateNotificationPreferences']);
         Route::put('/user/two-factor', [AuthController::class, 'updateTwoFactor']);
