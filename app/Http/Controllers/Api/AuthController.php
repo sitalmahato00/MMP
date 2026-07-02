@@ -317,21 +317,33 @@ class AuthController extends Controller
             'name'   => ['sometimes', 'string', 'max:255'],
             'phone'  => ['sometimes', 'nullable', 'string', 'max:20', Rule::unique('users', 'phone')->ignore($user->id)],
             'gender' => ['sometimes', 'nullable', Rule::in(['male', 'female', 'other'])],
-            'dob'    => ['sometimes', 'nullable', 'date', 'before:today'],
+            'dob'    => ['sometimes', 'nullable', 'date'],
             'address'=> ['sometimes', 'nullable', 'string', 'max:500'],
             'avatar' => ['sometimes', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        // Handle avatar upload
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar if it exists and is stored locally
+        // Handle avatar upload separately — always check hasFile directly
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+            $file = $request->file('avatar');
+            Log::info("Avatar upload", [
+                'user_id' => $user->id,
+                'mime'    => $file->getMimeType(),
+                'size'    => $file->getSize(),
+            ]);
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $file->store('avatars', 'public');
         }
 
-        $user->update($validated);
+        // Update text fields
+        if (array_key_exists('name', $validated))    $user->name    = $validated['name'];
+        if (array_key_exists('phone', $validated))   $user->phone   = $validated['phone'];
+        if (array_key_exists('gender', $validated))  $user->gender  = $validated['gender'];
+        if (array_key_exists('dob', $validated))     $user->dob     = $validated['dob'];
+        if (array_key_exists('address', $validated)) $user->address = $validated['address'];
+
+        $user->save();
 
         Log::info("Profile updated for user: {$user->id}");
 
