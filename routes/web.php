@@ -11,22 +11,6 @@ use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\MobilePreviewController;
 use App\Http\Controllers\PwaIconController;
 
-// ─── TEMP: Reset test account (remove after use) ─────────────────────────────
-Route::get('/dev-reset-student-account-x7k2m', function () {
-    $user = \App\Models\User::where('email', 'student@test.com')->first();
-    if (!$user) return response()->json(['error' => 'User not found'], 404);
-    $user->two_factor_enabled = false;
-    $user->password = \Illuminate\Support\Facades\Hash::make('password');
-    $user->save();
-    // Also revoke all tokens so it starts fresh
-    $user->tokens()->delete();
-    return response()->json([
-        'success' => true,
-        'message' => 'student@test.com reset: password=password, 2FA=disabled',
-        'id' => $user->id,
-    ]);
-});
-
 // ─── PWA Icon Routes ────────────────────────
 Route::get('/pwa-icon-{size}.png', [PwaIconController::class, 'icon'])
     ->where('size', '[0-9]+')
