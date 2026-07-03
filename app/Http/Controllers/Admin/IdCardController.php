@@ -7,7 +7,6 @@ use App\Models\AcademicSession;
 use App\Models\Department;
 use App\Models\Program;
 use App\Models\SiteSetting;
-use App\Models\Staff;
 use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -154,122 +153,7 @@ class IdCardController extends Controller
         return $pdf->download('student-id-' . ($student->student_no ?: $student->id) . '.pdf');
     }
 
-    // ── Staff ─────────────────────────────────────────────────────────────
 
-    public function staffIndex(): \Illuminate\View\View
-    {
-        $settings    = $this->siteSettings();
-        $defaultYear = now()->addYear()->format('Y');
-
-        return view('admin.id-cards.staff-index', compact('settings', 'defaultYear'));
-    }
-
-    public function staffSearch(Request $request): JsonResponse
-    {
-        $term = trim((string) $request->get('q', ''));
-
-        if (mb_strlen($term) < 2) {
-            return response()->json([]);
-        }
-
-        $staff = Staff::query()
-            ->where('is_active', true)
-            ->where(function ($q) use ($term) {
-                $q->where('name', 'like', "%{$term}%")
-                  ->orWhere('staff_code', 'like', "%{$term}%")
-                  ->orWhere('designation', 'like', "%{$term}%");
-            })
-            ->limit(8)
-            ->get()
-            ->map(fn ($m) => [
-                'id'              => $m->id,
-                'name'            => $m->name,
-                'staff_code'      => $m->staff_code ?? '—',
-                'designation'     => $m->designation ?? '—',
-                'department'      => $m->department ?? '—',
-                'email'           => $m->email,
-                'phone'           => $m->phone,
-                'employment_type' => $m->employment_type,
-                'join_date'       => $m->join_date ? bsDate($m->join_date) : null,
-                'photo_url'       => $m->photo_url,
-            ]);
-
-        return response()->json($staff);
-    }
-
-    public function staffBulkList(Request $request): \Illuminate\View\View
-    {
-        $query = Staff::query()
-            ->where('is_active', true)
-            ->when($request->search, function ($q) use ($request) {
-                $term = trim((string) $request->search);
-                $q->where('name', 'like', "%{$term}%")
-                    ->orWhere('staff_code', 'like', "%{$term}%");
-            })
-            ->when($request->department,  fn ($q) => $q->where('department',        $request->department))
-            ->when($request->designation, fn ($q) => $q->where('designation',       $request->designation));
-
-        $staff = $query->orderBy('name')->paginate(30)->withQueryString();
-
-        $departments = Staff::whereNotNull('department')->where('department', '!=', '')
-            ->distinct()->orderBy('department')->pluck('department');
-        $designations = Staff::whereNotNull('designation')->where('designation', '!=', '')
-            ->distinct()->orderBy('designation')->pluck('designation');
-
-        return view('admin.id-cards.staff-bulk-list', compact('staff', 'departments', 'designations'));
-    }
-
-    public function staffBulkPdf(Request $request)
-    {
-        $request->validate([
-            'ids'          => 'required|array|min:1|max:100',
-            'ids.*'        => 'integer|exists:staff,id',
-            'valid_upto'   => 'nullable|string|max:30',
-            'issue_date'   => 'nullable|string|max:30',
-            'barcode_type' => 'nullable|in:both,barcode,qr,none',
-            'template'     => 'nullable|in:red,blue,green',
-        ]);
-
-        $cardConfig = $this->buildCardConfig($request, '#1e3a5f');
-
-        $staffList = Staff::whereIn('id', $request->ids)
-            ->get()
-            ->map(fn ($s) => $this->injectStaffPhoto($s));
-
-        $settings   = $this->siteSettings();
-        $logoBase64 = $this->toBase64($settings['site_logo'] ?? null);
-
-        $qrMap = [];
-        foreach ($staffList as $m) {
-            $qrMap[$m->id] = $this->generateQrBase64($m->staff_code ?? (string) $m->id);
-        }
-
-        return view('admin.id-cards.staff-bulk-print', compact(
-            'staffList', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ));
-    }
-
-    public function staffSinglePdf(Staff $staff)
-    {
-        $staff = $this->injectStaffPhoto($staff);
-
-        $cardConfig = [
-            'valid_upto'   => '',
-            'issue_date'   => bsDate(now()),
-            'barcode_type' => 'both',
-            'template'     => 'blue',
-            'header_color' => '#1e3a5f',
-        ];
-
-        $settings   = $this->siteSettings();
-        $logoBase64 = $this->toBase64($settings['site_logo'] ?? null);
-        $staffList  = collect([$staff]);
-        $qrMap      = [$staff->id => $this->generateQrBase64($staff->staff_code ?? (string) $staff->id)];
-
-        return view('admin.id-cards.staff-bulk-print', compact(
-            'staffList', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
-        ));
-    }
 
     // ── Private Helpers ───────────────────────────────────────────────────
 
@@ -395,11 +279,5 @@ class IdCardController extends Controller
         return $student;
     }
 
-    private function injectStaffPhoto(Staff $staff): Staff
-    {
-        $path = $staff->photo ?: $staff->user?->avatar;
-        $staff->photo_b64 = $this->toBase64($path);
 
-        return $staff;
-    }
 }

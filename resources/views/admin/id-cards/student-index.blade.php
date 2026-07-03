@@ -590,37 +590,40 @@ html, body {
 }
 @media print {
     @page {
-        size: 86mm 136mm;
+        size: 54mm 86mm;
         margin: 0;
         padding: 0;
     }
-    html {
+    html, body {
         margin: 0;
         padding: 0;
-        width: 86mm;
-        height: 136mm;
+        width: 54mm;
+        height: 86mm;
+        background: #fff;
+        overflow: hidden;
     }
     body {
-        background: #fff;
-        margin: 0;
-        padding: 0;
-        width: 86mm;
-        height: 136mm;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: block;
+        position: relative;
     }
     .card-wrap {
-        width: 288px;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-        position: relative;
-        display: flex;
-        flex-direction: column;
+        width: 76.24mm !important;
+        height: 121.42mm !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transform: scale(0.7083) !important;
+        transform-origin: top left !important;
         page-break-after: avoid;
+        break-after: avoid;
+        display: flex !important;
+        flex-direction: column !important;
     }
     .save-tip {
-        display: none;
+        display: none !important;
     }
 }
 </style>

@@ -89,11 +89,6 @@ Route::prefix('id-cards')->name('id-cards.')->group(function () {
     Route::get('students',                             [IdCardController::class, 'studentIndex'])->name('students.index');
     Route::get('students/{student}/pdf',               [IdCardController::class, 'studentSinglePdf'])->name('students.single-pdf');
     Route::post('students/bulk-pdf',                   [IdCardController::class, 'studentBulkPdf'])->name('students.bulk-pdf');
-    Route::get('staff/search',                         [IdCardController::class, 'staffSearch'])->name('staff.search');
-    Route::get('staff/bulk-list',                      [IdCardController::class, 'staffBulkList'])->name('staff.bulk-list');
-    Route::get('staff',                                [IdCardController::class, 'staffIndex'])->name('staff.index');
-    Route::get('staff/{staff}/pdf',                    [IdCardController::class, 'staffSinglePdf'])->name('staff.single-pdf');
-    Route::post('staff/bulk-pdf',                      [IdCardController::class, 'staffBulkPdf'])->name('staff.bulk-pdf');
 });
 
 // ── Examinations & Results ─────────────────────────────────

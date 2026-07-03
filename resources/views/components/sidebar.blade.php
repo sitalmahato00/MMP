@@ -91,7 +91,6 @@
             'label' => 'Student Services',
             'items' => [
                 ['label' => 'Student ID Cards', 'iconName' => 'identification', 'href' => route('admin.id-cards.students.index'), 'isActive' => $active('admin.id-cards.students.*')],
-                ['label' => 'Staff ID Cards',   'iconName' => 'identification', 'href' => route('admin.id-cards.staff.index'),    'isActive' => $active('admin.id-cards.staff.*')],
             ],
         ],
 
