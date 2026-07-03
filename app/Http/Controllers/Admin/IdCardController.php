@@ -155,6 +155,127 @@ class IdCardController extends Controller
 
 
 
+    // ── Reports ───────────────────────────────────────────────────────────
+
+    public function reports(Request $request): \Illuminate\View\View
+    {
+        $programs    = \App\Models\Program::orderBy('name')->get(['id', 'name']);
+        $departments = \App\Models\Department::orderBy('name')->get(['id', 'name']);
+        $sessions    = \App\Models\AcademicSession::orderByDesc('id')->limit(10)->get(['id', 'name']);
+
+        // Build base query
+        $query = Student::with(['user:id,name,avatar,phone,dob,address', 'program:id,name', 'department:id,name', 'academicSession:id,name'])
+            ->where('status', 'active')
+            ->when($request->program_id,          fn ($q) => $q->where('program_id',          $request->program_id))
+            ->when($request->department_id,       fn ($q) => $q->where('department_id',       $request->department_id))
+            ->when($request->academic_session_id, fn ($q) => $q->where('academic_session_id', $request->academic_session_id))
+            ->when($request->semester,            fn ($q) => $q->where('current_semester',    $request->semester))
+            ->when($request->search, function ($q) use ($request) {
+                $term = trim($request->search);
+                $q->where(function ($inner) use ($term) {
+                    $inner->where('student_no', 'like', "%{$term}%")
+                          ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%"));
+                });
+            });
+
+        $totalStudents = $query->count();
+
+        // Group stats by program
+        $byProgram = Student::where('status', 'active')
+            ->when($request->program_id,          fn ($q) => $q->where('program_id',          $request->program_id))
+            ->when($request->department_id,       fn ($q) => $q->where('department_id',       $request->department_id))
+            ->when($request->academic_session_id, fn ($q) => $q->where('academic_session_id', $request->academic_session_id))
+            ->selectRaw('program_id, COUNT(*) as total')
+            ->groupBy('program_id')
+            ->with('program:id,name')
+            ->get();
+
+        // Group stats by department
+        $byDepartment = Student::where('status', 'active')
+            ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
+            ->selectRaw('department_id, COUNT(*) as total')
+            ->groupBy('department_id')
+            ->with('department:id,name')
+            ->get();
+
+        // Group stats by semester
+        $bySemester = Student::where('status', 'active')
+            ->when($request->program_id,    fn ($q) => $q->where('program_id', $request->program_id))
+            ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
+            ->selectRaw('current_semester, COUNT(*) as total')
+            ->groupBy('current_semester')
+            ->orderBy('current_semester')
+            ->get();
+
+        // Paginated student list
+        $students = $query->latest('id')->paginate(20)->withQueryString();
+
+        return view('admin.id-cards.reports', compact(
+            'students', 'programs', 'departments', 'sessions',
+            'totalStudents', 'byProgram', 'byDepartment', 'bySemester'
+        ));
+    }
+
+    public function reportPrint(Request $request): \Illuminate\View\View
+    {
+        $settings = $this->siteSettings();
+
+        $students = Student::with(['user:id,name,phone,dob,address', 'program:id,name', 'department:id,name'])
+            ->where('status', 'active')
+            ->when($request->program_id,          fn ($q) => $q->where('program_id',          $request->program_id))
+            ->when($request->department_id,       fn ($q) => $q->where('department_id',       $request->department_id))
+            ->when($request->academic_session_id, fn ($q) => $q->where('academic_session_id', $request->academic_session_id))
+            ->when($request->semester,            fn ($q) => $q->where('current_semester',    $request->semester))
+            ->when($request->search, function ($q) use ($request) {
+                $term = trim($request->search);
+                $q->where(function ($inner) use ($term) {
+                    $inner->where('student_no', 'like', "%{$term}%")
+                          ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%"));
+                });
+            })
+            ->orderBy('student_no')
+            ->get();
+
+        $logoBase64 = $this->toBase64($settings['site_logo'] ?? null);
+        $printDate  = bsDate(now()->format('Y-m-d'));
+
+        return view('admin.id-cards.report-print', compact('students', 'settings', 'logoBase64', 'printDate'));
+    }
+
+    public function reportExport(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $students = Student::with(['user:id,name,phone,dob,address', 'program:id,name', 'department:id,name', 'academicSession:id,name'])
+            ->where('status', 'active')
+            ->when($request->program_id,          fn ($q) => $q->where('program_id',          $request->program_id))
+            ->when($request->department_id,       fn ($q) => $q->where('department_id',       $request->department_id))
+            ->when($request->academic_session_id, fn ($q) => $q->where('academic_session_id', $request->academic_session_id))
+            ->when($request->semester,            fn ($q) => $q->where('current_semester',    $request->semester))
+            ->orderBy('student_no')
+            ->get();
+
+        $filename = 'id-card-report-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($students) {
+            $fp = fopen('php://output', 'w');
+            fputcsv($fp, ['#', 'Name', 'Student ID', 'Registration No.', 'Program', 'Department', 'Semester', 'Academic Session', 'DOB (BS)', 'Address']);
+            foreach ($students as $i => $s) {
+                fputcsv($fp, [
+                    $i + 1,
+                    $s->user?->name ?? '—',
+                    $s->student_no ?? '—',
+                    $s->registration_number ?? '—',
+                    $s->program?->name ?? '—',
+                    $s->department?->name ?? '—',
+                    $s->current_semester ? 'Semester ' . $s->current_semester : '—',
+                    $s->academicSession?->name ?? '—',
+                    $s->user?->dob ? bsDate($s->user->dob) : '—',
+                    $s->user?->address ?? '—',
+                ]);
+            }
+            fclose($fp);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
+
     // ── Private Helpers ───────────────────────────────────────────────────
 
     private function siteSettings(): array

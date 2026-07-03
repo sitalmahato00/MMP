@@ -86,6 +86,9 @@ Route::delete('staff/{staff}/documents/{document}', [StaffController::class, 'de
 Route::prefix('id-cards')->name('id-cards.')->group(function () {
     Route::get('students/search',                      [IdCardController::class, 'studentSearch'])->name('students.search');
     Route::get('students/bulk-list',                   [IdCardController::class, 'studentBulkList'])->name('students.bulk-list');
+    Route::get('students/reports',                     [IdCardController::class, 'reports'])->name('students.reports');
+    Route::get('students/report-print', [IdCardController::class, 'reportPrint'])->name('students.report-print');
+    Route::get('students/reports/export',              [IdCardController::class, 'reportExport'])->name('students.reports.export');
     Route::get('students',                             [IdCardController::class, 'studentIndex'])->name('students.index');
     Route::get('students/{student}/pdf',               [IdCardController::class, 'studentSinglePdf'])->name('students.single-pdf');
     Route::post('students/bulk-pdf',                   [IdCardController::class, 'studentBulkPdf'])->name('students.bulk-pdf');

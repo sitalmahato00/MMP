@@ -90,7 +90,9 @@
         [
             'label' => 'Student Services',
             'items' => [
-                ['label' => 'Student ID Cards', 'iconName' => 'identification', 'href' => route('admin.id-cards.students.index'), 'isActive' => $active('admin.id-cards.students.*')],
+                ['label' => 'ID Card Generator', 'iconName' => 'identification', 'href' => route('admin.id-cards.students.index'),     'isActive' => $active('admin.id-cards.students.index') || (request()->is('admin/id-cards/students') && !request()->is('admin/id-cards/students/bulk-list') && !request()->is('admin/id-cards/students/reports'))],
+                ['label' => 'Bulk Print',         'iconName' => 'printer',        'href' => route('admin.id-cards.students.bulk-list'), 'isActive' => $active('admin.id-cards.students.bulk-list')],
+                ['label' => 'ID Card Reports',    'iconName' => 'doc-report',     'href' => route('admin.id-cards.students.reports'),   'isActive' => $active('admin.id-cards.students.reports')],
             ],
         ],
 
