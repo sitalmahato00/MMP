@@ -22,8 +22,9 @@ class IdCardController extends Controller
     {
         $settings    = $this->siteSettings();
         $defaultYear = now()->addYear()->format('Y');
+        $programs    = \App\Models\Program::orderBy('name')->get(['id','name']);
 
-        return view('admin.id-cards.student-index', compact('settings', 'defaultYear'));
+        return view('admin.id-cards.student-index', compact('settings', 'defaultYear', 'programs'));
     }
 
     public function studentSearch(Request $request): JsonResponse
@@ -276,7 +277,7 @@ class IdCardController extends Controller
     {
         return SiteSetting::whereIn('key', [
             'college_name', 'college_affiliation', 'site_logo',
-            'contact_address', 'contact_phone', 'contact_email', 'principal_name',
+            'contact_address', 'contact_phone', 'contact_email', 'principal_name', 'principal_signature',
         ])->pluck('value', 'key')->toArray();
     }
 

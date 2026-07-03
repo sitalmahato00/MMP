@@ -168,6 +168,31 @@
                     </x-form-field>
                 </x-card>
 
+                @php $psig = $allSettings->get('principal_signature'); @endphp
+                <x-card>
+                    <x-form-field label="Principal's Signature" name="principal_signature" span="full" hint="Signature image used on ID cards (PNG/JPG/WebP)">
+                        @if($psig?->value)
+                            <div class="mb-3 flex items-start gap-4">
+                                <img src="{{ asset('storage/'.$psig->value) }}" alt="Principal signature" class="w-56 h-28 object-contain rounded border border-gray-200 shadow-sm">
+                                <div class="flex flex-col gap-2 mt-1">
+                                    <a href="{{ asset('storage/'.$psig->value) }}" target="_blank"
+                                       class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                        View
+                                    </a>
+                                    <button type="button"
+                                        onclick="deleteWebControlFile('{{ route('admin.web-control.clear-file', 'principal_signature') }}', 'Remove the current principal signature?')"
+                                        class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 font-medium">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+                        <x-file-input name="principal_signature" accept="image/*" :current="$psig?->value" label="Upload signature (JPG/PNG/WebP)" />
+                    </x-form-field>
+                </x-card>
+
                 @php $pmsg = $allSettings->get('principals_message'); @endphp
                 <x-card>
                     <x-form-field label="Principal's Message" name="principals_message" span="full" hint="Full message on the homepage. Separate paragraphs with a blank line.">

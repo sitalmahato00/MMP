@@ -113,7 +113,7 @@ class WebControlController extends Controller
 
     public function clearFile(string $key)
     {
-        $allowed = ['site_logo', 'principal_photo', 'principal_message_media'];
+        $allowed = ['site_logo', 'principal_photo', 'principal_signature', 'principal_message_media'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }

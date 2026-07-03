@@ -21,6 +21,7 @@ class SiteSetting extends Model
             ['key' => 'welcome_message', 'group' => 'about', 'label' => 'Welcome Message', 'type' => 'richtext', 'value' => 'Welcome to MMP...'],
             ['key' => 'principals_message', 'group' => 'about', 'label' => 'Principal message', 'type' => 'richtext', 'value' => 'It brings me great joy...'],
             ['key' => 'principal_photo', 'group' => 'about', 'label' => 'Principal Photo', 'type' => 'image', 'value' => ''],
+            ['key' => 'principal_signature', 'group' => 'about', 'label' => 'Principal Signature (ID card)', 'type' => 'image', 'value' => ''],
             ['key' => 'principal_message_media', 'group' => 'about', 'label' => 'Principal Message — Media Attachment (Image / Video / PDF)', 'type' => 'file', 'value' => ''],
             ['key' => 'president_name', 'group' => 'about', 'label' => 'President Name', 'type' => 'text', 'value' => 'Hon. President Name'],
             ['key' => 'principal_name', 'group' => 'about', 'label' => 'Principal Name', 'type' => 'text', 'value' => 'Mr. Principal Name'],

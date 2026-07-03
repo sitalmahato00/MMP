@@ -62,6 +62,7 @@ Route::post('programs/bulk-action', [ProgramController::class, 'bulkAction'])->n
 
 // ── People Management ──────────────────────────────────────
 Route::resource('students', StudentController::class);
+    Route::get('students/{student}/json', [StudentController::class, 'json'])->name('students.json');
 Route::post('students/bulk-promote', [StudentController::class, 'bulkPromote'])->name('students.bulk-promote');
 Route::get('students/{student}/drawer', [StudentController::class, 'drawer'])->name('students.drawer');
 Route::resource('teachers', TeacherController::class);

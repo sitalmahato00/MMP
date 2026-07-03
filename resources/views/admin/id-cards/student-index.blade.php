@@ -12,6 +12,9 @@
     $logoUrl      = ($settings['site_logo'] ?? null)
                     ? publicStorageUrl($settings['site_logo'])
                     : null;
+    $signatureUrl  = ($settings['principal_signature'] ?? null)
+                    ? publicStorageUrl($settings['principal_signature'])
+                    : null;
     $defaultValidUptoBS = bsDate($defaultYear . '-06-30') ?? '';
     $defaultIssueDateBS = bsDate(now()->format('Y-m-d')) ?? '';
 @endphp
@@ -29,6 +32,8 @@
         email: @js($email),
         principal: @js($principal),
         logoUrl: @js($logoUrl),
+        signatureUrl: @js($signatureUrl),
+        programs: @js($programs ?? []),
         defaultValidUpto: @js($defaultValidUptoBS),
         defaultIssueDate: @js($defaultIssueDateBS),
     })"
@@ -125,7 +130,7 @@
                         <div class="min-w-0 flex-1 text-sm">
                             <p class="font-bold text-slate-800 dark:text-slate-100 truncate" x-text="student?.name"></p>
                             <p class="text-xs text-slate-500 dark:text-slate-400" x-text="'Student ID: ' + (student?.student_no || '—')"></p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400" x-text="student?.program"></p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400" x-text="getProgramName(student?.program_id)"></p>
                             <p class="text-xs text-slate-500 dark:text-slate-400" x-text="student?.batch ? 'Batch: ' + student.batch : ''"></p>
                         </div>
                         <button @click="clearStudent()" class="flex-shrink-0 text-slate-400 hover:text-red-500 transition">
@@ -158,13 +163,11 @@
 
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Program / Faculty *</label>
-                                    <select x-model="student.program" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none">
+                                    <select x-model.number="student.program_id" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none">
                                         <option value="">Select Program</option>
-                                        <option>DIPLOMA IN ELECTRICAL ENGINEERING</option>
-                                        <option>DIPLOMA IN CIVIL ENGINEERING</option>
-                                        <option>DIPLOMA IN INFORMATION TECHNOLOGY</option>
-                                        <option>DIPLOMA IN MECHANICAL ENGINEERING</option>
-                                        <option>DIPLOMA IN ELECTRONICS ENGINEERING</option>
+                                        @foreach($programs as $p)
+                                            <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -188,21 +191,8 @@
                                     <input type="text" x-model="barcodeNumber" @input="generateBarcode($event.target.value, student.id)" placeholder="Barcode / ID for printing" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none" />
                                 </div>
 
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Principal Signature Photo <span class="text-xs text-slate-400">*Click to upload</span></label>
-                                    <input type="file" accept="image/*" @change="handleSignatureUpload($event)" class="w-full text-sm" />
-                                </div>
+                                {{-- Principal signature is managed in Settings → Principal's Corner --}}
                             </div>
-                        </div>
-
-                        {{-- Template --}}
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Select Template</label>
-                            <select x-model="template" @change="updateCardColor()" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
-                                <option value="red">Official ID Card (Red)</option>
-                                <option value="blue">Official ID Card (Blue)</option>
-                                <option value="green">Official ID Card (Green)</option>
-                            </select>
                         </div>
 
                         {{-- Valid Up To --}}
@@ -221,25 +211,7 @@
                             </div>
                         </div>
 
-                        {{-- Barcode / QR --}}
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Barcode / QR</label>
-                            <select x-model="barcodeType" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
-                                <option value="both">Both Barcode &amp; QR Code</option>
-                                <option value="barcode">Barcode Only</option>
-                                <option value="qr">QR Code Only</option>
-                                <option value="none">None</option>
-                            </select>
-                        </div>
-
-                        {{-- Card Type --}}
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Card Type</label>
-                            <select x-model="cardType" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-red-300">
-                                <option value="regular">Regular</option>
-                                <option value="premium">Premium</option>
-                            </select>
-                        </div>
+                        
                     </div>
 
                     {{-- Generate button --}}
@@ -275,15 +247,15 @@
                     <p class="text-sm">Select a student to preview the ID card</p>
                 </div>
 
-                {{-- ══════════════════════════════════════════════════════════
-                     Live card preview — exact React IDCardPreview replica
-                     Constants (matching React):
-                       CARD_W=288  HDR_H=120  LOGO_D=42
-                       PHOTO_D=88  PHOTO_R=44
-                       photo top  = HDR_H - PHOTO_R - 16 = 60
-                       photo left = (CARD_W - PHOTO_D) / 2 = 100
-                       body paddingTop = PHOTO_R + 6 = 50
-                ══════════════════════════════════════════════════════════ --}}
+                                {{-- ══════════════════════════════════════════════════════════
+                                         Live card preview — exact React IDCardPreview replica
+                                         Constants (matching React):
+                                             CARD_W=288  HDR_H=120  LOGO_D=42
+                                             PHOTO_D=112  PHOTO_R=56
+                                             photo top  = HDR_H - PHOTO_R = 64  (so header bottom intersects photo center)
+                                             photo left = (CARD_W - PHOTO_D) / 2 = 88
+                                             body paddingTop = PHOTO_R + 6 = 62
+                                ══════════════════════════════════════════════════════════ --}}
                 <div x-show="student" x-cloak class="flex justify-center" id="id-card-preview">
                     <div id="card-print-area" style="
                         position: relative;
@@ -319,7 +291,7 @@
                              top  = HDR_H - PHOTO_R - 16 = 120 - 44 - 16 = 60px
                              left = (288 - 88) / 2 = 100px
                              size = 88×88 ══ --}}
-                        <div style="position:absolute;top:60px;left:100px;width:88px;height:88px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
+                        <div style="position:absolute;top:64px;left:88px;width:112px;height:112px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
                             <img :src="student?.photo_url || ''"
                                  x-show="student?.photo_url"
                                  style="width:100%;height:100%;object-fit:cover;display:block;">
@@ -331,7 +303,7 @@
                         </div>
 
                         {{-- ══ WHITE BODY — padding-top = PHOTO_R + 6 = 50px ══ --}}
-                        <div style="background:#fff;padding-top:50px;flex:1;display:flex;flex-direction:column;">
+                        <div style="background:#fff;padding-top:62px;flex:1;display:flex;flex-direction:column;">
                             <div style="flex:1;display:flex;flex-direction:column;">
 
                                 {{-- Name — 14px bold navy --}}
@@ -340,7 +312,7 @@
 
                                 {{-- Program — 11.7px bold black --}}
                                 <div style="text-align:center;padding:2px 12px 0;font-size:11.7px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:0.15px;line-height:1.24;"
-                                     x-text="(student?.program || 'PROGRAM / FACULTY').toUpperCase()"></div>
+                                     x-text="(getProgramName(student?.program_id) || 'PROGRAM / FACULTY').toUpperCase()"></div>
 
                                 {{-- Detail fields — 13px, font-weight:600, centred --}}
                                 <div style="padding:8px 14px 0;font-size:13px;color:#1b1b1b;font-weight:600;line-height:1.4;text-align:center;word-break:break-word;">
@@ -362,10 +334,10 @@
 
                                     {{-- Signature + Principal label --}}
                                     <div style="flex-shrink:0;text-align:center;width:79px;font-size:11px;font-weight:700;color:#3f3f46;">
-                                        <div style="height:30px;display:flex;align-items:center;justify-content:center;">
-                                            <img x-show="signatureDataUrl" :src="signatureDataUrl" style="max-height:30px;object-fit:contain;display:block;"/>
+                                        <div style="height:42px;display:flex;align-items:center;justify-content:center;">
+                                            <img x-show="signatureDataUrl" :src="signatureDataUrl" style="max-height:36px;object-fit:contain;display:block;"/>
                                         </div>
-                                        <div x-text="principal"></div>
+                                        <div>Principal</div>
                                     </div>
                                 </div>
 
@@ -412,7 +384,7 @@ function idCardGen(config) {
         searching: false,
         student: null,
         qrDataUrl: null,
-        signatureDataUrl: null,
+        signatureDataUrl: config.signatureUrl || null,
         barcodeNumber: '',
         template: 'red',
         validUpto: config.defaultValidUpto || '',
@@ -423,6 +395,12 @@ function idCardGen(config) {
 
         get cardColor() {
             return { red: '#8B0000', blue: '#1e3a5f', green: '#14532d' }[this.template] || '#8B0000';
+        },
+
+        getProgramName(id) {
+            if (!id) return '';
+            const p = (this.programs || []).find(x => x.id === id || x.id == id);
+            return p ? p.name : '';
         },
 
         updateCardColor() { /* reactivity handled by cardColor getter */ },
@@ -446,24 +424,42 @@ function idCardGen(config) {
             this.searching = false;
         },
 
-        selectStudent(s) {
-            this.student     = s;
+        async selectStudent(s) {
             this.searchQuery = s.name;
             this.showDropdown = false;
             this.qrDataUrl = null;
+
+            // fetch full student data from server to populate all fields
+            try {
+                const res = await fetch(`{{ url('admin/students') }}/${s.id}/json`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    // merge into student object used by the UI
+                    this.student = data;
+                    this.loadQrCode(data.student_no);
+                    this.barcodeNumber = data.student_no || '';
+                    this.generateBarcode(this.barcodeNumber, data.id);
+                    return;
+                }
+            } catch (e) {
+                // fallback to the basic search result if JSON fetch fails
+            }
+
+            // fallback: use the provided search result object
+            this.student     = s;
+            // try to resolve program_id from program name in search result
+            if (!this.student.program_id && s.program) {
+                const match = (this.programs || []).find(p => p.name === s.program || p.name == s.program);
+                if (match) this.student.program_id = match.id;
+            }
             this.loadQrCode(s.student_no);
             this.barcodeNumber = s.student_no || '';
-            this.signatureDataUrl = null;
             this.generateBarcode(this.barcodeNumber, s.id);
         },
 
-        handleSignatureUpload(e) {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = ev => { this.signatureDataUrl = ev.target.result; };
-            reader.readAsDataURL(file);
-        },
+        // signature upload handled from Settings → Principal's Corner
 
         async loadQrCode(studentNo) {
             try {

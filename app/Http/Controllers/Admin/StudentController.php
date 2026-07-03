@@ -75,6 +75,28 @@ class StudentController extends Controller
         ));
     }
 
+    /**
+     * Return full student data as JSON for admin UI consumption.
+     */
+    public function json(Student $student)
+    {
+        $student->load(['user', 'program', 'department', 'academicSession']);
+
+        return response()->json([
+            'id'         => $student->id,
+            'name'       => $student->user?->name ?? '',
+            'student_no' => $student->student_no ?? '',
+            'program'    => $student->program?->name ?? '',
+            'program_id' => $student->program_id ?? null,
+            'department' => $student->department?->name ?? '',
+            'dob'        => $student->user?->dob ? bsDate($student->user->dob) : null,
+            'address'    => $student->user?->address ?? '',
+            'phone'      => $student->user?->phone ?? '',
+            'photo_url'  => $student->user?->avatar_url ?? '',
+            'batch'      => $student->batch ?? '',
+        ]);
+    }
+
     public function create()
     {
         $programs       = Program::with('department')->orderBy('name')->get();
