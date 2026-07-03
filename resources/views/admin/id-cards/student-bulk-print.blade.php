@@ -63,10 +63,12 @@ html, body {
 }
 .card-print-wrap {
     width: 288px;
-    height: 100%;
+    height: 458px;
     position: relative;
     display: flex;
     flex-direction: column;
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: 700;
 }
 
 /* ── PRINT STYLES ──────────────────────────────────── */
@@ -79,14 +81,11 @@ html, body {
     html, body {
         margin: 0;
         padding: 0;
-        width: 54mm;
-        height: 86mm;
         background: #fff;
-        overflow: hidden;
+        overflow: visible;
     }
     body {
         display: block;
-        position: relative;
     }
     .toolbar, .sheet-label {
         display: none !important;
@@ -96,36 +95,47 @@ html, body {
         gap: 0;
         display: block;
         background: #fff;
+        width: 54mm;
     }
+    /*
+     * Each .page-sheet is 54mm × 86mm at print time.
+     * break-before:page forces each card onto its own page.
+     */
     .page-sheet {
         position: relative !important;
         width: 54mm !important;
         height: 86mm !important;
         margin: 0 !important;
+        padding: 0 !important;
         border-radius: 0 !important;
         box-shadow: none !important;
-        page-break-after: always !important;
-        break-after: page !important;
         overflow: hidden !important;
         display: block !important;
+        page-break-before: always !important;
+        break-before: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
-    .page-sheet:last-child {
-        page-break-after: avoid !important;
-        break-after: avoid !important;
+    .page-sheet:first-child {
+        page-break-before: avoid !important;
+        break-before: avoid !important;
     }
+    /*
+     * Scale the 288×458 design to fit 54mm×86mm.
+     * zoom keeps the element in flow so the 86mm page height is preserved.
+     * 54mm / 288px ≈ 0.7083 (at 96dpi: 54mm ≈ 204px → 204/288 ≈ 0.7083)
+     */
     .card-print-wrap {
         width: 288px !important;
         height: 458px !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
+        position: relative !important;
         margin: 0 !important;
         border-radius: 0 !important;
         box-shadow: none !important;
-        transform: scale(0.7083) !important;
-        transform-origin: top left !important;
         display: flex !important;
         flex-direction: column !important;
+        zoom: 0.7083 !important;
+        transform: none !important;
     }
 }
 </style>
@@ -174,6 +184,7 @@ html, body {
 
 <div class="page-sheet">
     <div class="card-print-wrap">
+
         {{-- ══ RED HEADER (120px) ══ --}}
         <div style="position:relative; background:{{ $headerColor }}; height:120px; box-sizing:border-box; flex-shrink:0; print-color-adjust:exact; -webkit-print-color-adjust:exact;">
             {{-- College name --}}
@@ -188,7 +199,10 @@ html, body {
             </div>
         </div>
 
-        {{-- ══ PHOTO overlapping header/body ══ --}}
+        {{-- ══ PHOTO — straddles header/body edge ══
+             top  = 64px (HDR_H - PHOTO_R = 120 - 56 = 64)
+             left = 88px ((288 - 112) / 2 = 88)
+        --}}
         <div style="position:absolute; top:64px; left:88px; width:112px; height:112px; border-radius:50%; background:#e5e7eb; overflow:hidden; z-index:10; border:1px solid rgba(122,15,21,0.25); box-shadow:0 1px 6px rgba(0,0,0,0.12);">
             @if($student->photo_b64)
                 <img src="{{ $student->photo_b64 }}" style="width:100%; height:100%; object-fit:cover; display:block;">
@@ -201,10 +215,10 @@ html, body {
             @endif
         </div>
 
-        {{-- ══ WHITE BODY (padding-top: 62px) ══ --}}
-        <div style="background:#fff; padding-top:62px; flex:1; display:flex; flex-direction:column;">
+        {{-- ══ WHITE BODY — flex:1 fills remaining height; footer stays at bottom ══ --}}
+        <div style="background:#fff; padding-top:62px; flex:1; display:flex; flex-direction:column; overflow:hidden;">
             <div style="flex:1; display:flex; flex-direction:column;">
-                
+
                 {{-- Name --}}
                 <div style="text-align:center; padding:2px 14px 2px; font-size:14px; font-weight:700; color:#24378d; text-transform:uppercase; letter-spacing:0.2px; line-height:1.24;">
                     {{ mb_strtoupper($name) }}
@@ -215,7 +229,7 @@ html, body {
                     {{ mb_strtoupper($program) }}
                 </div>
 
-                {{-- Details --}}
+                {{-- Detail fields --}}
                 <div style="padding:8px 14px 0; font-size:13px; color:#1b1b1b; font-weight:600; line-height:1.4; text-align:center; word-break:break-word;">
                     <div>Student ID No.: <strong style="font-weight:600;">{{ $studentNo }}</strong></div>
                     <div style="margin-top:2px;">Date of Birth:- <strong style="font-weight:600;">{{ $dob ?: '—' }}</strong></div>
@@ -223,10 +237,10 @@ html, body {
                     <div style="margin-top:2px;">Valid up to: <strong style="font-weight:600;">{{ $validUpto ?: '—' }}</strong></div>
                 </div>
 
-                {{-- Barcode + Signature row --}}
+                {{-- Barcode + Signature row — pushed to bottom via margin-top:auto --}}
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; padding:4px 12px 0; gap:10px; margin-top:auto;">
-                    
-                    {{-- Scannable barcode using SVG format --}}
+
+                    {{-- Barcode --}}
                     <div style="flex:1; min-width:0; display:flex; flex-direction:column; align-items:center;">
                         <svg id="barcode-{{ $student->id }}" style="height:32px; margin-bottom:2px;"></svg>
                         <div style="font-size:6.4px; text-align:center; font-family:'Montserrat',Arial,sans-serif; font-weight:700; letter-spacing:0.9px; color:#333;">
@@ -245,13 +259,12 @@ html, body {
                     </div>
 
                 </div>
+
             </div>
 
             {{-- Red address footer --}}
             <div style="background:{{ $headerColor }}; color:#fff; text-align:center; font-size:11px; font-weight:500; line-height:1.58; letter-spacing:0.05px; padding:9px 4px 8px; flex-shrink:0; print-color-adjust:exact; -webkit-print-color-adjust:exact;">
-                <div style="transform:scaleX(1.02); transform-origin:center center;">
-                    {{ $address }}
-                </div>
+                <div style="transform:scaleX(1.02); transform-origin:center center;">{{ $address }}</div>
                 <div style="transform:scaleX(1.02); transform-origin:center center;">
                     Ph: {{ $phone }}@if($email) &nbsp;| Email: {{ $email }}@endif
                 </div>
@@ -261,8 +274,8 @@ html, body {
             <div style="background:#1a1a1a; color:#fff; text-align:center; font-family:'Georgia','Times New Roman',serif; font-size:15px; font-weight:700; letter-spacing:0.45px; display:flex; align-items:center; justify-content:center; height:34px; padding:0 4px; text-transform:uppercase; line-height:1; flex-shrink:0; print-color-adjust:exact; -webkit-print-color-adjust:exact;">
                 <span style="display:block; width:100%; white-space:nowrap; transform:scaleX(1.04); transform-origin:center center;">STUDENT IDENTITY CARD</span>
             </div>
-
         </div>
+
     </div>
 </div>
 @endforeach
@@ -285,10 +298,12 @@ window.addEventListener('load', function () {
     } catch(e) { console.error(e); }
     @endforeach
 
-    // Auto-trigger print
+    // Auto-trigger print after fonts/images/barcodes have rendered
+    var cardCount = {{ $total }};
+    var delay = Math.max(800, cardCount * 200);
     setTimeout(function () {
         window.print();
-    }, 600);
+    }, delay);
 });
 </script>
 </body>
