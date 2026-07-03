@@ -80,27 +80,15 @@
         </div>
     </form>
 
-    {{-- ── Card settings + Generate ──────────────────────── --}}
     <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <p class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Card Configuration</p>
         <form id="bulk-form" method="POST" action="{{ route('admin.id-cards.students.bulk-pdf') }}" target="_blank">
             @csrf
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                <select name="template"
-                    class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-300">
-                    <option value="red">🔴 Template: Red</option>
-                    <option value="blue">🔵 Template: Blue</option>
-                    <option value="green">🟢 Template: Green</option>
-                </select>
+            <input type="hidden" name="template" value="red">
+            <input type="hidden" name="barcode_type" value="barcode">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <x-bs-date-picker name="valid_upto" placeholder="Valid Up To (BS)" />
                 <x-bs-date-picker name="issue_date" placeholder="Issue Date (BS)" />
-                <select name="barcode_type"
-                    class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-300">
-                    <option value="both">Barcode + QR</option>
-                    <option value="barcode">Barcode Only</option>
-                    <option value="qr">QR Only</option>
-                    <option value="none">None</option>
-                </select>
                 <button type="submit" :disabled="selectedIds.length === 0"
                     class="rounded-xl bg-[#8B0000] py-2 text-sm font-bold text-white hover:bg-[#a01010] disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm">
                     🖨️ Print (<span x-text="selectedIds.length">0</span>)

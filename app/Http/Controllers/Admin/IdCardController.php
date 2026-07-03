@@ -181,39 +181,11 @@ class IdCardController extends Controller
 
         $totalStudents = $query->count();
 
-        // Group stats by program
-        $byProgram = Student::where('status', 'active')
-            ->when($request->program_id,          fn ($q) => $q->where('program_id',          $request->program_id))
-            ->when($request->department_id,       fn ($q) => $q->where('department_id',       $request->department_id))
-            ->when($request->academic_session_id, fn ($q) => $q->where('academic_session_id', $request->academic_session_id))
-            ->selectRaw('program_id, COUNT(*) as total')
-            ->groupBy('program_id')
-            ->with('program:id,name')
-            ->get();
-
-        // Group stats by department
-        $byDepartment = Student::where('status', 'active')
-            ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
-            ->selectRaw('department_id, COUNT(*) as total')
-            ->groupBy('department_id')
-            ->with('department:id,name')
-            ->get();
-
-        // Group stats by semester
-        $bySemester = Student::where('status', 'active')
-            ->when($request->program_id,    fn ($q) => $q->where('program_id', $request->program_id))
-            ->when($request->department_id, fn ($q) => $q->where('department_id', $request->department_id))
-            ->selectRaw('current_semester, COUNT(*) as total')
-            ->groupBy('current_semester')
-            ->orderBy('current_semester')
-            ->get();
-
         // Paginated student list
         $students = $query->latest('id')->paginate(20)->withQueryString();
 
         return view('admin.id-cards.reports', compact(
-            'students', 'programs', 'departments', 'sessions',
-            'totalStudents', 'byProgram', 'byDepartment', 'bySemester'
+            'students', 'programs', 'departments', 'sessions', 'totalStudents'
         ));
     }
 
