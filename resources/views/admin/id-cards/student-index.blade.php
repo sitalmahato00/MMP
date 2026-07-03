@@ -143,6 +143,58 @@
                     </div>
 
                     <div class="space-y-3">
+                        <div>
+                            <p class="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">Student Information</p>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Full Name *</label>
+                                    <input type="text" x-model="student.name" placeholder="Full name" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Student ID *</label>
+                                    <input type="text" x-model="student.student_no" @input="barcodeNumber = $event.target.value; generateBarcode(barcodeNumber, student.id)" placeholder="Student ID" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Program / Faculty *</label>
+                                    <select x-model="student.program" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none">
+                                        <option value="">Select Program</option>
+                                        <option>DIPLOMA IN ELECTRICAL ENGINEERING</option>
+                                        <option>DIPLOMA IN CIVIL ENGINEERING</option>
+                                        <option>DIPLOMA IN INFORMATION TECHNOLOGY</option>
+                                        <option>DIPLOMA IN MECHANICAL ENGINEERING</option>
+                                        <option>DIPLOMA IN ELECTRONICS ENGINEERING</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Date of Birth *</label>
+                                    <input type="text" x-model="student.dob" placeholder="YYYY-MM-DD" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Address</label>
+                                    <textarea x-model="student.address" rows="2" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none" placeholder="Address"></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Phone</label>
+                                    <input type="text" x-model="student.phone" placeholder="Phone number" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Barcode Number</label>
+                                    <input type="text" x-model="barcodeNumber" @input="generateBarcode($event.target.value, student.id)" placeholder="Barcode / ID for printing" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:outline-none" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Principal Signature Photo <span class="text-xs text-slate-400">*Click to upload</span></label>
+                                    <input type="file" accept="image/*" @change="handleSignatureUpload($event)" class="w-full text-sm" />
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Template --}}
                         <div>
                             <label class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Select Template</label>
@@ -305,13 +357,15 @@
                                     <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;">
                                         <svg :id="'barcode-' + (student?.id || 'temp')" style="height:32px;margin-bottom:2px;"></svg>
                                         <div style="font-size:6.4px;text-align:center;font-family:'Montserrat',Arial,sans-serif;font-weight:700;letter-spacing:0.9px;color:#333;"
-                                             x-text="student?.student_no || '—'"></div>
+                                             x-text="barcodeNumber || student?.student_no || '—'"></div>
                                     </div>
 
                                     {{-- Signature + Principal label --}}
                                     <div style="flex-shrink:0;text-align:center;width:79px;font-size:11px;font-weight:700;color:#3f3f46;">
-                                        <div style="height:30px;"></div>
-                                        <div>Principal</div>
+                                        <div style="height:30px;display:flex;align-items:center;justify-content:center;">
+                                            <img x-show="signatureDataUrl" :src="signatureDataUrl" style="max-height:30px;object-fit:contain;display:block;"/>
+                                        </div>
+                                        <div x-text="principal"></div>
                                     </div>
                                 </div>
 
@@ -358,6 +412,8 @@ function idCardGen(config) {
         searching: false,
         student: null,
         qrDataUrl: null,
+        signatureDataUrl: null,
+        barcodeNumber: '',
         template: 'red',
         validUpto: config.defaultValidUpto || '',
         issueDate: config.defaultIssueDate  || '',
@@ -396,7 +452,17 @@ function idCardGen(config) {
             this.showDropdown = false;
             this.qrDataUrl = null;
             this.loadQrCode(s.student_no);
-            this.generateBarcode(s.student_no, s.id);
+            this.barcodeNumber = s.student_no || '';
+            this.signatureDataUrl = null;
+            this.generateBarcode(this.barcodeNumber, s.id);
+        },
+
+        handleSignatureUpload(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => { this.signatureDataUrl = ev.target.result; };
+            reader.readAsDataURL(file);
         },
 
         async loadQrCode(studentNo) {
@@ -413,11 +479,14 @@ function idCardGen(config) {
         },
 
         generateBarcode(studentNo, studentId) {
+            // accept optional args, fall back to bound values
+            const no = studentNo || this.barcodeNumber || (this.student && this.student.student_no) || '';
+            const id = studentId || (this.student && this.student.id) || 'temp';
             setTimeout(() => {
-                const barcodeEl = document.querySelector(`#barcode-${studentId}`);
-                if (barcodeEl && typeof JsBarcode !== 'undefined') {
+                const barcodeEl = document.querySelector(`#barcode-${id}`);
+                if (barcodeEl && typeof JsBarcode !== 'undefined' && no) {
                     try {
-                        JsBarcode(`#barcode-${studentId}`, studentNo, {
+                        JsBarcode(`#barcode-${id}`, no, {
                             format: 'CODE128',
                             width: 2,
                             height: 50,
@@ -459,7 +528,7 @@ function idCardGen(config) {
                 ? `Export ID Card — ${this.student.name}`
                 : `Print ID Card — ${this.student.name}`;
             
-            const studentNo = this.student?.student_no || '';
+            const studentNo = this.barcodeNumber || this.student?.student_no || '';
 
             // Clone the card element with all its styles preserved
             const cardClone = cardEl.cloneNode(true);
