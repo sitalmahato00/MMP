@@ -12,9 +12,10 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #e5e7eb; }
     padding: 40px 24px; min-height: 100vh; background: #e5e7eb;
 }
 .card-wrap {
-    width: 288px; overflow: hidden; border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18); background: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    width: 288px; overflow: hidden; border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22); background: #fff;
+    font-family: 'Montserrat', Arial, sans-serif; font-weight: 700;
+    position: relative;
 }
 .card-wrap * { box-sizing: border-box; }
 @media print {
@@ -70,8 +71,9 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #e5e7eb; }
 <div class="card-page">
     <div class="card-wrap" style="border-radius:12px;">
 
-        {{-- ══════════ HEADER BAND (134px) ══════════ --}}
-        <div style="position:relative;background:{{ $headerColor }};height:134px;box-sizing:border-box;flex-shrink:0;">
+        {{-- ══════════ HEADER BAND
+             HDR_H = 120px (matches React CARD_W=288 HDR_H=120) ══════════ --}}
+        <div style="position:relative;background:{{ $headerColor }};height:120px;box-sizing:border-box;flex-shrink:0;print-color-adjust:exact;-webkit-print-color-adjust:exact;">
             <div style="position:absolute;top:10px;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:18.8px;line-height:1.2;text-transform:uppercase;letter-spacing:0.45px;padding:0 16px;">
                 MANMOHAN MEMORIAL<br>POLYTECHNIC
             </div>
@@ -82,12 +84,15 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #e5e7eb; }
             @endif
         </div>
 
-        {{-- ══════════ FLOATING PHOTO (top=62, left=88, 112×112) ══════════ --}}
-        <div style="position:absolute;top:62px;left:88px;width:112px;height:112px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
+        {{-- ══════════ FLOATING PHOTO
+             top  = HDR_H - PHOTO_R - 16 = 120 - 44 - 16 = 60px
+             left = (CARD_W - PHOTO_D) / 2 = (288 - 88) / 2 = 100px
+             size = 88×88px (PHOTO_D) ══════════ --}}
+        <div style="position:absolute;top:60px;left:100px;width:88px;height:88px;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:1px solid rgba(122,15,21,0.25);box-shadow:0 1px 6px rgba(0,0,0,0.12);">
             @if($student->photo_b64)
                 <img src="{{ $student->photo_b64 }}" style="width:100%;height:100%;object-fit:cover;display:block;">
             @else
-                <svg viewBox="0 0 88 88" width="112" height="112">
+                <svg viewBox="0 0 88 88" width="88" height="88">
                     <rect width="88" height="88" fill="#e5e7eb"/>
                     <circle cx="44" cy="32" r="17" fill="#9ca3af"/>
                     <ellipse cx="44" cy="72" rx="27" ry="19" fill="#9ca3af"/>
@@ -95,8 +100,9 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #e5e7eb; }
             @endif
         </div>
 
-        {{-- ══════════ WHITE BODY ══════════ --}}
-        <div style="background:#fff;padding-top:62px;flex:1;display:flex;flex-direction:column;min-height:0;">
+        {{-- ══════════ WHITE BODY
+             padding-top = PHOTO_R + 6 = 44 + 6 = 50px ══════════ --}}
+        <div style="background:#fff;padding-top:50px;flex:1;display:flex;flex-direction:column;min-height:0;">
 
             {{-- Name --}}
             <div style="text-align:center;padding:2px 14px 2px;font-size:14px;font-weight:700;color:#24378d;text-transform:uppercase;letter-spacing:0.2px;line-height:1.24;">
@@ -117,7 +123,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #e5e7eb; }
             </div>
 
             {{-- Barcode + Signature row --}}
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:2px 12px 1px;gap:10px;margin-top:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:4px 12px 0;gap:10px;margin-top:auto;">
                 @if(in_array($barcodeType, ['both', 'barcode']))
                 <div style="flex:1;min-width:0;">
                     <div style="display:flex;gap:1px;height:32px;align-items:stretch;overflow:hidden;">
@@ -131,7 +137,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #e5e7eb; }
                 <div style="flex:1;min-width:0;"></div>
                 @endif
                 <div style="flex-shrink:0;text-align:center;width:79px;font-size:11px;font-weight:700;color:#3f3f46;">
-                    <div style="height:20px;"></div>
+                    <div style="height:30px;"></div>
                     <div>{{ $principal }}</div>
                 </div>
             </div>
