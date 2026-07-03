@@ -145,13 +145,13 @@ class IdCardController extends Controller
         $logoBase64 = $this->toBase64($settings['site_logo'] ?? null);
         $qrBase64   = $this->generateQrBase64($student->student_no ?? (string) $student->id);
 
-        // A4 page with card centered — renders cleanly in browser print dialog
-        $pdf = Pdf::loadView('admin.id-cards.student-card-pdf', compact(
-            'student', 'settings', 'logoBase64', 'cardConfig', 'qrBase64'
-        ))->setPaper('a4', 'portrait')
-          ->setOptions(['marginTop' => 0, 'marginBottom' => 0, 'marginLeft' => 0, 'marginRight' => 0]);
+        $students = collect([$student]);
+        $qrMap = [$student->id => $qrBase64];
+        $sigBase64 = $this->toBase64($settings['principal_signature'] ?? null);
 
-        return $pdf->download('student-id-' . ($student->student_no ?: $student->id) . '.pdf');
+        return view('admin.id-cards.student-bulk-print', compact(
+            'students', 'settings', 'logoBase64', 'sigBase64', 'cardConfig', 'qrMap'
+        ));
     }
 
 
