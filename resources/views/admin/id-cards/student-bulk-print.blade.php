@@ -4,94 +4,128 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bulk Student ID Cards — Print</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ── Reset ───────────────────────────────────────── */
+/* ── Reset ─────────────────────────────────────────── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { background: #1e2030; }
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+html, body {
+    background: #111827;
+    font-family: 'Montserrat', Arial, sans-serif;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
 }
 
-/* ── Toolbar (screen only) ───────────────────────── */
+/* ── Screen Toolbar (fixed at top) ─────────────────── */
 .toolbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 24px;
-    background: #0f1117;
+    padding: 12px 24px;
+    background: #0f172a;
     border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .toolbar-left { display: flex; align-items: center; gap: 14px; }
-.toolbar h1  { font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; }
-.t-count     { font-size: 13px; color: #94a3b8; }
+.toolbar h1 { font-size: 15px; font-weight: 700; color: #fff; }
+.toolbar-count { font-size: 13px; color: #94a3b8; }
 .btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 8px 18px; border-radius: 10px;
     font-size: 13px; font-weight: 600; cursor: pointer;
-    border: none; text-decoration: none; transition: opacity .15s;
+    border: none; text-decoration: none; transition: opacity 0.15s;
 }
-.btn-red   { background: #8B0000; color: #fff; }
-.btn-red:hover   { opacity: .88; }
-.btn-ghost { background: rgba(255,255,255,0.08); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.13); }
-.btn-ghost:hover { background: rgba(255,255,255,0.14); }
+.btn-red { background: #8B0000; color: #fff; }
+.btn-red:hover { opacity: 0.88; }
+.btn-outline { background: rgba(255,255,255,0.07); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.13); }
+.btn-outline:hover { background: rgba(255,255,255,0.13); }
 
-/* ── Screen preview ──────────────────────────────── */
-.preview {
-    padding: 70px 0 40px;
+/* ── Page Preview (screen wrapper) ─────────────────── */
+.preview-container {
+    padding: 80px 24px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 32px;
 }
-.c-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 1px;
-    color: #64748b; text-transform: uppercase; text-align: center;
+.sheet-label {
+    font-size: 11px; font-weight: 600; color: #64748b;
+    text-transform: uppercase; letter-spacing: 1px;
+    text-align: center;
 }
 
-/* ── Card shell
-       Single card: 54 mm W × 86 mm H
-       Screen scale: 1 mm = 3.78 px → 204 px × 325 px
-       pt → px:  1 pt = 1.333 px at 96 dpi
-       Card is 153 pt wide = 204 px ✓
-    ─────────────────────────────────────────────── */
-.card-shell {
-    width: 204px;       /* 54 mm */
-    height: 325px;      /* 86 mm */
+/* ── Page sheet (screen dimensions) ────────────────── */
+.page-sheet {
+    position: relative;
+    width: 288px;
+    height: 458px;
+    background: #fff;
+    border-radius: 12px;
     overflow: hidden;
-    border-radius: 10px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 6pt;     /* base = same as DomPDF template */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.card-print-wrap {
+    width: 288px;
+    height: 100%;
     position: relative;
     display: flex;
     flex-direction: column;
-    background: #fff;
 }
 
-/* ── Print ───────────────────────────────────────── */
+/* ── PRINT STYLES ──────────────────────────────────── */
 @media print {
     @page {
-        size: 54mm 86mm;   /* portrait card */
+        size: 54mm 86mm;
         margin: 0;
+        padding: 0;
     }
-    html, body { background: #fff; }
-    .toolbar   { display: none !important; }
-    .preview   { padding: 0; gap: 0; display: block; }
-    .c-label   { display: none; }
-
-    .card-shell {
+    html, body {
+        margin: 0;
+        padding: 0;
         width: 54mm;
         height: 86mm;
-        border-radius: 0;
-        box-shadow: none;
-        page-break-after: always;
-        break-after: page;
+        background: #fff;
         overflow: hidden;
     }
-    .card-shell:last-child {
-        page-break-after: avoid;
-        break-after: avoid;
+    body {
+        display: block;
+        position: relative;
+    }
+    .toolbar, .sheet-label {
+        display: none !important;
+    }
+    .preview-container {
+        padding: 0;
+        gap: 0;
+        display: block;
+        background: #fff;
+    }
+    .page-sheet {
+        position: relative !important;
+        width: 54mm !important;
+        height: 86mm !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        overflow: hidden !important;
+        display: block !important;
+    }
+    .page-sheet:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+    .card-print-wrap {
+        width: 288px !important;
+        height: 458px !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transform: scale(0.7083) !important;
+        transform-origin: top left !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 }
 </style>
@@ -105,7 +139,6 @@ body {
     $email       = $settings['contact_email']   ?? '';
     $principal   = $settings['principal_name']  ?? 'Principal';
     $headerColor = $cardConfig['header_color']  ?? '#8B0000';
-    $barcodeType = $cardConfig['barcode_type']  ?? 'both';
     $validUpto   = $cardConfig['valid_upto']    ?? '';
     $total       = $students->count();
 @endphp
@@ -114,16 +147,20 @@ body {
 <div class="toolbar">
     <div class="toolbar-left">
         <h1>Bulk ID Card Print</h1>
-        <span class="t-count">{{ $total }} card(s)</span>
+        <span class="toolbar-count">{{ $total }} card(s) ready</span>
     </div>
-    <div style="display:flex;gap:10px;">
-        <a href="{{ route('admin.id-cards.students.bulk-list') }}" class="btn btn-ghost">← Back</a>
-        <button onclick="window.print()" class="btn btn-red">🖨 Print All Cards</button>
+    <div style="display:flex; gap:10px;">
+        <a href="{{ route('admin.id-cards.students.bulk-list') }}" class="btn btn-outline">
+            ← Back
+        </a>
+        <button onclick="window.print()" class="btn btn-red">
+            🖨 Print All Cards
+        </button>
     </div>
 </div>
 
-{{-- Cards --}}
-<div class="preview">
+{{-- Cards preview --}}
+<div class="preview-container">
 @foreach($students as $student)
 @php
     $name      = $student->user?->name ?? '—';
@@ -131,119 +168,128 @@ body {
     $dob       = $student->user?->dob ? bsDate($student->user->dob) : null;
     $studentNo = $student->student_no ?? '—';
     $stdAddr   = $student->user?->address ?? null;
-    $qrBase64  = $qrMap[$student->id] ?? null;
-
-    /* Barcode bars — identical algorithm to student-card-pdf.blade.php */
-    $barcodeHtml = '';
-    $bStr = str_pad($studentNo, 16, '0');
-    for ($bi = 0; $bi < 52; $bi++) {
-        $cv  = ord($bStr[$bi % strlen($bStr)]) + $bi * 7;
-        $bg  = ($cv % 3 !== 2) ? '#000000' : '#ffffff';
-        $w   = ($cv % 5 === 0) ? '3pt' : (($cv % 4 === 0) ? '1pt' : '2pt');
-        $barcodeHtml .= "<span style=\"display:inline-block;background:{$bg};width:{$w};height:15pt;vertical-align:top;\"></span>";
-    }
 @endphp
 
-<div class="c-label">Card {{ $loop->iteration }} of {{ $total }}</div>
+<div class="sheet-label">Card {{ $loop->iteration }} of {{ $total }}</div>
 
-{{-- ══════════════════════════════════════════════════
-     Card — 100% identical inline-style structure to
-     student-card-pdf.blade.php, using pt units so the
-     browser renders it the same way as DomPDF.
-     Card = 153pt × 243pt  (54mm × 86mm at 72dpi/pt)
-══════════════════════════════════════════════════ --}}
-<div class="card-shell">
-
-    {{-- ── HEADER (71pt tall) ───────────────────── --}}
-    <div style="background:{{ $headerColor }};height:71pt;position:relative;flex-shrink:0;">
-        {{-- College name --}}
-        <div style="position:absolute;top:5pt;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:10pt;line-height:1.2;text-transform:uppercase;letter-spacing:0.3pt;padding:0 8pt;">
-            {{ mb_strtoupper($collegeName) }}
+<div class="page-sheet">
+    <div class="card-print-wrap">
+        {{-- ══ RED HEADER (120px) ══ --}}
+        <div style="position:relative; background:{{ $headerColor }}; height:120px; box-sizing:border-box; flex-shrink:0; print-color-adjust:exact; -webkit-print-color-adjust:exact;">
+            {{-- College name --}}
+            <div style="position:absolute; top:10px; left:0; right:0; text-align:center; color:#fff; font-weight:800; font-size:18.8px; line-height:1.2; text-transform:uppercase; letter-spacing:0.45px; padding:0 16px;">
+                {{ mb_strtoupper($collegeName) }}
+            </div>
+            {{-- Logo --}}
+            <div style="position:absolute; top:40px; left:12px; width:42px; height:42px; border-radius:50%; background:#fff; overflow:hidden; display:flex; align-items:center; justify-content:center; z-index:1; padding:2px; box-sizing:border-box;">
+                @if($logoBase64)
+                    <img src="{{ $logoBase64 }}" style="width:100%; height:100%; object-fit:contain; display:block;">
+                @endif
+            </div>
         </div>
-        {{-- Logo (left, 22pt circle) --}}
-        <div style="position:absolute;top:22pt;left:6pt;width:22pt;height:22pt;border-radius:50%;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:1pt;">
-            @if($logoBase64)
-                <img src="{{ $logoBase64 }}" style="width:100%;height:100%;object-fit:contain;display:block;">
+
+        {{-- ══ PHOTO overlapping header/body ══ --}}
+        <div style="position:absolute; top:64px; left:88px; width:112px; height:112px; border-radius:50%; background:#e5e7eb; overflow:hidden; z-index:10; border:1px solid rgba(122,15,21,0.25); box-shadow:0 1px 6px rgba(0,0,0,0.12);">
+            @if($student->photo_b64)
+                <img src="{{ $student->photo_b64 }}" style="width:100%; height:100%; object-fit:cover; display:block;">
+            @else
+                <svg viewBox="0 0 112 112" width="112" height="112">
+                    <rect width="112" height="112" fill="#e5e7eb"/>
+                    <circle cx="56" cy="40" r="22" fill="#9ca3af"/>
+                    <ellipse cx="56" cy="92" rx="34" ry="24" fill="#9ca3af"/>
+                </svg>
             @endif
         </div>
+
+        {{-- ══ WHITE BODY (padding-top: 62px) ══ --}}
+        <div style="background:#fff; padding-top:62px; flex:1; display:flex; flex-direction:column;">
+            <div style="flex:1; display:flex; flex-direction:column;">
+                
+                {{-- Name --}}
+                <div style="text-align:center; padding:2px 14px 2px; font-size:14px; font-weight:700; color:#24378d; text-transform:uppercase; letter-spacing:0.2px; line-height:1.24;">
+                    {{ mb_strtoupper($name) }}
+                </div>
+
+                {{-- Program --}}
+                <div style="text-align:center; padding:2px 12px 0; font-size:11.7px; font-weight:700; color:#111; text-transform:uppercase; letter-spacing:0.15px; line-height:1.24;">
+                    {{ mb_strtoupper($program) }}
+                </div>
+
+                {{-- Details --}}
+                <div style="padding:8px 14px 0; font-size:13px; color:#1b1b1b; font-weight:600; line-height:1.4; text-align:center; word-break:break-word;">
+                    <div>Student ID No.: <strong style="font-weight:600;">{{ $studentNo }}</strong></div>
+                    <div style="margin-top:2px;">Date of Birth:- <strong style="font-weight:600;">{{ $dob ?: '—' }}</strong></div>
+                    <div style="margin-top:2px;">Address:- <strong style="font-weight:600;">{{ $stdAddr ?: '—' }}</strong></div>
+                    <div style="margin-top:2px;">Valid up to: <strong style="font-weight:600;">{{ $validUpto ?: '—' }}</strong></div>
+                </div>
+
+                {{-- Barcode + Signature row --}}
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; padding:4px 12px 0; gap:10px; margin-top:auto;">
+                    
+                    {{-- Scannable barcode using SVG format --}}
+                    <div style="flex:1; min-width:0; display:flex; flex-direction:column; align-items:center;">
+                        <svg id="barcode-{{ $student->id }}" style="height:32px; margin-bottom:2px;"></svg>
+                        <div style="font-size:6.4px; text-align:center; font-family:'Montserrat',Arial,sans-serif; font-weight:700; letter-spacing:0.9px; color:#333;">
+                            {{ $studentNo }}
+                        </div>
+                    </div>
+
+                    {{-- Signature + Principal label --}}
+                    <div style="flex-shrink:0; text-align:center; width:79px; font-size:11px; font-weight:700; color:#3f3f46;">
+                        <div style="height:42px; display:flex; align-items:center; justify-content:center;">
+                            @if($sigBase64)
+                                <img src="{{ $sigBase64 }}" style="max-height:36px; object-fit:contain; display:block;"/>
+                            @endif
+                        </div>
+                        <div>Principal</div>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- Red address footer --}}
+            <div style="background:{{ $headerColor }}; color:#fff; text-align:center; font-size:11px; font-weight:500; line-height:1.58; letter-spacing:0.05px; padding:9px 4px 8px; flex-shrink:0; print-color-adjust:exact; -webkit-print-color-adjust:exact;">
+                <div style="transform:scaleX(1.02); transform-origin:center center;">
+                    {{ $address }}
+                </div>
+                <div style="transform:scaleX(1.02); transform-origin:center center;">
+                    Ph: {{ $phone }}@if($email) &nbsp;| Email: {{ $email }}@endif
+                </div>
+            </div>
+
+            {{-- Black identity strip --}}
+            <div style="background:#1a1a1a; color:#fff; text-align:center; font-family:'Georgia','Times New Roman',serif; font-size:15px; font-weight:700; letter-spacing:0.45px; display:flex; align-items:center; justify-content:center; height:34px; padding:0 4px; text-transform:uppercase; line-height:1; flex-shrink:0; print-color-adjust:exact; -webkit-print-color-adjust:exact;">
+                <span style="display:block; width:100%; white-space:nowrap; transform:scaleX(1.04); transform-origin:center center;">STUDENT IDENTITY CARD</span>
+            </div>
+
+        </div>
     </div>
-
-    {{-- ── PHOTO CIRCLE (60pt, overlapping header) ─ --}}
-    {{-- top=33pt, left=(153-60)/2=46.5≈47pt, same as single PDF --}}
-    <div style="position:absolute;top:33pt;left:47pt;width:60pt;height:60pt;border-radius:50%;background:#e5e7eb;overflow:hidden;z-index:10;border:0.5pt solid rgba(122,15,21,0.25);box-shadow:0 2px 6px rgba(0,0,0,0.18);">
-        @if($student->photo_b64)
-            <img src="{{ $student->photo_b64 }}" style="width:100%;height:100%;object-fit:cover;display:block;">
-        @else
-            <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                <rect width="60" height="60" fill="#e2e8f0"/>
-                <circle cx="30" cy="22" r="12" fill="#94a3b8"/>
-                <ellipse cx="30" cy="52" rx="19" ry="12" fill="#94a3b8"/>
-            </svg>
-        @endif
-    </div>
-
-    {{-- ── WHITE BODY ────────────────────────────── --}}
-    <div style="background:#fff;padding-top:33pt;flex:1;display:flex;flex-direction:column;">
-
-        {{-- Name + Program --}}
-        <div style="text-align:center;padding:2pt 8pt 1pt;">
-            <div style="font-size:7.5pt;font-weight:bold;color:#24378d;text-transform:uppercase;letter-spacing:0.15pt;line-height:1.24;">{{ mb_strtoupper($name) }}</div>
-            <div style="font-size:6pt;font-weight:bold;color:#111;text-transform:uppercase;letter-spacing:0.1pt;line-height:1.24;margin-top:1pt;">{{ mb_strtoupper($program) }}</div>
-        </div>
-
-        {{-- Details --}}
-        <div style="padding:4pt 8pt 0;font-size:7pt;color:#1b1b1b;font-weight:600;line-height:1.5;text-align:center;word-break:break-word;">
-            <div>Student ID No.: <strong>{{ $studentNo }}</strong></div>
-            @if($dob)<div style="margin-top:1pt;">Date of Birth:- <strong>{{ $dob }}</strong></div>@else<div style="margin-top:1pt;">Date of Birth:- <strong>—</strong></div>@endif
-            @if($stdAddr)<div style="margin-top:1pt;">Address:- <strong>{{ $stdAddr }}</strong></div>@endif
-            @if($validUpto)<div style="margin-top:1pt;">Valid up to: <strong>{{ $validUpto }}</strong></div>@endif
-        </div>
-
-        {{-- Barcode + Signature row — identical to student-card-pdf.blade.php --}}
-        @if($barcodeType !== 'none')
-        <div style="padding:2pt 6pt 3pt;margin-top:auto;">
-            <table style="width:100%;border-collapse:collapse;"><tr>
-                @if($barcodeType === 'barcode' || $barcodeType === 'both')
-                <td style="vertical-align:bottom;padding-right:2pt;">
-                    <div style="line-height:0;font-size:0;white-space:nowrap;">{!! $barcodeHtml !!}</div>
-                    <div style="font-size:3.5pt;text-align:center;font-family:monospace;letter-spacing:0.5pt;margin-top:1pt;">{{ $studentNo }}</div>
-                </td>
-                @endif
-                @if(($barcodeType === 'qr' || $barcodeType === 'both') && $qrBase64)
-                <td style="vertical-align:bottom;text-align:center;padding:0 2pt;width:32pt;">
-                    <img src="{{ $qrBase64 }}" style="width:28pt;height:28pt;display:block;margin:0 auto;">
-                </td>
-                @endif
-                <td style="vertical-align:bottom;text-align:center;width:35pt;font-size:6pt;font-weight:bold;color:#3f3f46;">
-                    <div>{{ $principal }}</div>
-                </td>
-            </tr></table>
-        </div>
-        @else
-        <div style="margin-top:auto;"></div>
-        @endif
-
-        {{-- Red address footer --}}
-        <div style="background:{{ $headerColor }};padding:5pt 2pt 4pt;text-align:center;color:#fff;font-size:6pt;line-height:1.5;flex-shrink:0;">
-            <div>{{ $address ?: 'Budhiganga-4, Morang, Koshi Province, Nepal' }}</div>
-            <div>Ph: {{ $phone ?: '021-622058' }}@if($email) | Email: {{ $email }}@endif</div>
-        </div>
-
-        {{-- Black identity strip --}}
-        <div style="background:#1a1a1a;color:#fff;text-align:center;font-family:'Georgia','Times New Roman',serif;font-size:8pt;font-weight:bold;letter-spacing:0.3pt;height:18pt;display:flex;align-items:center;justify-content:center;text-transform:uppercase;line-height:1;flex-shrink:0;">
-            STUDENT IDENTITY CARD
-        </div>
-
-    </div>{{-- /white body --}}
-
-</div>{{-- /card-shell --}}
+</div>
 @endforeach
-</div>{{-- /preview --}}
+</div>
 
+{{-- ── Scripts for dynamic barcode generation ── --}}
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script>
-    window.addEventListener('load', function () {
-        setTimeout(function () { window.print(); }, 700);
-    });
+window.addEventListener('load', function () {
+    // Generate barcodes for all students
+    @foreach($students as $student)
+    try {
+        JsBarcode('#barcode-{{ $student->id }}', '{{ $student->student_no }}', {
+            format: 'CODE128',
+            width: 2,
+            height: 50,
+            displayValue: false,
+            margin: 0
+        });
+    } catch(e) { console.error(e); }
+    @endforeach
+
+    // Auto-trigger print
+    setTimeout(function () {
+        window.print();
+    }, 600);
+});
 </script>
 </body>
 </html>

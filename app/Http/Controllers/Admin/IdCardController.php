@@ -114,6 +114,7 @@ class IdCardController extends Controller
 
         $settings   = $this->siteSettings();
         $logoBase64 = $this->toBase64($settings['site_logo'] ?? null);
+        $sigBase64  = $this->toBase64($settings['principal_signature'] ?? null);
 
         $qrMap = [];
         foreach ($students as $s) {
@@ -121,7 +122,7 @@ class IdCardController extends Controller
         }
 
         return view('admin.id-cards.student-bulk-print', compact(
-            'students', 'settings', 'logoBase64', 'cardConfig', 'qrMap'
+            'students', 'settings', 'logoBase64', 'sigBase64', 'cardConfig', 'qrMap'
         ));
     }
 
