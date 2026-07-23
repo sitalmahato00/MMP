@@ -301,7 +301,7 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
+    <div class="flex flex-wrap justify-center gap-5">
         @php
             $programIcons = [
                 'Information Technology' => '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
@@ -318,7 +318,7 @@
         @endphp
 
         @foreach($programData as $prog)
-            <a href="{{ route('public.department.show', $prog->slug) }}" class="program-card group rounded-2xl shadow-md p-6 text-center flex flex-col items-center transition-all duration-300 h-full hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] bg-white dark:bg-slate-800 dark:text-slate-200">
+            <a href="{{ route('public.department.show', $prog->slug) }}" class="program-card group rounded-2xl shadow-md p-6 text-center flex flex-col items-center transition-all duration-300 h-full hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] bg-white dark:bg-slate-800 dark:text-slate-200 w-full sm:w-[calc(50%-10px)] md:w-[calc(33.333%-14px)] xl:w-[calc(16.666%-17px)]">
                 <div class="program-logo w-14 h-14 bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 rounded-full shadow-sm flex items-center justify-center text-[#003D82] dark:text-blue-400 group-hover:text-[#003D82] mb-4 group-hover:bg-white dark:group-hover:bg-white transition-colors">
                     {!! $programIcons[$prog->name] ?? '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' !!}
                 </div>
