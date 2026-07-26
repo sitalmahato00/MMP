@@ -84,7 +84,7 @@ class HomeController extends Controller
     {
         $activeType = in_array($request->string('type')->toString(), ['general', 'exam', 'department', 'program', 'academic', 'all'], true)
             ? $request->string('type')->toString()
-            : 'all';
+            : 'all'; // Default: show everything on main notices page
 
         $notices = $this->service->getNotices(15, $activeType);
         $seo     = SeoService::notices();
@@ -130,10 +130,97 @@ class HomeController extends Controller
 
     public function departmentShow(string $slug)
     {
-        $department = $this->service->getDepartmentBySlug($slug);
-        $seo        = SeoService::department($department);
+        $data = $this->service->getDepartmentPortalData($slug);
+        $seo  = SeoService::department($data['department']);
 
-        return view('public.department-show', compact('department', 'seo'));
+        return view('public.department-show', array_merge($data, compact('seo')));
+    }
+
+    public function departmentAbout(string $slug)
+    {
+        $data = $this->service->getDepartmentPortalData($slug);
+        $seo  = SeoService::build([
+            'title'       => 'About ' . $data['department']->name,
+            'description' => $data['department']->description ?? 'Learn about the ' . $data['department']->name . ' department at Manmohan Memorial Polytechnic.',
+            'breadcrumbs' => [
+                ['name' => 'Home',        'url' => url('/')],
+                ['name' => 'Departments', 'url' => url('/departments')],
+                ['name' => $data['department']->name, 'url' => url('/departments/' . $slug)],
+                ['name' => 'About',       'url' => url('/departments/' . $slug . '/about')],
+            ],
+        ]);
+
+        return view('public.department-about', array_merge($data, compact('seo')));
+    }
+
+    public function departmentNotices(Request $request, string $slug)
+    {
+        $category = $request->string('category')->toString() ?: null;
+        $search   = $request->string('search')->toString() ?: null;
+        $data     = $this->service->getDepartmentNotices($slug, $category, $search, 12);
+        $seo      = SeoService::build([
+            'title'       => 'Notices — ' . $data['department']->name,
+            'description' => 'Official notices and announcements from the ' . $data['department']->name . ' department.',
+            'breadcrumbs' => [
+                ['name' => 'Home',        'url' => url('/')],
+                ['name' => 'Departments', 'url' => url('/departments')],
+                ['name' => $data['department']->name, 'url' => url('/departments/' . $slug)],
+                ['name' => 'Notices',     'url' => url('/departments/' . $slug . '/notices')],
+            ],
+        ]);
+
+        return view('public.department-notices', array_merge($data, compact('seo')));
+    }
+
+    public function departmentPeople(string $slug)
+    {
+        $data = $this->service->getDepartmentPeople($slug);
+        $seo  = SeoService::build([
+            'title'       => 'People — ' . $data['department']->name,
+            'description' => 'Faculty, staff, and head of department for ' . $data['department']->name . '.',
+            'breadcrumbs' => [
+                ['name' => 'Home',        'url' => url('/')],
+                ['name' => 'Departments', 'url' => url('/departments')],
+                ['name' => $data['department']->name, 'url' => url('/departments/' . $slug)],
+                ['name' => 'People',      'url' => url('/departments/' . $slug . '/people')],
+            ],
+        ]);
+
+        return view('public.department-people', array_merge($data, compact('seo')));
+    }
+
+    public function departmentPrograms(string $slug)
+    {
+        $data = $this->service->getDepartmentPrograms($slug);
+        $seo  = SeoService::build([
+            'title'       => 'Programs — ' . $data['department']->name,
+            'description' => 'Academic programs offered by the ' . $data['department']->name . ' department.',
+            'breadcrumbs' => [
+                ['name' => 'Home',        'url' => url('/')],
+                ['name' => 'Departments', 'url' => url('/departments')],
+                ['name' => $data['department']->name, 'url' => url('/departments/' . $slug)],
+                ['name' => 'Programs',    'url' => url('/departments/' . $slug . '/programs')],
+            ],
+        ]);
+
+        return view('public.department-programs', array_merge($data, compact('seo')));
+    }
+
+    public function departmentGallery(string $slug)
+    {
+        $data = $this->service->getDepartmentGallery($slug);
+        $seo  = SeoService::build([
+            'title'       => 'Gallery — ' . $data['department']->name,
+            'description' => 'Photos and activities from the ' . $data['department']->name . ' department.',
+            'breadcrumbs' => [
+                ['name' => 'Home',        'url' => url('/')],
+                ['name' => 'Departments', 'url' => url('/departments')],
+                ['name' => $data['department']->name, 'url' => url('/departments/' . $slug)],
+                ['name' => 'Gallery',     'url' => url('/departments/' . $slug . '/gallery')],
+            ],
+        ]);
+
+        return view('public.department-gallery', array_merge($data, compact('seo')));
     }
 
     public function programShow(string $departmentSlug, string $programSlug)

@@ -32,14 +32,19 @@ class PublicDataService
                     ->with('department:id,name,code')
                     ->take(4)
                     ->get(['id', 'user_id', 'department_id', 'graduation_year', 'current_job', 'company_name']),
+                // Homepage notices: ONLY college-wide (no department_id set)
                 'notices' => Notice::published()
-                    ->whereIn('type', ['general', 'department', 'program', 'academic'])
+                    ->whereIn('type', ['general', 'academic'])
+                    ->whereNull('department_id')
+                    ->whereNull('program_id')
                     ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
                     ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
                 'examNotices' => Notice::published()
                     ->where('type', 'exam')
+                    ->whereNull('department_id')
+                    ->whereNull('program_id')
                     ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
@@ -48,15 +53,18 @@ class PublicDataService
         });
     }
 
-    public function getNotices(int $perPage = 15, ?string $type = 'general')
+    /**
+     * Main /notices page — shows ALL published notices (both college-wide and department-specific).
+     * No department_id filter applied here.
+     */
+    public function getNotices(int $perPage = 15, ?string $type = 'all')
     {
         return Notice::published()
-            ->when(in_array($type, ['general', 'exam', 'department', 'program', 'academic'], true), function ($query) use ($type) {
-                $query->where('type', $type);
-            })
-            ->when($type === 'all', function ($query) {
-                $query->whereIn('type', ['general', 'exam', 'department', 'program', 'academic']);
-            })
+            ->when(
+                $type !== 'all' && in_array($type, ['general', 'exam', 'department', 'program', 'academic'], true),
+                fn ($q) => $q->where('type', $type),
+                fn ($q) => $q->whereIn('type', ['general', 'exam', 'department', 'program', 'academic'])
+            )
             ->with(['department:id,name,code', 'program:id,name,code'])
             ->latest()
             ->paginate($perPage, ['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'content', 'published_at', 'created_at']);
@@ -107,10 +115,204 @@ class PublicDataService
     {
         return Cache::remember("public:department:{$slug}", self::CACHE_TTL, function () use ($slug) {
             return Department::where('slug', $slug)
-                ->with(['programs:id,department_id,name,code,total_semesters,duration_years'])
-                ->with(['hod:id,name,avatar'])
-                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity', 'hod_id']);
+                ->with([
+                    'programs:id,department_id,name,code,slug,ctevt_code,affiliation_type,total_semesters,duration_years,description,is_active',
+                    'hod:id,name,avatar',
+                ])
+                ->withCount(['teachers', 'students'])
+                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity', 'hod_id', 'created_at']);
         });
+    }
+
+    /**
+     * Get enriched department data for the portal homepage.
+     * Returns department + stats + latest notices + HOD + faculty preview + gallery.
+     */
+    public function getDepartmentPortalData(string $slug): array
+    {
+        $department = Cache::remember("public:dept_portal:{$slug}", self::CACHE_TTL, function () use ($slug) {
+            return Department::where('slug', $slug)
+                ->with([
+                    'programs:id,department_id,name,code,slug,ctevt_code,affiliation_type,total_semesters,duration_years,description,is_active',
+                    'hod:id,name,avatar',
+                ])
+                ->withCount(['teachers', 'students'])
+                ->firstOrFail(['id', 'name', 'code', 'slug', 'description', 'photo', 'syllabus', 'seat_capacity', 'hod_id', 'created_at']);
+        });
+
+        // Latest notices for this department — ONLY department-specific (department_id matches)
+        $notices = Cache::remember("public:dept_portal:{$slug}:notices", self::CACHE_TTL, function () use ($department) {
+            return Notice::published()
+                ->where('department_id', $department->id)
+                ->whereIn('type', ['general', 'department', 'exam', 'academic'])
+                ->with(['attachments'])
+                ->latest('published_at')
+                ->take(8)
+                ->get(['id', 'title', 'slug', 'type', 'content', 'attachment', 'department_id', 'published_at', 'created_at']);
+        });
+
+        // Teachers in this department
+        $teachers = Cache::remember("public:dept_portal:{$slug}:teachers", self::CACHE_TTL, function () use ($department) {
+            return Teacher::active()
+                ->where('department_id', $department->id)
+                ->with('user:id,name,avatar')
+                ->orderBy('designation')
+                ->get(['id', 'user_id', 'department_id', 'designation', 'qualification', 'specialization']);
+        });
+
+        // HOD Teacher record (for extra details)
+        $hodTeacher = null;
+        if ($department->hod_id) {
+            $hodTeacher = Cache::remember("public:dept_portal:{$slug}:hod", self::CACHE_TTL, function () use ($department) {
+                return Teacher::where('user_id', $department->hod_id)
+                    ->where('department_id', $department->id)
+                    ->with('user:id,name,avatar,email,phone')
+                    ->first(['id', 'user_id', 'designation', 'qualification', 'specialization']);
+            });
+        }
+
+        // Gallery media for this department
+        $gallery = Cache::remember("public:dept_portal:{$slug}:gallery", self::CACHE_TTL, function () use ($department) {
+            return Media::where('department_id', $department->id)
+                ->where(function ($q) {
+                    $q->where('file_type', 'gallery')
+                      ->orWhere('file_type', 'image')
+                      ->orWhere('mime_type', 'like', 'image/%');
+                })
+                ->latest()
+                ->take(8)
+                ->get(['id', 'title', 'file_path', 'file_type', 'mime_type', 'created_at']);
+        });
+
+        // Downloads for this department
+        $downloads = Cache::remember("public:dept_portal:{$slug}:downloads", self::CACHE_TTL, function () use ($department) {
+            return Download::where('department_id', $department->id)
+                ->where('is_public', true)
+                ->latest()
+                ->take(6)
+                ->get(['id', 'title', 'file_path', 'category', 'created_at']);
+        });
+
+        // Upcoming events — ONLY events scoped to this department
+        $events = Cache::remember("public:dept_portal:{$slug}:events", self::CACHE_TTL, function () use ($department) {
+            return Notice::published()
+                ->where('type', 'event')
+                ->where('department_id', $department->id)
+                ->where('published_at', '>=', now())
+                ->orderBy('published_at')
+                ->take(3)
+                ->get(['id', 'title', 'slug', 'type', 'published_at']);
+        });
+
+        // Compute stats
+        $labsCount = Facility::where('department_id', $department->id)
+            ->where('is_published', true)
+            ->where(function ($q) {
+                $q->where('category', 'lab')
+                  ->orWhere('name', 'like', '%lab%');
+            })
+            ->count();
+
+        $establishedYear = $department->created_at?->format('Y') ?? '2069 B.S.';
+
+        $stats = [
+            'programs'       => $department->programs->count(),
+            'faculty'        => $department->teachers_count,
+            'labs'           => max($labsCount, 0),
+            'students'       => $department->students_count,
+            'established'    => $establishedYear,
+            'affiliation'    => 'CTEVT',
+        ];
+
+        return compact('department', 'notices', 'teachers', 'hodTeacher', 'gallery', 'downloads', 'events', 'stats');
+    }
+
+    /**
+     * Get paginated notices for the department notices page.
+     */
+    public function getDepartmentNotices(string $slug, ?string $category = null, ?string $search = null, int $perPage = 12): array
+    {
+        $department = $this->getDepartmentBySlug($slug);
+
+        // Department notices page: ONLY notices scoped to this department
+        $query = Notice::published()
+            ->where('department_id', $department->id)
+            ->whereIn('type', ['general', 'department', 'exam', 'academic'])
+            ->with(['attachments'])
+            ->latest('published_at');
+
+        if ($category && $category !== 'all') {
+            $query->where('type', $category);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        $notices = $query->paginate($perPage, ['id', 'title', 'slug', 'type', 'content', 'attachment', 'department_id', 'published_at', 'created_at'])
+            ->withQueryString();
+
+        return compact('department', 'notices', 'category', 'search');
+    }
+
+    /**
+     * Get all people for a department: HOD, teachers, staff.
+     */
+    public function getDepartmentPeople(string $slug): array
+    {
+        $department = $this->getDepartmentBySlug($slug);
+
+        $teachers = Teacher::active()
+            ->where('department_id', $department->id)
+            ->with('user:id,name,avatar,email,phone')
+            ->orderByRaw("FIELD(designation, 'Head of Department', 'HOD', 'Associate Professor', 'Assistant Professor', 'Lecturer', 'Instructor', 'Lab Instructor') ASC")
+            ->orderBy('designation')
+            ->get(['id', 'user_id', 'department_id', 'designation', 'qualification', 'specialization', 'join_date', 'employment_type']);
+
+        // HOD: the teacher whose user_id matches department->hod_id
+        $hod = $teachers->first(fn ($t) => (int) $t->user_id === (int) $department->hod_id);
+
+        // Faculty (excluding HOD from the main faculty list to avoid duplication)
+        $faculty = $teachers->filter(fn ($t) => (int) $t->user_id !== (int) $department->hod_id)->values();
+
+        return compact('department', 'teachers', 'hod', 'faculty');
+    }
+
+    /**
+     * Get gallery albums for a department.
+     */
+    public function getDepartmentGallery(string $slug): array
+    {
+        $department = $this->getDepartmentBySlug($slug);
+
+        $media = Media::where('department_id', $department->id)
+            ->where(function ($q) {
+                $q->where('file_type', 'gallery')
+                  ->orWhere('file_type', 'image')
+                  ->orWhere('mime_type', 'like', 'image/%');
+            })
+            ->latest()
+            ->get(['id', 'title', 'file_path', 'file_type', 'mime_type', 'size', 'created_at']);
+
+        return compact('department', 'media');
+    }
+
+    /**
+     * Get programs for a department.
+     */
+    public function getDepartmentPrograms(string $slug): array
+    {
+        $department = $this->getDepartmentBySlug($slug);
+
+        $programs = Program::where('department_id', $department->id)
+            ->active()
+            ->orderBy('name')
+            ->get(['id', 'department_id', 'name', 'code', 'slug', 'ctevt_code', 'affiliation_type', 'total_semesters', 'duration_years', 'description', 'is_active']);
+
+        return compact('department', 'programs');
     }
 
     public function getProgramBySlug(string $departmentSlug, string $programSlug): array
@@ -790,6 +992,8 @@ class PublicDataService
     {
         return Cache::remember("public:recent_downloads:{$limit}", self::CACHE_TTL, function () use ($limit) {
             return Download::with('department:id,name,code')
+                ->whereNull('department_id')  // Home page: college-wide downloads only
+                ->where('is_public', true)
                 ->latest()
                 ->take($limit)
                 ->get(['id', 'title', 'file_path', 'category', 'department_id', 'created_at']);
@@ -850,6 +1054,7 @@ class PublicDataService
                 'public:news_events:5',
                 'public:homepage_stats',
                 'public:navigation_courses',
+                'public:recent_downloads:4',
                 'public:ctevt_result_form',
                 'public:ctevt_notices:general:5',
                 'public:ctevt_notices:result:5',

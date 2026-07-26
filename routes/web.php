@@ -123,6 +123,11 @@ Route::get('/news-events', [HomeController::class, 'newsEvents'])->name('public.
 Route::get('/news-events/{slug}', [HomeController::class, 'newsEventShow'])->name('public.news-events.show');
 Route::get('/departments', [HomeController::class, 'departments'])->name('public.departments');
 Route::get('/departments/{slug}', [HomeController::class, 'departmentShow'])->name('public.department.show');
+Route::get('/departments/{slug}/about', [HomeController::class, 'departmentAbout'])->name('public.department.about');
+Route::get('/departments/{slug}/notices', [HomeController::class, 'departmentNotices'])->name('public.department.notices');
+Route::get('/departments/{slug}/people', [HomeController::class, 'departmentPeople'])->name('public.department.people');
+Route::get('/departments/{slug}/programs', [HomeController::class, 'departmentPrograms'])->name('public.department.programs');
+Route::get('/departments/{slug}/gallery', [HomeController::class, 'departmentGallery'])->name('public.department.gallery');
 Route::get('/departments/{departmentSlug}/{programSlug}', [HomeController::class, 'programShow'])->name('public.program.show');
 Route::get('/downloads', [HomeController::class, 'downloads'])->name('public.downloads');
 Route::get('/downloads/{download}/file', [HomeController::class, 'downloadFile'])->name('public.downloads.file');

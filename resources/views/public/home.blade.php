@@ -336,48 +336,6 @@
     </div>
 </div>
 
-{{-- ── 5. PRINCIPAL'S MESSAGE ─────────────────────────────────── --}}
-<div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-10 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
-    <div class="mb-6 pb-2 border-b border-slate-200 dark:border-slate-700">
-        <h2 class="text-xl font-extrabold text-[#003D82] dark:text-blue-400 border-l-4 border-[#003D82] pl-3 leading-none">
-            Principal's Message
-        </h2>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {{-- Photo Frame (Wireframe look or image) --}}
-        <div class="lg:col-span-3 flex flex-col items-center text-center">
-            <div class="w-48 h-60 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-sm relative overflow-hidden flex items-center justify-center shadow-sm">
-                @if($currentPrincipal?->avatar)
-                    <img src="{{ asset('storage/' . $currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover">
-                @else
-                    {{-- Wireframe Cross Placeholder if no image --}}
-                    <svg class="w-full h-full text-slate-300 dark:text-slate-700 stroke-1" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" stroke-width="0.5"/>
-                        <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" stroke-width="0.5"/>
-                    </svg>
-                @endif
-            </div>
-            <div class="mt-3">
-                <h4 class="font-extrabold text-sm text-[#003D82] dark:text-blue-400">{{ $currentPrincipal?->name ?? 'Dr. Sudip Adhikari' }}</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">{{ $currentPrincipal?->designation ?? 'Principal, MMP' }}</p>
-            </div>
-        </div>
-
-        {{-- Message Text --}}
-        <div class="lg:col-span-9 space-y-4 text-xs md:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-            @if($currentPrincipal?->message)
-                @foreach(array_filter(explode("\n\n", $currentPrincipal->message)) as $para)
-                    <p>{{ trim($para) }}</p>
-                @endforeach
-            @else
-                <p>This website is designed to introduce you to Manmohan Memorial Polytechnic. We at MMP are confident that you will find your plans and values with maximum patience with our students and staffs. The practical focus of our courses ensures the practical knowledge that will optimize the capacity of our students to compete the labor market nationally and internationally.</p>
-                <p>MMP is highly thankful to its sponsor and donor of execution in the technical education centre of Nepal. We offer the best and the most relevant dynamic technical course content that MMP expects to deliver tailored to technical need.</p>
-                <p>We provide state-of-the-art facilities and services for our students and faculty, while our faculty are eager to enhance your practical skills and learning experience at MMP.</p>
-            @endif
-        </div>
-    </div>
-</div>
 
 {{-- ── 6. STATISTICS COUNTER BAR (6 Stats) ─────────────────────── --}}
 <div class="bg-[#1e3a8a] text-white py-8 shadow-inner">
@@ -442,6 +400,50 @@
         </div>
     </div>
 </div>
+
+{{-- ── 5. PRINCIPAL'S MESSAGE ─────────────────────────────────── --}}
+<div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-10 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+    <div class="mb-6 pb-2 border-b border-slate-200 dark:border-slate-700">
+        <h2 class="text-xl font-extrabold text-[#003D82] dark:text-blue-400 border-l-4 border-[#003D82] pl-3 leading-none">
+            Principal's Message
+        </h2>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {{-- Photo Frame (Wireframe look or image) --}}
+        <div class="lg:col-span-3 flex flex-col items-center text-center">
+            <div class="w-48 h-60 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-sm relative overflow-hidden flex items-center justify-center shadow-sm">
+                @if($currentPrincipal?->avatar)
+                    <img src="{{ asset('storage/' . $currentPrincipal->avatar) }}" alt="Principal" class="w-full h-full object-cover">
+                @else
+                    {{-- Wireframe Cross Placeholder if no image --}}
+                    <svg class="w-full h-full text-slate-300 dark:text-slate-700 stroke-1" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" stroke-width="0.5"/>
+                        <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" stroke-width="0.5"/>
+                    </svg>
+                @endif
+            </div>
+            <div class="mt-3">
+                <h4 class="font-extrabold text-sm text-[#003D82] dark:text-blue-400">{{ $currentPrincipal?->name ?? 'Dr. Sudip Adhikari' }}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">{{ $currentPrincipal?->designation ?? 'Principal, MMP' }}</p>
+            </div>
+        </div>
+
+        {{-- Message Text --}}
+        <div class="lg:col-span-9 space-y-4 text-xs md:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            @if($currentPrincipal?->message)
+                @foreach(array_filter(explode("\n\n", $currentPrincipal->message)) as $para)
+                    <p>{{ trim($para) }}</p>
+                @endforeach
+            @else
+                <p>This website is designed to introduce you to Manmohan Memorial Polytechnic. We at MMP are confident that you will find your plans and values with maximum patience with our students and staffs. The practical focus of our courses ensures the practical knowledge that will optimize the capacity of our students to compete the labor market nationally and internationally.</p>
+                <p>MMP is highly thankful to its sponsor and donor of execution in the technical education centre of Nepal. We offer the best and the most relevant dynamic technical course content that MMP expects to deliver tailored to technical need.</p>
+                <p>We provide state-of-the-art facilities and services for our students and faculty, while our faculty are eager to enhance your practical skills and learning experience at MMP.</p>
+            @endif
+        </div>
+    </div>
+</div>
+
 
 {{-- ── 7. TWO COLUMN LOWER SECTION ────────────────────────────── --}}
 <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto py-10 bg-[#f4f6f9] dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
