@@ -69,7 +69,7 @@ class PublicPageSeeder extends Seeder
             ],
             [
                 'title' => 'Annual Academic Calendar 2081-2082 Released',
-                'type' => 'academic',
+                'type' => 'general',
                 'days' => -15,
                 'content' => 'The annual academic calendar for the session 2081-2082 has been released. The calendar includes important dates for examinations, holidays, and academic activities. Students and staff are requested to note the dates accordingly.',
             ],
@@ -87,7 +87,7 @@ class PublicPageSeeder extends Seeder
             ],
             [
                 'title' => 'Scholarship Application Form Available at Admin Office',
-                'type' => 'academic',
+                'type' => 'general',
                 'days' => -4,
                 'content' => 'The CTEVT merit scholarship application forms for the session 2081-2082 are now available at the college administration office. Eligible students (above 75% attendance in previous semester and first division marks) may collect and submit the form before Magh 15, 2081.',
             ],
@@ -200,7 +200,7 @@ class PublicPageSeeder extends Seeder
             ],
             [
                 'title' => 'Department HOD Meeting with Students — Feedback Session',
-                'type' => 'academic',
+                'type' => 'general',
                 'days' => 2,
                 'content' => 'The Head of Department will be conducting a student feedback session on Magh 18, 2081 at 2:00 PM in the department seminar hall. All semester students are requested to be present. Issues related to academics, facilities, and welfare will be discussed.',
             ],
@@ -242,6 +242,13 @@ class PublicPageSeeder extends Seeder
 
     private function seedGalleryMedia($departments): void
     {
+        // We need a valid uploader — resolve once at the top of the method
+        $uploader = \App\Models\User::first();
+        if (! $uploader) {
+            $this->command->warn('No user found for media uploader — skipping gallery.');
+            return;
+        }
+
         // College-wide gallery items (no department_id)
         $collegePhotos = [
             ['title' => 'College Main Building',           'file' => 'gallery/college-main.jpg'],
@@ -258,12 +265,14 @@ class PublicPageSeeder extends Seeder
             if ($exists) continue;
 
             Media::create([
-                'title' => $photo['title'],
-                'file_path' => $photo['file'],
-                'file_type' => 'gallery',
-                'mime_type' => 'image/jpeg',
-                'size' => rand(100000, 800000),
+                'title'       => $photo['title'],
+                'file_name'   => basename($photo['file']),
+                'file_path'   => $photo['file'],
+                'file_type'   => 'gallery',
+                'mime_type'   => 'image/jpeg',
+                'size'        => rand(100000, 800000),
                 'department_id' => null,
+                'uploaded_by' => $uploader->id,
             ]);
             $count++;
         }
@@ -283,12 +292,14 @@ class PublicPageSeeder extends Seeder
                 if ($exists) continue;
 
                 Media::create([
-                    'title' => $title,
-                    'file_path' => $photo['file'],
-                    'file_type' => 'gallery',
-                    'mime_type' => 'image/jpeg',
-                    'size' => rand(100000, 800000),
+                    'title'       => $title,
+                    'file_name'   => basename($photo['file']),
+                    'file_path'   => $photo['file'],
+                    'file_type'   => 'gallery',
+                    'mime_type'   => 'image/jpeg',
+                    'size'        => rand(100000, 800000),
                     'department_id' => $dept->id,
+                    'uploaded_by' => $uploader->id,
                 ]);
                 $count++;
             }
