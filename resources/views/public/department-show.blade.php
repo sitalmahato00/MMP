@@ -234,7 +234,7 @@
                         </blockquote>
                         @endif
                         <div class="mt-4">
-                            <a href="{{ route('public.department.people', $department->slug) }}"
+                            <a href="{{ route('public.people.profile', ['type' => 'hod', 'id' => $department->id]) }}"
                                class="inline-flex items-center gap-2 text-xs font-bold text-[#003D82] border-2 border-[#003D82] px-3 py-1.5 rounded-lg hover:bg-[#003D82] hover:text-white transition-all duration-200">
                                 View Full Profile →
                             </a>

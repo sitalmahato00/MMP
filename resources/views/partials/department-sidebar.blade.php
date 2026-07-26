@@ -10,7 +10,6 @@
     $navItems = [
         ['key' => 'overview',  'label' => 'Overview',         'icon' => 'home',     'route' => route('public.department.show', $deptSlug)],
         ['key' => 'about',     'label' => 'About Department', 'icon' => 'info',     'route' => route('public.department.about', $deptSlug)],
-        ['key' => 'people',    'label' => 'People',           'icon' => 'users',    'route' => route('public.department.people', $deptSlug)],
         ['key' => 'programs',  'label' => 'Programs',         'icon' => 'book',     'route' => route('public.department.programs', $deptSlug)],
         ['key' => 'notices',   'label' => 'Notices',          'icon' => 'bell',     'route' => route('public.department.notices', $deptSlug)],
         ['key' => 'gallery',   'label' => 'Gallery',          'icon' => 'photo',    'route' => route('public.department.gallery', $deptSlug)],
