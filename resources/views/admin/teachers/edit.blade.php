@@ -137,11 +137,11 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Designation <span class="text-red-500">*</span></label>
-                <input type="text" name="designation" value="Teacher" readonly
-                       class="w-full rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-sm text-slate-600 cursor-not-allowed"
-                       placeholder="Teacher"/>
-                <p class="mt-1 text-xs text-slate-500">HODs are managed separately through the HOD management interface</p>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Designation (Job Title)</label>
+                <input type="text" name="designation" value="{{ old('designation', $teacher->user?->designation) }}"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-[#8B0000] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/20 transition"
+                       placeholder="e.g. Professor, Lecturer"/>
+                <p class="mt-1 text-xs text-slate-500">Optional: Enter the academic job title</p>
                 @error('designation')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 

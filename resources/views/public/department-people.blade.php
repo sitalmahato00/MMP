@@ -38,6 +38,9 @@
                         <div class="flex-1 text-center sm:text-left">
                             <h2 class="text-xl font-black text-gray-900">{{ $hod->user?->name }}</h2>
                             <p class="text-[#003D82] font-semibold text-sm mt-0.5">Head of Department</p>
+                            @if($hod->user?->designation)
+                                <p class="text-gray-600 text-sm">{{ $hod->user->designation }}</p>
+                            @endif
                             <p class="text-gray-500 text-sm">{{ $department->name }}</p>
                             @if($hod->qualification)
                             <p class="text-gray-600 text-sm mt-2">🎓 {{ $hod->qualification }}</p>
@@ -89,7 +92,10 @@
                             <h3 class="font-bold text-gray-900 text-sm leading-tight group-hover:text-[#003D82] transition-colors">
                                 {{ $teacher->user?->name }}
                             </h3>
-                            <p class="text-xs text-[#003D82] font-semibold mt-0.5">{{ $teacher->designation }}</p>
+                            <p class="text-xs text-[#003D82] font-semibold mt-0.5">Teacher</p>
+                            @if($teacher->user?->designation)
+                                <p class="text-[10px] text-gray-600 mt-0.5">{{ $teacher->user->designation }}</p>
+                            @endif
                             @if($teacher->qualification)
                             <p class="text-[10px] text-gray-500 mt-1">{{ $teacher->qualification }}</p>
                             @endif

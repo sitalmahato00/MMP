@@ -214,6 +214,9 @@
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-gray-900 text-sm leading-tight">{{ $hod->name }}</h3>
                                 <p class="text-xs text-[#003D82] font-semibold mt-0.5">Head of Department</p>
+                                @if($hod->designation)
+                                    <p class="text-xs text-gray-600 mt-0.5">{{ $hod->designation }}</p>
+                                @endif
                                 <p class="text-xs text-gray-500 mt-0.5">{{ $department->name }}</p>
                                 @if($hodTeacherData?->qualification)
                                 <p class="text-xs text-gray-600 mt-1">{{ $hodTeacherData->qualification }}</p>

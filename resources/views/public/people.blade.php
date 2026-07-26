@@ -87,7 +87,10 @@
                                                                 <img src="{{ $member->photo_url }}" alt="{{ $member->name }}" class="w-full h-full object-cover" loading="lazy">
                                                             </div>
                                                             <h4 class="font-bold text-sm text-gray-900 group-hover:text-[#003D82] transition-colors">{{ $member->name }}</h4>
-                                                            <p class="text-xs text-gray-500 mt-1">{{ $member->designation }}</p>
+                                                            <p class="text-xs text-gray-500 mt-1">{{ $member->type_label }}</p>
+                                                            @if($member->designation && $member->designation !== $member->type_label)
+                                                                <p class="text-[10px] text-gray-400 mt-0.5">{{ $member->designation }}</p>
+                                                            @endif
                                                             @if($member->department)
                                                                 @if(!empty($member->department_slug))
                                                                     <a href="{{ route('public.department.show', $member->department_slug) }}" class="text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded inline-block mt-2 border border-blue-100 hover:bg-blue-100 transition-colors">

@@ -168,6 +168,9 @@
                             <div>
                                 <div class="font-bold text-gray-900">{{ $department->hod->name }}</div>
                                 <div class="text-xs text-blue-700">Head of Department</div>
+                                @if($department->hod->designation)
+                                    <div class="text-xs text-gray-600 mt-0.5">{{ $department->hod->designation }}</div>
+                                @endif
                                 <div class="text-xs text-gray-500 mt-0.5">{{ $department->name }}</div>
                             </div>
                         </div>

@@ -44,6 +44,7 @@ class HodController extends Controller
             'name'          => 'required|string|max:255',
             'email'         => 'required|email|unique:users',
             'phone'         => 'nullable|string|max:20',
+            'designation'   => 'nullable|string|max:255',
             'gender'        => 'nullable|in:male,female,other',
             'dob'           => 'nullable|string|max:10',
             'address'       => 'nullable|string',
@@ -65,15 +66,16 @@ class HodController extends Controller
         }
 
         $user = User::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'phone'     => $data['phone'] ?? null,
-            'gender'    => $data['gender'] ?? null,
-            'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
-            'address'   => $data['address'] ?? null,
-            'avatar'    => $data['avatar'] ?? null,
-            'is_active' => $data['is_active'] ?? true,
-            'password'  => Hash::make(Str::random(40)),
+            'name'        => $data['name'],
+            'email'       => $data['email'],
+            'phone'       => $data['phone'] ?? null,
+            'designation' => $data['designation'] ?? null,
+            'gender'      => $data['gender'] ?? null,
+            'dob'         => NepaliDateHelper::toAD($data['dob'] ?? null),
+            'address'     => $data['address'] ?? null,
+            'avatar'      => $data['avatar'] ?? null,
+            'is_active'   => $data['is_active'] ?? true,
+            'password'    => Hash::make(Str::random(40)),
         ]);
 
         $user->assignRole('hod');
@@ -120,6 +122,7 @@ class HodController extends Controller
             'name'          => 'required|string|max:255',
             'email'         => ['required','email', Rule::unique('users')->ignore($hod->id)],
             'phone'         => 'nullable|string|max:20',
+            'designation'   => 'nullable|string|max:255',
             'gender'        => 'nullable|in:male,female,other',
             'dob'           => 'nullable|string|max:10',
             'address'       => 'nullable|string',
@@ -146,13 +149,14 @@ class HodController extends Controller
         }
 
         $hod->update([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'phone'     => $data['phone'] ?? null,
-            'gender'    => $data['gender'] ?? null,
-            'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
-            'address'   => $data['address'] ?? null,
-            'is_active' => $data['is_active'] ?? $hod->is_active,
+            'name'        => $data['name'],
+            'email'       => $data['email'],
+            'phone'       => $data['phone'] ?? null,
+            'designation' => $data['designation'] ?? null,
+            'gender'      => $data['gender'] ?? null,
+            'dob'         => NepaliDateHelper::toAD($data['dob'] ?? null),
+            'address'     => $data['address'] ?? null,
+            'is_active'   => $data['is_active'] ?? $hod->is_active,
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []));
 
         // Update department assignment

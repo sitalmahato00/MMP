@@ -9,16 +9,16 @@
         : 0;
 
     $department  = null;
-    $designation = null;
+    $role = null;
     if ($user->hasRole('hod')) {
         $department  = $user->hodDepartment;
-        $designation = 'Head of Department';
+        $role = 'Head of Department';
     } elseif ($user->hasRole('teacher') && $user->teacher) {
         $department  = $user->teacher->department;
-        $designation = $user->teacher->designation ?? 'Teacher';
+        $role = $user->teacher->designation ?? 'Teacher';
     } elseif ($user->hasRole('student') && $user->student) {
         $department  = $user->student->program->department ?? null;
-        $designation = 'Student';
+        $role = 'Student';
     }
 
     // Site settings (cached in layout already, re-use)
@@ -64,12 +64,12 @@
     </div>
 
     {{-- ── SEARCH: Sidebar nav filter ─────────────────────────────── --}}
-    <div class="flex-1 max-w-xs hidden sm:flex items-center ml-4">
+    <div class="flex-1 max-w-xs hidden sm:flex items-center ml-4 min-w-[200px]">
         <div class="relative w-full"
              x-data="{ focused: false }">
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-                <svg class="h-3.5 w-3.5 transition-colors"
-                     :style="focused ? 'color: #93c5fd' : 'color: rgba(255,255,255,0.4)'"
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 z-10">
+                <svg class="h-3.5 w-3.5 transition-colors flex-shrink-0"
+                     :style="focused ? 'color: #0B2E6B' : 'color: #64748b'"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -84,18 +84,18 @@
                 placeholder="Search navigation…"
                 autocomplete="off"
                 spellcheck="false"
-                class="w-full rounded border py-1.5 pl-8 pr-8 text-xs font-medium text-white placeholder-white/40 outline-none transition-all duration-150 focus:ring-1 bg-transparent"
+                class="w-full rounded border py-1.5 pl-8 pr-8 text-xs font-medium text-slate-900 placeholder-slate-400 outline-none transition-all duration-150 focus:ring-1 bg-white min-w-[180px]"
                 :style="focused
-                    ? 'border-color: rgba(99,179,237,0.6); background-color: rgba(255,255,255,0.12); box-shadow: 0 0 0 1px rgba(99,179,237,0.3);'
-                    : 'border-color: rgba(255,255,255,0.18); background-color: rgba(255,255,255,0.07);'"
+                    ? 'border-color: #0B2E6B; box-shadow: 0 0 0 2px rgba(11,46,107,0.1);'
+                    : 'border-color: #e2e8f0;'"
             >
             <button
                 x-show="navSearch !== ''"
                 x-cloak
                 @click="navSearch = ''"
                 type="button"
-                class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-white/40 hover:text-white transition-colors">
-                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-slate-600 transition-colors z-10">
+                <svg class="h-3 w-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>

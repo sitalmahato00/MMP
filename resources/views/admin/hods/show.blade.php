@@ -29,7 +29,11 @@
                      class="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow-lg">
                 <div class="flex-1">
                     <h2 class="text-2xl font-bold text-gray-900">{{ $hod->name }}</h2>
-                    <p class="text-gray-600 mt-1">{{ $hod->email }}</p>
+                    <p class="text-gray-600 mt-1">Head of Department</p>
+                    @if($hod->designation)
+                        <p class="text-gray-500 text-sm">{{ $hod->designation }}</p>
+                    @endif
+                    <p class="text-gray-500 mt-1">{{ $hod->email }}</p>
                     <div class="flex items-center gap-3 mt-3">
                         <x-badge color="blue">HOD</x-badge>
                         <x-badge :color="$hod->is_active ? 'green' : 'red'" :dot="true">

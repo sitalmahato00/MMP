@@ -25,7 +25,10 @@
                     <h1 class="text-3xl font-black text-white leading-tight">{{ $teacher->user?->name }}</h1>
                     <p class="mt-1 text-white/75 text-sm">{{ $teacher->employee_id ?? 'No Employee ID' }} &bull; {{ $teacher->department?->name ?? 'No Department' }}</p>
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <span class="rounded-full bg-white/25 px-3 py-1 text-xs font-bold text-white">{{ $teacher->designation ?? 'Teacher' }}</span>
+                        <span class="rounded-full bg-white/25 px-3 py-1 text-xs font-bold text-white">Teacher</span>
+                        @if($teacher->user?->designation)
+                            <span class="rounded-full bg-white/25 px-3 py-1 text-xs font-bold text-white">{{ $teacher->user->designation }}</span>
+                        @endif
                         <span class="rounded-full bg-white/25 px-3 py-1 text-xs font-bold text-white">{{ ucfirst($teacher->employment_type ?? 'Unknown') }}</span>
                         @if($teacher->is_active)
                             <span class="rounded-full bg-emerald-400/40 px-3 py-1 text-xs font-bold text-white">● Active</span>

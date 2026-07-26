@@ -31,16 +31,16 @@
     }
 @endphp
 
-<div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+<div class="kpi-card relative overflow-hidden rounded-2xl p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:shadow-slate-900/20"
      style="background: linear-gradient(135deg, {{ $g['from'] }}, {{ $g['to'] }});">
     {{-- Glassmorphism background circle --}}
-    <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10"></div>
-    <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5"></div>
+    <div class="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10 dark:bg-white/5"></div>
+    <div class="pointer-events-none absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white/5 dark:bg-white/10"></div>
 
     <div class="relative flex items-center justify-between gap-3">
         {{-- Icon --}}
         @if($icon)
-        <div class="kpi-icon flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+        <div class="kpi-icon flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm dark:bg-white/10">
             <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 @foreach($m[1] ?? [] as $d)
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $d }}"/>
@@ -52,13 +52,13 @@
         {{-- Value + label --}}
         <div class="{{ $icon ? 'text-right' : '' }} flex-1 min-w-0">
             <p class="text-xl font-black text-white leading-tight tracking-tight">{{ $value }}</p>
-            <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 truncate">{{ $title }}</p>
+            <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/90 dark:text-white/85 truncate">{{ $title }}</p>
         </div>
     </div>
 
     @if($trend)
     <div class="relative mt-2.5 flex items-center gap-1">
-        <span class="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold text-white">
+        <span class="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold text-white dark:bg-white/15">
             {{ $trend['value'] }}
         </span>
     </div>

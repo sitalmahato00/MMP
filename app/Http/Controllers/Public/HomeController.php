@@ -32,6 +32,7 @@ class HomeController extends Controller
         $principalName = trim((string) optional($siteSettings->get('principal_name'))->value);
         $principalMessage = trim((string) optional($siteSettings->get('principals_message'))->value);
         $principalPhoto = trim((string) optional($siteSettings->get('principal_photo'))->value);
+        $principalVideo = trim((string) optional($siteSettings->get('principal_message_media'))->value);
 
         if (isset($leadership['principals'])) {
             $principals = collect($leadership['principals']);
@@ -43,6 +44,7 @@ class HomeController extends Controller
                     'designation' => 'Principal, MMP',
                     'avatar' => null,
                     'message' => null,
+                    'video' => null,
                     'is_current' => true,
                 ];
                 $principals = collect([$currentPrincipal])->merge($principals);
@@ -60,6 +62,14 @@ class HomeController extends Controller
                 } else {
                     $currentPrincipal->avatar = $principalPhoto;
                     $currentPrincipal->avatar_url = asset('storage/' . $principalPhoto);
+                }
+            }
+            if ($principalVideo !== '') {
+                if (filter_var($principalVideo, FILTER_VALIDATE_URL)) {
+                    $currentPrincipal->video_url = $principalVideo;
+                } else {
+                    $currentPrincipal->video = $principalVideo;
+                    $currentPrincipal->video_url = asset('storage/' . $principalVideo);
                 }
             }
 

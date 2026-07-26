@@ -128,7 +128,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'avatar'          => 'nullable|image|max:2048',
             'department_id'   => 'nullable|exists:departments,id',
             'employee_id'     => 'nullable|string|max:50|unique:teachers,employee_id',
-            'designation'     => 'nullable|in:Teacher',
+            'designation'     => 'nullable|string|max:255',
             'qualification'   => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
             'join_date'       => 'nullable|string|max:12',
@@ -143,17 +143,18 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
                 $avatarPath = $request->file('avatar')->store('avatars', 'public');
             }
             $user = User::create([
-                'name'      => $data['name'],
-                'email'     => $data['email'],
-                'phone'     => $data['phone'] ?? null,
-                'gender'    => $data['gender'] ?? null,
-                'dob'       => NepaliDateHelper::toAD($data['dob'] ?? null),
-                'address'   => $data['address'] ?? null,
-                'avatar'    => $avatarPath,
-                'password'  => Hash::make(Str::random(40)),
-                'is_active' => true,
+                'name'        => $data['name'],
+                'email'       => $data['email'],
+                'phone'       => $data['phone'] ?? null,
+                'gender'      => $data['gender'] ?? null,
+                'dob'         => NepaliDateHelper::toAD($data['dob'] ?? null),
+                'address'     => $data['address'] ?? null,
+                'avatar'      => $avatarPath,
+                'designation' => $data['designation'] ?? null,
+                'password'    => Hash::make(Str::random(40)),
+                'is_active'   => true,
             ]);
-            
+
             // Only assign teacher role (HODs are managed separately)
             $user->assignRole('teacher');
             $createdUser = $user;
@@ -215,7 +216,7 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
             'avatar'          => 'nullable|image|max:2048',
             'department_id'   => 'nullable|exists:departments,id',
             'employee_id'     => ['nullable', 'string', 'max:50', Rule::unique('teachers', 'employee_id')->ignore($teacher->id)],
-            'designation'     => 'nullable|in:Teacher',
+            'designation'     => 'nullable|string|max:255',
             'qualification'   => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
             'join_date'       => 'nullable|string|max:12',
@@ -231,20 +232,14 @@ DB::raw("GROUP_CONCAT(DISTINCT subjects.semester) as semester_list")
         }
 
         $teacher->user->update(array_filter([
-            'name'    => $data['name'],
-            'email'   => $data['email'],
-            'phone'   => $data['phone'] ?? null,
-            'gender'  => $data['gender'] ?? null,
-            'dob'     => NepaliDateHelper::toAD($data['dob'] ?? null),
-            'address' => $data['address'] ?? null,
+            'name'        => $data['name'],
+            'email'       => $data['email'],
+            'phone'       => $data['phone'] ?? null,
+            'gender'      => $data['gender'] ?? null,
+            'dob'         => NepaliDateHelper::toAD($data['dob'] ?? null),
+            'address'     => $data['address'] ?? null,
+            'designation' => $data['designation'] ?? null,
         ] + (isset($data['avatar']) ? ['avatar' => $data['avatar']] : []), fn($v) => $v !== null));
-
-        $teacher->user->update([
-            'name'    => $data['name'],
-            'email'   => $data['email'],
-            'phone'   => $data['phone'] ?? null,
-            'gender'  => $data['gender'] ?? null,
-        ]);
 
         $teacher->update([
             'department_id'   => $data['department_id'],

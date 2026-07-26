@@ -1167,7 +1167,7 @@ class PublicDataService
     {
         $teacher = Teacher::query()
             ->with([
-                'user:id,name,email,phone,address,avatar,gender,dob,is_active',
+                'user:id,name,email,phone,address,avatar,gender,dob,is_active,designation',
                 'department:id,name,code,slug,description,seat_capacity',
             ])
             ->findOrFail($teacherId, ['id', 'user_id', 'department_id', 'employee_id', 'designation', 'qualification', 'specialization', 'join_date', 'employment_type', 'is_active']);
@@ -1183,7 +1183,7 @@ class PublicDataService
             'type' => 'teacher',
             'type_label' => 'Teacher',
             'name' => $user?->name ?? $teacher->full_name ?: 'Teacher',
-            'designation' => $teacher->designation ?: 'Teacher',
+            'designation' => $user?->designation ?: 'Teacher',
             'avatar_url' => $user?->avatar_url ?? $this->buildFallbackAvatar($user?->name ?? $teacher->full_name ?: 'Teacher'),
             'summary' => $teacher->specialization ?: ($department?->description ?: 'Teacher profile and academic details.'),
             'department' => $department ? [
@@ -1206,7 +1206,7 @@ class PublicDataService
                     ['label' => 'Address', 'value' => $user?->address],
                 ]),
                 $this->buildProfileSection('Professional Details', [
-                    ['label' => 'Designation', 'value' => $teacher->designation],
+                    ['label' => 'Designation', 'value' => $user?->designation ?: 'Teacher'],
                     ['label' => 'Employee ID', 'value' => $teacher->employee_id],
                     ['label' => 'Qualification', 'value' => $teacher->qualification],
                     ['label' => 'Specialization', 'value' => $teacher->specialization],

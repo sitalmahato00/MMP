@@ -45,6 +45,12 @@
                     </div>
 
                     <div>
+                        <x-label for="designation">Designation (Job Title)</x-label>
+                        <x-input id="designation" name="designation" value="{{ old('designation', $hod->designation) }}" placeholder="e.g., Professor, Lecturer"/>
+                        <x-error field="designation"/>
+                    </div>
+
+                    <div>
                         <x-label for="gender">Gender</x-label>
                         <x-select id="gender" name="gender">
                             <option value="">Select Gender</option>
