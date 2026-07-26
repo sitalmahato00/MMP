@@ -53,7 +53,7 @@
             'label'      => 'Dashboard',
             'standalone' => true,
             'items'      => [
-                ['label' => 'Overview', 'iconName' => 'home', 'href' => route('admin.dashboard'), 'isActive' => $active('admin.dashboard')],
+                ['label' => 'Dashboard', 'iconName' => 'home', 'href' => route('admin.dashboard'), 'isActive' => $active('admin.dashboard')],
             ],
         ],
 
@@ -65,7 +65,7 @@
                 ['label' => 'Parents',            'iconName' => 'heart',          'href' => route('admin.parents.index'),           'isActive' => $active('admin.parents.*')],
                 ['label' => 'Alumni',             'iconName' => 'graduation-cap', 'href' => route('admin.alumni.index'),            'isActive' => $active('admin.alumni.*')],
                 ['label' => 'Teachers',           'iconName' => 'briefcase',      'href' => route('admin.teachers.index'),          'isActive' => $active('admin.teachers.*')],
-                ['label' => 'Staff & HR',    'iconName' => 'users',          'href' => route('admin.staff.index'),        'isActive' => $active('admin.staff.*')],
+                ['label' => 'People',        'iconName' => 'users',          'href' => route('admin.staff.index'),        'isActive' => $active('admin.staff.*')],
                 ['label' => 'Departments',  'iconName' => 'office-building','href' => route('admin.departments.index'), 'isActive' => $active('admin.departments.*')],
                 ['label' => 'HODs',         'iconName' => 'user-circle',    'href' => route('admin.hods.index'),         'isActive' => $active('admin.hods.*')],
                 ['label' => 'Executives',   'iconName' => 'star',           'href' => route('admin.executives.index'),   'isActive' => $active('admin.executives.*')],
@@ -79,7 +79,7 @@
             'label' => 'Academics',
             'items' => [
                 ['label' => 'Programs',           'iconName' => 'book-open',       'href' => route('admin.programs.index'),          'isActive' => $active('admin.programs.*')],
-                ['label' => 'Academic Calendar',  'iconName' => 'calendar',        'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
+                ['label' => 'Sessions',           'iconName' => 'calendar',        'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
                 ['label' => 'Attendance',         'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'),        'isActive' => $active('admin.attendance.*')],
                 ['label' => 'Examinations',       'iconName' => 'chart-bar',       'href' => route('admin.exams.index'),             'isActive' => $active('admin.exams.*')],
 
@@ -102,19 +102,10 @@
             'items' => [
                 ['label' => 'Website Content',      'iconName' => 'doc-text',   'href' => route('admin.web-control.index'),  'isActive' => $active('admin.web-control.*')],
                 ['label' => 'Media Gallery',         'iconName' => 'photo',      'href' => route('admin.media.index'),        'isActive' => $active('admin.media.*')],
-                ['label' => 'News & Announcements',  'iconName' => 'bell',       'href' => route('admin.notices.index'),      'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
-                ['label' => 'Events',            'iconName' => 'collection', 'href' => route('admin.news-events.index'),  'isActive' => $active('admin.news-events.*')],
-                ['label' => 'File Repository',   'iconName' => 'download',   'href' => route('admin.downloads.index'),    'isActive' => $active('admin.downloads.*')],
+                ['label' => 'Notices',               'iconName' => 'bell',       'href' => route('admin.notices.index'),      'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
+                ['label' => 'News & Announcements',  'iconName' => 'collection', 'href' => route('admin.news-events.index'),  'isActive' => $active('admin.news-events.*')],
+                ['label' => 'Downloads',             'iconName' => 'download',   'href' => route('admin.downloads.index'),    'isActive' => $active('admin.downloads.*')],
                 ['label' => 'Banner Management', 'iconName' => 'collection', 'href' => route('admin.banners.index'),      'isActive' => $active('admin.banners.*')],
-            ],
-        ],
-
-        // ── Configuration ──────────────────────────────────────
-        [
-            'label' => 'Configuration',
-            'items' => [
-                ['label' => 'Institution Settings', 'iconName' => 'cog',      'href' => route('admin.web-control.index'),       'isActive' => $active('admin.web-control.*')],
-                ['label' => 'Academic Settings',    'iconName' => 'calendar', 'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
             ],
         ],
 

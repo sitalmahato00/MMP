@@ -63,6 +63,45 @@
         </a>
     </div>
 
+    {{-- ── SEARCH: Sidebar nav filter ─────────────────────────────── --}}
+    <div class="flex-1 max-w-xs hidden sm:flex items-center ml-4">
+        <div class="relative w-full"
+             x-data="{ focused: false }">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+                <svg class="h-3.5 w-3.5 transition-colors"
+                     :style="focused ? 'color: #93c5fd' : 'color: rgba(255,255,255,0.4)'"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <input
+                type="search"
+                x-model="navSearch"
+                @focus="focused = true; sidebarOpen = true; sidebarCollapsed = false"
+                @blur="focused = false"
+                @keydown.escape="navSearch = ''"
+                placeholder="Search navigation…"
+                autocomplete="off"
+                spellcheck="false"
+                class="w-full rounded border py-1.5 pl-8 pr-8 text-xs font-medium text-white placeholder-white/40 outline-none transition-all duration-150 focus:ring-1 bg-transparent"
+                :style="focused
+                    ? 'border-color: rgba(99,179,237,0.6); background-color: rgba(255,255,255,0.12); box-shadow: 0 0 0 1px rgba(99,179,237,0.3);'
+                    : 'border-color: rgba(255,255,255,0.18); background-color: rgba(255,255,255,0.07);'"
+            >
+            <button
+                x-show="navSearch !== ''"
+                x-cloak
+                @click="navSearch = ''"
+                type="button"
+                class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-white/40 hover:text-white transition-colors">
+                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
     {{-- ── CENTER: Session badge ────────────────────────────────────── --}}
     <div class="hidden md:flex items-center justify-center flex-shrink-0">
         @if($navActiveSession)

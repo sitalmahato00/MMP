@@ -334,6 +334,7 @@
             return {
                 sidebarOpen: false,
                 sidebarCollapsed: false,
+                navSearch: '',
                 canInstall: false,
                 isStandalone: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
                 installDismissed: localStorage.getItem('mmp.install.dismissed.v2') === '1',

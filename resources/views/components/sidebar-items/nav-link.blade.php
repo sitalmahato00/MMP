@@ -51,6 +51,8 @@
 
 @if($isDisabled)
     <div title="{{ $label }} — Coming Soon"
+         data-nav-label="{{ strtolower($label) }}"
+         x-show="navSearch === '' || '{{ strtolower($label) }}'.includes(navSearch.toLowerCase())"
          class="group relative flex items-center gap-2.5 rounded px-3 py-2 text-sm font-normal cursor-not-allowed opacity-40"
          style="color: rgba(255,255,255,0.5);"
          :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : 'lg:justify-start'">
@@ -66,6 +68,8 @@
 @else
     <a href="{{ $href }}"
        title="{{ $label }}"
+       data-nav-label="{{ strtolower($label) }}"
+       x-show="navSearch === '' || '{{ strtolower($label) }}'.includes(navSearch.toLowerCase())"
        class="group relative flex items-center gap-2.5 rounded px-3 py-2 text-sm font-normal transition-colors duration-150 focus:outline-none"
        style="{{ $isActive ? 'background-color: #1D4ED8; color: #ffffff;' : 'color: rgba(255,255,255,0.78);' }}"
        :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : 'lg:justify-start'"
