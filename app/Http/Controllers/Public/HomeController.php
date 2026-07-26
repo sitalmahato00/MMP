@@ -444,7 +444,7 @@ class HomeController extends Controller
             'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=' . $bg . '&color=fff';
 
         $buildHodCard = fn ($hod, $dept) => (object)[
-            'id' => $dept->id, 'profile_type' => 'hod',
+            'id' => $dept->id, 'profile_type' => 'hod', 'type_label' => 'Head of Department',
             'profile_url' => route('public.people.profile', ['type' => 'hod', 'id' => $dept->id]),
             'name' => trim((string)($hod->name ?? $dept->name)) ?: $dept->name,
             'designation' => 'Head of Department', 'department' => $dept->name,
@@ -453,7 +453,7 @@ class HomeController extends Controller
         ];
 
         $buildTeacherCard = fn ($t) => (object)[
-            'id' => $t->id, 'profile_type' => 'teacher',
+            'id' => $t->id, 'profile_type' => 'teacher', 'type_label' => 'Teacher',
             'profile_url' => route('public.people.profile', ['type' => 'teacher', 'id' => $t->id]),
             'name' => trim((string)($t->user?->name ?: $t->full_name ?: 'Teacher')),
             'designation' => $t->designation ?: 'Teacher',
@@ -462,7 +462,7 @@ class HomeController extends Controller
         ];
 
         $buildStaffCard = fn ($m, string $fd = 'Staff', ?object $dept = null) => (object)[
-            'id' => $m->id, 'profile_type' => 'staff',
+            'id' => $m->id, 'profile_type' => 'staff', 'type_label' => $fd,
             'profile_url' => route('public.people.profile', ['type' => 'staff', 'id' => $m->id]),
             'name' => trim((string)($m->name ?? $fd)) ?: $fd,
             'designation' => $m->designation ?: $fd,

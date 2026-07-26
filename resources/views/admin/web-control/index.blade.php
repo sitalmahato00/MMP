@@ -745,6 +745,130 @@
                 alert('Unable to remove the file right now. Please try again.');
             });
     }
+
+    // ── XHR upload with progress bar ──────────────────────────
+    (function () {
+        const form = document.getElementById('web-control-form');
+        if (!form) return;
+
+        // Create the overlay once
+        const overlay = document.createElement('div');
+        overlay.id = 'upload-overlay';
+        overlay.innerHTML = `
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 text-center">
+                    <div class="w-14 h-14 rounded-full bg-[#8B0000]/10 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-7 h-7 text-[#8B0000] animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-lg mb-1">Uploading…</h3>
+                    <p id="upload-filename" class="text-xs text-gray-400 mb-5 truncate"></p>
+                    <div class="w-full bg-gray-100 rounded-full h-3 mb-2 overflow-hidden">
+                        <div id="upload-bar" class="h-3 rounded-full bg-gradient-to-r from-[#8B0000] to-red-400 transition-all duration-150" style="width:0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span id="upload-pct">0%</span>
+                        <span id="upload-size"></span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-4">Please wait — do not close this tab.</p>
+                </div>
+            </div>`;
+        overlay.style.display = 'none';
+        document.body.appendChild(overlay);
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        form.addEventListener('submit', function (e) {
+            // Validate all file inputs client-side before sending
+            const MAX_IMAGE_BYTES = 4 * 1024 * 1024;   // 4 MB
+            const MAX_FILE_BYTES  = 20 * 1024 * 1024;  // 20 MB
+            const VIDEO_EXTS = ['mp4', 'webm', 'mov'];
+
+            let errors = [];
+            form.querySelectorAll('input[type="file"]').forEach(function (input) {
+                if (!input.files || !input.files[0]) return;
+                const file = input.files[0];
+                const ext = file.name.split('.').pop().toLowerCase();
+                const isVideo = VIDEO_EXTS.includes(ext) || file.type.startsWith('video/');
+                const limit = isVideo ? MAX_FILE_BYTES : MAX_IMAGE_BYTES;
+                if (file.size > limit) {
+                    const limitMb = (limit / (1024 * 1024)).toFixed(0);
+                    errors.push(`"${file.name}" is ${formatBytes(file.size)} — max allowed is ${limitMb} MB.`);
+                }
+            });
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                alert('Upload size limit exceeded:\n\n' + errors.join('\n'));
+                return;
+            }
+
+            // Check if any file is being uploaded — if not, let the normal form submit handle it
+            let hasFiles = false;
+            form.querySelectorAll('input[type="file"]').forEach(function (input) {
+                if (input.files && input.files[0]) hasFiles = true;
+            });
+
+            if (!hasFiles) return; // No files — regular submit is fine, no progress needed
+
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            // Detect the video filename for display
+            let uploadName = 'files';
+            form.querySelectorAll('input[type="file"]').forEach(function (input) {
+                if (input.files && input.files[0]) uploadName = input.files[0].name;
+            });
+
+            document.getElementById('upload-filename').textContent = uploadName;
+            overlay.style.display = '';
+
+            xhr.upload.addEventListener('progress', function (evt) {
+                if (!evt.lengthComputable) return;
+                const pct = Math.round((evt.loaded / evt.total) * 100);
+                document.getElementById('upload-bar').style.width = pct + '%';
+                document.getElementById('upload-pct').textContent = pct + '%';
+                document.getElementById('upload-size').textContent =
+                    formatBytes(evt.loaded) + ' / ' + formatBytes(evt.total);
+            });
+
+            xhr.addEventListener('load', function () {
+                overlay.style.display = 'none';
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    // Server redirected back — follow it
+                    window.location.href = xhr.responseURL || window.location.href;
+                } else {
+                    // Try to surface a Laravel validation error
+                    let msg = 'Upload failed (HTTP ' + xhr.status + ').';
+                    try {
+                        const json = JSON.parse(xhr.responseText);
+                        if (json.message) msg = json.message;
+                    } catch (_) {}
+                    alert(msg);
+                }
+            });
+
+            xhr.addEventListener('error', function () {
+                overlay.style.display = 'none';
+                alert('Network error during upload. Please check your connection and try again.');
+            });
+
+            xhr.addEventListener('abort', function () {
+                overlay.style.display = 'none';
+            });
+
+            xhr.open('POST', form.action);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.send(formData);
+        });
+    })();
 </script>
 @endpush
 @endsection

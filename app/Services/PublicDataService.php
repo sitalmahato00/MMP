@@ -267,9 +267,8 @@ class PublicDataService
 
         $teachers = Teacher::active()
             ->where('department_id', $department->id)
-            ->with('user:id,name,avatar,email,phone')
-            ->orderByRaw("FIELD(designation, 'Head of Department', 'HOD', 'Associate Professor', 'Assistant Professor', 'Lecturer', 'Instructor', 'Lab Instructor') ASC")
-            ->orderBy('designation')
+            ->with('user:id,name,avatar,email,phone,designation')
+            ->orderBy('id')
             ->get(['id', 'user_id', 'department_id', 'designation', 'qualification', 'specialization', 'join_date', 'employment_type']);
 
         // HOD: the teacher whose user_id matches department->hod_id

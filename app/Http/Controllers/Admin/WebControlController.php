@@ -51,7 +51,8 @@ class WebControlController extends Controller
         $uploadKeys = array_merge($imageKeys, $fileKeys);
 
         $imageRules = collect($imageKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'image', 'max:4096']])->all();
-        $fileRules  = collect($fileKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov,pdf', 'max:102400']])->all();
+        // 20 MB max for video/file uploads — matches typical production PHP post_max_size limits
+        $fileRules  = collect($fileKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov,pdf', 'max:20480']])->all();
         $allRules   = array_merge($imageRules, $fileRules);
         if ($allRules !== []) {
             $request->validate($allRules);
