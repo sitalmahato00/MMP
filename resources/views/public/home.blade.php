@@ -431,16 +431,16 @@
 
         {{-- Message Text and Video --}}
         <div class="lg:col-span-9 space-y-4 text-xs md:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-            @if($currentPrincipal?->video_url)
+            @if(!empty($currentPrincipal->video_url))
                 <div class="relative rounded-lg overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 max-w-2xl">
                     <video controls class="w-full h-auto" preload="metadata" style="max-height: 400px;">
-                        <source src="{{ $currentPrincipal->video_url }}" type="video/mp4">
+                        <source src="{{ $currentPrincipal->video_url ?? '' }}" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                 </div>
             @endif
 
-            @if($currentPrincipal?->message)
+            @if(!empty($currentPrincipal->message))
                 @foreach(array_filter(explode("\n\n", $currentPrincipal->message)) as $para)
                     <p>{{ trim($para) }}</p>
                 @endforeach

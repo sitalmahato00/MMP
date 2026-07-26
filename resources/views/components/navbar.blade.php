@@ -64,7 +64,7 @@
     </div>
 
     {{-- ── SEARCH: Sidebar nav filter ─────────────────────────────── --}}
-    <div class="flex-1 max-w-xs hidden sm:flex items-center ml-4 min-w-[200px]">
+    <div class="flex-none max-w-xs hidden sm:flex items-center ml-4 min-w-[220px]">
         <div class="relative w-full"
              x-data="{ focused: false }">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 z-10">
@@ -84,7 +84,7 @@
                 placeholder="Search navigation…"
                 autocomplete="off"
                 spellcheck="false"
-                class="w-full rounded border py-1.5 pl-8 pr-8 text-xs font-medium text-slate-900 placeholder-slate-400 outline-none transition-all duration-150 focus:ring-1 bg-white min-w-[180px]"
+                class="w-full rounded border py-1.5 pl-8 pr-8 text-xs font-medium text-slate-900 placeholder-slate-400 outline-none transition-all duration-150 focus:ring-1 bg-white"
                 :style="focused
                     ? 'border-color: #0B2E6B; box-shadow: 0 0 0 2px rgba(11,46,107,0.1);'
                     : 'border-color: #e2e8f0;'"
