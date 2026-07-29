@@ -23,9 +23,17 @@ class TeacherController extends Controller
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
             $totalClasses = \App\Models\AttendanceSession::where('teacher_id', $teacher->id)->count();
-            $totalStudents = Student::whereHas('subjects', function ($q) use ($teacher) {
-                $q->where('teacher_id', $teacher->id);
-            })->count();
+            $totalStudents = \App\Models\TimetableSlot::where('teacher_id', $teacher->id)
+                ->whereHas('timetable', fn ($q) => $q->where('is_active', true))
+                ->with('timetable.program')
+                ->get()
+                ->flatMap(function ($slot) {
+                    return \App\Models\Student::where('program_id', $slot->timetable?->program_id)
+                        ->where('current_semester', $slot->timetable?->semester)
+                        ->pluck('id');
+                })
+                ->unique()
+                ->count();
 
             return response()->json([
                 'success' => true,
