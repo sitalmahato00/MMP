@@ -438,18 +438,21 @@ class ParentController extends Controller
             $days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             $grouped = collect($days)->map(fn ($day) => [
                 'day'     => $day,
-                'classes' => $timetable->slots
+                'classes' => $timetable->slots()
+                    ->with(['subject', 'teacher.user'])
                     ->where('day_of_week', $day)
-                    ->sortBy('start_time')
+                    ->orderBy('start_time')
+                    ->get()
                     ->map(fn ($slot) => [
                         'id'           => $slot->id,
                         'subject'      => $slot->subject?->name,
                         'subject_code' => $slot->subject?->code,
                         'teacher'      => $slot->teacher?->user?->name,
-                        'start_time'   => $slot->start_time,
-                        'end_time'     => $slot->end_time,
+                        'start_time'   => substr($slot->start_time, 0, 5),
+                        'end_time'     => substr($slot->end_time, 0, 5),
                         'room'         => $slot->room_number,
                         'type'         => $slot->type,
+                        'group'        => $slot->group ?? null,
                     ])->values(),
             ]);
 
