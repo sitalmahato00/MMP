@@ -22,7 +22,7 @@ class TeacherController extends Controller
             $user = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
-            $totalClasses = Attendance::where('teacher_id', $teacher->id)->distinct('session_id')->count();
+            $totalClasses = \App\Models\AttendanceSession::where('teacher_id', $teacher->id)->count();
             $totalStudents = Student::whereHas('subjects', function ($q) use ($teacher) {
                 $q->where('teacher_id', $teacher->id);
             })->count();
@@ -51,16 +51,36 @@ class TeacherController extends Controller
     public function todaySchedule(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user    = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
-            // Placeholder - would fetch actual schedule from timetable
+            $today   = now()->format('l'); // e.g. "Wednesday"
+
+            $slots = \App\Models\TimetableSlot::with(['timetable.program', 'subject'])
+                ->where('teacher_id', $teacher->id)
+                ->where('day_of_week', $today)
+                ->whereHas('timetable', fn ($q) => $q->where('is_active', true))
+                ->orderBy('start_time')
+                ->get();
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'today' => now()->toDateString(),
-                    'classes' => [],
-                ]
+                'data'    => [
+                    'today'   => now()->toDateString(),
+                    'day'     => $today,
+                    'classes' => $slots->map(fn ($s) => [
+                        'id'           => $s->id,
+                        'subject'      => $s->subject?->name,
+                        'subject_code' => $s->subject?->code,
+                        'program'      => $s->timetable?->program?->name,
+                        'semester'     => $s->timetable?->semester,
+                        'section'      => $s->timetable?->section,
+                        'start_time'   => substr($s->start_time, 0, 5),
+                        'end_time'     => substr($s->end_time, 0, 5),
+                        'room'         => $s->room_number,
+                        'type'         => $s->type,
+                    ])->values(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
