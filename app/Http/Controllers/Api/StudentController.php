@@ -680,6 +680,7 @@ class StudentController extends Controller
                         'end_time'    => substr($s->end_time, 0, 5),
                         'room'        => $s->room_number,
                         'type'        => $s->type,
+                        'group'       => $s->group ?? null,
                         'duration'    => $s->duration,
                     ])->values(),
                 ];
@@ -744,6 +745,7 @@ class StudentController extends Controller
                         'end_time'    => substr($s->end_time, 0, 5),
                         'room'        => $s->room_number,
                         'type'        => $s->type,
+                        'group'       => $s->group ?? null,
                         'duration'    => $s->duration,
                     ])->values(),
                 ]
