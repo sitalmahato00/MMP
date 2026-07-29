@@ -661,15 +661,14 @@ class StudentController extends Controller
             }
 
             $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            $slotsByDay = $timetable->slots()
-                ->with(['subject', 'teacher.user'])
-                ->orderBy('start_time')
-                ->get()
-                ->groupBy('day_of_week');
 
             $result = [];
             foreach ($days as $day) {
-                $daySlots = $slotsByDay->get($day, collect());
+                $daySlots = $timetable->slots()
+                    ->with(['subject', 'teacher.user'])
+                    ->where('day_of_week', $day)
+                    ->orderBy('start_time')
+                    ->get();
                 $result[] = [
                     'day'     => $day,
                     'classes' => $daySlots->map(fn($s) => [
