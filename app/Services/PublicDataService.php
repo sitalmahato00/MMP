@@ -65,7 +65,7 @@ class PublicDataService
                 fn ($q) => $q->where('type', $type),
                 fn ($q) => $q->whereIn('type', ['general', 'exam', 'department', 'program', 'academic'])
             )
-            ->with(['department:id,name,code', 'program:id,name,code'])
+            ->with(['department:id,name,code', 'program:id,name,code', 'attachments'])
             ->latest()
             ->paginate($perPage, ['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'content', 'published_at', 'created_at']);
     }
