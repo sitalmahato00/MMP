@@ -27,6 +27,7 @@
         return \App\Models\SiteSetting::all()->pluck('value', 'key')->toArray();
     });
     $collegeName   = $siteSettings['college_name'] ?? config('app.name');
+    $academicYear  = $siteSettings['academic_year'] ?? null;
     $collegeTagline = $siteSettings['college_tagline'] ?? 'College Administration Management System';
     $brandLogoUrl  = route('public.brand-logo') . '?v=' . logoVersion();
 
@@ -102,19 +103,29 @@
         </div>
     </div>
 
-    {{-- ── CENTER: Session badge ────────────────────────────────────── --}}
-    <div class="hidden md:flex items-center justify-center flex-shrink-0">
+    {{-- ── CENTER: Academic Year + Session badge ──────────────────────── --}}
+    <div class="hidden md:flex items-center justify-center gap-2 flex-shrink-0">
+        @if($academicYear)
+            <span class="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-bold"
+                  style="background-color: rgba(234,179,8,0.18); color: #fde68a; border: 1px solid rgba(234,179,8,0.3);">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                AY {{ $academicYear }}
+            </span>
+        @endif
         @if($navActiveSession)
             <span class="inline-flex items-center gap-1.5 rounded px-3.5 py-1.5 text-sm font-semibold"
                   style="background-color: rgba(255,255,255,0.12); color: #ffffff; border: 1px solid rgba(255,255,255,0.2);">
                 Session {{ $navActiveSession->name }}
             </span>
-        @else
+        @elseif(!$academicYear)
             <span class="inline-flex items-center gap-1.5 rounded px-3.5 py-1.5 text-sm font-semibold"
                   style="background-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.12);">
                 No Active Session
             </span>
         @endif
+    </div>
     </div>
 
     {{-- ── RIGHT: Date / Lang / Actions / User ─────────────────────── --}}

@@ -127,6 +127,22 @@
                             </x-form-field>
                         @endforeach
                     </div>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mt-4 pt-4 border-t border-gray-100">
+                        @php
+                            $establishSetting = $allSettings->get('establish_year');
+                            $academicYearSetting = $allSettings->get('academic_year');
+                        @endphp
+                        <x-form-field label="Established Year (BS)" name="establish_year" span="1"
+                                      hint="e.g. 2065 — used to calculate years of experience on homepage.">
+                            <x-input name="establish_year" :value="old('establish_year', $establishSetting?->value)"
+                                     placeholder="e.g. 2065" maxlength="4" />
+                        </x-form-field>
+                        <x-form-field label="Current Academic Year (BS)" name="academic_year" span="1"
+                                      hint="e.g. 2081 — shown in the navbar and dashboards.">
+                            <x-input name="academic_year" :value="old('academic_year', $academicYearSetting?->value)"
+                                     placeholder="e.g. 2081" maxlength="4" />
+                        </x-form-field>
+                    </div>
                 </x-card>
             </div>
         </div>

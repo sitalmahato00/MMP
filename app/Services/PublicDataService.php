@@ -1002,12 +1002,18 @@ class PublicDataService
     public function getHomepageStats(): array
     {
         return Cache::remember('public:homepage_stats', self::CACHE_TTL, function () {
+            $establishYear = (int) (SiteSetting::where('key', 'establish_year')->value('value') ?? 2065);
+            // Convert BS establish year to approximate AD for years-of-experience calc
+            // BS year ≈ AD year + 56/57; current BS year from today
+            $currentBsYear = (int) bsDate(now(), 'Y');
+            $yearsOfExperience = max(0, $currentBsYear - $establishYear);
+
             return [
                 'graduates'     => Alumni::verified()->count(),
                 'students'      => Student::active()->count(),
                 'faculty_staff' => Teacher::active()->count() + Staff::where('is_active', true)->count(),
                 'programs'      => Program::active()->count(),
-                'years'         => now()->year - 2010,
+                'years'         => $yearsOfExperience,
             ];
         });
     }

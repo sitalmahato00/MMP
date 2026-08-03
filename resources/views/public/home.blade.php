@@ -447,7 +447,7 @@
                 <div class="w-10 h-10 mx-auto flex items-center justify-center text-yellow-400">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <div class="text-2xl font-black">16+</div>
+                <div class="text-2xl font-black">{{ $s['years'] ?? '—' }}+</div>
                 <div class="text-[10px] font-bold uppercase tracking-widest text-blue-200">YEARS OF EXCELLENCE</div>
             </div>
 
