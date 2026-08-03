@@ -214,7 +214,7 @@
                 </button>
                 <button type="button" @click="activeNoticeTab = 'exam'" :class="activeNoticeTab === 'exam' ? 'bg-[#0b4a92] text-white border-b-2 border-yellow-400' : 'bg-[#003D82] text-white/80 hover:text-white'" class="py-3 font-bold text-sm flex items-center justify-center gap-2 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Exam Results
+                    Exam & Results
                 </button>
             </div>
             <div class="flex-1 overflow-y-auto p-2 min-h-[260px]">
@@ -262,21 +262,75 @@
             </a>
         </div>
 
-        {{-- Right 5 Cols: News & Events --}}
+        {{-- Right 6 Cols: News & Events --}}
         <div class="lg:col-span-6 flex flex-col bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="bg-[#003D82] text-white font-bold p-3.5 text-sm border-b-2 border-yellow-500">
+            <div class="bg-[#003D82] text-white font-bold p-3.5 text-sm border-b-2 border-yellow-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 NEWS & EVENTS
             </div>
-            <div class="flex-1 p-4 flex flex-col justify-center items-center text-center">
-                @forelse(($newsEvents ?? collect())->take(2) as $event)
-                    @php $eventDate = $event->published_at ?? $event->created_at; @endphp
-                    <a href="{{ route('public.news-events.show', $event->slug) }}" class="block w-full p-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded mb-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
-                        <div class="text-xs font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">{{ $event->title }}</div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">{{ bsDate($eventDate, 'Y, F d') }}</div>
+            <div class="flex-1 overflow-hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
+                @forelse(($newsEvents ?? collect())->take(3) as $event)
+                    @php
+                        $eventDate    = $event->published_at ?? $event->created_at;
+                        $thumbAttach  = $event->relationLoaded('attachments')
+                            ? $event->attachments->firstWhere('is_image', true)
+                            : null;
+                        $thumbUrl     = $thumbAttach?->url
+                            ?? ($event->attachment ? asset('storage/' . $event->attachment) : null);
+                        $isEvent      = $event->type === 'event';
+                    @endphp
+                    <a href="{{ route('public.news-events.show', $event->slug) }}"
+                       class="flex-1 flex items-center gap-3 px-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group min-h-0">
+
+                        {{-- Thumbnail or date-badge fallback --}}
+                        @if($thumbUrl)
+                            <img src="{{ $thumbUrl }}"
+                                 alt="{{ $event->title }}"
+                                 class="w-16 h-14 object-cover rounded flex-shrink-0 border border-slate-200 dark:border-slate-600">
+                        @else
+                            <div class="w-16 h-14 flex-shrink-0 rounded flex flex-col items-center justify-center text-center
+                                        {{ $isEvent ? 'bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700'
+                                                     : 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700' }}">
+                                <span class="text-[8px] font-bold uppercase leading-none
+                                             {{ $isEvent ? 'text-amber-600 dark:text-amber-400' : 'text-[#003D82] dark:text-blue-400' }}">
+                                    {{ bsDate($eventDate, 'F') }}
+                                </span>
+                                <span class="text-lg font-extrabold leading-tight
+                                             {{ $isEvent ? 'text-amber-700 dark:text-amber-300' : 'text-[#003D82] dark:text-blue-300' }}">
+                                    {{ bsDate($eventDate, 'd') }}
+                                </span>
+                                <span class="text-[8px] mt-0.5 font-semibold uppercase
+                                             {{ $isEvent ? 'text-amber-500 dark:text-amber-500' : 'text-blue-400 dark:text-blue-500' }}">
+                                    {{ $isEvent ? 'Event' : 'News' }}
+                                </span>
+                            </div>
+                        @endif
+
+                        {{-- Text content --}}
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200
+                                       group-hover:text-[#003D82] dark:group-hover:text-blue-400
+                                       line-clamp-2 leading-snug transition-colors">
+                                {{ $event->title }}
+                            </h4>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <span class="text-[10px] text-slate-400">{{ bsDate($eventDate, 'Y, F d') }}</span>
+                                @if($thumbUrl)
+                                    <span class="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded-sm
+                                                 {{ $isEvent ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                                              : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
+                                        {{ $isEvent ? 'Event' : 'News' }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
                     </a>
                 @empty
-                    <div class="py-6 text-slate-400">
-                        <svg class="w-12 h-12 mx-auto mb-2 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <div class="flex-1 flex flex-col items-center justify-center py-12 text-slate-400">
+                        <svg class="w-12 h-12 mb-2 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
                         <p class="text-xs">No news or events yet.</p>
                     </div>
                 @endforelse
@@ -370,7 +424,7 @@
                 <div class="text-[10px] font-bold uppercase tracking-widest text-blue-200">FACULTY & STAFF</div>
             </div>
 
-            {{-- Stat 4: Partners --}}
+            {{-- Stat 4: Placements --}}
             <div class="space-y-1">
                 <div class="w-10 h-10 mx-auto flex items-center justify-center text-yellow-400">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
