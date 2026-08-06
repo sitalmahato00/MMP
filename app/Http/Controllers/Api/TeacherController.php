@@ -624,11 +624,13 @@ class TeacherController extends Controller
 
             // --- Strategy 2: fallback via teacher's subjects ---
             if ($slots->isEmpty()) {
-                // Get subject IDs taught by this teacher
-                $subjectIds = $teacher->subjects()->pluck('subjects.id');
+                // Get subject IDs taught by this teacher via subject_teacher pivot
+                $subjectIds = \DB::table('subject_teacher')
+                    ->where('teacher_id', $teacher->id)
+                    ->pluck('subject_id');
 
                 if ($subjectIds->isNotEmpty()) {
-                    // Find active timetables whose slots contain these subjects
+                    // Find active timetable slots that contain any of these subjects
                     $slots = \App\Models\TimetableSlot::with(['timetable.program', 'timetable.academicSession', 'subject'])
                         ->whereIn('subject_id', $subjectIds)
                         ->whereHas('timetable', fn($q) => $q->where('is_active', true))
