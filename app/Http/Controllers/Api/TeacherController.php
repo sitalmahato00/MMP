@@ -602,7 +602,12 @@ class TeacherController extends Controller
     }
 
     /**
-     * Get Timetable — returns all slots for this teacher grouped by day
+     * Get Timetable — returns all slots for this teacher grouped by day.
+     *
+     * Strategy:
+     * 1. Try slots directly assigned to this teacher (teacher_id in timetable_slots).
+     * 2. If none found, fall back to active timetables that cover the teacher's
+     *    subjects' program + semester (slots may not have teacher_id set yet).
      */
     public function timetable(Request $request): JsonResponse
     {
@@ -610,12 +615,27 @@ class TeacherController extends Controller
             $user    = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
-            // Get all timetable slots assigned to this teacher
+            // --- Strategy 1: slots directly assigned to this teacher ---
             $slots = \App\Models\TimetableSlot::with(['timetable.program', 'timetable.academicSession', 'subject'])
                 ->where('teacher_id', $teacher->id)
                 ->whereHas('timetable', fn($q) => $q->where('is_active', true))
                 ->orderBy('start_time')
                 ->get();
+
+            // --- Strategy 2: fallback via teacher's subjects ---
+            if ($slots->isEmpty()) {
+                // Get subject IDs taught by this teacher
+                $subjectIds = $teacher->subjects()->pluck('subjects.id');
+
+                if ($subjectIds->isNotEmpty()) {
+                    // Find active timetables whose slots contain these subjects
+                    $slots = \App\Models\TimetableSlot::with(['timetable.program', 'timetable.academicSession', 'subject'])
+                        ->whereIn('subject_id', $subjectIds)
+                        ->whereHas('timetable', fn($q) => $q->where('is_active', true))
+                        ->orderBy('start_time')
+                        ->get();
+                }
+            }
 
             if ($slots->isEmpty()) {
                 return response()->json([
@@ -623,7 +643,7 @@ class TeacherController extends Controller
                     'data'    => [
                         'has_timetable' => false,
                         'timetable'     => [],
-                        'message'       => 'No timetable assigned yet.',
+                        'message'       => 'No timetable slots found for your subjects.',
                     ],
                 ], 200);
             }
@@ -651,7 +671,6 @@ class TeacherController extends Controller
                 ];
             }
 
-            // Gather unique program/semester info from slots
             $firstTimetable = $slots->first()?->timetable;
 
             return response()->json([
