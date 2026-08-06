@@ -19,12 +19,29 @@ class TimetableController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        // Get all timetables where teacher has at least one slot
+        // Strategy 1: timetables where teacher is directly assigned to a slot
         $teacherTimetables = \App\Models\Timetable::whereHas('slots', function($q) use ($teacher) {
                 $q->where('teacher_id', $teacher->id);
             })
             ->with('program:id,name,code')
             ->get();
+
+        // Strategy 2: fallback — find timetables via teacher's subjects (when slots
+        // exist but teacher_id is not yet set on individual slots in production)
+        if ($teacherTimetables->isEmpty()) {
+            $subjectIds = \DB::table('subject_teacher')
+                ->where('teacher_id', $teacher->id)
+                ->pluck('subject_id');
+
+            if ($subjectIds->isNotEmpty()) {
+                $teacherTimetables = \App\Models\Timetable::whereHas('slots', function($q) use ($subjectIds) {
+                        $q->whereIn('subject_id', $subjectIds);
+                    })
+                    ->where('is_active', true)
+                    ->with('program:id,name,code')
+                    ->get();
+            }
+        }
 
         // Group by program and semester (ignore sections)
         $semesterOptions = $teacherTimetables->groupBy(function($tt) {
@@ -56,6 +73,7 @@ class TimetableController extends Controller
             ->get();
 
         // Get teacher's OWN today's slots for the selected semester (all sections)
+        // Try by teacher_id first, then fall back to subject-based lookup
         $today = strtolower(now()->format('l'));
         $myTodaySlots = TimetableSlot::where('teacher_id', $teacher->id)
             ->whereIn('timetable_id', $selectedSemester['timetable_ids'] ?? [])
@@ -63,6 +81,22 @@ class TimetableController extends Controller
             ->with(['subject:id,name,code', 'timetable:id,section'])
             ->orderBy('start_time')
             ->get();
+
+        // Fallback: if no slots found by teacher_id, use subject-based lookup
+        if ($myTodaySlots->isEmpty()) {
+            $subjectIds = \DB::table('subject_teacher')
+                ->where('teacher_id', $teacher->id)
+                ->pluck('subject_id');
+
+            if ($subjectIds->isNotEmpty()) {
+                $myTodaySlots = TimetableSlot::whereIn('subject_id', $subjectIds)
+                    ->whereIn('timetable_id', $selectedSemester['timetable_ids'] ?? [])
+                    ->where('day_of_week', $today)
+                    ->with(['subject:id,name,code', 'timetable:id,section'])
+                    ->orderBy('start_time')
+                    ->get();
+            }
+        }
 
         // Get unique subjects and teachers for the grid component
         $subjects = $slots->pluck('subject')->unique('id')->filter();
@@ -81,12 +115,28 @@ class TimetableController extends Controller
             abort(403, 'Teacher profile not found');
         }
 
-        // Get timetable slots
+        // Get timetable slots — try by teacher_id first, fallback to subject-based
         $slots = TimetableSlot::where('teacher_id', $teacher->id)
             ->with(['subject', 'timetable.program'])
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();
+
+        // Fallback via teacher's subjects if no direct slots found
+        if ($slots->isEmpty()) {
+            $subjectIds = \DB::table('subject_teacher')
+                ->where('teacher_id', $teacher->id)
+                ->pluck('subject_id');
+
+            if ($subjectIds->isNotEmpty()) {
+                $slots = TimetableSlot::whereIn('subject_id', $subjectIds)
+                    ->whereHas('timetable', fn($q) => $q->where('is_active', true))
+                    ->with(['subject', 'timetable.program'])
+                    ->orderBy('day_of_week')
+                    ->orderBy('start_time')
+                    ->get();
+            }
+        }
 
         // Group by day
         $slotsByDay = $slots->groupBy('day_of_week');
