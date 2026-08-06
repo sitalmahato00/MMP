@@ -334,22 +334,39 @@ class TeacherController extends Controller
     public function assignments(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user    = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
-            $assignments = Assignment::where('teacher_id', $teacher->id)
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
+            $now         = now();
+            $assignments = Assignment::with(['subject', 'submissions'])
+                ->where('teacher_id', $teacher->id)
+                ->orderBy('due_date', 'asc')
+                ->get();
+
+            $total    = $assignments->count();
+            $upcoming = $assignments->filter(fn($a) => $a->due_date && \Carbon\Carbon::parse($a->due_date)->gte($now))->count();
+            $overdue  = $assignments->filter(fn($a) => $a->due_date && \Carbon\Carbon::parse($a->due_date)->lt($now))->count();
 
             return response()->json([
                 'success' => true,
-                'data' => $assignments->map(fn($a) => [
-                    'id' => $a->id,
-                    'title' => $a->title,
-                    'subject' => $a->subject?->name,
-                    'due_date' => $a->due_date,
-                    'created_at' => $a->created_at,
-                ])
+                'data'    => $assignments->map(fn($a) => [
+                    'id'               => $a->id,
+                    'title'            => $a->title,
+                    'description'      => $a->description,
+                    'subject_id'       => $a->subject_id,
+                    'subject'          => $a->subject?->name,
+                    'subject_code'     => $a->subject?->code,
+                    'due_date'         => $a->due_date,
+                    'max_marks'        => $a->max_marks,
+                    'submissions_count'=> $a->submissions->count(),
+                    'is_overdue'       => $a->due_date && \Carbon\Carbon::parse($a->due_date)->lt($now),
+                    'created_at'       => $a->created_at,
+                ])->values(),
+                'meta' => [
+                    'total'    => $total,
+                    'upcoming' => $upcoming,
+                    'overdue'  => $overdue,
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -524,15 +541,37 @@ class TeacherController extends Controller
 
     /**
      * Get Students by Subject
+     * Looks up students enrolled in the subject's program + semester
      */
     public function studentsBySubject(Request $request, $subject): JsonResponse
     {
         try {
+            $subjectModel = \App\Models\Subject::findOrFail($subject);
+
+            $students = \App\Models\Student::with('user')
+                ->where('program_id', $subjectModel->program_id)
+                ->where('current_semester', $subjectModel->semester)
+                ->where('status', 'active')
+                ->get();
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'students' => [],
-                ]
+                    'subject'   => $subjectModel->name,
+                    'code'      => $subjectModel->code,
+                    'program_id'=> $subjectModel->program_id,
+                    'semester'  => $subjectModel->semester,
+                    'total'     => $students->count(),
+                    'students'  => $students->map(fn($s) => [
+                        'id'          => $s->id,
+                        'name'        => $s->user?->name,
+                        'email'       => $s->user?->email,
+                        'avatar_url'  => $s->user?->avatar_url,
+                        'student_no'  => $s->student_no,
+                        'roll_number' => $s->roll_number ?? null,
+                        'section'     => $s->section,
+                    ])->values(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -563,16 +602,69 @@ class TeacherController extends Controller
     }
 
     /**
-     * Get Timetable
+     * Get Timetable — returns all slots for this teacher grouped by day
      */
     public function timetable(Request $request): JsonResponse
     {
         try {
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            // Get all timetable slots assigned to this teacher
+            $slots = \App\Models\TimetableSlot::with(['timetable.program', 'timetable.academicSession', 'subject'])
+                ->where('teacher_id', $teacher->id)
+                ->whereHas('timetable', fn($q) => $q->where('is_active', true))
+                ->orderBy('start_time')
+                ->get();
+
+            if ($slots->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data'    => [
+                        'has_timetable' => false,
+                        'timetable'     => [],
+                        'message'       => 'No timetable assigned yet.',
+                    ],
+                ], 200);
+            }
+
+            $days   = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            $result = [];
+
+            foreach ($days as $day) {
+                $daySlots = $slots->filter(fn($s) => $s->day_of_week === $day)->values();
+                $result[] = [
+                    'day'     => $day,
+                    'classes' => $daySlots->map(fn($s) => [
+                        'id'           => $s->id,
+                        'subject'      => $s->subject?->name,
+                        'subject_code' => $s->subject?->code,
+                        'program'      => $s->timetable?->program?->name,
+                        'semester'     => $s->timetable?->semester,
+                        'section'      => $s->timetable?->section,
+                        'start_time'   => substr($s->start_time, 0, 5),
+                        'end_time'     => substr($s->end_time, 0, 5),
+                        'room'         => $s->room_number,
+                        'type'         => $s->type,
+                        'duration'     => $s->duration,
+                    ])->values(),
+                ];
+            }
+
+            // Gather unique program/semester info from slots
+            $firstTimetable = $slots->first()?->timetable;
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'timetable' => [],
-                ]
+                'data'    => [
+                    'has_timetable'    => true,
+                    'program'          => $firstTimetable?->program?->name,
+                    'semester'         => $firstTimetable?->semester,
+                    'section'          => $firstTimetable?->section,
+                    'academic_session' => $firstTimetable?->academicSession?->name,
+                    'effective_from'   => $firstTimetable?->effective_from?->toDateString(),
+                    'timetable'        => $result,
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
