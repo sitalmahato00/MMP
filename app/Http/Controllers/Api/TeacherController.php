@@ -358,6 +358,9 @@ class TeacherController extends Controller
                     'subject_code'     => $a->subject?->code,
                     'due_date'         => $a->due_date,
                     'max_marks'        => $a->max_marks,
+                    'attachment_url'   => $a->attachment
+                        ? \Storage::disk('public')->url($a->attachment)
+                        : null,
                     'submissions_count'=> $a->submissions->count(),
                     'is_overdue'       => $a->due_date && \Carbon\Carbon::parse($a->due_date)->lt($now),
                     'created_at'       => $a->created_at,
@@ -383,25 +386,48 @@ class TeacherController extends Controller
     {
         try {
             $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'required|string',
-                'subject_id' => 'required|integer',
-                'due_date' => 'required|date_format:Y-m-d',
-                'max_marks' => 'required|numeric',
+                'title'       => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'subject_id'  => 'required|integer|exists:subjects,id',
+                'due_date'    => 'required|date_format:Y-m-d',
+                'max_marks'   => 'nullable|numeric|min:0',
+                'attachment'  => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,jpg,jpeg,png,gif|max:10240',
             ]);
 
-            $user = $request->user();
+            $user    = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
+            // Resolve program_id and semester from the subject
+            $subject = \App\Models\Subject::findOrFail($validated['subject_id']);
+
+            // Handle file upload
+            $attachmentPath = null;
+            if ($request->hasFile('attachment')) {
+                $attachmentPath = $request->file('attachment')->store('assignments', 'public');
+            }
+
             $assignment = Assignment::create([
-                ...$validated,
-                'teacher_id' => $teacher->id,
+                'title'       => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'subject_id'  => $validated['subject_id'],
+                'due_date'    => $validated['due_date'],
+                'max_marks'   => $validated['max_marks'] ?? null,
+                'attachment'  => $attachmentPath,
+                'teacher_id'  => $teacher->id,
+                'program_id'  => $subject->program_id ?? 1,
+                'semester'    => $subject->semester ?? 1,
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Assignment created successfully',
-                'data' => ['assignment_id' => $assignment->id]
+                'data'    => [
+                    'assignment_id'  => $assignment->id,
+                    'title'          => $assignment->title,
+                    'attachment_url' => $assignment->attachment
+                        ? \Storage::disk('public')->url($assignment->attachment)
+                        : null,
+                ],
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -464,16 +490,40 @@ class TeacherController extends Controller
     public function assignmentSubmissions(Request $request, Assignment $assignment): JsonResponse
     {
         try {
-            $submissions = $assignment->submissions()->paginate(10);
+            $submissions = $assignment->submissions()
+                ->with('student.user')
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             return response()->json([
                 'success' => true,
-                'data' => $submissions->map(fn($s) => [
-                    'id' => $s->id,
-                    'student' => $s->student?->user?->name,
-                    'status' => $s->status,
-                    'submitted_at' => $s->submitted_at,
-                ])
+                'data'    => [
+                    'assignment' => [
+                        'id'             => $assignment->id,
+                        'title'          => $assignment->title,
+                        'max_marks'      => $assignment->max_marks,
+                        'due_date'       => $assignment->due_date,
+                        'attachment_url' => $assignment->attachment
+                            ? \Storage::disk('public')->url($assignment->attachment)
+                            : null,
+                    ],
+                    'total'       => $submissions->count(),
+                    'submissions' => $submissions->map(fn($s) => [
+                        'id'               => $s->id,
+                        'student_id'       => $s->student_id,
+                        'student_name'     => $s->student?->user?->name,
+                        'student_no'       => $s->student?->student_no,
+                        'avatar_url'       => $s->student?->user?->avatar_url,
+                        'student_note'     => $s->student_note,
+                        'attachment_url'   => $s->attachment
+                            ? \Storage::disk('public')->url($s->attachment)
+                            : null,
+                        'status'           => $s->status,
+                        'marks_obtained'   => $s->marks_obtained,
+                        'teacher_feedback' => $s->teacher_feedback,
+                        'submitted_at'     => $s->created_at,
+                    ])->values(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -490,16 +540,25 @@ class TeacherController extends Controller
     {
         try {
             $validated = $request->validate([
-                'marks_obtained' => 'required|numeric',
-                'feedback' => 'nullable|string',
+                'marks_obtained' => 'required|numeric|min:0',
+                'teacher_feedback' => 'nullable|string|max:1000',
             ]);
 
-            // Update submission with grades
-            // $submission->update($validated);
+            $sub = \App\Models\AssignmentSubmission::findOrFail($submission);
+            $sub->update([
+                'marks_obtained'   => $validated['marks_obtained'],
+                'teacher_feedback' => $validated['teacher_feedback'] ?? null,
+                'status'           => 'graded',
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Submission graded successfully',
+                'data'    => [
+                    'marks_obtained'   => $sub->marks_obtained,
+                    'teacher_feedback' => $sub->teacher_feedback,
+                    'status'           => $sub->status,
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
