@@ -495,10 +495,20 @@ class StudentController extends Controller
                         'id' => $a->id,
                         'title' => $a->title,
                         'subject' => $a->subject?->name,
+                        'subject_code' => $a->subject?->code,
                         'description' => $a->description,
                         'due_date' => $a->due_date,
                         'max_marks' => $a->max_marks,
+                        'attachment_url' => $a->attachment ? \Storage::disk('public')->url($a->attachment) : null,
                         'status' => $status,
+                        'submission' => $submission ? [
+                            'id' => $submission->id,
+                            'student_note' => $submission->student_note,
+                            'attachment_url' => $submission->attachment ? \Storage::disk('public')->url($submission->attachment) : null,
+                            'marks_obtained' => $submission->marks_obtained,
+                            'teacher_feedback' => $submission->teacher_feedback,
+                            'submitted_at' => $submission->created_at,
+                        ] : null,
                     ];
                 }),
                 'pagination' => [
@@ -522,16 +532,35 @@ class StudentController extends Controller
     public function assignmentDetail(Request $request, Assignment $assignment): JsonResponse
     {
         try {
+            $user = $request->user();
+            $student = Student::where('user_id', $user->id)->firstOrFail();
+
+            // Check if student has submitted
+            $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
+                ->where('student_id', $student->id)
+                ->first();
+
             return response()->json([
                 'success' => true,
                 'data' => [
                     'id' => $assignment->id,
                     'title' => $assignment->title,
                     'subject' => $assignment->subject?->name,
+                    'subject_code' => $assignment->subject?->code,
                     'description' => $assignment->description,
                     'due_date' => $assignment->due_date,
                     'max_marks' => $assignment->max_marks,
-                    'attachment_url' => $assignment->attachment_url,
+                    'attachment_url' => $assignment->attachment ? \Storage::disk('public')->url($assignment->attachment) : null,
+                    'created_at' => $assignment->created_at,
+                    'submission' => $submission ? [
+                        'id' => $submission->id,
+                        'student_note' => $submission->student_note,
+                        'attachment_url' => $submission->attachment ? \Storage::disk('public')->url($submission->attachment) : null,
+                        'status' => $submission->status,
+                        'marks_obtained' => $submission->marks_obtained,
+                        'teacher_feedback' => $submission->teacher_feedback,
+                        'submitted_at' => $submission->created_at,
+                    ] : null,
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -549,8 +578,8 @@ class StudentController extends Controller
     {
         try {
             $validated = $request->validate([
-                'content' => 'nullable|string',
-                'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+                'student_note' => 'nullable|string|max:2000',
+                'attachment'   => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,jpg,jpeg,png,gif|max:10240',
             ]);
 
             $user = $request->user();
@@ -572,17 +601,17 @@ class StudentController extends Controller
                 ], 409);
             }
 
-            $attachment = null;
-            if ($request->hasFile('file')) {
-                $attachment = $request->file('file')->store('assignments', 'public');
+            $attachmentPath = null;
+            if ($request->hasFile('attachment')) {
+                $attachmentPath = $request->file('attachment')->store('submissions', 'public');
             }
 
             $submission = AssignmentSubmission::create([
                 'assignment_id' => $assignment->id,
                 'student_id'    => $student->id,
-                'student_note'  => $validated['content'] ?? null,
-                'attachment'    => $attachment,
-                'status'        => 'pending',
+                'student_note'  => $validated['student_note'] ?? null,
+                'attachment'    => $attachmentPath,
+                'status'        => 'submitted',
             ]);
 
             return response()->json([
