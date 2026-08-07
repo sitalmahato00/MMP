@@ -124,6 +124,7 @@ html.dark main, html.dark .page-content { background-color: #0D1B35 !important; 
 .course-card,
 .feature-card,
 .bg-white {
+  position: relative; /* Scope any absolute children (e.g. gradient overlays) to the card */
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 4px;
