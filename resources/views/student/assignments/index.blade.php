@@ -66,6 +66,21 @@
     {{-- Filters --}}
     <section class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
         <form method="GET" class="flex flex-wrap items-end gap-4">
+            <input type="hidden" name="semester" value="{{ $selectedSemester }}">
+
+            {{-- Semester dropdown inline --}}
+            <div class="min-w-[130px]">
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Semester</label>
+                <select name="semester" onchange="this.form.submit()"
+                    class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500 focus:ring-blue-500">
+                    @foreach($semesterOptions as $sem)
+                        <option value="{{ $sem }}" {{ $selectedSemester == $sem ? 'selected' : '' }}>
+                            Semester {{ $sem }}{{ $sem == $currentSemester ? ' (Current)' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="min-w-[150px]">
                 <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Subject</label>
                 <select name="subject_id" class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500 focus:ring-blue-500">
@@ -175,7 +190,7 @@
 
         @if($assignments->hasPages())
             <div class="border-t border-slate-100 dark:border-[#1e3a5f] px-5 py-4">
-                {{ $assignments->links() }}
+                {{ $assignments->appends(['semester' => $selectedSemester, 'subject_id' => request('subject_id'), 'status' => request('status')])->links() }}
             </div>
         @endif
     </section>

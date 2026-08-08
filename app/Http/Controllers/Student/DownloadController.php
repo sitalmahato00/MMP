@@ -13,25 +13,34 @@ class DownloadController extends Controller
     public function index(Request $request)
     {
         $student = auth()->user()->student;
-        
+
         if (!$student) {
             abort(403, 'Student profile not found');
         }
 
-        // Get filters
-        $subjectId = $request->get('subject_id');
-        $search = $request->get('search');
+        // Semester selector — allow viewing downloads for any past semester
+        $currentSemester  = $student->current_semester;
+        $selectedSemester = (int) $request->get('semester', $currentSemester);
+        $selectedSemester = max(1, min($selectedSemester, $currentSemester));
+        $semesterOptions  = range(1, $currentSemester);
 
-        // Get downloads with proper validation logic using scope
+        $subjectId = $request->get('subject_id');
+        $search    = $request->get('search');
+
+        // Build a temporary student-like context for the selected semester
+        // Clone student and override semester for the scope
+        $studentForSemester = clone $student;
+        $studentForSemester->current_semester = $selectedSemester;
+
         $downloadsQuery = Download::with(['subject', 'uploadedBy'])
-            ->visibleToStudent($student);
+            ->visibleToStudent($studentForSemester);
 
         if ($subjectId) {
             $downloadsQuery->where('subject_id', $subjectId);
         }
 
         if ($search) {
-            $downloadsQuery->where(function($q) use ($search) {
+            $downloadsQuery->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%");
             });
@@ -39,39 +48,50 @@ class DownloadController extends Controller
 
         $downloads = $downloadsQuery->latest()->paginate(20);
 
-        // Get subjects for filter (student's current semester subjects)
+        // Subjects for the selected semester (for filter dropdown)
         $subjects = Subject::where('program_id', $student->program_id)
-            ->where('semester', $student->current_semester)
+            ->where('semester', $selectedSemester)
             ->orderBy('name')
             ->get();
 
-        // Calculate statistics with same validation logic
-        $totalDownloads = Download::visibleToStudent($student)->count();
+        $totalDownloads = Download::visibleToStudent($studentForSemester)->count();
 
-        $subjectCount = Download::visibleToStudent($student)
+        $subjectCount = Download::visibleToStudent($studentForSemester)
             ->whereNotNull('subject_id')
             ->distinct('subject_id')
             ->count('subject_id');
 
         return view('student.downloads.index', compact(
-            'student',
-            'downloads',
-            'subjects',
-            'totalDownloads',
-            'subjectCount'
+            'student', 'downloads', 'subjects', 'totalDownloads', 'subjectCount',
+            'selectedSemester', 'currentSemester', 'semesterOptions'
         ));
     }
 
     public function file($id)
     {
         $student = auth()->user()->student;
-        
+
         if (!$student) {
             abort(403, 'Student profile not found');
         }
 
-        // Validate download access with same logic using scope
-        $download = Download::visibleToStudent($student)->findOrFail($id);
+        // Allow downloading files from any past semester
+        $studentForAny = clone $student;
+        // Check access across all semesters 1..current
+        $accessible = false;
+        for ($sem = 1; $sem <= $student->current_semester; $sem++) {
+            $studentForAny->current_semester = $sem;
+            if (Download::visibleToStudent($studentForAny)->where('id', $id)->exists()) {
+                $accessible = true;
+                break;
+            }
+        }
+
+        if (!$accessible) {
+            abort(403, 'Access denied');
+        }
+
+        $download = Download::findOrFail($id);
 
         if (!Storage::disk('public')->exists($download->file_path)) {
             abort(404, 'File not found');

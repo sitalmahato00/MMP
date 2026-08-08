@@ -25,52 +25,54 @@ class MarksController extends Controller
             abort(403, 'Student profile not found');
         }
 
+        // Semester selector
+        $currentSemester  = $student->current_semester;
+        $selectedSemester = $request->get('semester') ? (int) $request->get('semester') : null;
+        if ($selectedSemester !== null) {
+            $selectedSemester = max(1, min($selectedSemester, $currentSemester));
+        }
+        $semesterOptions = range(1, $currentSemester);
+
         $examType = $request->get('exam_type');
         $category = $request->get('category');
-        $semester = $request->get('semester');
 
         $filteredMarks = Mark::with(['exam', 'subject'])
             ->where('student_id', $student->id)
             ->visibleToPortal();
 
         if ($examType) {
-            $filteredMarks->whereHas('exam', function ($query) use ($examType) {
-                $query->where('type', $examType);
-            });
+            $filteredMarks->whereHas('exam', fn ($q) => $q->where('type', $examType));
         }
 
         if ($category) {
-            $filteredMarks->whereHas('exam', function ($query) use ($category) {
-                $query->where('category', $category);
-            });
+            $filteredMarks->whereHas('exam', fn ($q) => $q->where('category', $category));
         }
 
-        if ($semester) {
-            $filteredMarks->where('semester', $semester);
+        // Filter by semester via subject
+        if ($selectedSemester !== null) {
+            $filteredMarks->whereHas('subject', fn ($q) => $q->where('semester', $selectedSemester));
         }
 
-        $filteredMarks = $filteredMarks->latest()->get();
+        $filteredMarks    = $filteredMarks->latest()->get();
         $assessmentResults = $this->studentRecordService->buildAssessmentResults($filteredMarks);
 
-        $allMarks = $this->studentRecordService->getVisiblePublishedMarks($student);
-        $marksSummary = $this->studentRecordService->summarizeMarks($allMarks);
+        // Overall stats use all marks (not semester-filtered)
+        $allMarks       = $this->studentRecordService->getVisiblePublishedMarks($student);
+        $marksSummary   = $this->studentRecordService->summarizeMarks($allMarks);
 
-        $totalAssessments = (int) ($marksSummary['total_assessments'] ?? 0);
+        $totalAssessments  = (int) ($marksSummary['total_assessments'] ?? 0);
         $averagePercentage = (float) ($marksSummary['percentage_rate'] ?? 0);
-        $totalSubjects = (int) ($marksSummary['total_subjects'] ?? 0);
+        $totalSubjects     = (int) ($marksSummary['total_subjects'] ?? 0);
 
-        $passedSubjects = $allMarks->filter(fn (Mark $mark) => $mark->is_passed)->count();
-        $passPercentage = $allMarks->count() > 0
+        $passedSubjects  = $allMarks->filter(fn (Mark $mark) => $mark->is_passed)->count();
+        $passPercentage  = $allMarks->count() > 0
             ? round(($passedSubjects / $allMarks->count()) * 100, 1)
             : 0;
 
         return view('student.marks.index', compact(
-            'student',
-            'assessmentResults',
-            'totalAssessments',
-            'averagePercentage',
-            'totalSubjects',
-            'passPercentage'
+            'student', 'assessmentResults', 'totalAssessments',
+            'averagePercentage', 'totalSubjects', 'passPercentage',
+            'selectedSemester', 'currentSemester', 'semesterOptions'
         ));
     }
 

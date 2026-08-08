@@ -13,21 +13,27 @@ class AssignmentsController extends Controller
     public function index(Request $request)
     {
         $student = auth()->user()->student;
-        
+
         if (!$student) {
             abort(403, 'Student profile not found');
         }
 
-        // Get filters
-        $status = $request->get('status');
+        // Semester selector
+        $currentSemester  = $student->current_semester;
+        $selectedSemester = (int) $request->get('semester', $currentSemester);
+        $selectedSemester = max(1, min($selectedSemester, $currentSemester));
+        $semesterOptions  = range(1, $currentSemester);
+
+        $status    = $request->get('status');
         $subjectId = $request->get('subject_id');
 
-        // Get assignments for student's program and semester
-        $assignmentsQuery = Assignment::with(['subject', 'teacher.user', 'submissions' => function($q) use ($student) {
-                $q->where('student_id', $student->id);
-            }])
+        $assignmentsQuery = Assignment::with([
+                'subject',
+                'teacher.user',
+                'submissions' => fn ($q) => $q->where('student_id', $student->id),
+            ])
             ->where('program_id', $student->program_id)
-            ->where('semester', $student->current_semester);
+            ->where('semester', $selectedSemester);
 
         if ($subjectId) {
             $assignmentsQuery->where('subject_id', $subjectId);
@@ -35,47 +41,37 @@ class AssignmentsController extends Controller
 
         $assignments = $assignmentsQuery->latest('due_date')->paginate(15);
 
-        // Add status to each assignment
-        $assignments->getCollection()->transform(function($assignment) use ($student) {
+        $assignments->getCollection()->transform(function ($assignment) {
             $submission = $assignment->submissions->first();
-            
+
             if ($submission) {
-                if ($submission->marks_obtained !== null) {
-                    $assignment->submission_status = 'graded';
-                } else {
-                    $assignment->submission_status = 'submitted';
-                }
+                $assignment->submission_status = $submission->marks_obtained !== null ? 'graded' : 'submitted';
             } else {
-                if ($assignment->due_date < now()) {
-                    $assignment->submission_status = 'overdue';
-                } else {
-                    $assignment->submission_status = 'pending';
-                }
+                $assignment->submission_status = $assignment->due_date < now() ? 'overdue' : 'pending';
             }
-            
+
             $assignment->my_submission = $submission;
             return $assignment;
         });
 
-        // Filter by status if requested
         if ($status) {
-            $assignments->setCollection($assignments->getCollection()->filter(function($assignment) use ($status) {
-                return $assignment->submission_status === $status;
-            }));
+            $assignments->setCollection(
+                $assignments->getCollection()->filter(fn ($a) => $a->submission_status === $status)
+            );
         }
 
-        // Calculate statistics
+        // Stats for selected semester
         $allAssignments = Assignment::where('program_id', $student->program_id)
-            ->where('semester', $student->current_semester)
+            ->where('semester', $selectedSemester)
             ->get();
 
         $totalAssignments = $allAssignments->count();
-        
+
         $submittedCount = AssignmentSubmission::where('student_id', $student->id)
             ->whereIn('assignment_id', $allAssignments->pluck('id'))
             ->count();
 
-        $pendingCount = $allAssignments->filter(function($assignment) use ($student) {
+        $pendingCount = $allAssignments->filter(function ($assignment) use ($student) {
             return !AssignmentSubmission::where('student_id', $student->id)
                 ->where('assignment_id', $assignment->id)
                 ->exists() && $assignment->due_date >= now();
@@ -86,34 +82,29 @@ class AssignmentsController extends Controller
             ->whereNotNull('marks_obtained')
             ->count();
 
-        // Get subjects for filter
         $subjects = $allAssignments->pluck('subject')->unique('id')->sortBy('name');
 
         return view('student.assignments.index', compact(
-            'student',
-            'assignments',
-            'totalAssignments',
-            'submittedCount',
-            'pendingCount',
-            'gradedCount',
-            'subjects'
+            'student', 'assignments', 'totalAssignments', 'submittedCount',
+            'pendingCount', 'gradedCount', 'subjects',
+            'selectedSemester', 'currentSemester', 'semesterOptions'
         ));
     }
 
     public function show($id)
     {
         $student = auth()->user()->student;
-        
+
         if (!$student) {
             abort(403, 'Student profile not found');
         }
 
+        // Allow viewing assignments from any past semester
         $assignment = Assignment::with(['subject', 'teacher.user'])
             ->where('program_id', $student->program_id)
-            ->where('semester', $student->current_semester)
+            ->where('semester', '<=', $student->current_semester)
             ->findOrFail($id);
 
-        // Get student's submission if exists
         $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', $student->id)
             ->first();
@@ -124,21 +115,20 @@ class AssignmentsController extends Controller
     public function submit(Request $request, $id)
     {
         $student = auth()->user()->student;
-        
+
         if (!$student) {
             abort(403, 'Student profile not found');
         }
 
         $assignment = Assignment::where('program_id', $student->program_id)
-            ->where('semester', $student->current_semester)
+            ->where('semester', '<=', $student->current_semester)
             ->findOrFail($id);
 
         $request->validate([
             'student_note' => 'nullable|string',
-            'attachment' => 'nullable|file|max:10240', // 10MB max
+            'attachment'   => 'nullable|file|max:10240',
         ]);
 
-        // Check if already submitted
         $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', $student->id)
             ->first();
@@ -149,25 +139,22 @@ class AssignmentsController extends Controller
 
         $data = [
             'assignment_id' => $assignment->id,
-            'student_id' => $student->id,
-            'student_note' => $request->student_note,
-            'status' => 'submitted',
+            'student_id'    => $student->id,
+            'student_note'  => $request->student_note,
+            'status'        => 'submitted',
         ];
 
-        // Handle file upload
         if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
+            $file     = $request->file('attachment');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('assignments/submissions', $filename, 'public');
+            $path     = $file->storeAs('assignments/submissions', $filename, 'public');
             $data['attachment'] = $path;
         }
 
         if ($submission) {
-            // Update existing submission
             $submission->update($data);
             $message = 'Assignment resubmitted successfully';
         } else {
-            // Create new submission
             AssignmentSubmission::create($data);
             $message = 'Assignment submitted successfully';
         }

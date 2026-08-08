@@ -25,39 +25,44 @@ class AttendanceController extends Controller
             abort(403, 'Student profile not found');
         }
 
-        $subjectId = $request->get('subject_id');
-        $fromDate = $request->get('from_date');
-        $toDate = $request->get('to_date');
+        // Semester selector — student can view any semester from 1 to current
+        $currentSemester  = $student->current_semester;
+        $selectedSemester = (int) $request->get('semester', $currentSemester);
+        $selectedSemester = max(1, min($selectedSemester, $currentSemester));
 
-        $bounds = $this->studentRecordService->getAttendanceDateBounds($student);
+        $subjectId = $request->get('subject_id');
+        $fromDate  = $request->get('from_date');
+        $toDate    = $request->get('to_date');
+
+        $bounds          = $this->studentRecordService->getAttendanceDateBounds($student);
         $defaultFromDate = $bounds['first_date'];
-        $defaultToDate = $bounds['last_date'];
+        $defaultToDate   = $bounds['last_date'];
 
         if ($fromDate) {
             try {
-                $adFromDate = adDate($fromDate);
-                $startDate = $adFromDate ? $adFromDate->startOfDay() : $defaultFromDate;
+                $adFromDate      = adDate($fromDate);
+                $startDate       = $adFromDate ? $adFromDate->startOfDay() : $defaultFromDate;
                 $displayFromDate = $fromDate;
             } catch (\Exception $e) {
-                $startDate = $defaultFromDate;
+                $startDate       = $defaultFromDate;
                 $displayFromDate = $defaultFromDate ? bsDate($defaultFromDate, 'Y-m-d') : '';
             }
         } else {
-            $startDate = $defaultFromDate;
+            $startDate       = $defaultFromDate;
             $displayFromDate = $defaultFromDate ? bsDate($defaultFromDate, 'Y-m-d') : '';
         }
 
         if ($toDate) {
             try {
-                $adToDate = adDate($toDate);
-                $endDate = $adToDate ? $adToDate->endOfDay() : $defaultToDate;
+                $adToDate      = adDate($toDate);
+                $endDate       = $adToDate ? $adToDate->endOfDay() : $defaultToDate;
                 $displayToDate = $toDate;
             } catch (\Exception $e) {
-                $endDate = $defaultToDate;
+                $endDate       = $defaultToDate;
                 $displayToDate = $defaultToDate ? bsDate($defaultToDate, 'Y-m-d') : '';
             }
         } else {
-            $endDate = $defaultToDate;
+            $endDate       = $defaultToDate;
             $displayToDate = $defaultToDate ? bsDate($defaultToDate, 'Y-m-d') : '';
         }
 
@@ -65,54 +70,54 @@ class AttendanceController extends Controller
             $student,
             $startDate,
             $endDate,
-            $subjectId ? (int) $subjectId : null
+            $subjectId ? (int) $subjectId : null,
+            $selectedSemester
         );
 
         $attendanceStats = $this->studentRecordService->summarizeAttendance($attendances);
-        $totalClasses = $attendanceStats['total'];
-        $presentCount = $attendanceStats['present'];
-        $absentCount = $attendanceStats['absent'];
-        $lateCount = $attendanceStats['late'];
-        $attendanceRate = $attendanceStats['rate'];
+        $totalClasses    = $attendanceStats['total'];
+        $presentCount    = $attendanceStats['present'];
+        $absentCount     = $attendanceStats['absent'];
+        $lateCount       = $attendanceStats['late'];
+        $attendanceRate  = $attendanceStats['rate'];
 
         $subjectWise = $attendances
-            ->filter(fn ($attendance) => $attendance->attendanceSession?->subject)
-            ->groupBy(fn ($attendance) => $attendance->attendanceSession->subject_id)
+            ->filter(fn ($a) => $a->attendanceSession?->subject)
+            ->groupBy(fn ($a) => $a->attendanceSession->subject_id)
             ->map(function ($group) {
-                $total = $group->count();
+                $total   = $group->count();
                 $present = $group->where('status', 'present')->count();
-                $rate = $total > 0 ? round(($present / $total) * 100, 1) : 0;
-
+                $rate    = $total > 0 ? round(($present / $total) * 100, 1) : 0;
                 return [
                     'subject' => $group->first()->attendanceSession->subject,
-                    'total' => $total,
+                    'total'   => $total,
                     'present' => $present,
-                    'absent' => $group->where('status', 'absent')->count(),
-                    'late' => $group->where('status', 'late')->count(),
-                    'rate' => $rate,
+                    'absent'  => $group->where('status', 'absent')->count(),
+                    'late'    => $group->where('status', 'late')->count(),
+                    'rate'    => $rate,
                 ];
             })
             ->values();
 
+        // Subjects for the selected semester (for filter dropdown)
         $subjects = Subject::where('program_id', $student->program_id)
-            ->where('semester', $student->current_semester)
+            ->where('semester', $selectedSemester)
             ->orderBy('name')
             ->get();
 
         $calendar = $attendances
-            ->filter(fn ($attendance) => $attendance->attendanceSession?->date)
-            ->groupBy(fn ($attendance) => $attendance->attendanceSession->date->format('Y-m-d'))
+            ->filter(fn ($a) => $a->attendanceSession?->date)
+            ->groupBy(fn ($a) => $a->attendanceSession->date->format('Y-m-d'))
             ->map(function ($dayAttendances) {
                 $present = $dayAttendances->where('status', 'present')->count();
-                $total = $dayAttendances->count();
-
+                $total   = $dayAttendances->count();
                 return [
-                    'date' => $dayAttendances->first()->attendanceSession->date,
-                    'total' => $total,
+                    'date'    => $dayAttendances->first()->attendanceSession->date,
+                    'total'   => $total,
                     'present' => $present,
-                    'absent' => $dayAttendances->where('status', 'absent')->count(),
-                    'late' => $dayAttendances->where('status', 'late')->count(),
-                    'status' => $present === $total ? 'full' : ($present > 0 ? 'partial' : 'absent'),
+                    'absent'  => $dayAttendances->where('status', 'absent')->count(),
+                    'late'    => $dayAttendances->where('status', 'late')->count(),
+                    'status'  => $present === $total ? 'full' : ($present > 0 ? 'partial' : 'absent'),
                 ];
             });
 
@@ -120,30 +125,24 @@ class AttendanceController extends Controller
             return $this->exportAttendance($student, $attendances, $subjectWise, $attendanceRate);
         }
 
+        $semesterOptions = range(1, $currentSemester);
+
         return view('student.attendance.index', compact(
-            'student',
-            'attendances',
-            'totalClasses',
-            'presentCount',
-            'absentCount',
-            'lateCount',
-            'attendanceRate',
-            'subjectWise',
-            'subjects',
-            'calendar',
-            'displayFromDate',
-            'displayToDate'
+            'student', 'attendances', 'totalClasses', 'presentCount',
+            'absentCount', 'lateCount', 'attendanceRate', 'subjectWise',
+            'subjects', 'calendar', 'displayFromDate', 'displayToDate',
+            'selectedSemester', 'currentSemester', 'semesterOptions'
         ));
     }
 
     private function exportAttendance($student, $attendances, $subjectWise, $attendanceRate)
     {
         $data = [
-            'student' => $student,
-            'attendances' => $attendances,
-            'subjectWise' => $subjectWise,
+            'student'        => $student,
+            'attendances'    => $attendances,
+            'subjectWise'    => $subjectWise,
             'attendanceRate' => $attendanceRate,
-            'exportDate' => bsDate(now(), 'Y F d, l'),
+            'exportDate'     => bsDate(now(), 'Y F d, l'),
         ];
 
         $pdf = Pdf::loadView('student.attendance.export', $data);

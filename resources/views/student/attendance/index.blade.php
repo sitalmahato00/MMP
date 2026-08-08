@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="space-y-6">
+
     {{-- KPI Cards --}}
     <section class="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <div class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
@@ -70,6 +71,21 @@
     <section class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] p-4 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <form method="GET" class="flex flex-wrap items-end gap-4">
+                <input type="hidden" name="semester" value="{{ $selectedSemester }}">
+
+                {{-- Semester dropdown (inline in filter bar) --}}
+                <div class="min-w-[130px]">
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Semester</label>
+                    <select name="semester" onchange="this.form.submit()"
+                        class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500">
+                        @foreach($semesterOptions as $sem)
+                            <option value="{{ $sem }}" {{ $selectedSemester == $sem ? 'selected' : '' }}>
+                                Semester {{ $sem }}{{ $sem == $currentSemester ? ' (Current)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="min-w-[150px]">
                     <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Subject</label>
                     <select name="subject_id" class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500">
@@ -84,9 +100,9 @@
 
                 <div class="min-w-[150px]">
                     <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">From Date (BS)</label>
-                    <x-bs-date-picker 
-                        name="from_date" 
-                        value="{{ $displayFromDate ?? bsDate(now()->startOfMonth(), 'Y-m-d') }}" 
+                    <x-bs-date-picker
+                        name="from_date"
+                        value="{{ $displayFromDate ?? bsDate(now()->startOfMonth(), 'Y-m-d') }}"
                         placeholder="YYYY-MM-DD"
                         class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500"
                     />
@@ -94,9 +110,9 @@
 
                 <div class="min-w-[150px]">
                     <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">To Date (BS)</label>
-                    <x-bs-date-picker 
-                        name="to_date" 
-                        value="{{ $displayToDate ?? bsDate(now(), 'Y-m-d') }}" 
+                    <x-bs-date-picker
+                        name="to_date"
+                        value="{{ $displayToDate ?? bsDate(now(), 'Y-m-d') }}"
                         placeholder="YYYY-MM-DD"
                         class="w-full rounded-lg border border-slate-300 dark:border-[#2d4a70] bg-white dark:bg-[#1a2f50] px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-blue-500"
                     />
@@ -106,13 +122,14 @@
                     <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                         Filter
                     </button>
-                    <a href="{{ route('student.attendance.index') }}" class="rounded-lg border border-slate-300 dark:border-[#2d4a70] px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1e3a5f]">
+                    <a href="{{ route('student.attendance.index', $currentSemester > 1 ? ['semester' => $selectedSemester] : []) }}"
+                       class="rounded-lg border border-slate-300 dark:border-[#2d4a70] px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1e3a5f]">
                         Clear
                     </a>
                 </div>
             </form>
 
-            {{-- Analytics Button --}}
+            {{-- Analytics & Export --}}
             <div class="flex gap-2">
                 <button onclick="showAttendanceAnalytics()" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 flex items-center gap-2">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,7 +146,6 @@
             </div>
         </div>
     </section>
-
     {{-- Subject-wise Breakdown --}}
     @if($subjectWise->count() > 0)
     <section class="rounded-xl border border-slate-200 dark:border-[#1e3a5f] bg-white dark:bg-[#132044] shadow-sm">

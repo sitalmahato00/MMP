@@ -207,26 +207,30 @@ class StudentRecordService
         Student $student,
         ?CarbonInterface $startDate = null,
         ?CarbonInterface $endDate = null,
-        ?int $subjectId = null
+        ?int $subjectId = null,
+        ?int $semester = null
     ): Collection {
         $query = $student->attendances()
             ->with(['attendanceSession.subject', 'attendanceSession.teacher.user']);
 
-        if ($startDate || $endDate || $subjectId) {
-            $query->whereHas('attendanceSession', function ($sessionQuery) use ($startDate, $endDate, $subjectId) {
-                if ($startDate && $endDate) {
-                    $sessionQuery->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()]);
-                } elseif ($startDate) {
-                    $sessionQuery->whereDate('date', '>=', $startDate->toDateString());
-                } elseif ($endDate) {
-                    $sessionQuery->whereDate('date', '<=', $endDate->toDateString());
-                }
+        $query->whereHas('attendanceSession', function ($sessionQuery) use ($startDate, $endDate, $subjectId, $semester) {
+            if ($startDate && $endDate) {
+                $sessionQuery->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()]);
+            } elseif ($startDate) {
+                $sessionQuery->whereDate('date', '>=', $startDate->toDateString());
+            } elseif ($endDate) {
+                $sessionQuery->whereDate('date', '<=', $endDate->toDateString());
+            }
 
-                if ($subjectId) {
-                    $sessionQuery->where('subject_id', $subjectId);
-                }
-            });
-        }
+            if ($subjectId) {
+                $sessionQuery->where('subject_id', $subjectId);
+            }
+
+            // Filter by semester via subject
+            if ($semester !== null) {
+                $sessionQuery->whereHas('subject', fn ($sq) => $sq->where('semester', $semester));
+            }
+        });
 
         return $query->get();
     }
