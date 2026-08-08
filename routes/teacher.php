@@ -24,6 +24,7 @@ Route::post('exams/save-marks', [\App\Http\Controllers\Teacher\ExamsController::
 
 // Assignments
 Route::resource('assignments', \App\Http\Controllers\Teacher\AssignmentsController::class);
+Route::post('assignments/{assignment}/submissions/{submission}/grade', [\App\Http\Controllers\Teacher\AssignmentsController::class, 'gradeSubmission'])->name('assignments.submissions.grade');
 
 // Downloads/Resources
 Route::resource('downloads', \App\Http\Controllers\Teacher\DownloadController::class);

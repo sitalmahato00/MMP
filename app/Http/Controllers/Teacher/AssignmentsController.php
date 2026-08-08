@@ -180,6 +180,31 @@ class AssignmentsController extends Controller
         return redirect()->route('teacher.assignments.show', $assignment)->with('success', 'Assignment updated successfully.');
     }
 
+    public function gradeSubmission(Request $request, Assignment $assignment, \App\Models\AssignmentSubmission $submission)
+    {
+        $user = auth()->user();
+        $teacher = $user->teacher;
+
+        if ($assignment->teacher_id !== $teacher->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $data = $request->validate([
+            'marks_obtained'   => 'required|numeric|min:0|max:' . ($assignment->max_marks ?? 9999),
+            'teacher_feedback' => 'nullable|string|max:2000',
+        ]);
+
+        $submission->update([
+            'marks_obtained'   => $data['marks_obtained'],
+            'teacher_feedback' => $data['teacher_feedback'] ?? null,
+            'status'           => 'graded',
+        ]);
+
+        return redirect()
+            ->route('teacher.assignments.show', $assignment)
+            ->with('success', 'Submission graded successfully.');
+    }
+
     public function destroy(Assignment $assignment)
     {
         $user = auth()->user();
