@@ -62,7 +62,7 @@ class StudentController extends Controller
                     'phone' => $student->user->phone,
                     'avatar_url' => $student->user->avatar_url,
                     'program' => $student->program?->name,
-                    'semester' => $student->semester,
+                    'semester' => $student->current_semester,
                     'kpi_cards' => [
                         'attendance_percentage' => round($attendancePercentage, 2),
                         'average_marks' => round($averageMarks, 2),
@@ -983,10 +983,17 @@ class StudentController extends Controller
                     'email' => $user->email,
                     'phone' => $user->phone,
                     'avatar_url' => $user->avatar_url,
-                    'student_id' => $student->id,
-                    'program' => $student->program?->name,
-                    'semester' => $student->semester,
-                    'roll_number' => $student->roll_number,
+                    'student_id'    => $student->id,
+                    'student_no'    => $student->student_no,
+                    'program'       => $student->program?->name,
+                    'department'    => $student->department?->name ?? $student->program?->department?->name,
+                    'current_semester' => $student->current_semester,
+                    'semester'      => $student->current_semester,
+                    'section'       => $student->section,
+                    'batch'         => $student->batch,
+                    'roll_number'   => $student->roll_number,
+                    'admission_date'=> $student->admission_date?->toDateString(),
+                    'status'        => $student->status,
                 ]
             ], 200);
         } catch (\Exception $e) {
