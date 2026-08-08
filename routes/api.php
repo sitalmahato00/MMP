@@ -142,6 +142,7 @@ Route::prefix('v1')->group(function () {
 
             // Attendance Management
             Route::prefix('attendance')->group(function () {
+                Route::post('/start-session', [TeacherController::class, 'startAttendanceSession']);
                 Route::get('/session/{session}', [TeacherController::class, 'attendanceSession']);
                 Route::post('/mark', [TeacherController::class, 'markAttendance']);
                 Route::post('/bulk-mark', [TeacherController::class, 'bulkMarkAttendance']);

@@ -126,18 +126,96 @@ class TeacherController extends Controller
     }
 
     /**
+     * Get or create an attendance session for a given subject + date.
+     * Returns the session so the app can take attendance against it.
+     */
+    public function startAttendanceSession(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'subject_id' => 'required|integer|exists:subjects,id',
+                'date'       => 'nullable|date_format:Y-m-d',
+                'period'     => 'nullable|string|max:50',
+            ]);
+
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+            $subject = \App\Models\Subject::findOrFail($validated['subject_id']);
+            $date    = $validated['date'] ?? now()->toDateString();
+            $session = \App\Models\AcademicSession::current();
+
+            // Find existing session or create new one
+            $attendanceSession = \App\Models\AttendanceSession::firstOrCreate(
+                [
+                    'teacher_id' => $teacher->id,
+                    'subject_id' => $subject->id,
+                    'date'       => $date,
+                    'period'     => $validated['period'] ?? null,
+                ],
+                [
+                    'academic_session_id' => $session?->id,
+                    'program_id'          => $subject->program_id,
+                    'semester'            => $subject->semester,
+                ]
+            );
+
+            // Load existing attendances for this session
+            $attendances = $attendanceSession->attendances()->with('student.user')->get();
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'session_id'  => $attendanceSession->id,
+                    'subject'     => $subject->name,
+                    'subject_code'=> $subject->code,
+                    'date'        => $attendanceSession->date->toDateString(),
+                    'period'      => $attendanceSession->period,
+                    'is_existing' => !$attendanceSession->wasRecentlyCreated,
+                    'attendance_count' => $attendances->count(),
+                    'existing_attendance' => $attendances->map(fn($a) => [
+                        'student_id' => $a->student_id,
+                        'status'     => $a->status,
+                    ])->values(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to start session: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Get Attendance Session
      */
     public function attendanceSession(Request $request, $session): JsonResponse
     {
         try {
-            // Placeholder - would fetch actual attendance session data
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            $attendanceSession = \App\Models\AttendanceSession::with(['subject', 'attendances.student.user'])
+                ->where('teacher_id', $teacher->id)
+                ->findOrFail($session);
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'session_id' => $session,
-                    'students' => [],
-                ]
+                'data'    => [
+                    'session_id'  => $attendanceSession->id,
+                    'subject'     => $attendanceSession->subject?->name,
+                    'subject_code'=> $attendanceSession->subject?->code,
+                    'date'        => $attendanceSession->date->toDateString(),
+                    'period'      => $attendanceSession->period,
+                    'students'    => $attendanceSession->attendances->map(fn($a) => [
+                        'id'         => $a->student_id,
+                        'name'       => $a->student?->user?->name,
+                        'student_no' => $a->student?->student_no,
+                        'avatar_url' => $a->student?->user?->avatar_url,
+                        'status'     => $a->status,
+                        'remarks'    => $a->remarks,
+                    ])->values(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -148,24 +226,39 @@ class TeacherController extends Controller
     }
 
     /**
-     * Mark Attendance
+     * Mark Attendance (single student against a session)
      */
     public function markAttendance(Request $request): JsonResponse
     {
         try {
             $validated = $request->validate([
-                'student_id' => 'required|integer',
-                'subject_id' => 'required|integer',
-                'status' => 'required|in:present,absent,late',
-                'date' => 'required|date',
+                'attendance_session_id' => 'required|integer|exists:attendance_sessions,id',
+                'student_id'            => 'required|integer|exists:students,id',
+                'status'                => 'required|in:present,absent,late',
+                'remarks'               => 'nullable|string|max:255',
             ]);
 
-            Attendance::create($validated);
+            // Upsert — update if already marked, insert if not
+            $attendance = Attendance::updateOrCreate(
+                [
+                    'attendance_session_id' => $validated['attendance_session_id'],
+                    'student_id'            => $validated['student_id'],
+                ],
+                [
+                    'status'  => $validated['status'],
+                    'remarks' => $validated['remarks'] ?? null,
+                ]
+            );
 
             return response()->json([
                 'success' => true,
                 'message' => 'Attendance marked successfully',
-            ], 201);
+                'data'    => [
+                    'id'         => $attendance->id,
+                    'student_id' => $attendance->student_id,
+                    'status'     => $attendance->status,
+                ],
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -175,28 +268,41 @@ class TeacherController extends Controller
     }
 
     /**
-     * Bulk Mark Attendance
+     * Bulk Mark Attendance (all students in one request)
      */
     public function bulkMarkAttendance(Request $request): JsonResponse
     {
         try {
             $validated = $request->validate([
-                'attendance' => 'required|array',
-                'attendance.*.student_id' => 'required|integer',
-                'attendance.*.status' => 'required|in:present,absent,late',
+                'attendance_session_id'          => 'required|integer|exists:attendance_sessions,id',
+                'attendance'                     => 'required|array|min:1',
+                'attendance.*.student_id'        => 'required|integer|exists:students,id',
+                'attendance.*.status'            => 'required|in:present,absent,late',
+                'attendance.*.remarks'           => 'nullable|string|max:255',
             ]);
 
-            $count = 0;
+            $sessionId = $validated['attendance_session_id'];
+            $count     = 0;
+
             foreach ($validated['attendance'] as $record) {
-                Attendance::create($record);
+                Attendance::updateOrCreate(
+                    [
+                        'attendance_session_id' => $sessionId,
+                        'student_id'            => $record['student_id'],
+                    ],
+                    [
+                        'status'  => $record['status'],
+                        'remarks' => $record['remarks'] ?? null,
+                    ]
+                );
                 $count++;
             }
 
             return response()->json([
                 'success' => true,
-                'message' => "$count attendance records created",
-                'data' => ['records_created' => $count]
-            ], 201);
+                'message' => "$count attendance records saved",
+                'data'    => ['records_saved' => $count, 'session_id' => $sessionId],
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -206,27 +312,39 @@ class TeacherController extends Controller
     }
 
     /**
-     * Attendance History
+     * Attendance History — list of attendance sessions taken by this teacher
      */
     public function attendanceHistory(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user    = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
-            $records = Attendance::where('teacher_id', $teacher->id)
-                ->orderBy('created_at', 'desc')
+            $sessions = \App\Models\AttendanceSession::with(['subject'])
+                ->where('teacher_id', $teacher->id)
+                ->withCount('attendances')
+                ->withCount(['attendances as present_count' => fn($q) => $q->where('status', 'present')])
+                ->withCount(['attendances as absent_count'  => fn($q) => $q->where('status', 'absent')])
+                ->orderByDesc('date')
                 ->paginate(20);
 
             return response()->json([
                 'success' => true,
-                'data' => $records->map(fn($r) => [
-                    'id' => $r->id,
-                    'student' => $r->student?->user?->name,
-                    'subject' => $r->subject?->name,
-                    'status' => $r->status,
-                    'date' => $r->created_at->toDateString(),
-                ])
+                'data'    => $sessions->map(fn($s) => [
+                    'session_id'     => $s->id,
+                    'subject'        => $s->subject?->name,
+                    'subject_code'   => $s->subject?->code,
+                    'date'           => $s->date->toDateString(),
+                    'period'         => $s->period,
+                    'total_students' => $s->attendances_count,
+                    'present'        => $s->present_count,
+                    'absent'         => $s->absent_count,
+                ])->values(),
+                'pagination' => [
+                    'current_page' => $sessions->currentPage(),
+                    'last_page'    => $sessions->lastPage(),
+                    'total'        => $sessions->total(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
