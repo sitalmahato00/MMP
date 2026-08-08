@@ -355,21 +355,75 @@ class TeacherController extends Controller
     }
 
     /**
-     * Get Mark Components
+     * Get Exams open for marks entry — filtered to the teacher's subjects
      */
     public function markComponents(Request $request, $subject): JsonResponse
     {
         try {
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            $subjectModel = \App\Models\Subject::findOrFail($subject);
+
+            // Get open exams for this subject's program
+            $exams = \App\Models\Exam::whereHas('programs', function ($q) use ($subjectModel) {
+                    $q->where('programs.id', $subjectModel->program_id);
+                })
+                ->where(function ($q) {
+                    $q->where('marks_open', true)
+                      ->orWhere('status', 'completed');
+                })
+                ->with('markingSchemes')
+                ->orderByDesc('start_date')
+                ->get();
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'components' => [
-                        'internal_theory',
-                        'external_theory',
-                        'internal_practical',
-                        'external_practical',
-                    ]
-                ]
+                'data'    => [
+                    'subject'  => $subjectModel->name,
+                    'code'     => $subjectModel->code,
+                    'category' => $subjectModel->type,
+                    'has_theory'    => $subjectModel->full_marks_internal_theory > 0
+                                    || $subjectModel->full_marks_external_theory > 0,
+                    'has_practical' => $subjectModel->full_marks_internal_practical > 0
+                                    || $subjectModel->full_marks_external_practical > 0,
+                    'default_scheme' => [
+                        'full_marks_internal_theory'    => $subjectModel->full_marks_internal_theory,
+                        'pass_marks_internal_theory'    => $subjectModel->pass_marks_internal_theory,
+                        'full_marks_external_theory'    => $subjectModel->full_marks_external_theory,
+                        'pass_marks_external_theory'    => $subjectModel->pass_marks_external_theory,
+                        'full_marks_internal_practical' => $subjectModel->full_marks_internal_practical,
+                        'pass_marks_internal_practical' => $subjectModel->pass_marks_internal_practical,
+                        'full_marks_external_practical' => $subjectModel->full_marks_external_practical,
+                        'pass_marks_external_practical' => $subjectModel->pass_marks_external_practical,
+                    ],
+                    'open_exams' => $exams->map(function ($exam) use ($subjectModel) {
+                        // Get exam-specific marking scheme for this subject
+                        $scheme = $exam->markingSchemes
+                            ->where('subject_id', $subjectModel->id)
+                            ->first();
+
+                        return [
+                            'id'            => $exam->id,
+                            'name'          => $exam->name,
+                            'type'          => $exam->type,
+                            'category'      => $exam->category,
+                            'status'        => $exam->status,
+                            'marks_open'    => $exam->marks_open,
+                            'start_date'    => $exam->start_date?->toDateString(),
+                            'scheme'        => $scheme ? [
+                                'full_marks_internal_theory'    => $scheme->full_marks_internal_theory,
+                                'pass_marks_internal_theory'    => $scheme->pass_marks_internal_theory,
+                                'full_marks_external_theory'    => $scheme->full_marks_external_theory,
+                                'pass_marks_external_theory'    => $scheme->pass_marks_external_theory,
+                                'full_marks_internal_practical' => $scheme->full_marks_internal_practical,
+                                'pass_marks_internal_practical' => $scheme->pass_marks_internal_practical,
+                                'full_marks_external_practical' => $scheme->full_marks_external_practical,
+                                'pass_marks_external_practical' => $scheme->pass_marks_external_practical,
+                            ] : null,
+                        ];
+                    })->values(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -380,24 +434,192 @@ class TeacherController extends Controller
     }
 
     /**
-     * Submit Marks
+     * Get students + existing marks for marks entry
+     * GET /v1/teacher/marks/entry?exam_id=7&subject_id=1
+     */
+    public function marksEntry(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'exam_id'    => 'required|integer|exists:exams,id',
+                'subject_id' => 'required|integer|exists:subjects,id',
+            ]);
+
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            $exam    = \App\Models\Exam::with('markingSchemes')->findOrFail($validated['exam_id']);
+            $subject = \App\Models\Subject::findOrFail($validated['subject_id']);
+
+            // Get marking scheme
+            $scheme = \App\Models\ExamSubjectMarkingScheme::where('exam_id', $exam->id)
+                ->where('subject_id', $subject->id)
+                ->first();
+
+            // Determine exam category
+            $isAssessment = $exam->category === 'monthly_assessment';
+
+            // Get students for this subject's program + semester
+            $students = \App\Models\Student::with('user')
+                ->where('program_id', $subject->program_id)
+                ->where('current_semester', $subject->semester)
+                ->where('status', 'active')
+                ->get();
+
+            // Get existing marks
+            $existingMarks = Mark::where('exam_id', $exam->id)
+                ->where('subject_id', $subject->id)
+                ->get()
+                ->keyBy('student_id');
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'exam'    => [
+                        'id'                    => $exam->id,
+                        'name'                  => $exam->name,
+                        'category'              => $exam->category,
+                        'type'                  => $exam->type,
+                        'status'                => $exam->status,
+                        'marks_open'            => $exam->marks_open,
+                        'assessment_full_marks' => $exam->assessment_full_marks,
+                        'assessment_pass_marks' => $exam->assessment_pass_marks,
+                    ],
+                    'subject' => [
+                        'id'           => $subject->id,
+                        'name'         => $subject->name,
+                        'code'         => $subject->code,
+                        'has_theory'   => $subject->full_marks_internal_theory > 0 || $subject->full_marks_external_theory > 0,
+                        'has_practical'=> $subject->full_marks_internal_practical > 0 || $subject->full_marks_external_practical > 0,
+                    ],
+                    'scheme'  => $scheme ? [
+                        'full_marks_internal_theory'    => $scheme->full_marks_internal_theory,
+                        'pass_marks_internal_theory'    => $scheme->pass_marks_internal_theory,
+                        'full_marks_external_theory'    => $scheme->full_marks_external_theory,
+                        'pass_marks_external_theory'    => $scheme->pass_marks_external_theory,
+                        'full_marks_internal_practical' => $scheme->full_marks_internal_practical,
+                        'pass_marks_internal_practical' => $scheme->pass_marks_internal_practical,
+                        'full_marks_external_practical' => $scheme->full_marks_external_practical,
+                        'pass_marks_external_practical' => $scheme->pass_marks_external_practical,
+                    ] : null,
+                    'total_students' => $students->count(),
+                    'students' => $students->map(function ($s) use ($existingMarks, $isAssessment) {
+                        $mark = $existingMarks[$s->id] ?? null;
+                        return [
+                            'id'          => $s->id,
+                            'name'        => $s->user?->name,
+                            'student_no'  => $s->student_no,
+                            'roll_number' => $s->roll_number,
+                            'avatar_url'  => $s->user?->avatar_url,
+                            'mark'        => $mark ? [
+                                'id'                          => $mark->id,
+                                'status'                      => $mark->status,
+                                'is_absent'                   => $mark->is_absent,
+                                // Monthly assessment fields
+                                'assessment_obtained_marks'   => $mark->assessment_obtained_marks,
+                                'assessment_attendance_percent' => $mark->assessment_attendance_percent,
+                                // CTEVT fields
+                                'internal_theory_marks'       => $mark->internal_theory_marks,
+                                'external_theory_marks'       => $mark->external_theory_marks,
+                                'internal_practical_marks'    => $mark->internal_practical_marks,
+                                'external_practical_marks'    => $mark->external_practical_marks,
+                                'total_marks'                 => $mark->total_marks,
+                                'is_passed'                   => $mark->is_passed,
+                                'result_remark'               => $mark->result_remark,
+                                'remarks'                     => $mark->remarks,
+                            ] : null,
+                        ];
+                    })->values(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch marks entry data: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Submit Marks (upsert per student)
+     * POST /v1/teacher/marks/submit
      */
     public function submitMarks(Request $request): JsonResponse
     {
         try {
             $validated = $request->validate([
-                'student_id' => 'required|integer',
-                'exam_id' => 'required|integer',
-                'subject_id' => 'required|integer',
-                'obtained_marks' => 'required|numeric',
+                'exam_id'                       => 'required|integer|exists:exams,id',
+                'subject_id'                    => 'required|integer|exists:subjects,id',
+                'student_id'                    => 'required|integer|exists:students,id',
+                'is_absent'                     => 'nullable|boolean',
+                // Monthly assessment
+                'assessment_obtained_marks'     => 'nullable|numeric|min:0',
+                'assessment_attendance_percent' => 'nullable|numeric|min:0|max:100',
+                // CTEVT
+                'internal_theory_marks'         => 'nullable|numeric|min:0',
+                'external_theory_marks'         => 'nullable|numeric|min:0',
+                'internal_practical_marks'      => 'nullable|numeric|min:0',
+                'external_practical_marks'      => 'nullable|numeric|min:0',
+                'remarks'                       => 'nullable|string|max:500',
             ]);
 
-            Mark::create($validated);
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+            $exam    = \App\Models\Exam::findOrFail($validated['exam_id']);
+            $subject = \App\Models\Subject::findOrFail($validated['subject_id']);
+
+            // Get or create marking scheme values
+            $scheme = \App\Models\ExamSubjectMarkingScheme::where('exam_id', $exam->id)
+                ->where('subject_id', $subject->id)
+                ->first();
+
+            $mark = Mark::updateOrCreate(
+                [
+                    'exam_id'    => $validated['exam_id'],
+                    'student_id' => $validated['student_id'],
+                    'subject_id' => $validated['subject_id'],
+                ],
+                [
+                    'teacher_id'    => $teacher->id,
+                    'program_id'    => $subject->program_id,
+                    'semester'      => $subject->semester,
+                    'is_absent'     => $validated['is_absent'] ?? false,
+                    // Monthly assessment
+                    'assessment_obtained_marks'      => $validated['assessment_obtained_marks'] ?? null,
+                    'assessment_full_marks'          => $exam->assessment_full_marks,
+                    'assessment_pass_marks'          => $exam->assessment_pass_marks,
+                    'assessment_attendance_percent'  => $validated['assessment_attendance_percent'] ?? null,
+                    // CTEVT
+                    'internal_theory_marks'          => $validated['internal_theory_marks'] ?? null,
+                    'external_theory_marks'          => $validated['external_theory_marks'] ?? null,
+                    'internal_practical_marks'       => $validated['internal_practical_marks'] ?? null,
+                    'external_practical_marks'       => $validated['external_practical_marks'] ?? null,
+                    // Copy scheme to mark record for denormalization
+                    'ctevt_full_marks_internal_theory'    => $scheme?->full_marks_internal_theory,
+                    'ctevt_pass_marks_internal_theory'    => $scheme?->pass_marks_internal_theory,
+                    'ctevt_full_marks_external_theory'    => $scheme?->full_marks_external_theory,
+                    'ctevt_pass_marks_external_theory'    => $scheme?->pass_marks_external_theory,
+                    'ctevt_full_marks_internal_practical' => $scheme?->full_marks_internal_practical,
+                    'ctevt_pass_marks_internal_practical' => $scheme?->pass_marks_internal_practical,
+                    'ctevt_full_marks_external_practical' => $scheme?->full_marks_external_practical,
+                    'ctevt_pass_marks_external_practical' => $scheme?->pass_marks_external_practical,
+                    'remarks'    => $validated['remarks'] ?? null,
+                    'status'     => 'submitted',
+                ]
+            );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Marks submitted successfully',
-            ], 201);
+                'message' => 'Marks saved successfully',
+                'data'    => [
+                    'mark_id'      => $mark->id,
+                    'student_id'   => $mark->student_id,
+                    'total_marks'  => $mark->total_marks,
+                    'is_passed'    => $mark->is_passed,
+                    'result_remark'=> $mark->result_remark,
+                    'status'       => $mark->status,
+                ],
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -407,16 +629,147 @@ class TeacherController extends Controller
     }
 
     /**
-     * Pending Marks
+     * Bulk Submit Marks — all students in one request
+     * POST /v1/teacher/marks/bulk-submit
+     */
+    public function bulkSubmitMarks(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'exam_id'    => 'required|integer|exists:exams,id',
+                'subject_id' => 'required|integer|exists:subjects,id',
+                'marks'      => 'required|array|min:1',
+                'marks.*.student_id'                    => 'required|integer|exists:students,id',
+                'marks.*.is_absent'                     => 'nullable|boolean',
+                'marks.*.assessment_obtained_marks'     => 'nullable|numeric|min:0',
+                'marks.*.assessment_attendance_percent' => 'nullable|numeric|min:0|max:100',
+                'marks.*.internal_theory_marks'         => 'nullable|numeric|min:0',
+                'marks.*.external_theory_marks'         => 'nullable|numeric|min:0',
+                'marks.*.internal_practical_marks'      => 'nullable|numeric|min:0',
+                'marks.*.external_practical_marks'      => 'nullable|numeric|min:0',
+                'marks.*.remarks'                       => 'nullable|string|max:500',
+            ]);
+
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+            $exam    = \App\Models\Exam::findOrFail($validated['exam_id']);
+            $subject = \App\Models\Subject::findOrFail($validated['subject_id']);
+
+            $scheme = \App\Models\ExamSubjectMarkingScheme::where('exam_id', $exam->id)
+                ->where('subject_id', $subject->id)
+                ->first();
+
+            $saved = 0;
+            foreach ($validated['marks'] as $entry) {
+                Mark::updateOrCreate(
+                    [
+                        'exam_id'    => $validated['exam_id'],
+                        'student_id' => $entry['student_id'],
+                        'subject_id' => $validated['subject_id'],
+                    ],
+                    [
+                        'teacher_id'    => $teacher->id,
+                        'program_id'    => $subject->program_id,
+                        'semester'      => $subject->semester,
+                        'is_absent'     => $entry['is_absent'] ?? false,
+                        'assessment_obtained_marks'     => $entry['assessment_obtained_marks'] ?? null,
+                        'assessment_full_marks'         => $exam->assessment_full_marks,
+                        'assessment_pass_marks'         => $exam->assessment_pass_marks,
+                        'assessment_attendance_percent' => $entry['assessment_attendance_percent'] ?? null,
+                        'internal_theory_marks'         => $entry['internal_theory_marks'] ?? null,
+                        'external_theory_marks'         => $entry['external_theory_marks'] ?? null,
+                        'internal_practical_marks'      => $entry['internal_practical_marks'] ?? null,
+                        'external_practical_marks'      => $entry['external_practical_marks'] ?? null,
+                        'ctevt_full_marks_internal_theory'    => $scheme?->full_marks_internal_theory,
+                        'ctevt_pass_marks_internal_theory'    => $scheme?->pass_marks_internal_theory,
+                        'ctevt_full_marks_external_theory'    => $scheme?->full_marks_external_theory,
+                        'ctevt_pass_marks_external_theory'    => $scheme?->pass_marks_external_theory,
+                        'ctevt_full_marks_internal_practical' => $scheme?->full_marks_internal_practical,
+                        'ctevt_pass_marks_internal_practical' => $scheme?->pass_marks_internal_practical,
+                        'ctevt_full_marks_external_practical' => $scheme?->full_marks_external_practical,
+                        'ctevt_pass_marks_external_practical' => $scheme?->pass_marks_external_practical,
+                        'remarks' => $entry['remarks'] ?? null,
+                        'status'  => 'submitted',
+                    ]
+                );
+                $saved++;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "$saved marks saved successfully",
+                'data'    => ['records_saved' => $saved],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit marks: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Pending Marks — exams open for marks entry for this teacher's subjects
      */
     public function pendingMarks(Request $request): JsonResponse
     {
         try {
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            // Get teacher's subject IDs
+            $subjectIds = \DB::table('subject_teacher')
+                ->where('teacher_id', $teacher->id)
+                ->pluck('subject_id');
+
+            if ($subjectIds->isEmpty()) {
+                return response()->json(['success' => true, 'data' => []], 200);
+            }
+
+            // Get subjects
+            $subjects = \App\Models\Subject::whereIn('id', $subjectIds)->get();
+            $programIds = $subjects->pluck('program_id')->unique();
+
+            // Get open exams for those programs
+            $exams = \App\Models\Exam::whereHas('programs', fn($q) => $q->whereIn('programs.id', $programIds))
+                ->where(function ($q) {
+                    $q->where('marks_open', true)->orWhere('status', 'completed');
+                })
+                ->orderByDesc('start_date')
+                ->get();
+
+            // For each exam+subject combo, count how many marks are pending
+            $pending = [];
+            foreach ($exams as $exam) {
+                foreach ($subjects as $subject) {
+                    $totalStudents = \App\Models\Student::where('program_id', $subject->program_id)
+                        ->where('current_semester', $subject->semester)
+                        ->where('status', 'active')
+                        ->count();
+
+                    $enteredMarks = Mark::where('exam_id', $exam->id)
+                        ->where('subject_id', $subject->id)
+                        ->count();
+
+                    $pending[] = [
+                        'exam_id'         => $exam->id,
+                        'exam_name'       => $exam->name,
+                        'category'        => $exam->category,
+                        'subject_id'      => $subject->id,
+                        'subject'         => $subject->name,
+                        'subject_code'    => $subject->code,
+                        'total_students'  => $totalStudents,
+                        'entered'         => $enteredMarks,
+                        'remaining'       => max(0, $totalStudents - $enteredMarks),
+                        'is_complete'     => $enteredMarks >= $totalStudents,
+                        'marks_open'      => $exam->marks_open,
+                    ];
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'pending_marks' => [],
-                ]
+                'data'    => collect($pending)->sortBy('is_complete')->values(),
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -427,16 +780,39 @@ class TeacherController extends Controller
     }
 
     /**
-     * Marks History
+     * Marks History — marks entered by this teacher
      */
     public function marksHistory(Request $request): JsonResponse
     {
         try {
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+
+            $marks = Mark::with(['exam', 'subject', 'student.user'])
+                ->where('teacher_id', $teacher->id)
+                ->orderByDesc('updated_at')
+                ->paginate(30);
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'marks_history' => [],
-                ]
+                'data'    => $marks->map(fn($m) => [
+                    'mark_id'      => $m->id,
+                    'exam'         => $m->exam?->name,
+                    'category'     => $m->exam?->category,
+                    'subject'      => $m->subject?->name,
+                    'subject_code' => $m->subject?->code,
+                    'student'      => $m->student?->user?->name,
+                    'student_no'   => $m->student?->student_no,
+                    'total_marks'  => $m->total_marks,
+                    'is_passed'    => $m->is_passed,
+                    'status'       => $m->status,
+                    'updated_at'   => $m->updated_at,
+                ])->values(),
+                'pagination' => [
+                    'current_page' => $marks->currentPage(),
+                    'last_page'    => $marks->lastPage(),
+                    'total'        => $marks->total(),
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

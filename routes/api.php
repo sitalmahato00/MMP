@@ -152,7 +152,9 @@ Route::prefix('v1')->group(function () {
             // Marks Entry
             Route::prefix('marks')->group(function () {
                 Route::get('/components/{subject}', [TeacherController::class, 'markComponents']);
+                Route::get('/entry', [TeacherController::class, 'marksEntry']);
                 Route::post('/submit', [TeacherController::class, 'submitMarks']);
+                Route::post('/bulk-submit', [TeacherController::class, 'bulkSubmitMarks']);
                 Route::get('/pending', [TeacherController::class, 'pendingMarks']);
                 Route::get('/history', [TeacherController::class, 'marksHistory']);
             });
