@@ -366,10 +366,9 @@ class TeacherController extends Controller
             $session = \App\Models\AcademicSession::current();
 
             // Teacher's assigned subjects — try current session first, then any session
-            $teacherSubjects = $teacher->subjects()
-                ->when($session, fn($q) => $q->wherePivot('academic_session_id', $session->id))
-                ->with('program')
-                ->get();
+            $teacherSubjects = $session
+                ? $teacher->subjects()->wherePivot('academic_session_id', $session->id)->with('program')->get()
+                : collect();
 
             // Fallback: if no subjects in current session, get all assigned subjects
             if ($teacherSubjects->isEmpty()) {
