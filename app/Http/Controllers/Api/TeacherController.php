@@ -365,54 +365,41 @@ class TeacherController extends Controller
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
             $session = \App\Models\AcademicSession::current();
 
-            // Teacher's assigned subjects
+            // Teacher's assigned subjects — try current session first, then any session
             $teacherSubjects = $teacher->subjects()
-                ->wherePivot('academic_session_id', $session?->id)
+                ->when($session, fn($q) => $q->wherePivot('academic_session_id', $session->id))
                 ->with('program')
                 ->get();
 
+            // Fallback: if no subjects in current session, get all assigned subjects
             if ($teacherSubjects->isEmpty()) {
-                return response()->json(['success' => true, 'data' => []], 200);
+                $teacherSubjects = $teacher->subjects()->with('program')->get();
             }
 
-            $teacherProgramSemesters = $teacherSubjects->map(fn($s) => [
-                'program_id' => $s->program_id,
-                'semester'   => $s->semester,
-            ])->unique()->values();
+            if ($teacherSubjects->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data'    => [],
+                    'meta'    => ['total_exams' => 0],
+                ], 200);
+            }
 
-            $exams = \App\Models\Exam::whereHas('programs', function ($q) use ($teacherProgramSemesters) {
-                    foreach ($teacherProgramSemesters as $ps) {
-                        $q->orWhere(function ($sq) use ($ps) {
-                            $sq->where('programs.id', $ps['program_id'])
-                               ->where('exam_program.semester', $ps['semester']);
-                        });
-                    }
-                })
+            $programIds = $teacherSubjects->pluck('program_id')->unique();
+
+            // Get all exams for those programs
+            $exams = \App\Models\Exam::whereHas('programs', fn($q) => $q->whereIn('programs.id', $programIds))
                 ->with(['programs'])
-                ->orderByDesc('created_at')
+                ->orderByDesc('start_date')
                 ->get();
 
-            // Add subject marks status per exam
             $result = $exams->map(function ($exam) use ($teacher, $teacherSubjects) {
-                $relevantSubjects = $teacherSubjects->filter(function ($subject) use ($exam) {
-                    return $exam->programs->contains(function ($program) use ($subject) {
-                        return $program->id == $subject->program_id
-                            && $program->pivot->semester == $subject->semester;
-                    });
+                // Subjects this teacher teaches that belong to this exam's programs
+                $examProgramIds = $exam->programs->pluck('id');
+
+                $relevantSubjects = $teacherSubjects->filter(function ($subject) use ($exam, $examProgramIds) {
+                    return $examProgramIds->contains($subject->program_id);
                 });
 
-                $marksCount = \App\Models\Mark::where('exam_id', $exam->id)
-                    ->whereIn('subject_id', $relevantSubjects->pluck('id'))
-                    ->where('status', '!=', 'draft')
-                    ->distinct('subject_id')
-                    ->count();
-
-                $totalSubjects = $relevantSubjects->count();
-
-                $marksStatus = $marksCount === 0 ? 'not_filled'
-                    : ($marksCount < $totalSubjects ? 'partially_filled' : 'completed');
-
-                // Subject completion details
                 $subjectStatus = $relevantSubjects->map(function ($subject) use ($exam) {
                     $studentCount = \App\Models\Student::where('program_id', $subject->program_id)
                         ->where('current_semester', $subject->semester)
@@ -425,40 +412,46 @@ class TeacherController extends Controller
                         ->count();
 
                     return [
-                        'subject_id'      => $subject->id,
-                        'subject_name'    => $subject->name,
-                        'subject_code'    => $subject->code,
-                        'program_id'      => $subject->program_id,
-                        'semester'        => $subject->semester,
-                        'total_students'  => $studentCount,
-                        'entered'         => $enteredCount,
-                        'remaining'       => max(0, $studentCount - $enteredCount),
-                        'is_complete'     => $enteredCount >= $studentCount && $studentCount > 0,
+                        'subject_id'     => $subject->id,
+                        'subject_name'   => $subject->name,
+                        'subject_code'   => $subject->code,
+                        'program_id'     => $subject->program_id,
+                        'semester'       => $subject->semester,
+                        'total_students' => $studentCount,
+                        'entered'        => $enteredCount,
+                        'remaining'      => max(0, $studentCount - $enteredCount),
+                        'is_complete'    => $studentCount > 0 && $enteredCount >= $studentCount,
                     ];
                 })->values();
 
+                $totalSubjects  = $subjectStatus->count();
+                $completedCount = $subjectStatus->where('is_complete', true)->count();
+                $marksStatus    = $completedCount === 0 ? 'not_filled'
+                    : ($completedCount < $totalSubjects ? 'partially_filled' : 'completed');
+
                 return [
-                    'id'              => $exam->id,
-                    'name'            => $exam->name,
-                    'type'            => $exam->type,
-                    'category'        => $exam->category,
-                    'status'          => $exam->status,
-                    'marks_open'      => $exam->marks_open,
-                    'is_published'    => $exam->is_published,
-                    'start_date'      => $exam->start_date?->toDateString(),
-                    'end_date'        => $exam->end_date?->toDateString(),
+                    'id'                    => $exam->id,
+                    'name'                  => $exam->name,
+                    'type'                  => $exam->type,
+                    'category'              => $exam->category,
+                    'status'                => $exam->status,
+                    'marks_open'            => $exam->marks_open,
+                    'is_published'          => $exam->is_published,
+                    'start_date'            => $exam->start_date?->toDateString(),
+                    'end_date'              => $exam->end_date?->toDateString(),
                     'assessment_full_marks' => $exam->assessment_full_marks,
                     'assessment_pass_marks' => $exam->assessment_pass_marks,
-                    'marks_status'    => $marksStatus,
-                    'marks_count'     => $marksCount,
-                    'total_subjects'  => $totalSubjects,
-                    'subjects'        => $subjectStatus,
+                    'marks_status'          => $marksStatus,
+                    'total_subjects'        => $totalSubjects,
+                    'completed_subjects'    => $completedCount,
+                    'subjects'              => $subjectStatus,
                 ];
             })->values();
 
             return response()->json([
                 'success' => true,
                 'data'    => $result,
+                'meta'    => ['total_exams' => $result->count()],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -467,6 +460,12 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get mark components / marking scheme for a subject
+     * GET /v1/teacher/marks/components/{subject}
+     */
+    public function markComponents(Request $request, $subject): JsonResponse
     {
         try {
             $user    = $request->user();
