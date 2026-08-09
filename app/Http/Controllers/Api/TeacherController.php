@@ -355,9 +355,118 @@ class TeacherController extends Controller
     }
 
     /**
-     * Get Exams open for marks entry — filtered to the teacher's subjects
+     * Get Exams for this teacher — for the marks entry flow
+     * Exam → Subject → Students (same as web)
      */
-    public function markComponents(Request $request, $subject): JsonResponse
+    public function exams(Request $request): JsonResponse
+    {
+        try {
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+            $session = \App\Models\AcademicSession::current();
+
+            // Teacher's assigned subjects
+            $teacherSubjects = $teacher->subjects()
+                ->wherePivot('academic_session_id', $session?->id)
+                ->with('program')
+                ->get();
+
+            if ($teacherSubjects->isEmpty()) {
+                return response()->json(['success' => true, 'data' => []], 200);
+            }
+
+            $teacherProgramSemesters = $teacherSubjects->map(fn($s) => [
+                'program_id' => $s->program_id,
+                'semester'   => $s->semester,
+            ])->unique()->values();
+
+            $exams = \App\Models\Exam::whereHas('programs', function ($q) use ($teacherProgramSemesters) {
+                    foreach ($teacherProgramSemesters as $ps) {
+                        $q->orWhere(function ($sq) use ($ps) {
+                            $sq->where('programs.id', $ps['program_id'])
+                               ->where('exam_program.semester', $ps['semester']);
+                        });
+                    }
+                })
+                ->with(['programs'])
+                ->orderByDesc('created_at')
+                ->get();
+
+            // Add subject marks status per exam
+            $result = $exams->map(function ($exam) use ($teacher, $teacherSubjects) {
+                $relevantSubjects = $teacherSubjects->filter(function ($subject) use ($exam) {
+                    return $exam->programs->contains(function ($program) use ($subject) {
+                        return $program->id == $subject->program_id
+                            && $program->pivot->semester == $subject->semester;
+                    });
+                });
+
+                $marksCount = \App\Models\Mark::where('exam_id', $exam->id)
+                    ->whereIn('subject_id', $relevantSubjects->pluck('id'))
+                    ->where('status', '!=', 'draft')
+                    ->distinct('subject_id')
+                    ->count();
+
+                $totalSubjects = $relevantSubjects->count();
+
+                $marksStatus = $marksCount === 0 ? 'not_filled'
+                    : ($marksCount < $totalSubjects ? 'partially_filled' : 'completed');
+
+                // Subject completion details
+                $subjectStatus = $relevantSubjects->map(function ($subject) use ($exam) {
+                    $studentCount = \App\Models\Student::where('program_id', $subject->program_id)
+                        ->where('current_semester', $subject->semester)
+                        ->where('status', 'active')
+                        ->count();
+
+                    $enteredCount = \App\Models\Mark::where('exam_id', $exam->id)
+                        ->where('subject_id', $subject->id)
+                        ->where('status', '!=', 'draft')
+                        ->count();
+
+                    return [
+                        'subject_id'      => $subject->id,
+                        'subject_name'    => $subject->name,
+                        'subject_code'    => $subject->code,
+                        'program_id'      => $subject->program_id,
+                        'semester'        => $subject->semester,
+                        'total_students'  => $studentCount,
+                        'entered'         => $enteredCount,
+                        'remaining'       => max(0, $studentCount - $enteredCount),
+                        'is_complete'     => $enteredCount >= $studentCount && $studentCount > 0,
+                    ];
+                })->values();
+
+                return [
+                    'id'              => $exam->id,
+                    'name'            => $exam->name,
+                    'type'            => $exam->type,
+                    'category'        => $exam->category,
+                    'status'          => $exam->status,
+                    'marks_open'      => $exam->marks_open,
+                    'is_published'    => $exam->is_published,
+                    'start_date'      => $exam->start_date?->toDateString(),
+                    'end_date'        => $exam->end_date?->toDateString(),
+                    'assessment_full_marks' => $exam->assessment_full_marks,
+                    'assessment_pass_marks' => $exam->assessment_pass_marks,
+                    'marks_status'    => $marksStatus,
+                    'marks_count'     => $marksCount,
+                    'total_subjects'  => $totalSubjects,
+                    'subjects'        => $subjectStatus,
+                ];
+            })->values();
+
+            return response()->json([
+                'success' => true,
+                'data'    => $result,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch exams: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     {
         try {
             $user    = $request->user();
