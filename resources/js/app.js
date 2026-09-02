@@ -1,7 +1,11 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
-import NepaliDate from 'nepali-date-converter';
+import NepaliDateModule from 'nepali-date-converter';
 import Chart from 'chart.js/auto';
+
+const NepaliDate = typeof NepaliDateModule === 'function' 
+    ? NepaliDateModule 
+    : (NepaliDateModule.default || NepaliDateModule);
 
 const themeStorageKey = 'mmp.theme';
 const themePalette = {
@@ -142,6 +146,92 @@ if (window.matchMedia) {
 
 applyTheme();
 
+// ─── Top Loading Progress Bar ─────────────────────────────────
+window.mmpLoader = (() => {
+    let bar = null;
+    let progress = 0;
+    let timer = null;
+
+    const createBar = () => {
+        if (bar && document.body.contains(bar)) return bar;
+        bar = document.createElement('div');
+        bar.id = 'mmp-top-loader';
+        bar.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, #0000FF 0%, #FF6600 50%, #FF0000 100%);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 5px rgba(0, 0, 255, 0.8);
+            z-index: 9999999;
+            transition: width 0.25s ease-out, opacity 0.3s ease-out;
+            pointer-events: none;
+            opacity: 0;
+        `;
+        document.body.appendChild(bar);
+        return bar;
+    };
+
+    const start = () => {
+        const el = createBar();
+        progress = 20;
+        el.style.opacity = '1';
+        el.style.width = '20%';
+
+        if (timer) clearInterval(timer);
+        timer = setInterval(() => {
+            if (progress < 85) {
+                progress += Math.random() * 10 + 4;
+                el.style.width = Math.min(progress, 85) + '%';
+            }
+        }, 180);
+    };
+
+    const done = () => {
+        if (!bar) return;
+        if (timer) clearInterval(timer);
+        bar.style.width = '100%';
+        setTimeout(() => {
+            if (bar) bar.style.opacity = '0';
+            setTimeout(() => {
+                if (bar) bar.style.width = '0%';
+            }, 300);
+        }, 150);
+    };
+
+    if (document.readyState === 'complete') {
+        done();
+    } else {
+        window.addEventListener('load', done);
+    }
+
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link && link.href && !link.target && !link.hasAttribute('download') && !link.href.startsWith('javascript:') && !link.href.startsWith('#')) {
+            try {
+                const url = new URL(link.href, window.location.href);
+                if (url.origin === window.location.origin && (url.pathname !== window.location.pathname || url.search !== window.location.search)) {
+                    start();
+                }
+            } catch {}
+        }
+    });
+
+    document.addEventListener('submit', (e) => {
+        const form = e.target;
+        if (form && !form.target) {
+            start();
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        start();
+    });
+
+    return { start, done };
+})();
+
 window.NepaliDate = NepaliDate;
 window.Alpine = Alpine;
 window.Chart = Chart;
@@ -161,8 +251,7 @@ Chart.defaults.elements.line.tension = 0.38;
 Alpine.data('bsDatePicker', (uid, initialValue) => ({
     open: false,
     dropUp: false,
-    popupLeft: 0,
-    popupTop: 0,
+    alignRight: false,
     bsValue: initialValue || '',
     adValue: '',
     viewYear: 2083,
@@ -202,8 +291,29 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
             this._syncAD();
             this.buildCalendar();
         } catch (e) {
-            console.warn('[BS Datepicker] Init error:', e);
+            console.warn('[BS Datepicker] Init fallback:', e);
+            this.viewYear = 2083;
+            this.viewMonth = 0;
+            this.buildCalendar();
         }
+    },
+
+    calcPlacement() {
+        this.$nextTick(() => {
+            const el = this.$el;
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            const panelHeight = 340;
+            const panelWidth = 320;
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+
+            // If not enough room below and more room above, flip UP
+            this.dropUp = (spaceBelow < panelHeight && spaceAbove > spaceBelow);
+            
+            // If overflow on right edge of window, align right
+            this.alignRight = (rect.left + panelWidth > window.innerWidth);
+        });
     },
 
     _parseValue(val) {
@@ -244,37 +354,16 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
 
     openCalendar() {
         this.open = true;
-        this._calcPopupPlacement();
+        this.buildCalendar();
+        this.calcPlacement();
     },
 
     toggleCalendar() {
         this.open = !this.open;
-        if (this.open) this._calcPopupPlacement();
-    },
-
-    _calcPopupPlacement() {
-        this.$nextTick(() => {
-            const wrap = this.$el;
-            if (!wrap) return;
-
-            const viewportPadding = 8;
-            const panel = this.$refs.panel;
-            const rect = wrap.getBoundingClientRect();
-            const popupWidth = panel ? panel.getBoundingClientRect().width : 320;
-            const popupHeight = panel ? panel.getBoundingClientRect().height : 340;
-
-            const spaceBelow = window.innerHeight - rect.bottom - viewportPadding;
-            const spaceAbove = rect.top - viewportPadding;
-            this.dropUp = spaceBelow < popupHeight && spaceAbove > spaceBelow;
-
-            // Calculate absolute position for fixed positioning
-            const desiredLeft = rect.left;
-            const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding);
-            this.popupLeft = Math.min(Math.max(desiredLeft, viewportPadding), maxLeft);
-            
-            // Calculate top position
-            this.popupTop = this.dropUp ? rect.top - popupHeight - 4 : rect.bottom + 4;
-        });
+        if (this.open) {
+            this.buildCalendar();
+            this.calcPlacement();
+        }
     },
 
     buildCalendar() {
@@ -286,7 +375,12 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
             let daysInMonth = 30;
             try {
                 for (let d = 28; d <= 32; d++) {
-                    try { new NepaliDate(this.viewYear, this.viewMonth, d); daysInMonth = d; } catch { break; }
+                    try { 
+                        new NepaliDate(this.viewYear, this.viewMonth, d); 
+                        daysInMonth = d; 
+                    } catch { 
+                        break; 
+                    }
                 }
             } catch {}
 
@@ -301,6 +395,9 @@ Alpine.data('bsDatePicker', (uid, initialValue) => ({
             }
         } catch (e) {
             console.warn('[BS Datepicker] Build error:', e);
+            for (let d = 1; d <= 30; d++) {
+                cells.push({ key: 'fb' + d, day: d, isToday: false, isSelected: d === this.selectedDay });
+            }
         }
         this.calendarCells = cells;
     },

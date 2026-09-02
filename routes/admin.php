@@ -117,6 +117,8 @@ Route::prefix('news-events')->name('news-events.')->group(function () {
     Route::put('/{notice}', [NoticeController::class, 'updateNewsEvent'])->name('update');
     Route::delete('/{notice}', [NoticeController::class, 'destroyNewsEvent'])->name('destroy');
 });
+
+Route::patch('notices/{notice}/toggle-popup', [NoticeController::class, 'togglePopup'])->name('notices.toggle-popup');
 Route::resource('notices', NoticeController::class);
 Route::resource('facilities', FacilityController::class);
 Route::resource('executives', ExecutiveController::class);

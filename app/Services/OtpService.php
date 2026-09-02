@@ -53,14 +53,16 @@ class OtpService
         ]);
 
         if ($method === 'email' && $user) {
-            // Send via email
-            $user->notify(new \App\Notifications\TwoFactorOtpNotification($otpCode, self::OTP_EXPIRY_MINUTES));
-            Log::info("2FA OTP sent via email to {$identifier}");
+            // Send via email safely without crashing the flow if SMTP is slow
+            try {
+                $user->notify(new \App\Notifications\TwoFactorOtpNotification($otpCode, self::OTP_EXPIRY_MINUTES));
+                Log::info("2FA OTP sent via email to {$identifier}");
+            } catch (\Throwable $e) {
+                Log::warning("2FA OTP email dispatch error for {$identifier}: " . $e->getMessage());
+            }
         } else {
             // Send via SMS
-            // TODO: Integrate with SMS provider (Twilio, SNS, etc.)
             Log::info("OTP for {$identifier}: {$otpCode}");
-            // In production: $this->sendSms($identifier, "Your OTP is: {$otpCode}. Valid for " . self::OTP_EXPIRY_MINUTES . " minutes.");
         }
 
         return [

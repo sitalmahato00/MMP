@@ -61,16 +61,16 @@
         [
             'label' => 'People',
             'items' => [
-                ['label' => 'Students',           'iconName' => 'academic-cap',   'href' => route('admin.students.index'),          'isActive' => $active('admin.students.*')],
-                ['label' => 'Parents',            'iconName' => 'heart',          'href' => route('admin.parents.index'),           'isActive' => $active('admin.parents.*')],
-                ['label' => 'Alumni',             'iconName' => 'graduation-cap', 'href' => route('admin.alumni.index'),            'isActive' => $active('admin.alumni.*')],
-                ['label' => 'Teachers',           'iconName' => 'briefcase',      'href' => route('admin.teachers.index'),          'isActive' => $active('admin.teachers.*')],
-                ['label' => 'People',        'iconName' => 'users',          'href' => route('admin.staff.index'),        'isActive' => $active('admin.staff.*')],
-                ['label' => 'Departments',  'iconName' => 'office-building','href' => route('admin.departments.index'), 'isActive' => $active('admin.departments.*')],
-                ['label' => 'HODs',         'iconName' => 'user-circle',    'href' => route('admin.hods.index'),         'isActive' => $active('admin.hods.*')],
-                ['label' => 'Executives',   'iconName' => 'star',           'href' => route('admin.executives.index'),   'isActive' => $active('admin.executives.*')],
-                ['label' => 'User Accounts','iconName' => 'user-group',     'href' => route('admin.users.index'),        'isActive' => $active('admin.users.*')],
-                ['label' => 'Roles & Permissions','iconName' => 'shield',         'href' => route('admin.roles-permissions.index'), 'isActive' => $active('admin.roles-permissions.*')],
+                ['label' => 'Students',            'iconName' => 'users',           'href' => route('admin.students.index'),         'isActive' => $active('admin.students.*')],
+                ['label' => 'Parents',             'iconName' => 'heart',           'href' => route('admin.parents.index'),          'isActive' => $active('admin.parents.*')],
+                ['label' => 'Alumni',              'iconName' => 'academic-cap',    'href' => route('admin.alumni.index'),           'isActive' => $active('admin.alumni.*')],
+                ['label' => 'Teachers',            'iconName' => 'graduation-cap',  'href' => route('admin.teachers.index'),         'isActive' => $active('admin.teachers.*')],
+                ['label' => 'People',              'iconName' => 'briefcase',       'href' => route('admin.staff.index'),            'isActive' => $active('admin.staff.*')],
+                ['label' => 'Departments',         'iconName' => 'office-building', 'href' => route('admin.departments.index'),     'isActive' => $active('admin.departments.*')],
+                ['label' => 'HODs',                'iconName' => 'user-circle',     'href' => route('admin.hods.index'),            'isActive' => $active('admin.hods.*')],
+                ['label' => 'Executives',          'iconName' => 'shield',          'href' => route('admin.executives.index'),      'isActive' => $active('admin.executives.*')],
+                ['label' => 'User Accounts',       'iconName' => 'user-group',      'href' => route('admin.users.index'),           'isActive' => $active('admin.users.*')],
+                ['label' => 'Roles & Permissions', 'iconName' => 'shield',          'href' => route('admin.roles-permissions.index'),'isActive' => $active('admin.roles-permissions.*')],
             ],
         ],
 
@@ -78,11 +78,10 @@
         [
             'label' => 'Academics',
             'items' => [
-                ['label' => 'Programs',           'iconName' => 'book-open',       'href' => route('admin.programs.index'),          'isActive' => $active('admin.programs.*')],
-                ['label' => 'Sessions',           'iconName' => 'calendar',        'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
-                ['label' => 'Attendance',         'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'),        'isActive' => $active('admin.attendance.*')],
-                ['label' => 'Examinations',       'iconName' => 'chart-bar',       'href' => route('admin.exams.index'),             'isActive' => $active('admin.exams.*')],
-
+                ['label' => 'Programs',     'iconName' => 'book-open',       'href' => route('admin.programs.index'),          'isActive' => $active('admin.programs.*')],
+                ['label' => 'Sessions',     'iconName' => 'calendar',        'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
+                ['label' => 'Attendance',   'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'),        'isActive' => $active('admin.attendance.*')],
+                ['label' => 'Examinations', 'iconName' => 'doc-text',        'href' => route('admin.exams.index'),             'isActive' => $active(['admin.exams.*', 'admin.marks.*'])],
             ],
         ],
 
@@ -90,9 +89,9 @@
         [
             'label' => 'Student Services',
             'items' => [
-                ['label' => 'ID Card Generator', 'iconName' => 'identification', 'href' => route('admin.id-cards.students.index'),     'isActive' => $active('admin.id-cards.students.index') || (request()->is('admin/id-cards/students') && !request()->is('admin/id-cards/students/bulk-list') && !request()->is('admin/id-cards/students/reports'))],
-                ['label' => 'Bulk Print',         'iconName' => 'printer',        'href' => route('admin.id-cards.students.bulk-list'), 'isActive' => $active('admin.id-cards.students.bulk-list')],
-                ['label' => 'ID Card Reports',    'iconName' => 'doc-report',     'href' => route('admin.id-cards.students.reports'),   'isActive' => $active('admin.id-cards.students.reports')],
+                ['label' => 'ID Card Generator', 'iconName' => 'identification', 'href' => route('admin.id-cards.students.index'),   'isActive' => $active('admin.id-cards.students.index')],
+                ['label' => 'Bulk Print',        'iconName' => 'doc-report',     'href' => route('admin.id-cards.students.bulk-list'),'isActive' => $active('admin.id-cards.students.bulk-list')],
+                ['label' => 'ID Card Reports',   'iconName' => 'chart-bar',      'href' => route('admin.id-cards.students.reports'),  'isActive' => $active('admin.id-cards.students.reports*')],
             ],
         ],
 
@@ -100,12 +99,12 @@
         [
             'label' => 'Website & Communication',
             'items' => [
-                ['label' => 'Website Content',      'iconName' => 'doc-text',   'href' => route('admin.web-control.index'),  'isActive' => $active('admin.web-control.*')],
-                ['label' => 'Media Gallery',         'iconName' => 'photo',      'href' => route('admin.media.index'),        'isActive' => $active('admin.media.*')],
-                ['label' => 'Notices',               'iconName' => 'bell',       'href' => route('admin.notices.index'),      'isActive' => $active('admin.notices.*'), 'badge' => $unreadNotifications],
-                ['label' => 'News & Announcements',  'iconName' => 'collection', 'href' => route('admin.news-events.index'),  'isActive' => $active('admin.news-events.*')],
-                ['label' => 'Downloads',             'iconName' => 'download',   'href' => route('admin.downloads.index'),    'isActive' => $active('admin.downloads.*')],
-                ['label' => 'Banner Management', 'iconName' => 'collection', 'href' => route('admin.banners.index'),      'isActive' => $active('admin.banners.*')],
+                ['label' => 'Website Content',      'iconName' => 'collection', 'href' => route('admin.web-control.index'), 'isActive' => $active('admin.web-control.*')],
+                ['label' => 'Media Gallery',        'iconName' => 'photo',      'href' => route('admin.media.index'),       'isActive' => $active('admin.media.*')],
+                ['label' => 'Notices',              'iconName' => 'bell',       'href' => route('admin.notices.index'),     'isActive' => $active('admin.notices.*')],
+                ['label' => 'News & Announcements', 'iconName' => 'bell',       'href' => route('admin.news-events.index'), 'isActive' => $active('admin.news-events.*')],
+                ['label' => 'Downloads',            'iconName' => 'download',   'href' => route('admin.downloads.index'),   'isActive' => $active('admin.downloads.*')],
+                ['label' => 'Banner Management',    'iconName' => 'photo',      'href' => route('admin.banners.index'),     'isActive' => $active('admin.banners.*')],
             ],
         ],
 
@@ -113,10 +112,10 @@
         [
             'label' => 'System',
             'items' => [
-                ['label' => 'System Users',         'iconName' => 'user-group', 'href' => route('admin.users.index'),             'isActive' => $active('admin.users.*')],
-                ['label' => 'Access Control',       'iconName' => 'shield',     'href' => route('admin.roles-permissions.index'), 'isActive' => $active('admin.roles-permissions.*')],
-                ['label' => 'Audit Logs',       'iconName' => 'doc-report', 'href' => route('admin.audit-logs.index'),  'isActive' => $active('admin.audit-logs.*')],
-                ['label' => 'Account Settings', 'iconName' => 'cog',        'href' => route('admin.settings.index'),   'isActive' => $active('admin.settings.*')],
+                ['label' => 'System Users',     'iconName' => 'user-group', 'href' => route('admin.users.index'),           'isActive' => $active('admin.users.*')],
+                ['label' => 'Access Control',   'iconName' => 'shield',     'href' => route('admin.roles-permissions.index'),'isActive' => $active('admin.roles-permissions.*')],
+                ['label' => 'Audit Logs',       'iconName' => 'doc-text',   'href' => route('admin.audit-logs.index'),       'isActive' => $active('admin.audit-logs.*')],
+                ['label' => 'Account Settings', 'iconName' => 'cog',        'href' => route('admin.settings.index'),         'isActive' => $active('admin.settings.*')],
             ],
         ],
     ];
@@ -325,25 +324,60 @@
         ],
     ];
 
-    $sidebarExpandedWidth = '17rem';
+    $sidebarExpandedWidth = '16.5rem';
     $sidebarCollapsedWidth = '4.75rem';
 @endphp
 
 <aside
-    class="fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-[#0B2E6B] text-white shadow-xl transition-[transform,width] duration-300 ease-out lg:z-30 lg:fixed lg:top-16 lg:h-[calc(100vh-64px)] lg:flex-shrink-0 lg:translate-x-0"
-    style="padding-top: 64px; background-color: #0B2E6B; opacity: 1; border-right: 1px solid rgba(255,255,255,0.08);"
+    class="fixed inset-y-0 left-0 z-40 flex h-screen flex-col bg-[#F8FAFC] dark:bg-[#0D1B35] p-2.5 transition-[transform,width] duration-300 ease-out lg:z-30 lg:translate-x-0 border-r border-gray-200 dark:border-slate-800 shadow-xs"
     :style="sidebarCollapsed ? 'width: {{ $sidebarCollapsedWidth }}' : 'width: {{ $sidebarExpandedWidth }}'"
     :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
     x-cloak>
 
-    {{-- Navigation --}}
-    <nav class="flex-1 px-2 py-2"
-         :class="sidebarCollapsed ? 'overflow-y-hidden overflow-x-visible' : 'overflow-y-auto overflow-x-visible'"
-         style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;">
-        @if($isAdmin)
-            @foreach($adminGroups as $group)
-                @if(!empty($group['standalone']))
-                    <div class="pt-4 pb-1 px-1 space-y-1">
+    {{-- Brand Logo & Title Area (Top of Sidebar) --}}
+    <div class="flex items-center gap-2.5 px-2.5 py-2.5 mb-2 bg-white dark:bg-[#132044] rounded-xl shadow-xs border border-gray-100 dark:border-slate-800 min-h-[58px]">
+        <a href="{{ route('home') }}" class="flex items-center gap-2.5 min-w-0 w-full group">
+            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-white">
+                <img src="{{ $brandLogoUrl }}" alt="Logo" class="h-9 w-9 object-contain group-hover:scale-105 transition-transform">
+            </div>
+            <div x-show="!sidebarCollapsed" x-cloak class="flex flex-col min-w-0 leading-tight">
+                <span class="font-extrabold text-[12px] sm:text-[13px] text-[#0000FF] dark:text-blue-400 tracking-tight leading-none">Manmohan Memorial</span>
+                <span class="font-extrabold text-[12px] sm:text-[13px] text-[#FF0000] dark:text-red-500 tracking-tight leading-none mt-0.5">Polytechnic</span>
+                <span class="text-[8px] sm:text-[8.5px] font-normal text-gray-500 dark:text-slate-400 leading-tight truncate mt-1">College Administration Management System</span>
+            </div>
+        </a>
+    </div>
+
+    {{-- Blue Navigation Card Container --}}
+    <div class="mmp-sidebar flex-1 flex flex-col rounded-2xl shadow-xl text-white relative overflow-hidden"
+         style="background: linear-gradient(180deg, #001FB8 0%, #000D54 100%) !important; border: 1px solid rgba(255,255,255,0.08);">
+
+        {{-- Navigation List --}}
+        <nav class="flex-1 px-3 py-3"
+             :class="sidebarCollapsed ? 'overflow-y-hidden overflow-x-visible' : 'overflow-y-auto overflow-x-visible'"
+             style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;">
+            @if($isAdmin)
+                @foreach($adminGroups as $idx => $group)
+                    @if($idx > 0)
+                        {{-- Separator line between sidebar button groups --}}
+                        <div class="my-2.5 mx-2 border-t border-white/15"></div>
+                    @endif
+                    @if(!empty($group['standalone']))
+                        <div class="py-0.5 space-y-1">
+                            @foreach($group['items'] as $item)
+                                @include('components.sidebar-items.nav-link', [
+                                    'href'     => $item['href'],
+                                    'iconName' => $item['iconName'],
+                                    'label'    => $item['label'],
+                                    'isActive' => $item['isActive'],
+                                    'accent'   => $accent,
+                                    'badge'    => $item['badge'] ?? null,
+                                    'disabled' => $item['disabled'] ?? false,
+                                ])
+                            @endforeach
+                        </div>
+                    @else
+                        @include('components.sidebar-items.nav-section', ['label' => $group['label']])
                         @foreach($group['items'] as $item)
                             @include('components.sidebar-items.nav-link', [
                                 'href'     => $item['href'],
@@ -355,55 +389,54 @@
                                 'disabled' => $item['disabled'] ?? false,
                             ])
                         @endforeach
-                    </div>
-                @else
+                        @include('components.sidebar-items.nav-section-end')
+                    @endif
+                @endforeach
+            @elseif($isHod)
+                @foreach($hodGroups as $group)
                     @include('components.sidebar-items.nav-section', ['label' => $group['label']])
                     @foreach($group['items'] as $item)
                         @include('components.sidebar-items.nav-link', [
-                            'href'     => $item['href'],
+                            'href' => $item['href'],
                             'iconName' => $item['iconName'],
-                            'label'    => $item['label'],
+                            'label' => $item['label'],
                             'isActive' => $item['isActive'],
-                            'accent'   => $accent,
-                            'badge'    => $item['badge'] ?? null,
-                            'disabled' => $item['disabled'] ?? false,
+                            'accent' => $accent,
                         ])
                     @endforeach
                     @include('components.sidebar-items.nav-section-end')
-                @endif
-            @endforeach
-        @elseif($isHod)
-            @foreach($hodGroups as $group)
-                @include('components.sidebar-items.nav-section', ['label' => $group['label']])
-                @foreach($group['items'] as $item)
-                    @include('components.sidebar-items.nav-link', [
-                        'href' => $item['href'],
-                        'iconName' => $item['iconName'],
-                        'label' => $item['label'],
-                        'isActive' => $item['isActive'],
-                        'accent' => $accent,
-                    ])
                 @endforeach
-                @include('components.sidebar-items.nav-section-end')
-            @endforeach
-        @elseif($isTeacher)
-            @foreach($teacherGroups as $group)
-                @include('components.sidebar-items.nav-section', ['label' => $group['label']])
-                @foreach($group['items'] as $item)
-                    @include('components.sidebar-items.nav-link', [
-                        'href' => $item['href'],
-                        'iconName' => $item['iconName'],
-                        'label' => $item['label'],
-                        'isActive' => $item['isActive'],
-                        'accent' => $accent,
-                    ])
+            @elseif($isTeacher)
+                @foreach($teacherGroups as $group)
+                    @include('components.sidebar-items.nav-section', ['label' => $group['label']])
+                    @foreach($group['items'] as $item)
+                        @include('components.sidebar-items.nav-link', [
+                            'href' => $item['href'],
+                            'iconName' => $item['iconName'],
+                            'label' => $item['label'],
+                            'isActive' => $item['isActive'],
+                            'accent' => $accent,
+                        ])
+                    @endforeach
+                    @include('components.sidebar-items.nav-section-end')
                 @endforeach
-                @include('components.sidebar-items.nav-section-end')
-            @endforeach
-        @elseif($isStudent)
-            @foreach($studentGroups as $group)
-                @if(!empty($group['standalone']))
-                    <div class="pt-4 pb-1 px-1 space-y-1">
+            @elseif($isStudent)
+                @foreach($studentGroups as $group)
+                    @if(!empty($group['standalone']))
+                        <div class="pt-2 pb-1 space-y-1">
+                            @foreach($group['items'] as $item)
+                                @include('components.sidebar-items.nav-link', [
+                                    'href'     => $item['href'],
+                                    'iconName' => $item['iconName'],
+                                    'label'    => $item['label'],
+                                    'isActive' => $item['isActive'],
+                                    'accent'   => $accent,
+                                    'disabled' => $item['disabled'] ?? false,
+                                ])
+                            @endforeach
+                        </div>
+                    @else
+                        @include('components.sidebar-items.nav-section', ['label' => $group['label']])
                         @foreach($group['items'] as $item)
                             @include('components.sidebar-items.nav-link', [
                                 'href'     => $item['href'],
@@ -414,105 +447,94 @@
                                 'disabled' => $item['disabled'] ?? false,
                             ])
                         @endforeach
-                    </div>
-                @else
+                        @include('components.sidebar-items.nav-section-end')
+                    @endif
+                @endforeach
+            @elseif($isParent)
+                @foreach($parentGroups as $group)
                     @include('components.sidebar-items.nav-section', ['label' => $group['label']])
                     @foreach($group['items'] as $item)
                         @include('components.sidebar-items.nav-link', [
-                            'href'     => $item['href'],
+                            'href' => $item['href'],
                             'iconName' => $item['iconName'],
-                            'label'    => $item['label'],
+                            'label' => $item['label'],
                             'isActive' => $item['isActive'],
-                            'accent'   => $accent,
-                            'disabled' => $item['disabled'] ?? false,
+                            'accent' => $accent,
                         ])
                     @endforeach
                     @include('components.sidebar-items.nav-section-end')
-                @endif
-            @endforeach
-        @elseif($isParent)
-            @foreach($parentGroups as $group)
-                @include('components.sidebar-items.nav-section', ['label' => $group['label']])
-                @foreach($group['items'] as $item)
-                    @include('components.sidebar-items.nav-link', [
-                        'href' => $item['href'],
-                        'iconName' => $item['iconName'],
-                        'label' => $item['label'],
-                        'isActive' => $item['isActive'],
-                        'accent' => $accent,
-                    ])
                 @endforeach
-                @include('components.sidebar-items.nav-section-end')
-            @endforeach
-        @elseif($isAlumni)
-            @foreach($alumniGroups as $group)
-                @include('components.sidebar-items.nav-section', ['label' => $group['label']])
-                @foreach($group['items'] as $item)
-                    @include('components.sidebar-items.nav-link', [
-                        'href' => $item['href'],
-                        'iconName' => $item['iconName'],
-                        'label' => $item['label'],
-                        'isActive' => $item['isActive'],
-                        'accent' => $accent,
-                    ])
+            @elseif($isAlumni)
+                @foreach($alumniGroups as $group)
+                    @include('components.sidebar-items.nav-section', ['label' => $group['label']])
+                    @foreach($group['items'] as $item)
+                        @include('components.sidebar-items.nav-link', [
+                            'href' => $item['href'],
+                            'iconName' => $item['iconName'],
+                            'label' => $item['label'],
+                            'isActive' => $item['isActive'],
+                            'accent' => $accent,
+                        ])
+                    @endforeach
+                    @include('components.sidebar-items.nav-section-end')
                 @endforeach
-                @include('components.sidebar-items.nav-section-end')
-            @endforeach
-        @endif
+            @endif
 
-    </nav>
+        </nav>
 
-    {{-- Footer: public site + logout + collapse --}}
-    <div style="border-top: 1px solid rgba(255,255,255,0.10);">
-
-        {{-- Public Site link --}}
-        <a href="{{ route('home') }}" target="_blank"
-           class="group relative flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-white/10"
-           :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
-           style="color: rgba(255,255,255,0.65);">
-            <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        {{-- Watermark Building Illustration in Lower Sidebar Background --}}
+        <div class="pointer-events-none absolute bottom-20 left-0 right-0 overflow-hidden opacity-[0.05] text-white flex justify-center" aria-hidden="true">
+            <svg class="w-56 h-36" viewBox="0 0 200 120" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M10 110h180M20 110V50h160v60M35 50V30h130v20M50 30V15l50-10 50 10v15M100 5v10M60 50v60M140 50v60M80 50v60M120 50v60M40 70h12v15H40zM85 70h12v15H85zM103 70h12v15h-12zM148 70h12v15h-12zM90 95h20v15H90z"/>
             </svg>
-            <span x-show="!sidebarCollapsed" x-cloak class="truncate">Public Site</span>
-            <span x-show="sidebarCollapsed" x-cloak
-                  class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block">
-                Public Site
-            </span>
-        </a>
-
-        {{-- Logout --}}
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit"
-                    class="group relative flex w-full items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-white/10"
-                    :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
-                    style="color: rgba(255,180,180,0.85);">
-                <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                </svg>
-                <span x-show="!sidebarCollapsed" x-cloak class="truncate">Sign Out</span>
-                <span x-show="sidebarCollapsed" x-cloak
-                      class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block">
-                    Sign Out
-                </span>
-            </button>
-        </form>
-
-        {{-- Collapse toggle (desktop only) --}}
-        <div class="hidden lg:flex items-center px-4 py-2.5"
-             :class="sidebarCollapsed ? 'justify-center' : 'justify-between'"
-             style="border-top: 1px solid rgba(255,255,255,0.08);">
-            <span x-show="!sidebarCollapsed" x-cloak class="text-[10px] font-medium uppercase tracking-widest" style="color: rgba(255,255,255,0.35);">Navigation</span>
-            <button type="button"
-                    @click="toggleSidebarCollapse()"
-                    class="rounded p-1.5 transition-colors hover:bg-white/10"
-                    style="color: rgba(255,255,255,0.5);"
-                    :title="sidebarCollapsed ? 'Expand' : 'Collapse'">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path x-show="!sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"/>
-                    <path x-show="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-                </svg>
-            </button>
         </div>
+
+        {{-- Footer: Sign Out + Collapse Toggle --}}
+        <div class="p-3 relative z-10 space-y-2 border-t border-white/10">
+
+            {{-- Sign Out Button --}}
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"
+                        class="group relative flex w-full items-center gap-3 rounded-xl border border-blue-400/30 bg-white/5 hover:bg-white/10 hover:border-blue-400/50 p-2 text-xs font-semibold text-white transition-all shadow-sm focus:outline-none"
+                        :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : 'lg:justify-start'">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FF0000] text-white shadow-sm transition-transform group-hover:scale-105">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                    </span>
+                    <span x-show="!sidebarCollapsed" x-cloak class="truncate">Sign Out</span>
+                    <span x-show="sidebarCollapsed" x-cloak
+                          class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 lg:block">
+                        Sign Out
+                    </span>
+                </button>
+            </form>
+
+            {{-- Collapse toggle (desktop only) --}}
+            <div class="hidden lg:flex items-center justify-between px-1 pt-1">
+                <a href="{{ route('home') }}" target="_blank"
+                   x-show="!sidebarCollapsed" x-cloak
+                   class="text-[11px] text-blue-200/70 hover:text-white flex items-center gap-1 transition-colors">
+                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                    Public Site
+                </a>
+                <button type="button"
+                        @click="toggleSidebarCollapse()"
+                        class="rounded-lg p-1.5 transition-colors hover:bg-white/10 text-white/50 hover:text-white ml-auto"
+                        :title="sidebarCollapsed ? 'Expand' : 'Collapse'">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"/>
+                        <path x-show="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        {{-- Bottom Decorative Orange Accent Bar --}}
+        <div class="h-1.5 w-full bg-gradient-to-r from-[#FF0000] via-[#FF6600] to-[#FFAA00] shrink-0"></div>
     </div>
 </aside>
+

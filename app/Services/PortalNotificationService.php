@@ -30,12 +30,20 @@ class PortalNotificationService
         }
 
         $token = Password::broker()->createToken($user);
+        $roleLabel = $this->roleLabel($user);
+        $createdByName = $createdBy?->name;
 
-        $user->notify(new NewPortalAccountNotification(
-            token: $token,
-            roleLabel: $this->roleLabel($user),
-            createdByName: $createdBy?->name,
-        ));
+        dispatch(function () use ($user, $token, $roleLabel, $createdByName) {
+            try {
+                $user->notify(new NewPortalAccountNotification(
+                    token: $token,
+                    roleLabel: $roleLabel,
+                    createdByName: $createdByName,
+                ));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Send credentials email deferred error: ' . $e->getMessage());
+            }
+        })->afterResponse();
     }
 
     public function dispatchNoticePublished(Notice $notice): int
@@ -64,9 +72,17 @@ class PortalNotificationService
             return 0;
         }
 
-        Notification::send($recipients, new PortalNoticeNotification($notice));
+        $recipientCount = $recipients->count();
 
-        return $recipients->count();
+        dispatch(function () use ($recipients, $notice) {
+            try {
+                Notification::send($recipients, new PortalNoticeNotification($notice));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notice notification send deferred error: ' . $e->getMessage());
+            }
+        })->afterResponse();
+
+        return $recipientCount;
     }
 
     public function dispatchExamPublished(Exam $exam): int
@@ -91,9 +107,17 @@ class PortalNotificationService
             return 0;
         }
 
-        Notification::send($recipients, new ExamPublishedNotification($exam));
+        $recipientCount = $recipients->count();
 
-        return $recipients->count();
+        dispatch(function () use ($recipients, $exam) {
+            try {
+                Notification::send($recipients, new ExamPublishedNotification($exam));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Exam published notification send deferred error: ' . $e->getMessage());
+            }
+        })->afterResponse();
+
+        return $recipientCount;
     }
 
     public function dispatchOfficialCtevtFeeds(): int

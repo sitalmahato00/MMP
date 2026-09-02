@@ -81,6 +81,28 @@
         @endif
     </x-form-section>
 
+    <x-form-section title="Website Popup Modal" id="popup-settings">
+        <div x-data="{ isPopup: @js((bool) old('is_popup', request('popup') == 1)) }" class="space-y-4">
+            <div class="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+                <input type="checkbox" name="is_popup" id="is_popup" value="1" x-model="isPopup"
+                       class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <label for="is_popup" class="cursor-pointer select-none">
+                    <span class="block text-sm font-bold text-gray-900">Show this notice as a Popup Modal on Website</span>
+                    <span class="block text-xs text-gray-500 mt-0.5">When enabled, visitors will see this notice as an interactive pop-up when they open the website during the specified Bikram Sambat interval.</span>
+                </label>
+            </div>
+
+            <div x-show="isPopup" x-cloak class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <x-form-field label="Popup Active From (BS)" name="popup_from_bs">
+                    <x-bs-date-picker name="popup_from_bs" :value="old('popup_from_bs', bsDate(now(), 'Y-m-d'))" adName="popup_from"/>
+                </x-form-field>
+                <x-form-field label="Popup Active To (BS)" name="popup_to_bs">
+                    <x-bs-date-picker name="popup_to_bs" :value="old('popup_to_bs', bsDate(now()->addDays(7), 'Y-m-d'))" adName="popup_to"/>
+                </x-form-field>
+            </div>
+        </div>
+    </x-form-section>
+
     <div class="flex items-center gap-3">
         <x-btn type="submit">{{ $workspace['submit_label'] }}</x-btn>
         <x-btn :href="route($workspace['index_route'])" variant="secondary">Cancel</x-btn>

@@ -21,7 +21,7 @@ class PublicDataService
 
     public function getHomepageData(): array
     {
-        return Cache::remember('public:homepage', self::CACHE_TTL, function () {
+        $base = Cache::remember('public:homepage', self::CACHE_TTL, function () {
             return [
                 'banners' => Banner::active()->get(['id', 'title', 'subtitle', 'image', 'link', 'order']),
                 'departments' => Department::active()
@@ -51,6 +51,32 @@ class PublicDataService
                     ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
             ];
         });
+
+        $base['popupNotices'] = $this->getActivePopupNotices();
+
+        return $base;
+    }
+
+    /**
+     * Active popup notices for public website popups (real-time live retrieval)
+     */
+    public function getActivePopupNotices(): Collection
+    {
+        $today = now()->toDateString();
+
+        return Notice::published()
+            ->where('is_popup', true)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('popup_from')
+                  ->orWhere('popup_from', '<=', $today);
+            })
+            ->where(function ($q) use ($today) {
+                $q->whereNull('popup_to')
+                  ->orWhere('popup_to', '>=', $today);
+            })
+            ->with(['attachments', 'department:id,name,code', 'program:id,name,code'])
+            ->latest()
+            ->get();
     }
 
     /**
@@ -1045,6 +1071,7 @@ class PublicDataService
         if ($key === '*') {
             $cacheKeys = [
                 'public:homepage',
+                'public:popup_notices',
                 'public:departments',
                 'public:downloads',
                 'public:facilities',

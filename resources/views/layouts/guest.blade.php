@@ -858,5 +858,11 @@
             });
         }
     </script>
+
+    {{-- Global Website Popup Notices Modal --}}
+    @php
+        $globalPopupNotices = app(\App\Services\PublicDataService::class)->getActivePopupNotices();
+    @endphp
+    <x-public-popup-notice :notices="$globalPopupNotices" />
 </body>
 </html>

@@ -14,12 +14,16 @@ class Notice extends Model
         'title', 'slug', 'content', 'attachment', 'type',
         'department_id', 'program_id', 'semester',
         'created_by', 'is_published', 'published_at',
+        'is_popup', 'popup_from_bs', 'popup_to_bs', 'popup_from', 'popup_to',
     ];
 
     protected $casts = [
         'semester' => 'integer',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
+        'is_popup' => 'boolean',
+        'popup_from' => 'date',
+        'popup_to' => 'date',
     ];
 
     public function author()
@@ -45,6 +49,22 @@ class Notice extends Model
     public function scopePublished($query)
     {
         return $query->where('is_published', true);
+    }
+
+    public function scopeActivePopup($query)
+    {
+        $today = now()->toDateString();
+
+        return $query->where('is_published', true)
+            ->where('is_popup', true)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('popup_from')
+                  ->orWhere('popup_from', '<=', $today);
+            })
+            ->where(function ($q) use ($today) {
+                $q->whereNull('popup_to')
+                  ->orWhere('popup_to', '>=', $today);
+            });
     }
 
     public function scopeGeneral($query)

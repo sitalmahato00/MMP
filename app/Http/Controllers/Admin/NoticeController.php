@@ -137,6 +137,45 @@ class NoticeController extends Controller
         return view('admin.notices.show', compact('notice', 'payload', 'workspace'));
     }
 
+    public function togglePopup(Request $request, Notice $notice)
+    {
+        $this->ensureOwnership($notice);
+
+        $isPopup = $request->boolean('is_popup', ! $notice->is_popup);
+        $popupFromBs = $request->input('popup_from_bs', $notice->popup_from_bs);
+        $popupToBs = $request->input('popup_to_bs', $notice->popup_to_bs);
+
+        if ($isPopup && empty($popupFromBs)) {
+            $popupFromBs = bsDate(now(), 'Y-m-d');
+            $popupToBs = bsDate(now()->addDays(7), 'Y-m-d');
+        }
+
+        $popupFrom = $popupFromBs ? NepaliDateHelper::toAD($popupFromBs) : null;
+        $popupTo = $popupToBs ? NepaliDateHelper::toAD($popupToBs) : null;
+
+        $notice->update([
+            'is_popup' => $isPopup,
+            'popup_from_bs' => $isPopup ? $popupFromBs : null,
+            'popup_to_bs' => $isPopup ? $popupToBs : null,
+            'popup_from' => $isPopup ? $popupFrom : null,
+            'popup_to' => $isPopup ? $popupTo : null,
+        ]);
+
+        PublicDataService::invalidate('*');
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'is_popup' => $notice->is_popup,
+                'popup_from_bs' => $notice->popup_from_bs,
+                'popup_to_bs' => $notice->popup_to_bs,
+                'message' => $notice->is_popup ? 'Notice set as website popup.' : 'Website popup disabled.',
+            ]);
+        }
+
+        return back()->with('success', $notice->is_popup ? 'Notice set as website popup.' : 'Website popup disabled.');
+    }
+
     private function storeWorkspaceItem(Request $request, bool $isNewsEvents)
     {
         $workspace = $this->workspace($isNewsEvents);
@@ -151,12 +190,25 @@ class NoticeController extends Controller
             'created_by' => auth()->id(),
             'slug' => Str::slug($data['title']) . '-' . uniqid(),
             'is_published' => true,
+            'is_popup' => $data['is_popup'] ?? false,
+            'popup_from_bs' => $data['popup_from_bs'] ?? null,
+            'popup_to_bs' => $data['popup_to_bs'] ?? null,
+            'popup_from' => $data['popup_from'] ?? null,
+            'popup_to' => $data['popup_to'] ?? null,
         ]);
 
         $this->storeAttachments($request, $notice);
-        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
+
+        // Send notifications AFTER sending HTTP response to prevent delay
+        dispatch(function () use ($notice) {
+            try {
+                app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notice notification dispatch deferred failed: ' . $e->getMessage());
+            }
+        })->afterResponse();
 
         return redirect()->route($workspace['index_route'])
             ->with('success', $workspace['create_success']);
@@ -190,13 +242,26 @@ class NoticeController extends Controller
             'type' => $data['type'],
             'department_id' => $data['department_id'] ?? null,
             'published_at' => $data['published_at'] ?? null,
+            'is_popup' => $data['is_popup'] ?? false,
+            'popup_from_bs' => $data['popup_from_bs'] ?? null,
+            'popup_to_bs' => $data['popup_to_bs'] ?? null,
+            'popup_from' => $data['popup_from'] ?? null,
+            'popup_to' => $data['popup_to'] ?? null,
         ]);
 
         $this->removeSelectedAttachments($request, $notice);
         $this->storeAttachments($request, $notice);
-        app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         PublicDataService::invalidate('*');
+
+        // Send notifications AFTER sending HTTP response to prevent delay
+        dispatch(function () use ($notice) {
+            try {
+                app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notice notification dispatch deferred failed: ' . $e->getMessage());
+            }
+        })->afterResponse();
 
         return redirect()->route($workspace['index_route'])
             ->with('success', $workspace['update_success']);
@@ -314,12 +379,30 @@ class NoticeController extends Controller
             'type' => "required|in:{$allowedTypes}",
             'department_id' => $isNewsEvents ? 'nullable' : 'nullable|required_if:type,department|exists:departments,id',
             'published_at' => 'nullable|string|max:20',
+            'is_popup' => 'nullable|boolean',
+            'popup_from_bs' => 'nullable|string|max:20',
+            'popup_to_bs' => 'nullable|string|max:20',
+            'popup_from' => 'nullable|date',
+            'popup_to' => 'nullable|date',
             'attachments' => 'nullable|array|max:10',
             'attachments.*' => 'file|max:20480',
         ]);
 
         if (! empty($data['published_at'])) {
             $data['published_at'] = NepaliDateHelper::toAD($data['published_at']);
+        }
+
+        $data['is_popup'] = $request->boolean('is_popup');
+        if ($data['is_popup']) {
+            $data['popup_from_bs'] = $request->input('popup_from_bs') ?: bsDate(now(), 'Y-m-d');
+            $data['popup_to_bs'] = $request->input('popup_to_bs') ?: bsDate(now()->addDays(7), 'Y-m-d');
+            $data['popup_from'] = $request->input('popup_from') ?: NepaliDateHelper::toAD($data['popup_from_bs']);
+            $data['popup_to'] = $request->input('popup_to') ?: NepaliDateHelper::toAD($data['popup_to_bs']);
+        } else {
+            $data['popup_from_bs'] = null;
+            $data['popup_to_bs'] = null;
+            $data['popup_from'] = null;
+            $data['popup_to'] = null;
         }
 
         $data['department_id'] = ! $isNewsEvents && ($data['type'] ?? null) === 'department'
@@ -485,6 +568,10 @@ class NoticeController extends Controller
                     $this->formatFileSize($attachment->file_size),
                 ])->filter()->implode(' | ')),
             ])->values(),
+            'is_popup' => (bool) $notice->is_popup,
+            'popup_from_bs' => $notice->popup_from_bs,
+            'popup_to_bs' => $notice->popup_to_bs,
+            'toggle_popup_url' => route('admin.notices.toggle-popup', $notice),
             'show_url' => route("{$routePrefix}.show", $notice),
             'edit_url' => route("{$routePrefix}.edit", $notice),
             'delete_url' => route("{$routePrefix}.destroy", $notice),

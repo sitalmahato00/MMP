@@ -232,28 +232,24 @@
     </div>
 
     {{-- ══════════════════════════════════════════════════════════
-         FIXED TOP NAVBAR — full viewport width, z-30
+         PAGE SHELL — Full-height sidebar on left, sticky header + scrollable content on right
     ══════════════════════════════════════════════════════════ --}}
-    <x-navbar />
+    <div class="min-h-screen bg-[#F8FAFC] dark:bg-[#0D1B35]">
 
-    {{-- ══════════════════════════════════════════════════════════
-         PAGE BODY — sidebar + content, starts below navbar
-    ══════════════════════════════════════════════════════════ --}}
-    <div class="flex"
-         :style="!isMobile
-             ? (sidebarCollapsed
-                 ? 'padding-top: 64px; min-height: calc(100vh - 64px); padding-left: 4.75rem;'
-                 : 'padding-top: 64px; min-height: calc(100vh - 64px); padding-left: 17rem;')
-             : 'padding-top: 64px; min-height: calc(100vh - 64px);'">
-
-        {{-- SIDEBAR --}}
+        {{-- FIXED SIDEBAR (Top-to-bottom on left) --}}
         <x-sidebar />
 
-        {{-- MAIN CONTENT --}}
-        <div class="flex min-w-0 flex-1 flex-col bg-[#F4F7FB] dark:bg-[#0D1B35]">
+        {{-- RIGHT MAIN COLUMN (Sticky Header + Scrollable Content) --}}
+        <div class="flex flex-col min-h-screen transition-[padding] duration-300 ease-out"
+             :style="!isMobile
+                 ? (sidebarCollapsed ? 'padding-left: 4.75rem;' : 'padding-left: 16.5rem;')
+                 : ''">
 
-            {{-- Mobile header (only on small screens, fixed) --}}
-            <header class="fixed inset-x-0 top-0 z-[35] flex h-14 items-center justify-between px-4 lg:hidden"
+            {{-- STICKY TOP NAVBAR --}}
+            <x-navbar />
+
+            {{-- Mobile header (only on small screens) --}}
+            <header class="flex h-14 items-center justify-between px-4 lg:hidden sticky top-0 z-20"
                     style="background-color: #0B2E6B; border-bottom: 1px solid rgba(255,255,255,0.12);">
                 <div class="flex items-center gap-3 min-w-0">
                     <button type="button" @click="sidebarOpen = true"
@@ -281,9 +277,8 @@
                 </div>
             </header>
 
-            {{-- Page content --}}
-            <main class="flex-1 overflow-x-hidden px-4 py-5 pt-16 lg:px-6 lg:py-6 lg:pt-6 pb-24 lg:pb-6 bg-[#F4F7FB] dark:bg-[#0D1B35]"
-                  style="min-height: 100%;">
+            {{-- PAGE CONTENT --}}
+            <main class="flex-1 overflow-x-hidden px-4 py-5 lg:px-6 lg:py-6 pb-24 lg:pb-6 bg-[#F8FAFC] dark:bg-[#0D1B35]">
                 <div class="mx-auto w-full max-w-full">
                     @if (session('success'))
                         <x-alert type="success" :message="session('success')" class="mb-5" />
@@ -303,6 +298,9 @@
 
                     @yield('content')
                     {{ $slot ?? '' }}
+                </div>
+                <div id="mmp-page-scripts" class="hidden">
+                    @stack('scripts')
                 </div>
             </main>
         </div>

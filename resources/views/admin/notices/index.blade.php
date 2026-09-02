@@ -183,6 +183,7 @@
                             <th class="px-4 py-3 text-left">Audience</th>
                             <th class="px-4 py-3 text-left">Department</th>
                             <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-center">Popup Modal</th>
                             <th class="px-4 py-3 text-left">Published (BS)</th>
                             <th class="px-4 py-3 text-center">Files</th>
                             <th class="px-4 py-3 text-right">Actions</th>
@@ -217,6 +218,60 @@
                                 <td class="px-4 py-3.5">
                                     <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $status['badge'] }}">{{ $status['label'] }}</span>
                                 </td>
+                                <td class="px-4 py-3.5 text-center">
+                                    <div class="flex flex-col items-center justify-center gap-1" x-data="{
+                                        isPopup: @js((bool) $notice->is_popup),
+                                        popupFromBs: @js($notice->popup_from_bs),
+                                        popupToBs: @js($notice->popup_to_bs),
+                                        loading: false,
+                                        togglePopup() {
+                                            if (this.loading) return;
+                                            this.loading = true;
+                                            const nextState = !this.isPopup;
+                                            
+                                            fetch('{{ route('admin.notices.toggle-popup', $notice) }}', {
+                                                method: 'PATCH',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                    'Accept': 'application/json'
+                                                },
+                                                body: JSON.stringify({ is_popup: nextState })
+                                            })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    this.isPopup = data.is_popup;
+                                                    this.popupFromBs = data.popup_from_bs;
+                                                    this.popupToBs = data.popup_to_bs;
+                                                }
+                                                this.loading = false;
+                                            })
+                                            .catch(() => {
+                                                this.loading = false;
+                                            });
+                                        }
+                                    }">
+                                        <button type="button"
+                                                @click="togglePopup()"
+                                                :disabled="loading"
+                                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                                                :class="{ 'bg-blue-600': isPopup, 'bg-slate-200': !isPopup, 'opacity-50 cursor-wait': loading }"
+                                                :title="isPopup ? 'Popup Active (Click to disable)' : 'Click to enable as popup'">
+                                            <span class="sr-only">Toggle Popup</span>
+                                            <span aria-hidden="true"
+                                                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                                  :class="isPopup ? 'translate-x-5' : 'translate-x-0'"></span>
+                                        </button>
+                                        <template x-if="isPopup && popupFromBs">
+                                            <a href="{{ route('admin.notices.edit', $notice) }}?popup=1#popup-settings"
+                                               class="text-[10px] text-blue-600 hover:underline font-semibold tracking-tight"
+                                               :title="'Active BS Range: ' + popupFromBs + ' to ' + (popupToBs || 'Open')"
+                                               x-text="popupFromBs">
+                                            </a>
+                                        </template>
+                                    </div>
+                                </td>
                                 <td class="px-4 py-3.5 text-xs text-slate-500">{{ $publishedLabel ?: 'N/A' }}</td>
                                 <td class="px-4 py-3.5 text-center">
                                     @if(($notice->attachments_count ?? 0) > 0)
@@ -227,7 +282,7 @@
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
-                                                <button type="button" @click="openDrawer({{ $notice->id }})" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700" title="Quick View">
+                                        <button type="button" @click="openDrawer({{ $notice->id }})" class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700" title="Quick View">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -244,7 +299,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <x-empty-state :title="$workspace['empty_title']" :message="$workspace['empty_message']" :action="route($workspace['route_prefix'] . '.create')" :actionLabel="$workspace['create_label']"/>
                                 </td>
                             </tr>

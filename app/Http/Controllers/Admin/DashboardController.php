@@ -881,53 +881,108 @@ class DashboardController extends Controller
 
     private function buildAttendanceChartData(?AcademicSession $session = null): array
     {
-        $today         = Carbon::now();
-        $thirtyDaysAgo = $today->copy()->subDays(29)->toDateString();
+        $today = Carbon::today();
 
-        $query = DB::table('attendances')
+        // 1) 7 Days Query (last 7 days up to today)
+        $sevenDaysAgo = $today->copy()->subDays(6)->toDateString();
+        $query7 = DB::table('attendances')
             ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
             ->selectRaw("attendance_sessions.date as att_date,
                          COUNT(*) as total,
                          SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
-            ->groupBy('attendance_sessions.date')
-            ->orderBy('attendance_sessions.date');
+            ->where('attendance_sessions.date', '>=', $sevenDaysAgo)
+            ->where('attendance_sessions.date', '<=', $today->toDateString());
 
-        // Scope to session if available, otherwise last 30 days
         if ($session) {
-            $query->where('attendance_sessions.academic_session_id', $session->id)
-                  ->where('attendance_sessions.date', '>=', $thirtyDaysAgo);
-        } else {
-            $query->where('attendance_sessions.date', '>=', $thirtyDaysAgo);
+            $query7->where('attendance_sessions.academic_session_id', $session->id);
         }
 
-        $rows = $query->get()->keyBy('att_date');
+        $rows7 = $query7->groupBy('attendance_sessions.date')->orderBy('attendance_sessions.date')->get()->keyBy('att_date');
 
-        $sevenDaysLabels  = [];
-        $sevenDaysData    = [];
+        $sevenDaysLabels = [];
+        $sevenDaysData   = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date    = $today->copy()->subDays($i);
+            $key     = $date->toDateString();
+            $label   = bsDate($date, 'F d') ?? $date->format('M d');
+            $row     = $rows7->get($key);
+            $total   = (int) ($row->total   ?? 0);
+            $present = (int) ($row->present ?? 0);
+            $rate    = $total > 0 ? round(($present / $total) * 100, 1) : 0;
+
+            $sevenDaysLabels[] = $label;
+            $sevenDaysData[]   = $rate;
+        }
+
+        // 2) 30 Days Query (last 30 days up to today)
+        $thirtyDaysAgo = $today->copy()->subDays(29)->toDateString();
+        $query30 = DB::table('attendances')
+            ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+            ->selectRaw("attendance_sessions.date as att_date,
+                         COUNT(*) as total,
+                         SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present")
+            ->where('attendance_sessions.date', '>=', $thirtyDaysAgo)
+            ->where('attendance_sessions.date', '<=', $today->toDateString());
+
+        if ($session) {
+            $query30->where('attendance_sessions.academic_session_id', $session->id);
+        }
+
+        $rows30 = $query30->groupBy('attendance_sessions.date')->orderBy('attendance_sessions.date')->get()->keyBy('att_date');
+
         $thirtyDaysLabels = [];
         $thirtyDaysData   = [];
-
         for ($i = 29; $i >= 0; $i--) {
             $date    = $today->copy()->subDays($i);
             $key     = $date->toDateString();
-            $label   = bsDate($date, 'F d');
-            $row     = $rows->get($key);
+            $label   = bsDate($date, 'F d') ?? $date->format('M d');
+            $row     = $rows30->get($key);
             $total   = (int) ($row->total   ?? 0);
             $present = (int) ($row->present ?? 0);
             $rate    = $total > 0 ? round(($present / $total) * 100, 1) : 0;
 
             $thirtyDaysLabels[] = $label;
             $thirtyDaysData[]   = $rate;
+        }
 
-            if ($i <= 6) {
-                $sevenDaysLabels[] = $label;
-                $sevenDaysData[]   = $rate;
+        // 3) Session Query (All dates within the academic session)
+        $querySession = DB::table('attendances')
+            ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendances.attendance_session_id')
+            ->selectRaw("attendance_sessions.date as att_date,
+                         COUNT(*) as total,
+                         SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as present");
+
+        if ($session) {
+            $querySession->where('attendance_sessions.academic_session_id', $session->id);
+            if ($session->start_date) {
+                $querySession->where('attendance_sessions.date', '>=', $session->start_date->toDateString());
+            }
+            if ($session->end_date) {
+                $querySession->where('attendance_sessions.date', '<=', $session->end_date->toDateString());
             }
         }
 
+        $sessionRows = $querySession->groupBy('attendance_sessions.date')->orderBy('attendance_sessions.date')->get();
+
+        $sessionLabels = [];
+        $sessionData   = [];
+        foreach ($sessionRows as $row) {
+            $d = Carbon::parse($row->att_date);
+            $sessionLabels[] = bsDate($d, 'F d') ?? $d->format('M d');
+            $total   = (int) ($row->total   ?? 0);
+            $present = (int) ($row->present ?? 0);
+            $sessionData[] = $total > 0 ? round(($present / $total) * 100, 1) : 0;
+        }
+
+        if (empty($sessionLabels)) {
+            $sessionLabels = $thirtyDaysLabels;
+            $sessionData   = $thirtyDaysData;
+        }
+
         return [
-            '7'  => ['labels' => $sevenDaysLabels,   'data' => $sevenDaysData],
-            '30' => ['labels' => $thirtyDaysLabels,  'data' => $thirtyDaysData],
+            '7'       => ['labels' => $sevenDaysLabels,   'data' => $sevenDaysData],
+            '30'      => ['labels' => $thirtyDaysLabels,  'data' => $thirtyDaysData],
+            'session' => ['labels' => $sessionLabels,     'data' => $sessionData],
         ];
     }
 

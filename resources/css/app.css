@@ -93,37 +93,42 @@ body {
 /* ── Dark Mode Base ───────────────────────────────────────────── */
 html.dark body { background-color: #0D1B35; color: #e2e8f0; }
 
-/* ── Sidebar — always dark navy regardless of color mode ─────── */
-aside[style*="background-color: #0B2E6B"],
-aside[style*="0B2E6B"] {
-  background-color: #0B2E6B !important;
-  color: rgba(255,255,255,0.85) !important;
+/* ── Sidebar — MMP Royal Navy Gradient ─────── */
+.mmp-sidebar,
+aside.mmp-sidebar,
+div.mmp-sidebar {
+  background: linear-gradient(180deg, #001FB8 0%, #000D54 100%) !important;
+  background-color: #001FB8 !important;
+  color: #ffffff !important;
 }
 
-/* Ensure ALL text inside sidebar is white-toned */
-aside[style*="0B2E6B"] p,
-aside[style*="0B2E6B"] span:not([class*="bg-"]),
-aside[style*="0B2E6B"] a,
-aside[style*="0B2E6B"] button {
+.mmp-sidebar p,
+.mmp-sidebar span:not([class*="bg-"]),
+.mmp-sidebar a,
+.mmp-sidebar button {
   color: inherit;
 }
 
-/* Nav section labels */
-aside[style*="0B2E6B"] nav > div > div > p {
-  color: rgba(255,255,255,0.40) !important;
+.mmp-sidebar nav > div > div > p {
+  color: rgba(147, 197, 253, 0.70) !important;
 }
 
 /* ── Page Background ──────────────────────────────────────────── */
 main, .page-content { background-color: #F4F7FB; }
 html.dark main, html.dark .page-content { background-color: #0D1B35 !important; }
 
+/* ── Dropdown Position Utilities ────────────────────────────── */
+.top-full { top: 100% !important; }
+.bottom-full { bottom: 100% !important; }
+.left-full { left: 100% !important; }
+.right-full { right: 100% !important; }
+
 /* ── Government Cards ─────────────────────────────────────────── */
 .dashboard-card,
 .card,
 .program-card,
 .course-card,
-.feature-card,
-.bg-white {
+.feature-card {
   position: relative; /* Scope any absolute children (e.g. gradient overlays) to the card */
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
