@@ -250,7 +250,7 @@
 
             {{-- Mobile header (only on small screens) --}}
             <header class="flex h-14 items-center justify-between px-4 lg:hidden sticky top-0 z-20"
-                    style="background-color: #0B2E6B; border-bottom: 1px solid rgba(255,255,255,0.12);">
+                    style="background-color: #0B2E6B; border-bottom: 2px solid #FF6600;">
                 <div class="flex items-center gap-3 min-w-0">
                     <button type="button" @click="sidebarOpen = true"
                             class="inline-flex h-9 w-9 items-center justify-center rounded text-blue-200 hover:bg-white/10 hover:text-white flex-shrink-0">

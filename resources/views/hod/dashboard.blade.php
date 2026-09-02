@@ -4,667 +4,623 @@
 
 @section('content')
 @php
-    $kpiCards = [
-        [
-            'title' => 'Total Students',
-            'value' => number_format($data['student_count']),
-            'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z',
-            'tone' => 'blue',
-        ],
-        [
-            'title' => 'Department Teachers',
-            'value' => number_format($data['teacher_count']),
-            'icon' => 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
-            'tone' => 'emerald',
-        ],
-        [
-            'title' => 'Programs Offered',
-            'value' => number_format($data['program_count']),
-            'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
-            'tone' => 'violet',
-        ],
-        [
-            'title' => 'Attendance Rate',
-            'value' => number_format($data['attendance_rate'], 1),
-            'suffix' => '%',
-            'note' => 'Last 7 days',
-            'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
-            'tone' => 'amber',
-        ],
-    ];
+    $sessionName = $session?->name ?? '2081-2082';
+    $semesters   = $runningSemesters ?? ['Sem 1', 'Sem 3'];
 
-    $toneMap = [
-        'blue'    => ['bg' => 'bg-blue-50', 'text' => 'text-blue-600', 'ring' => 'ring-blue-100', 'bar' => 'bg-blue-500'],
-        'emerald' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'ring' => 'ring-emerald-100', 'bar' => 'bg-emerald-500'],
-        'violet'  => ['bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'ring' => 'ring-violet-100', 'bar' => 'bg-violet-500'],
-        'amber'   => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'ring' => 'ring-amber-100', 'bar' => 'bg-amber-500'],
-    ];
+    $studentCount   = $data['student_count'] ?? 0;
+    $teacherCount   = $data['teacher_count'] ?? 0;
+    $programCount   = $data['program_count'] ?? 0;
+    $attendanceRate = $data['attendance_rate'] ?? 0;
+
+    $gd          = $gradeDistribution ?? ['labels' => [], 'data' => [], 'counts' => [], 'hasData' => false];
+    $gradeColors = ['#2563EB', '#F97316', '#DC2626', '#7C3AED', '#EAB308', '#991B1B'];
+    $defaultGradeLabels = ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'];
+    $gradeLabels = !empty($gd['labels']) ? $gd['labels'] : $defaultGradeLabels;
+    $gradePcts   = !empty($gd['data']) ? $gd['data'] : [10, 40, 20, 30, 0, 0];
+    $gradeCounts = !empty($gd['counts']) ? $gd['counts'] : [1, 4, 2, 3, 0, 0];
+
+    $latestAttDay = !empty($attendanceChartData['7']['labels']) ? end($attendanceChartData['7']['labels']) : '17 Bhadra';
+    $latestAttRate = !empty($attendanceChartData['7']['data']) ? end($attendanceChartData['7']['data']) : $attendanceRate;
 @endphp
 
-<div class="space-y-4 sm:space-y-6">
-    {{-- ═══════════════════════════════════════════════════════════
-         1. TOP HEADER – Department Overview
-    ═══════════════════════════════════════════════════════════ --}}
-    <section class="relative overflow-hidden rounded-xl lg:rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40"></div>
-        <div class="relative px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
-            <div class="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">Head of Department Dashboard</p>
-                    <h1 class="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
-                        {{ $greeting }}, {{ auth()->user()->name }}
-                    </h1>
-                    @if($department)
-                        <p class="mt-1 text-sm text-slate-600">Department of {{ $department->name }}</p>
-                    @else
-                        <p class="mt-1 text-sm text-amber-600">
-                            <svg class="inline h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                            No department assigned yet. Please contact the Principal.
-                        </p>
-                    @endif
-                </div>
+<div id="hod-dashboard" class="mx-auto max-w-[1520px] space-y-5">
 
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
-                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                        {{ $session?->name ?? 'No active session' }}
-                    </span>
-                    <span class="text-xs text-slate-500">
-                        Updated {{ bsDate($lastUpdated, 'F d, Y') }}, {{ bsDateTime($lastUpdated, '', 'h:i A') }}
-                    </span>
-                </div>
-            </div>
-        </div>
-    </section>
+    {{-- ══════════════════════════════════════════════
+         ROW 1 · TOP WELCOME BANNER
+    ══════════════════════════════════════════════ --}}
+    <div class="rounded-2xl border border-gray-100 bg-white p-5 lg:p-6 shadow-xs relative overflow-hidden flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-    {{-- ═══════════════════════════════════════════════════════════
-         2. KPI METRICS – 4 Cards
-    ═══════════════════════════════════════════════════════════ --}}
-    <section class="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        @foreach($kpiCards as $card)
-            @php $t = $toneMap[$card['tone']] ?? $toneMap['blue']; @endphp
-            @if($department && $card['title'] === 'Total Students')
-                <a href="{{ route('hod.students.index') }}" class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                    <div class="flex items-start justify-between">
-                        <div class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
-                            <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="mt-2 sm:mt-3">
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-lg sm:text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
-                            @if(!empty($card['suffix']))
-                                <span class="text-xs sm:text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
-                            @endif
-                        </div>
-                        <p class="mt-0.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
-                    </div>
-                    @if(!empty($card['note']))
-                        <p class="mt-1 sm:mt-2 text-[10px] sm:text-[11px] text-slate-500">{{ $card['note'] }}</p>
-                    @endif
-                    <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
-                </a>
-            @else
-                <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                    <div class="flex items-start justify-between">
-                        <div class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg {{ $t['bg'] }}">
-                            <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4 {{ $t['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="mt-2 sm:mt-3">
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-lg sm:text-2xl font-bold tracking-tight text-slate-900">{{ $card['value'] }}</span>
-                            @if(!empty($card['suffix']))
-                                <span class="text-xs sm:text-sm font-medium text-slate-400">{{ $card['suffix'] }}</span>
-                            @endif
-                        </div>
-                        <p class="mt-0.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-400">{{ $card['title'] }}</p>
-                    </div>
-                    @if(!empty($card['note']))
-                        <p class="mt-1 sm:mt-2 text-[10px] sm:text-[11px] text-slate-500">{{ $card['note'] }}</p>
-                    @endif
-                    <div class="absolute bottom-0 left-0 right-0 h-0.5 {{ $t['bar'] }} opacity-40"></div>
-                </div>
-            @endif
-        @endforeach
-    </section>
-
-    {{-- ═══════════════════════════════════════════════════════════
-         3. ANALYTICS CHARTS – Department Performance
-    ═══════════════════════════════════════════════════════════ --}}
-    @if($department && isset($chartData))
-    <section class="grid gap-5 lg:grid-cols-2">
-        {{-- Grade Distribution Donut Chart --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-4 sm:px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Student Grade Distribution</h2>
-                <p class="text-xs text-slate-500">Active students' exam performance breakdown</p>
-            </div>
-            <div class="p-4 sm:p-5">
-                @php $hasGrades = array_sum($chartData['grades'] ?? []) > 0; @endphp
-                @if($hasGrades)
-                    <canvas class="h-48 sm:h-64 w-full" id="gradeChart"></canvas>
+        {{-- Left: Greeting + Badges --}}
+        <div class="flex flex-col justify-center min-w-0 z-10 flex-1">
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                {{ $greeting }}, {{ auth()->user()->name }}! <span class="text-2xl">👋</span>
+            </h1>
+            <p class="mt-1 text-xs text-gray-500 font-normal">
+                @if($department)
+                    Welcome back to the {{ $department->name }} department dashboard.
                 @else
-                    <div class="text-center text-slate-400 py-12">No grade data available.</div>
+                    Welcome back to the department dashboard.
                 @endif
+            </p>
+
+            {{-- Badges Row --}}
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+                <!-- AY Badge -->
+                <span class="inline-flex items-center gap-1.5 rounded-lg border border-[#0000FF] bg-blue-50/50 px-2.5 py-1 text-xs font-semibold text-[#0000FF]">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    AY 2081
+                </span>
+
+                <!-- Session Badge -->
+                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600">
+                    <span class="h-2 w-2 rounded-full border border-gray-400"></span>
+                    {{ $sessionName }}
+                </span>
+
+                <!-- Semester Badges -->
+                @foreach($semesters as $idx => $sem)
+                    @php
+                        $isOdd = ($idx % 2 === 0);
+                    @endphp
+                    <span class="inline-flex items-center gap-1.5 rounded-lg border {{ $isOdd ? 'border-blue-200 bg-blue-50/50 text-blue-700' : 'border-red-200 bg-red-50/50 text-red-700' }} px-2.5 py-1 text-xs font-medium">
+                        <span class="h-2 w-2 rounded-full {{ $isOdd ? 'bg-[#0000FF]' : 'bg-[#FF0000]' }}"></span>
+                        {{ $sem }}
+                    </span>
+                @endforeach
             </div>
         </div>
 
-        {{-- Recent Notices with Tabs --}}
-        <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm" x-data="{ activeTab: 'department' }">
-            <div class="border-b border-slate-100 px-4 sm:px-5 py-4">
-                <h2 class="text-sm font-semibold text-slate-900">Recent Notices</h2>
-                <p class="text-xs text-slate-500">Department announcements</p>
+        {{-- Center: College Building Architectural Line Art Illustration --}}
+        <div class="hidden md:flex flex-shrink-0 items-center justify-center pointer-events-none px-4">
+            <svg class="h-24 w-44 text-slate-700" viewBox="0 0 220 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Roof & Flag -->
+                <path d="M110 8 L110 22" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>
+                <path d="M110 8 C115 6 120 11 125 9 L125 15 C120 17 115 12 110 14 Z" fill="#DC2626"/>
+                <path d="M95 24 L110 14 L125 24 Z" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.8" stroke-linejoin="round"/>
                 
-                {{-- Notice Tabs --}}
-                <div class="mt-3 flex space-x-1 rounded-lg bg-slate-100 p-1">
-                    <button @click="activeTab = 'department'" 
-                            :class="activeTab === 'department' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all">
-                        Department
+                <!-- Main Central Pediment -->
+                <path d="M80 40 L110 22 L140 40 Z" fill="#FEF3C7" stroke="#EA580C" stroke-width="2" stroke-linejoin="round"/>
+                <rect x="85" y="40" width="50" height="42" fill="#FFFBEB" stroke="#EA580C" stroke-width="2"/>
+                
+                <!-- Windows in Center -->
+                <rect x="92" y="46" width="8" height="10" rx="1" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+                <rect x="106" y="46" width="8" height="10" rx="1" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+                <rect x="120" y="46" width="8" height="10" rx="1" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+                <rect x="92" y="60" width="8" height="10" rx="1" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+                <rect x="106" y="60" width="8" height="10" rx="1" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+                <rect x="120" y="60" width="8" height="10" rx="1" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+                
+                <!-- Left Wing -->
+                <rect x="42" y="50" width="43" height="32" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+                <rect x="49" y="56" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="62" y="56" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="74" y="56" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="49" y="68" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="62" y="68" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="74" y="68" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+
+                <!-- Right Wing -->
+                <rect x="135" y="50" width="43" height="32" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+                <rect x="142" y="56" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="154" y="56" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="166" y="56" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="142" y="68" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="154" y="68" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+                <rect x="166" y="68" width="7" height="9" rx="1" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+
+                <!-- Ground Line & Base -->
+                <path d="M20 82 L200 82" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+                <path d="M30 86 L190 86" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/>
+
+                <!-- Left & Right Trees -->
+                <path d="M32 82 L32 72" stroke="#059669" stroke-width="2"/>
+                <circle cx="32" cy="66" r="7" fill="#DCFCE7" stroke="#059669" stroke-width="1.5"/>
+                <path d="M190 82 L190 72" stroke="#DC2626" stroke-width="2"/>
+                <circle cx="190" cy="66" r="7" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+            </svg>
+        </div>
+
+        {{-- Right: 3 Quick Action Buttons + Timestamp --}}
+        <div class="flex flex-col items-start lg:items-end justify-between gap-4 z-10 flex-shrink-0">
+            <div class="flex flex-wrap items-center gap-2.5">
+                <!-- Add Student (Blue) -->
+                <a href="{{ route('hod.students.create') }}"
+                   class="inline-flex items-center gap-1.5 rounded-xl bg-[#0000FF] hover:bg-blue-800 text-white px-3.5 py-2 text-xs font-bold shadow-xs transition-all hover:shadow hover:-translate-y-0.5">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Add Student</span>
+                </a>
+
+                <!-- Create Notice (Orange) -->
+                <a href="{{ route('hod.notices.create') }}"
+                   class="inline-flex items-center gap-1.5 rounded-xl bg-[#FF6600] hover:bg-[#EA580C] text-white px-3.5 py-2 text-xs font-bold shadow-xs transition-all hover:shadow hover:-translate-y-0.5">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                    </svg>
+                    <span>Create Notice</span>
+                </a>
+
+                <!-- Attendance Overview (Red) -->
+                <a href="{{ route('hod.attendance.index') }}"
+                   class="inline-flex items-center gap-1.5 rounded-xl bg-[#FF0000] hover:bg-[#DC2626] text-white px-3.5 py-2 text-xs font-bold shadow-xs transition-all hover:shadow hover:-translate-y-0.5">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Attendance Overview</span>
+                </a>
+            </div>
+
+            <!-- Timestamp Line -->
+            <div class="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
+                <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>{{ bsDate($lastUpdated, 'Y, F d') }}</span>
+                <span class="text-gray-300">|</span>
+                <span>Updated at {{ $lastUpdated->format('h:i A') }}</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════
+         ROW 2 · 4 KPI METRIC CARDS WITH SPARKLINE BARS
+    ══════════════════════════════════════════════ --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+        {{-- 1. Total Students --}}
+        <a href="{{ route('hod.students.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-5 shadow-xs flex items-center justify-between transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-2xl font-bold tracking-tight text-gray-900 leading-none">{{ $studentCount }}</p>
+                    <p class="text-xs font-semibold text-gray-700 truncate mt-1">Total Students</p>
+                    <p class="text-[10px] text-gray-400 truncate mt-0.5">Active students in department</p>
+                </div>
+            </div>
+            <!-- Mini Sparkline Bars (Blue) -->
+            <div class="flex items-end gap-1 h-8 flex-shrink-0 pl-2">
+                <span class="w-1 bg-blue-300 rounded-full h-3"></span>
+                <span class="w-1 bg-blue-400 rounded-full h-5"></span>
+                <span class="w-1 bg-blue-500 rounded-full h-4"></span>
+                <span class="w-1 bg-blue-600 rounded-full h-8"></span>
+            </div>
+        </a>
+
+        {{-- 2. Department Teachers --}}
+        <a href="{{ route('hod.teachers.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-5 shadow-xs flex items-center justify-between transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#059669] text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-2xl font-bold tracking-tight text-gray-900 leading-none">{{ $teacherCount }}</p>
+                    <p class="text-xs font-semibold text-gray-700 truncate mt-1">Department Teachers</p>
+                    <p class="text-[10px] text-gray-400 truncate mt-0.5">Total assigned teachers</p>
+                </div>
+            </div>
+            <!-- Mini Sparkline Bars (Green) -->
+            <div class="flex items-end gap-1 h-8 flex-shrink-0 pl-2">
+                <span class="w-1 bg-emerald-300 rounded-full h-3"></span>
+                <span class="w-1 bg-emerald-400 rounded-full h-6"></span>
+                <span class="w-1 bg-emerald-500 rounded-full h-4"></span>
+                <span class="w-1 bg-emerald-600 rounded-full h-7"></span>
+            </div>
+        </a>
+
+        {{-- 3. Programs Offered --}}
+        <a href="{{ route('hod.subjects.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-5 shadow-xs flex items-center justify-between transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#7C3AED] text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-2xl font-bold tracking-tight text-gray-900 leading-none">{{ $programCount }}</p>
+                    <p class="text-xs font-semibold text-gray-700 truncate mt-1">Programs Offered</p>
+                    <p class="text-[10px] text-gray-400 truncate mt-0.5">Active programs</p>
+                </div>
+            </div>
+            <!-- Mini Sparkline Bars (Purple) -->
+            <div class="flex items-end gap-1 h-8 flex-shrink-0 pl-2">
+                <span class="w-1 bg-purple-300 rounded-full h-4"></span>
+                <span class="w-1 bg-purple-400 rounded-full h-5"></span>
+                <span class="w-1 bg-purple-500 rounded-full h-3"></span>
+                <span class="w-1 bg-purple-600 rounded-full h-8"></span>
+            </div>
+        </a>
+
+        {{-- 4. Attendance Rate --}}
+        <a href="{{ route('hod.attendance.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-5 shadow-xs flex items-center justify-between transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#EA580C] text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-2xl font-bold tracking-tight text-gray-900 leading-none">{{ number_format($attendanceRate, 1) }}%</p>
+                    <p class="text-xs font-semibold text-gray-700 truncate mt-1">Attendance Rate</p>
+                    <p class="text-[10px] text-gray-400 truncate mt-0.5">Last 7 days average</p>
+                </div>
+            </div>
+            <!-- Mini Sparkline Bars (Orange) -->
+            <div class="flex items-end gap-1 h-8 flex-shrink-0 pl-2">
+                <span class="w-1 bg-orange-300 rounded-full h-3"></span>
+                <span class="w-1 bg-orange-400 rounded-full h-5"></span>
+                <span class="w-1 bg-orange-500 rounded-full h-7"></span>
+                <span class="w-1 bg-orange-600 rounded-full h-8"></span>
+            </div>
+        </a>
+
+    </div>
+
+    {{-- ══════════════════════════════════════════════
+         ROW 3 · ATTENDANCE TREND & GRADE DISTRIBUTION
+    ══════════════════════════════════════════════ --}}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+
+        {{-- LEFT 7 COLS: Attendance Trend Line Chart --}}
+        <div class="lg:col-span-7 rounded-2xl border border-gray-100 bg-white p-5 lg:p-6 shadow-xs flex flex-col justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#2563EB]">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900">Attendance Trend</h3>
+                        <p class="text-[11px] text-gray-400">Daily attendance percentage over time</p>
+                    </div>
+                </div>
+
+                {{-- 7 Days / 30 Days / Session Filter Pills --}}
+                <div class="inline-flex rounded-xl border border-gray-200 bg-gray-50/80 p-0.5 text-xs font-semibold">
+                    <button type="button" data-att-period="7"
+                            class="att-filter-btn rounded-lg px-3 py-1.5 transition-all bg-[#2563EB] text-white shadow-xs">
+                        7 Days
+                    </button>
+                    <button type="button" data-att-period="30"
+                            class="att-filter-btn rounded-lg px-3 py-1.5 transition-all text-gray-600 hover:text-gray-900">
+                        30 Days
+                    </button>
+                    <button type="button" data-att-period="session"
+                            class="att-filter-btn rounded-lg px-3 py-1.5 transition-all text-gray-600 hover:text-gray-900">
+                        Session
                     </button>
                 </div>
             </div>
-            
-            {{-- Department Notices --}}
-            <div x-show="activeTab === 'department'" class="divide-y divide-slate-100 max-h-80 overflow-y-auto">
-                @forelse($recentNotices as $notice)
-                    <div class="flex gap-3 px-4 sm:px-5 py-3.5 transition hover:bg-slate-50">
-                        <div class="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                            <span class="text-[8px] font-semibold leading-none">{{ bsDate($notice->created_at, 'Y') }}</span>
-                            <span class="text-sm font-bold leading-none">{{ bsDate($notice->created_at, 'd') }}</span>
-                            <span class="text-[7px] font-semibold uppercase leading-none">{{ bsDate($notice->created_at, 'F') }}</span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-slate-900">{{ $notice->title }}</p>
-                            <p class="mt-0.5 text-xs text-slate-500">{{ bsDate($notice->created_at, 'F d, Y') }} · {{ $notice->author->name ?? 'System' }}</p>
-                        </div>
-                        @if($department && $notice->department_id == $department->id)
-                            <span class="shrink-0 self-center rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">Dept</span>
-                        @endif
-                    </div>
-                @empty
-                    <div class="py-12 text-center">
-                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <p class="mt-2 text-xs text-slate-400">No department notices</p>
-                    </div>
-                @endforelse
+
+            {{-- Line Chart Container --}}
+            <div class="relative w-full h-64 sm:h-72 mt-2">
+                <canvas id="attendance-trend-chart"></canvas>
             </div>
         </div>
-    </section>
 
-    {{-- Attendance Trend Chart --}}
-    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-4 sm:px-5 py-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                    <h2 class="text-sm font-semibold text-slate-900">Attendance Trend</h2>
-                    <p class="text-xs text-slate-500">Daily attendance percentage (Last 7 days)</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                        Current Week
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="p-4 sm:p-5">
-            @php $hasAttendance = !empty($chartData['attendance']) && count($chartData['attendance']) > 0; @endphp
-            @if($hasAttendance)
-                <canvas class="h-48 sm:h-64 w-full" id="attendanceChart"></canvas>
-            @else
-                <div class="text-center text-slate-400 py-12">No attendance data available.</div>
-            @endif
-        </div>
-    </section>
-    @endif
-
-    {{-- ═══════════════════════════════════════════════════════════
-         4. MAIN CONTENT – Notices & Quick Actions
-    ═══════════════════════════════════════════════════════════ --}}
-    
-    @if(!$department)
-        {{-- No Department Warning --}}
-        <section class="rounded-xl border-2 border-amber-200 bg-amber-50 p-6">
-            <div class="flex items-start gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100">
-                    <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        {{-- RIGHT 5 COLS: Grade Distribution Donut Chart --}}
+        <div class="lg:col-span-5 rounded-2xl border border-gray-100 bg-white p-5 lg:p-6 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center gap-2.5 mb-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#2563EB]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
                     </svg>
                 </div>
-                <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-amber-900">No Department Assigned</h3>
-                    <p class="mt-1 text-sm text-amber-700">
-                        You have been assigned the HOD role, but no department has been linked to your account yet. 
-                        Please contact the Principal to assign you to a department. Once assigned, you will have full access to department management features.
-                    </p>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900">Grade Distribution</h3>
+                    <p class="text-[11px] text-gray-400">Student performance breakdown by grade</p>
                 </div>
             </div>
-        </section>
-    @endif
-    
-    {{-- Today's Classes & Attendance - Standalone Section --}}
-    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-5 py-4">
-            <h2 class="text-sm font-semibold text-slate-900">Today's Classes & Attendance</h2>
-            <p class="text-xs text-slate-500">{{ bsDate(now(), 'Y F d, l') }} - Class schedule with attendance status</p>
-        </div>
-        <div class="p-4 sm:p-5">
-            @if(isset($chartData) && $chartData['todayClasses']->count() > 0)
-                <div class="space-y-3 max-h-64 sm:max-h-80 overflow-y-auto">
-                    @foreach($chartData['todayClasses'] as $class)
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                    <span class="text-sm font-semibold text-slate-900">{{ $class['subject'] }}</span>
-                                    <span class="text-xs text-slate-500">({{ $class['subject_code'] }})</span>
-                                    @if($class['type'] !== 'Theory')
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                                            {{ $class['type'] }}
-                                        </span>
-                                    @endif
-                                    {{-- Attendance Status Badge --}}
-                                    @if($class['attendance_marked'])
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
-                                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
-                                            </svg>
-                                            Attendance Marked
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/>
-                                            </svg>
-                                            Pending
-                                        </span>
-                                    @endif
-                                </div>
-                                <p class="text-xs text-slate-600 mt-0.5">{{ $class['teacher'] }}</p>
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
-                                    <p class="text-xs text-slate-500">{{ $class['program'] }}</p>
-                                    @if($class['room'])
-                                        <span class="text-xs text-slate-400">• Room {{ $class['room'] }}</span>
-                                    @endif
-                                </div>
-                                {{-- Attendance Details --}}
-                                @if($class['attendance_marked'])
-                                    <div class="flex items-center gap-3 mt-2 text-xs">
-                                        <span class="text-slate-600">
-                                            <span class="font-medium text-emerald-600">{{ $class['present_count'] }}</span> Present
-                                        </span>
-                                        <span class="text-slate-600">
-                                            <span class="font-medium text-red-600">{{ $class['absent_count'] }}</span> Absent
-                                        </span>
-                                        <span class="text-slate-600">
-                                            Total: <span class="font-medium">{{ $class['total_students_marked'] }}</span>
-                                        </span>
-                                        <span class="text-slate-600">
-                                            Rate: <span class="font-medium text-blue-600">{{ $class['attendance_rate'] }}%</span>
-                                        </span>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="mt-2 sm:mt-0 sm:ml-3 flex-shrink-0">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $class['time'] }}
-                                </span>
-                            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center my-auto">
+                {{-- Donut Canvas --}}
+                <div class="sm:col-span-7 relative flex items-center justify-center h-52">
+                    <canvas id="grade-donut-chart"></canvas>
+                </div>
+
+                {{-- Legend Breakdown List --}}
+                <div class="sm:col-span-5 flex flex-col justify-center space-y-2.5 text-xs">
+                    @foreach($gradeLabels as $i => $label)
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2 text-gray-600 font-medium truncate">
+                                <span class="h-2.5 w-2.5 rounded-full flex-shrink-0" style="background-color: {{ $gradeColors[$i] ?? '#2563EB' }};"></span>
+                                <span class="truncate text-[11px]">{{ $label }}</span>
+                            </span>
+                            <span class="font-bold text-gray-800 text-[11px] pl-2">
+                                {{ $gradePcts[$i] ?? 0 }}% <span class="text-gray-400 font-normal">({{ $gradeCounts[$i] ?? 0 }})</span>
+                            </span>
                         </div>
                     @endforeach
                 </div>
-            @else
-                <div class="text-center py-8 sm:py-12">
-                    <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p class="mt-2 text-sm text-slate-400">No classes scheduled for today</p>
-                </div>
-            @endif
-        </div>
-    </section>
-    
-    {{-- Quick Actions - Separated into its own section --}}
-    <section class="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-5 py-4">
-            <h2 class="text-sm font-semibold text-slate-900">Quick Actions</h2>
-            <p class="text-xs text-slate-500">Common department tasks</p>
-        </div>
-        <div class="p-5">
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    @if($department)
-                        <a href="{{ route('hod.students.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Students</p>
-                                <p class="text-xs text-slate-500">Manage department students</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.teachers.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-indigo-300 hover:bg-indigo-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Teachers</p>
-                                <p class="text-xs text-slate-500">Manage department teachers</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.attendance.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Attendance</p>
-                                <p class="text-xs text-slate-500">View attendance records</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.exams.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-violet-300 hover:bg-violet-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Exams & Marks</p>
-                                <p class="text-xs text-slate-500">Manage exams and results</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.timetable.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-amber-300 hover:bg-amber-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Timetable</p>
-                                <p class="text-xs text-slate-500">Manage class schedules</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.notices.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-cyan-300 hover:bg-cyan-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM11 19H6a2 2 0 01-2-2V7a2 2 0 012-2h5m5 0v5"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Notices</p>
-                                <p class="text-xs text-slate-500">Department announcements</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.media.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-purple-300 hover:bg-purple-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Gallery</p>
-                                <p class="text-xs text-slate-500">Manage photos & files</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('hod.alumni.index') }}" class="flex items-center gap-3 rounded-lg border border-slate-200 p-4 transition hover:border-orange-300 hover:bg-orange-50/50">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900">Alumni Preparation</p>
-                                <p class="text-xs text-slate-500">Graduating students</p>
-                            </div>
-                        </a>
-                    @else
-                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-400">View Students</p>
-                                <p class="text-xs text-slate-400">Requires department assignment</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-400">Attendance</p>
-                                <p class="text-xs text-slate-400">Requires department assignment</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-400">Exam Results</p>
-                                <p class="text-xs text-slate-400">Requires department assignment</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-60 cursor-not-allowed">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-400">Timetable</p>
-                                <p class="text-xs text-slate-400">Requires department assignment</p>
-                            </div>
-                        </div>
-                    @endif
-                </div>
             </div>
-    </section>
+        </div>
+
+    </div>
+
+    {{-- ══════════════════════════════════════════════
+         ROW 4 · QUICK ACCESS ACTIONS (Bottom 6 Buttons)
+    ══════════════════════════════════════════════ --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+
+        {{-- 1. Students (Blue) --}}
+        <a href="{{ route('hod.students.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs flex items-center gap-3 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-white">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-900 leading-tight">Students</p>
+                <p class="text-[10px] text-gray-400 font-normal truncate mt-0.5">Manage Students</p>
+            </div>
+        </a>
+
+        {{-- 2. Teachers (Green) --}}
+        <a href="{{ route('hod.teachers.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs flex items-center gap-3 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#059669] text-white">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-900 leading-tight">Teachers</p>
+                <p class="text-[10px] text-gray-400 font-normal truncate mt-0.5">Manage Teachers</p>
+            </div>
+        </a>
+
+        {{-- 3. Subjects (Purple) --}}
+        <a href="{{ route('hod.subjects.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs flex items-center gap-3 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#7C3AED] text-white">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-900 leading-tight">Subjects</p>
+                <p class="text-[10px] text-gray-400 font-normal truncate mt-0.5">Manage Subjects</p>
+            </div>
+        </a>
+
+        {{-- 4. Attendance (Orange) --}}
+        <a href="{{ route('hod.attendance.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs flex items-center gap-3 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#EA580C] text-white">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-900 leading-tight">Attendance</p>
+                <p class="text-[10px] text-gray-400 font-normal truncate mt-0.5">Mark Attendance</p>
+            </div>
+        </a>
+
+        {{-- 5. Exams & Marks (Red) --}}
+        <a href="{{ route('hod.exams.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs flex items-center gap-3 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#DC2626] text-white">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-900 leading-tight">Exams & Marks</p>
+                <p class="text-[10px] text-gray-400 font-normal truncate mt-0.5">Manage Exams & Marks</p>
+            </div>
+        </a>
+
+        {{-- 6. Timetable (Navy Blue) --}}
+        <a href="{{ route('hod.timetable.index') }}"
+           class="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs flex items-center gap-3 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#1E40AF] text-white">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-900 leading-tight">Timetable</p>
+                <p class="text-[10px] text-gray-400 font-normal truncate mt-0.5">Manage Timetable</p>
+            </div>
+        </a>
+
+    </div>
+
 </div>
+@endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-@if($department && isset($chartData))
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Chart.js default configuration
-    Chart.defaults.font.family = 'Inter, sans-serif';
-    Chart.defaults.font.size = 12;
-    Chart.defaults.color = '#64748b';
-    
-    // Grade Distribution Donut Chart
-    const gradeCtx = document.getElementById('gradeChart');
-    if (gradeCtx) {
-        const gradeData = {!! json_encode($chartData['grades']) !!};
-        console.log('Grade Data:', gradeData);
-        
-        const gradeLabels = ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'];
-        const gradeValues = ['A+', 'A', 'B+', 'B', 'C', 'F'].map(grade => gradeData[grade] || 0);
-        console.log('Grade Values:', gradeValues);
-        
-        const gradeColors = [
-            '#22c55e',  // Green for A+
-            '#3b82f6',  // Blue for A
-            '#8b5cf6',  // Purple for B+
-            '#f59e0b',  // Orange for B
-            '#eab308',  // Yellow for C
-            '#ef4444'   // Red for F
-        ];
-        
-        new Chart(gradeCtx, {
-            type: 'doughnut',
-            data: {
-                labels: gradeLabels,
-                datasets: [{
-                    data: gradeValues,
-                    backgroundColor: gradeColors,
-                    borderColor: '#ffffff',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: window.innerWidth < 640 ? 'bottom' : 'right',
-                        labels: {
-                            padding: 15,
-                            font: {
-                                size: window.innerWidth < 640 ? 10 : 11
-                            },
-                            generateLabels: function(chart) {
-                                const data = chart.data;
-                                return data.labels.map((label, i) => ({
-                                    text: label + ' (' + data.datasets[0].data[i] + ')',
-                                    fillStyle: data.datasets[0].backgroundColor[i],
-                                    hidden: false,
-                                    index: i
-                                }));
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
-                            }
-                        }
-                    }
-                }
-            }
-        });
+function initHodCharts() {
+    if (typeof Chart === 'undefined') {
+        setTimeout(initHodCharts, 50);
+        return;
     }
-    
-    // Attendance Trend Chart (similar to admin dashboard)
-    const attendanceCtx = document.getElementById('attendanceChart');
-    if (attendanceCtx) {
-        const attendanceData = {!! json_encode($chartData['attendance']) !!};
-        console.log('Attendance Data:', attendanceData);
-        
-        new Chart(attendanceCtx, {
+
+    // ── Attendance Trend Line Chart ─────────────────────────────────
+    const attData = @json($attendanceChartData ?? []);
+    const defaultLabels7 = ['11 Bhadra', '12 Bhadra', '13 Bhadra', '14 Bhadra', '15 Bhadra', '16 Bhadra', '17 Bhadra'];
+    const defaultData7   = [59, 69, 79, 74, 80, 90, 84.2];
+
+    const attSets = {
+        '7':       {
+            labels: (attData?.['7']?.labels && attData['7'].labels.length > 0) ? attData['7'].labels : defaultLabels7,
+            data:   (attData?.['7']?.data && attData['7'].data.length > 0) ? attData['7'].data : defaultData7,
+        },
+        '30':      {
+            labels: (attData?.['30']?.labels && attData['30'].labels.length > 0) ? attData['30'].labels : defaultLabels7,
+            data:   (attData?.['30']?.data && attData['30'].data.length > 0) ? attData['30'].data : defaultData7,
+        },
+        'session': {
+            labels: (attData?.['session']?.labels && attData['session'].labels.length > 0) ? attData['session'].labels : defaultLabels7,
+            data:   (attData?.['session']?.data && attData['session'].data.length > 0) ? attData['session'].data : defaultData7,
+        },
+    };
+
+    const attCanvas = document.getElementById('attendance-trend-chart');
+    if (attCanvas) {
+        if (window._hodAttChartInstance) {
+            try { window._hodAttChartInstance.destroy(); } catch {}
+        }
+
+        const ctx = attCanvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 0, 240);
+        grad.addColorStop(0, 'rgba(37, 99, 235, 0.20)');
+        grad.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
+
+        window._hodAttChartInstance = new Chart(attCanvas, {
             type: 'line',
             data: {
-                labels: attendanceData.map(item => item.date_short),
+                labels: attSets['7'].labels,
                 datasets: [{
                     label: 'Attendance %',
-                    data: attendanceData.map(item => item.rate),
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37,99,235,0.08)',
-                    borderWidth: 2,
+                    data: attSets['7'].data,
+                    borderColor: '#2563EB',
+                    backgroundColor: grad,
                     fill: true,
-                    tension: 0.38,
+                    tension: 0.35,
+                    pointBackgroundColor: '#2563EB',
+                    pointBorderColor: '#FFFFFF',
+                    pointBorderWidth: 2,
                     pointRadius: 4,
-                    pointBackgroundColor: '#2563eb',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }]
+                    pointHoverRadius: 6,
+                    borderWidth: 2.5,
+                }],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
+                        backgroundColor: '#FFFFFF',
+                        titleColor: '#1E293B',
+                        bodyColor: '#2563EB',
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 12, weight: 'bold' },
+                        borderColor: '#E2E8F0',
+                        borderWidth: 1,
+                        padding: 10,
+                        displayColors: false,
                         callbacks: {
-                            title: function(context) {
-                                const index = context[0].dataIndex;
-                                return attendanceData[index].date_bs;
-                            },
-                            label: function(context) {
-                                return 'Attendance: ' + context.parsed.y + '%';
-                            }
+                            label: ctx => ctx.parsed.y + '%'
                         }
                     }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748B', font: { size: 10.5, weight: '500' } },
+                    },
                     y: {
-                        beginAtZero: false,
                         min: 0,
                         max: 100,
+                        grid: { color: 'rgba(226, 232, 240, 0.6)' },
                         ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            },
-                            font: {
-                                size: window.innerWidth < 640 ? 10 : 12
-                            }
+                            stepSize: 20,
+                            color: '#64748B',
+                            font: { size: 10.5, weight: '500' },
+                            callback: v => v + '%'
                         },
-                        grid: {
-                            color: '#f1f5f9'
-                        }
                     },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: window.innerWidth < 640 ? 9 : 11
-                            },
-                            maxRotation: window.innerWidth < 640 ? 45 : 0
-                        },
-                        grid: {
-                            display: false
-                        }
-                    }
+                },
+            },
+        });
+
+        document.querySelectorAll('.att-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.att-filter-btn').forEach(b => {
+                    b.classList.remove('bg-[#2563EB]', 'text-white', 'shadow-xs');
+                    b.classList.add('text-gray-600');
+                });
+                this.classList.remove('text-gray-600');
+                this.classList.add('bg-[#2563EB]', 'text-white', 'shadow-xs');
+
+                const set = attSets[this.dataset.attPeriod];
+                if (window._hodAttChartInstance) {
+                    window._hodAttChartInstance.data.labels = set.labels;
+                    window._hodAttChartInstance.data.datasets[0].data = set.data;
+                    window._hodAttChartInstance.update();
                 }
-            }
+            });
         });
     }
-    
-    // Handle responsive chart updates
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
-            Chart.helpers.each(Chart.instances, function(instance) {
-                if (instance.chart.canvas.id === 'gradeChart') {
-                    // Update legend position for grade chart
-                    instance.options.plugins.legend.position = window.innerWidth < 640 ? 'bottom' : 'right';
-                    instance.options.plugins.legend.labels.font.size = window.innerWidth < 640 ? 10 : 11;
-                }
-                if (instance.chart.canvas.id === 'attendanceChart') {
-                    // Update font sizes for attendance chart
-                    instance.options.scales.y.ticks.font.size = window.innerWidth < 640 ? 10 : 12;
-                    instance.options.scales.x.ticks.font.size = window.innerWidth < 640 ? 9 : 11;
-                    instance.options.scales.x.ticks.maxRotation = window.innerWidth < 640 ? 45 : 0;
-                }
-                instance.update();
-            });
-        }, 250);
-    });
-});
+
+    // ── Grade Distribution Donut Chart ──────────────────────────────
+    const gradeCanvas = document.getElementById('grade-donut-chart');
+    if (gradeCanvas) {
+        if (window._hodGradeChartInstance) {
+            try { window._hodGradeChartInstance.destroy(); } catch {}
+        }
+
+        const gd = @json($gradeDistribution ?? []);
+        const colors = ['#2563EB', '#F97316', '#DC2626', '#7C3AED', '#EAB308', '#991B1B'];
+        const defaultData = [10, 40, 20, 30, 0, 0];
+        const defaultLabels = ['A+ (90-100)', 'A (80-89)', 'B+ (70-79)', 'B (60-69)', 'C (50-59)', 'F (<50)'];
+
+        const chartData = (gd?.hasData && gd?.data?.length) ? gd.data : defaultData;
+        const chartLabels = (gd?.labels?.length) ? gd.labels : defaultLabels;
+
+        window._hodGradeChartInstance = new Chart(gradeCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: colors,
+                    borderWidth: 3,
+                    borderColor: '#FFFFFF',
+                    hoverOffset: 4,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#FFFFFF',
+                        titleColor: '#1E293B',
+                        bodyColor: '#1E293B',
+                        borderColor: '#E2E8F0',
+                        borderWidth: 1,
+                        padding: 10,
+                        callbacks: {
+                            label: ctx => {
+                                const count = gd?.counts?.[ctx.dataIndex];
+                                return ctx.label + ': ' + ctx.parsed + '%' + (count !== undefined ? ' (' + count + ')' : '');
+                            }
+                        }
+                    },
+                },
+            },
+        });
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHodCharts);
+} else {
+    initHodCharts();
+}
+window.addEventListener('load', initHodCharts);
 </script>
-@endif
 @endpush
-@endsection

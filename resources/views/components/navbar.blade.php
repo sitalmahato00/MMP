@@ -37,7 +37,7 @@
     $sessionName = $navActiveSession->name ?? '2081-2082';
 @endphp
 
-<header class="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 bg-white dark:bg-[#0D1B35] border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors">
+<header class="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 bg-white dark:bg-[#0D1B35] border-b-2 border-[#FF6600] shadow-xs transition-colors">
 
     {{-- ── LEFT: Red Hamburger + Search ─────────────────────────────── --}}
     <div class="flex items-center gap-3 sm:gap-4 min-w-0">

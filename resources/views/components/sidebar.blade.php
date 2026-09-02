@@ -329,28 +329,28 @@
 @endphp
 
 <aside
-    class="fixed inset-y-0 left-0 z-40 flex h-screen flex-col bg-[#F8FAFC] dark:bg-[#0D1B35] p-2.5 transition-[transform,width] duration-300 ease-out lg:z-30 lg:translate-x-0 border-r border-gray-200 dark:border-slate-800 shadow-xs"
+    class="fixed inset-y-0 left-0 z-40 flex h-screen flex-col bg-[#F8FAFC] dark:bg-[#0D1B35] p-2 transition-[transform,width] duration-300 ease-out lg:z-30 lg:translate-x-0 border-r border-gray-200 dark:border-slate-800 shadow-xs"
     :style="sidebarCollapsed ? 'width: {{ $sidebarCollapsedWidth }}' : 'width: {{ $sidebarExpandedWidth }}'"
     :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
     x-cloak>
 
-    {{-- Brand Logo & Title Area (Top of Sidebar) --}}
-    <div class="flex items-center gap-2.5 px-2.5 py-2.5 mb-2 bg-white dark:bg-[#132044] rounded-xl shadow-xs border border-gray-100 dark:border-slate-800 min-h-[58px]">
-        <a href="{{ route('home') }}" class="flex items-center gap-2.5 min-w-0 w-full group">
-            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-white">
-                <img src="{{ $brandLogoUrl }}" alt="Logo" class="h-9 w-9 object-contain group-hover:scale-105 transition-transform">
-            </div>
-            <div x-show="!sidebarCollapsed" x-cloak class="flex flex-col min-w-0 leading-tight">
-                <span class="font-extrabold text-[12px] sm:text-[13px] text-[#0000FF] dark:text-blue-400 tracking-tight leading-none">Manmohan Memorial</span>
-                <span class="font-extrabold text-[12px] sm:text-[13px] text-[#FF0000] dark:text-red-500 tracking-tight leading-none mt-0.5">Polytechnic</span>
-                <span class="text-[8px] sm:text-[8.5px] font-normal text-gray-500 dark:text-slate-400 leading-tight truncate mt-1">College Administration Management System</span>
-            </div>
-        </a>
-    </div>
-
     {{-- Blue Navigation Card Container --}}
     <div class="mmp-sidebar flex-1 flex flex-col rounded-2xl shadow-xl text-white relative overflow-hidden"
          style="background: linear-gradient(180deg, #001FB8 0%, #000D54 100%) !important; border: 1px solid rgba(255,255,255,0.08);">
+
+        {{-- Brand Logo & Title Area (Directly inside Blue Container) --}}
+        <div class="px-3.5 pt-3.5 pb-3 border-b border-white/10 flex items-center min-h-[60px]">
+            <a href="{{ route('home') }}" class="flex items-center gap-2.5 min-w-0 w-full group">
+                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl bg-white p-1 shadow-sm">
+                    <img src="{{ $brandLogoUrl }}" alt="Logo" class="h-8 w-8 object-contain group-hover:scale-105 transition-transform">
+                </div>
+                <div x-show="!sidebarCollapsed" x-cloak class="flex flex-col min-w-0 leading-tight">
+                    <span class="font-extrabold text-[12px] sm:text-[13px] text-white tracking-tight leading-none">Manmohan Memorial</span>
+                    <span class="font-extrabold text-[12px] sm:text-[13px] text-white tracking-tight leading-none mt-0.5">Polytechnic</span>
+                    <span class="text-[8px] sm:text-[8.5px] font-normal text-blue-200/90 leading-tight truncate mt-1">College Administration Management System</span>
+                </div>
+            </a>
+        </div>
 
         {{-- Navigation List --}}
         <nav class="flex-1 px-3 py-3"
