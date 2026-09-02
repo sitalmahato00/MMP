@@ -43,7 +43,7 @@
             <x-form-field label="Target Semester" name="semester">
                 <x-select name="semester">
                     <option value="">All Semesters</option>
-                    @for($i = 1; $i <= 8; $i++)
+                    @for($i = 1; $i <= 6; $i++)
                         <option value="{{ $i }}" @selected(old('semester', $notice->semester) == $i)>Semester {{ $i }}</option>
                     @endfor
                 </x-select>

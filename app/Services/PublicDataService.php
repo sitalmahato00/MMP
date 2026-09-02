@@ -32,19 +32,27 @@ class PublicDataService
                     ->with('department:id,name,code')
                     ->take(4)
                     ->get(['id', 'user_id', 'department_id', 'graduation_year', 'current_job', 'company_name']),
-                // Homepage notices: ONLY college-wide (no department_id set)
+                // Homepage notices: college-wide OR approved department notices
                 'notices' => Notice::published()
-                    ->whereIn('type', ['general', 'academic'])
-                    ->whereNull('department_id')
-                    ->whereNull('program_id')
+                    ->whereIn('type', ['general', 'academic', 'department', 'program'])
+                    ->where(function ($q) {
+                        $q->where(function ($sub) {
+                            $sub->whereNull('department_id')
+                                ->whereNull('program_id');
+                        })->orWhere('main_site_status', 'approved');
+                    })
                     ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
                     ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
                 'examNotices' => Notice::published()
                     ->where('type', 'exam')
-                    ->whereNull('department_id')
-                    ->whereNull('program_id')
+                    ->where(function ($q) {
+                        $q->where(function ($sub) {
+                            $sub->whereNull('department_id')
+                                ->whereNull('program_id');
+                        })->orWhere('main_site_status', 'approved');
+                    })
                     ->with(['department:id,name,code', 'program:id,name,code'])
                     ->latest()
                     ->take(6)
@@ -66,6 +74,10 @@ class PublicDataService
 
         return Notice::published()
             ->where('is_popup', true)
+            ->where(function ($q) {
+                $q->whereNull('department_id')
+                  ->orWhere('main_site_status', 'approved');
+            })
             ->where(function ($q) use ($today) {
                 $q->whereNull('popup_from')
                   ->orWhere('popup_from', '<=', $today);
@@ -1104,6 +1116,13 @@ class PublicDataService
 
             foreach (Department::query()->pluck('slug') as $slug) {
                 Cache::forget("public:department:{$slug}");
+                Cache::forget("public:dept_portal:{$slug}");
+                Cache::forget("public:dept_portal:{$slug}:notices");
+                Cache::forget("public:dept_portal:{$slug}:events");
+                Cache::forget("public:dept_portal:{$slug}:downloads");
+                Cache::forget("public:dept_portal:{$slug}:gallery");
+                Cache::forget("public:dept_portal:{$slug}:teachers");
+                Cache::forget("public:dept_portal:{$slug}:hod");
             }
 
             Cache::forget('brand:site_logo');

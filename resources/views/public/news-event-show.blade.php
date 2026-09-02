@@ -7,6 +7,17 @@
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div class="lg:col-span-2">
             <div class="overflow-hidden rounded-lg bg-white shadow-md">
+                {{-- Featured Cover Image at Top --}}
+                @php
+                    $firstImg = $notice->attachments->where('is_image', true)->first();
+                    $primaryCoverImg = $firstImg?->url ?? ($notice->attachment && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $notice->attachment) ? asset('storage/' . $notice->attachment) : null);
+                @endphp
+                @if($primaryCoverImg)
+                    <div class="w-full bg-slate-900 border-b border-gray-200 overflow-hidden flex items-center justify-center max-h-[440px]">
+                        <img src="{{ $primaryCoverImg }}" alt="{{ $notice->title }}" class="w-full h-auto max-h-[440px] object-contain">
+                    </div>
+                @endif
+
                 <div class="border-b border-gray-200 px-6 py-4">
                     <div class="mb-3 flex flex-wrap items-center gap-2">
                         <span class="rounded border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-bold uppercase text-blue-700">{{ $notice->type }}</span>

@@ -33,7 +33,7 @@
                 <x-form-field label="Semester" name="semester" required>
                     <x-select name="semester" required>
                         <option value="">Select Semester</option>
-                        @for($i = 1; $i <= 8; $i++)
+                        @for($i = 1; $i <= 6; $i++)
                             <option value="{{ $i }}" @selected(old('semester') == $i)>Semester {{ $i }}</option>
                         @endfor
                     </x-select>

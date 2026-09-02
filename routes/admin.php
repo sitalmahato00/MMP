@@ -119,6 +119,8 @@ Route::prefix('news-events')->name('news-events.')->group(function () {
 });
 
 Route::patch('notices/{notice}/toggle-popup', [NoticeController::class, 'togglePopup'])->name('notices.toggle-popup');
+Route::post('notices/{notice}/approve-main-site', [NoticeController::class, 'approveMainSite'])->name('notices.approve-main-site');
+Route::post('notices/{notice}/reject-main-site', [NoticeController::class, 'rejectMainSite'])->name('notices.reject-main-site');
 Route::resource('notices', NoticeController::class);
 Route::resource('facilities', FacilityController::class);
 Route::resource('executives', ExecutiveController::class);

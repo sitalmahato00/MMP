@@ -66,7 +66,7 @@ class ExamController extends Controller
             'typeOptions' => $this->typeOptions(),
             'categoryOptions' => $this->categoryOptions(),
             'statusOptions' => $this->statusOptions(),
-            'semesterOptions' => range(1, 8),
+            'semesterOptions' => range(1, 6),
             'currentSession' => AcademicSession::current(),
         ]);
     }
@@ -665,7 +665,7 @@ class ExamController extends Controller
             'assessment_pass_marks' => ['nullable', 'numeric', 'min:0'],
             'academic_session_id' => ['required', 'exists:academic_sessions,id'],
             'department_id' => ['nullable', 'exists:departments,id'],
-            'semester' => ['required', 'string', Rule::in(array_merge(['all', 'running'], array_map('strval', range(1, 8))))],
+            'semester' => ['required', 'string', Rule::in(array_merge(['all', 'running'], array_map('strval', range(1, 6))))],
             'program_ids' => ['nullable', 'array'],
             'program_ids.*' => ['integer', 'exists:programs,id'],
             'start_date' => ['nullable', 'string', 'max:10'],
@@ -816,7 +816,7 @@ class ExamController extends Controller
             'running' => $this->runningSemesterLabel($session),
         ];
 
-        foreach (range(1, 8) as $semester) {
+        foreach (range(1, 6) as $semester) {
             $options[(string) $semester] = 'Semester ' . $semester;
         }
 

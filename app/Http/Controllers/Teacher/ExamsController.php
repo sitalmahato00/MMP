@@ -257,7 +257,7 @@ class ExamsController extends Controller
             'exam_id' => 'required|exists:exams,id',
             'subject_id' => 'required|exists:subjects,id',
             'program_id' => 'required|exists:programs,id',
-            'semester' => 'required|integer|min:1|max:8',
+            'semester' => 'required|integer|min:1|max:6',
             'marks' => 'required|array',
             'marks.*.student_id' => 'required|exists:students,id',
             'marks.*.is_absent' => 'nullable|boolean',

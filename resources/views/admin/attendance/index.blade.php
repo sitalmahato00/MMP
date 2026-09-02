@@ -80,7 +80,7 @@
 
             <select name="semester" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Semesters</option>
-                @for($semester = 1; $semester <= 8; $semester++)
+                @for($semester = 1; $semester <= 6; $semester++)
                     <option value="{{ $semester }}" @selected($filters['semester'] === $semester)>Semester {{ $semester }}</option>
                 @endfor
             </select>

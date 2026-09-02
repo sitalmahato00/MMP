@@ -21,10 +21,10 @@
                 </x-select>
             </x-form-field>
 
-            <x-form-field label="Status" name="is_published">
+            <x-form-field label="Publish Status" name="is_published">
                 <x-select name="is_published">
-                    <option value="0" @selected(old('is_published', '0') === '0')>Save as Draft</option>
-                    <option value="1" @selected(old('is_published') === '1')>Publish Now</option>
+                    <option value="1" @selected(old('is_published', '1') === '1')>Publish Immediately</option>
+                    <option value="0" @selected(old('is_published') === '0')>Save as Draft</option>
                 </x-select>
             </x-form-field>
         </x-form-row>
@@ -42,7 +42,7 @@
             <x-form-field label="Target Semester" name="semester">
                 <x-select name="semester">
                     <option value="">All Semesters</option>
-                    @for($i = 1; $i <= 8; $i++)
+                    @for($i = 1; $i <= 6; $i++)
                         <option value="{{ $i }}" @selected(old('semester') == $i)>Semester {{ $i }}</option>
                     @endfor
                 </x-select>

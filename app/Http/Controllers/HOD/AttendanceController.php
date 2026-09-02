@@ -235,7 +235,7 @@ class AttendanceController extends HodController
             'program_id' => 'required|exists:programs,id',
             'subject_id' => 'required|exists:subjects,id',
             'teacher_id' => 'required|exists:teachers,id',
-            'semester' => 'required|integer|min:1|max:8',
+            'semester' => 'required|integer|min:1|max:6',
             'section' => 'nullable|string|max:10',
             'date' => 'required|string|max:10', // BS date format
             'period' => 'required|string|max:50',

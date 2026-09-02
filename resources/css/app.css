@@ -33,6 +33,10 @@
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
+.mmp-sidebar-root {
+  background: linear-gradient(180deg, #001FB8 0%, #000D54 100%) !important;
+  color: #ffffff !important;
+}
 html { scroll-behavior: smooth; }
 html, body { border-radius: 0 !important; }
 :root {

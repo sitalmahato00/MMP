@@ -80,7 +80,7 @@
 
                 <x-form-field label="Semester" name="semester" required>
                     <x-select name="semester" required disabled>
-                        @for($i = 1; $i <= 8; $i++)
+                        @for($i = 1; $i <= 6; $i++)
                             <option value="{{ $i }}" @selected($timetable->semester == $i)>Semester {{ $i }}</option>
                         @endfor
                     </x-select>

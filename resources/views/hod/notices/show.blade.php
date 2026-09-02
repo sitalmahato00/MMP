@@ -7,7 +7,16 @@
 
 <div class="max-w-4xl space-y-6">
     {{-- Notice Header --}}
-    <div class="rounded-2xl border border-slate-200 bg-white p-6">
+    <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+        @php
+            $hodCoverImg = $notice->attachment && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $notice->attachment) ? asset('storage/' . $notice->attachment) : null;
+        @endphp
+        @if($hodCoverImg)
+            <div class="w-full bg-slate-900 border-b border-slate-200 overflow-hidden flex items-center justify-center max-h-[380px]">
+                <img src="{{ $hodCoverImg }}" alt="{{ $notice->title }}" class="w-full h-auto max-h-[380px] object-contain">
+            </div>
+        @endif
+        <div class="p-6">
         <div class="flex items-start justify-between gap-4 mb-4">
             <div class="flex-1">
                 <h1 class="text-2xl font-bold text-slate-800 mb-3">{{ $notice->title }}</h1>
@@ -73,6 +82,7 @@
                     @endif
                 </div>
             @endif
+        </div>
         </div>
     </div>
 

@@ -15,6 +15,8 @@ class Notice extends Model
         'department_id', 'program_id', 'semester',
         'created_by', 'is_published', 'published_at',
         'is_popup', 'popup_from_bs', 'popup_to_bs', 'popup_from', 'popup_to',
+        'main_site_requested', 'main_site_status', 'request_as_popup', 'request_note',
+        'main_site_approved_at', 'main_site_approved_by',
     ];
 
     protected $casts = [
@@ -24,11 +26,19 @@ class Notice extends Model
         'is_popup' => 'boolean',
         'popup_from' => 'date',
         'popup_to' => 'date',
+        'main_site_requested' => 'boolean',
+        'request_as_popup' => 'boolean',
+        'main_site_approved_at' => 'datetime',
     ];
 
     public function author()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function mainSiteApprovedBy()
+    {
+        return $this->belongsTo(User::class, 'main_site_approved_by');
     }
 
     public function department()
@@ -44,6 +54,17 @@ class Notice extends Model
     public function attachments()
     {
         return $this->hasMany(NoticeAttachment::class);
+    }
+
+    public function scopePendingMainSiteRequest($query)
+    {
+        return $query->where('main_site_requested', true)
+            ->where('main_site_status', 'pending');
+    }
+
+    public function scopeApprovedForMainSite($query)
+    {
+        return $query->where('main_site_status', 'approved');
     }
 
     public function scopePublished($query)

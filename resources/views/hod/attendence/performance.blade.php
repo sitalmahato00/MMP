@@ -23,7 +23,7 @@
             <label class="block text-sm font-semibold text-slate-700 mb-2">Semester</label>
             <select name="semester" class="block w-full rounded-lg border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
                 <option value="">All</option>
-                @for($i = 1; $i <= 8; $i++)
+                @for($i = 1; $i <= 6; $i++)
                     <option value="{{ $i }}" @selected(request('semester') == $i)>{{ $i }}</option>
                 @endfor
             </select>

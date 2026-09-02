@@ -96,7 +96,7 @@
                         <select :name="`semesters[${index}]`" required x-model="program.semester"
                                 class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                             <option value="all">All Semesters</option>
-                            @for($i = 1; $i <= 8; $i++)
+                            @for($i = 1; $i <= 6; $i++)
                                 <option value="{{ $i }}">Semester {{ $i }}</option>
                             @endfor
                         </select>

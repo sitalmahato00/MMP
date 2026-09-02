@@ -859,10 +859,12 @@
         }
     </script>
 
-    {{-- Global Website Popup Notices Modal --}}
-    @php
-        $globalPopupNotices = app(\App\Services\PublicDataService::class)->getActivePopupNotices();
-    @endphp
-    <x-public-popup-notice :notices="$globalPopupNotices" />
+    {{-- Main Website Popup Notices Modal (Only displayed on Main Home Page, not on department subpages) --}}
+    @if(request()->routeIs('home') || request()->is('/'))
+        @php
+            $globalPopupNotices = app(\App\Services\PublicDataService::class)->getActivePopupNotices();
+        @endphp
+        <x-public-popup-notice :notices="$globalPopupNotices" />
+    @endif
 </body>
 </html>

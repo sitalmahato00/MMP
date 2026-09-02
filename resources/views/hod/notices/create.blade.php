@@ -28,10 +28,10 @@
                 </x-select>
             </x-form-field>
 
-            <x-form-field label="Status" name="is_published">
+            <x-form-field label="Publish Status" name="is_published">
                 <x-select name="is_published">
-                    <option value="0" @selected(old('is_published', '0') === '0')>Save as Draft</option>
-                    <option value="1" @selected(old('is_published') === '1')>Publish Now</option>
+                    <option value="1" @selected(old('is_published', '1') === '1')>Publish Immediately</option>
+                    <option value="0" @selected(old('is_published') === '0')>Save as Draft</option>
                 </x-select>
             </x-form-field>
         </x-form-row>
@@ -56,7 +56,7 @@
                 <x-form-field label="Target Semester" name="semester">
                     <x-select name="semester">
                         <option value="">All Semesters</option>
-                        @for($i = 1; $i <= 8; $i++)
+                        @for($i = 1; $i <= 6; $i++)
                             <option value="{{ $i }}" @selected(old('semester') == $i)>Semester {{ $i }}</option>
                         @endfor
                     </x-select>
@@ -79,6 +79,35 @@
                 <p class="mt-1.5 text-xs text-slate-500">Supported: PDF, DOC, DOCX, JPG, PNG</p>
             </x-form-field>
         </x-form-row>
+    </x-form-section>
+
+    {{-- ── 3. MAIN WEBSITE & POPUP REQUEST ──────────────── --}}
+    <x-form-section title="Main Website & Popup Request" subtitle="Request administration to display this notice on the public home page and as a popup modal.">
+        <div class="space-y-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/40 dark:bg-blue-950/20">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" name="request_main_site" value="1" @checked(old('request_main_site', false))
+                       class="h-4 w-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Request Display on Main Website</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Send a request to the college administration to feature this department notice on the public homepage noticeboard.</p>
+                </div>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer pl-7">
+                <input type="checkbox" name="request_as_popup" value="1" @checked(old('request_as_popup', false))
+                       class="h-4 w-4 mt-0.5 rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                <div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Also Request as Main Homepage Popup Modal</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Request administration to display this as an urgent popup screen to visitors on the main website.</p>
+                </div>
+            </label>
+
+            <div class="pl-7 pt-2">
+                <x-form-field label="Request Note for Administrator (Optional)" name="request_note" span="full">
+                    <x-input name="request_note" :value="old('request_note')" placeholder="e.g., Urgent examination announcement for all engineering students"/>
+                </x-form-field>
+            </div>
+        </div>
     </x-form-section>
 
     <div class="flex items-center gap-3 pb-6">

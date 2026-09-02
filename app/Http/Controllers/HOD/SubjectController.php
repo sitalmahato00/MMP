@@ -96,7 +96,7 @@ class SubjectController extends HodController
 
         $validated = $request->validate([
             'program_id' => 'required|exists:programs,id',
-            'semester' => 'nullable|integer|min:1|max:8',
+            'semester' => 'nullable|integer|min:1|max:6',
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:subjects,code',
             'type' => 'required|in:theory,practical,both',
@@ -289,7 +289,7 @@ class SubjectController extends HodController
 
         $validated = $request->validate([
             'program_id' => 'required|exists:programs,id',
-            'semester' => 'nullable|integer|min:1|max:8',
+            'semester' => 'nullable|integer|min:1|max:6',
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:subjects,code,' . $subject->id,
             'type' => 'required|in:theory,practical,both',

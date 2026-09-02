@@ -74,7 +74,7 @@
         <div class="flex gap-2">
             <select name="semester" class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-[#1d4ed8] focus:ring-2 focus:ring-blue-100">
                 <option value="">All Semesters</option>
-                @for($i = 1; $i <= 8; $i++)
+                @for($i = 1; $i <= 6; $i++)
                     <option value="{{ $i }}" @selected(request('semester') == $i)>Semester {{ $i }}</option>
                 @endfor
             </select>

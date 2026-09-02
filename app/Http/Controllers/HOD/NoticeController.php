@@ -141,7 +141,7 @@ class NoticeController extends HodController
             'content'       => 'required|string',
             'type'          => 'required|in:news,event',
             'program_id'    => 'nullable|exists:programs,id',
-            'semester'      => 'nullable|integer|min:1|max:8',
+            'semester'      => 'nullable|integer|min:1|max:6',
             'attachments'   => 'nullable|array|max:10',
             'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp',
             'is_published'  => 'nullable|boolean',
@@ -228,7 +228,7 @@ class NoticeController extends HodController
             'content'             => 'required|string',
             'type'                => 'required|in:news,event',
             'program_id'          => 'nullable|exists:programs,id',
-            'semester'            => 'nullable|integer|min:1|max:8',
+            'semester'            => 'nullable|integer|min:1|max:6',
             'attachments'         => 'nullable|array|max:10',
             'attachments.*'       => 'file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp',
             'delete_attachments'  => 'nullable|array',
@@ -337,7 +337,7 @@ class NoticeController extends HodController
             'content' => 'required|string',
             'type' => 'required|in:general,department,program',
             'program_id' => 'nullable|exists:programs,id',
-            'semester' => 'nullable|integer|min:1|max:8',
+            'semester' => 'nullable|integer|min:1|max:6',
             'attachment' => 'nullable|file|max:10240', // 10MB
             'is_published' => 'nullable|boolean',
         ]);
@@ -349,8 +349,9 @@ class NoticeController extends HodController
                 ->firstOrFail();
         }
 
+        $attachmentPath = null;
         if ($request->hasFile('attachment')) {
-            $data['attachment'] = $request->file('attachment')->store('notices', 'public');
+            $attachmentPath = $request->file('attachment')->store('notices', 'public');
         }
 
         $notice = Notice::create([
@@ -361,11 +362,26 @@ class NoticeController extends HodController
             'department_id' => $data['type'] === 'department' ? $deptId : null,
             'program_id' => $data['program_id'] ?? null,
             'semester' => $data['semester'] ?? null,
-            'attachment' => $data['attachment'] ?? null,
+            'attachment' => $attachmentPath,
             'created_by' => auth()->id(),
             'is_published' => $data['is_published'] ?? false,
             'published_at' => ($data['is_published'] ?? false) ? now() : null,
+            'main_site_requested' => $request->boolean('request_main_site'),
+            'main_site_status' => $request->boolean('request_main_site') ? 'pending' : null,
+            'request_as_popup' => $request->boolean('request_as_popup'),
+            'request_note' => $request->input('request_note'),
         ]);
+
+        if ($request->hasFile('attachment') && $attachmentPath) {
+            $file = $request->file('attachment');
+            NoticeAttachment::create([
+                'notice_id' => $notice->id,
+                'file_path' => $attachmentPath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => strtolower($file->getClientOriginalExtension()),
+                'file_size' => $file->getSize(),
+            ]);
+        }
         app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         // Clear public caches so changes appear immediately
@@ -373,7 +389,7 @@ class NoticeController extends HodController
 
         return redirect()
             ->route('hod.notices.index')
-            ->with('success', 'Notice created successfully.');
+            ->with('success', 'Notice created successfully' . ($request->boolean('request_main_site') ? ' and main site feature requested.' : '.'));
     }
 
     // ── Show ───────────────────────────────────────────────────────────────
@@ -439,7 +455,7 @@ class NoticeController extends HodController
             'content' => 'required|string',
             'type' => 'required|in:department,program',
             'program_id' => 'nullable|exists:programs,id',
-            'semester' => 'nullable|integer|min:1|max:8',
+            'semester' => 'nullable|integer|min:1|max:6',
             'attachment' => 'nullable|file|max:10240',
             'is_published' => 'nullable|boolean',
         ]);
@@ -461,6 +477,8 @@ class NoticeController extends HodController
             unset($data['attachment']);
         }
 
+        $mainSiteRequested = $request->boolean('request_main_site');
+
         $notice->update([
             'title' => $data['title'],
             'slug' => Str::slug($data['title']) . '-' . time(),
@@ -471,7 +489,22 @@ class NoticeController extends HodController
             'semester' => $data['semester'] ?? null,
             'is_published' => $data['is_published'] ?? false,
             'published_at' => ($data['is_published'] ?? false) && !$notice->published_at ? now() : $notice->published_at,
+            'main_site_requested' => $mainSiteRequested,
+            'main_site_status' => $mainSiteRequested ? ($notice->main_site_status === 'approved' ? 'approved' : 'pending') : null,
+            'request_as_popup' => $request->boolean('request_as_popup'),
+            'request_note' => $request->input('request_note'),
         ] + (isset($data['attachment']) ? ['attachment' => $data['attachment']] : []));
+
+        if ($request->hasFile('attachment') && isset($data['attachment'])) {
+            $file = $request->file('attachment');
+            NoticeAttachment::create([
+                'notice_id' => $notice->id,
+                'file_path' => $data['attachment'],
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => strtolower($file->getClientOriginalExtension()),
+                'file_size' => $file->getSize(),
+            ]);
+        }
         app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
         // Clear public caches so changes appear immediately
@@ -480,6 +513,37 @@ class NoticeController extends HodController
         return redirect()
             ->route('hod.notices.index')
             ->with('success', 'Notice updated successfully.');
+    }
+
+    public function requestMainSite(Request $request, Notice $notice)
+    {
+        $department = $this->currentDepartment($request);
+        $deptId = $department->id;
+        $programIds = Program::where('department_id', $deptId)->pluck('id')->all();
+
+        $notice = Notice::query()
+            ->visibleToDepartmentContext($deptId, $programIds)
+            ->findOrFail($notice->id);
+
+        $asPopup = $request->boolean('request_as_popup');
+        $note = $request->input('request_note');
+
+        $notice->update([
+            'main_site_requested' => true,
+            'main_site_status' => 'pending',
+            'request_as_popup' => $asPopup,
+            'request_note' => $note,
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Requested main page feature successfully.',
+                'notice' => $notice->fresh(),
+            ]);
+        }
+
+        return back()->with('success', 'Requested main page feature successfully. Admin has been notified.');
     }
 
     // ── Delete ─────────────────────────────────────────────────────────────

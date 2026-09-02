@@ -202,25 +202,33 @@ class DashboardController extends Controller
 
         $dashboardState = $this->buildDashboardState($payload, $period, $selectedSession, $sessionOptions, $window);
 
+        // Fetch live pending department notice requests for main website / popup approval
+        $pendingNoticeRequests = Notice::where('main_site_requested', true)
+            ->where('main_site_status', 'pending')
+            ->with(['department:id,name,code', 'author:id,name'])
+            ->latest()
+            ->get();
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json($dashboardState);
         }
 
         return view('admin.dashboard-modern', array_merge($payload, [
-            'greeting'       => $this->greeting(),
-            'period'         => $period,
-            'periodLabel'    => $window['label'],
-            'rangeStart'     => $window['start'],
-            'rangeEnd'       => $window['end'],
-            'selectedSession' => $selectedSession,
-            'sessionOptions' => $sessionOptions,
-            'periodOptions'  => [
+            'greeting'              => $this->greeting(),
+            'period'                => $period,
+            'periodLabel'           => $window['label'],
+            'rangeStart'            => $window['start'],
+            'rangeEnd'              => $window['end'],
+            'selectedSession'       => $selectedSession,
+            'sessionOptions'        => $sessionOptions,
+            'periodOptions'         => [
                 ['value' => 'week',    'label' => 'Week',    'hint' => 'Last 7 days'],
                 ['value' => 'month',   'label' => 'Month',   'hint' => 'Last 30 days'],
                 ['value' => 'session', 'label' => 'Session', 'hint' => 'Full academic session'],
             ],
-            'lastUpdated'    => now(),
-            'dashboardState' => $dashboardState,
+            'pendingNoticeRequests' => $pendingNoticeRequests,
+            'lastUpdated'           => now(),
+            'dashboardState'        => $dashboardState,
         ]));
     }
 

@@ -75,6 +75,7 @@ Route::prefix('notices')->name('notices.')->group(function () {
     Route::get('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'show'])->name('show');
     Route::get('/{notice}/edit', [\App\Http\Controllers\HOD\NoticeController::class, 'edit'])->name('edit');
     Route::put('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'update'])->name('update');
+    Route::post('/{notice}/request-main-site', [\App\Http\Controllers\HOD\NoticeController::class, 'requestMainSite'])->name('request-main-site');
     Route::delete('/{notice}', [\App\Http\Controllers\HOD\NoticeController::class, 'destroy'])->name('destroy');
 });
 

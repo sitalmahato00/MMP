@@ -144,6 +144,113 @@
     </div>
 
     {{-- ══════════════════════════════════════════════
+         PENDING DEPARTMENT NOTICE REQUESTS (Main Page & Popup Approval)
+    ══════════════════════════════════════════════ --}}
+    @if(isset($pendingNoticeRequests) && $pendingNoticeRequests->count() > 0)
+        <div class="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 via-amber-50 to-white p-5 shadow-sm space-y-3 dark:from-orange-950/30 dark:via-slate-900 dark:to-slate-900 dark:border-orange-500/40">
+            <div class="flex items-center justify-between gap-3 border-b border-orange-200/60 pb-3 dark:border-orange-500/20">
+                <div class="flex items-center gap-2.5">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#F97316] text-white shadow-xs animate-pulse">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                            Department Notice Requests for Public Site
+                            <span class="inline-flex items-center rounded-full bg-orange-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                                {{ $pendingNoticeRequests->count() }} Pending
+                            </span>
+                        </h3>
+                        <p class="text-xs text-gray-600 dark:text-gray-300">
+                            Departments requested these notices to be featured on the main public website or pop-up screen.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 pt-1">
+                @foreach($pendingNoticeRequests as $reqNotice)
+                    <div class="rounded-xl border border-orange-200 bg-white p-4 shadow-xs flex flex-col justify-between dark:bg-slate-800 dark:border-slate-700">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                    {{ $reqNotice->department?->name ?? 'General Dept' }}
+                                </span>
+                                @if($reqNotice->request_as_popup)
+                                    <span class="inline-flex items-center gap-1 rounded-md bg-rose-100 px-2 py-0.5 text-[11px] font-extrabold text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 animate-bounce">
+                                        ⚡ Popup Screen Requested
+                                    </span>
+                                @endif
+                            </div>
+
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white line-clamp-2">
+                                {{ $reqNotice->title }}
+                            </h4>
+
+                            @if($reqNotice->request_note)
+                                <p class="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-lg p-2 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/40">
+                                    <span class="font-bold">Note from HOD:</span> "{{ $reqNotice->request_note }}"
+                                </p>
+                            @endif
+
+                            <div class="flex items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+                                <span>By {{ $reqNotice->author?->name ?? 'HOD' }}</span>
+                                <span>•</span>
+                                <span>{{ bsDate($reqNotice->created_at, 'Y M d') }}</span>
+                            </div>
+                        </div>
+
+                        {{-- Action Buttons --}}
+                        <div class="pt-3 mt-3 border-t border-gray-100 dark:border-slate-700 flex flex-wrap items-center gap-1.5">
+                            {{-- Approve to Main Site Only --}}
+                            <form method="POST" action="{{ route('admin.notices.approve-main-site', $reqNotice) }}" class="inline">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-2.5 py-1.5 text-[11px] font-bold text-white shadow-xs transition-all"
+                                        title="Approve to show on public website homepage & noticeboard">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    Approve Main Site
+                                </button>
+                            </form>
+
+                            {{-- Approve & Set as Popup --}}
+                            <form method="POST" action="{{ route('admin.notices.approve-main-site', $reqNotice) }}" class="inline">
+                                @csrf
+                                <input type="hidden" name="is_popup" value="1">
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-[#F97316] hover:bg-orange-600 px-2.5 py-1.5 text-[11px] font-bold text-white shadow-xs transition-all"
+                                        title="Approve and activate as popup banner for visitors">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    Approve as Popup
+                                </button>
+                            </form>
+
+                            {{-- Reject Request --}}
+                            <form method="POST" action="{{ route('admin.notices.reject-main-site', $reqNotice) }}" class="inline"
+                                  onsubmit="return confirm('Reject public website request for this notice?')">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1.5 text-[11px] font-semibold dark:bg-slate-700 dark:text-slate-200 transition-all"
+                                        title="Keep notice restricted to department only">
+                                    Reject
+                                </button>
+                            </form>
+
+                            {{-- View Notice --}}
+                            <a href="{{ route('admin.notices.show', $reqNotice) }}" target="_blank"
+                               class="inline-flex items-center justify-center rounded-lg p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 ml-auto transition-all"
+                               title="View Full Notice">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- ══════════════════════════════════════════════
          ROW 2 · METRIC STAT CARDS (4 Columns with Distinct Colors)
     ══════════════════════════════════════════════ --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

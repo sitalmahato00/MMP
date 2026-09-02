@@ -100,7 +100,7 @@ class TimetableController extends HodController
         $data = $request->validate([
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'program_id' => 'required|exists:programs,id',
-            'semester' => 'required|integer|min:1|max:8',
+            'semester' => 'required|integer|min:1|max:6',
             'section' => 'nullable|string|max:10',
             'effective_from' => 'nullable|string', // BS date
             'effective_from_ad' => 'required|date', // AD date from hidden field
@@ -282,7 +282,7 @@ class TimetableController extends HodController
         $data = $request->validate([
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'program_id' => 'required|exists:programs,id',
-            'semester' => 'required|integer|min:1|max:8',
+            'semester' => 'required|integer|min:1|max:6',
             'section' => 'nullable|string|max:10',
             'effective_from' => 'nullable|string', // BS date
             'effective_from_ad' => 'required|date', // AD date from hidden field

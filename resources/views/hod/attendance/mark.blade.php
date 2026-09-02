@@ -52,7 +52,7 @@
                 <select name="semester" onchange="this.form.submit()"
                         class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                     <option value="">Select Semester</option>
-                    @for($i = 1; $i <= 8; $i++)
+                    @for($i = 1; $i <= 6; $i++)
                         <option value="{{ $i }}" {{ request('semester') == $i ? 'selected' : '' }}>
                             Semester {{ $i }}
                         </option>

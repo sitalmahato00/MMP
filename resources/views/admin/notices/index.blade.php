@@ -55,6 +55,19 @@
         drawer: false,
         selectedNotice: null,
         notices: @js($noticeDrawerPayload),
+        popupModal: false,
+        popupForm: {
+            id: null,
+            title: '',
+            is_popup: false,
+            popup_from_bs: '',
+            popup_to_bs: '',
+            show_at_main_site: false,
+            is_department: false,
+            url: '',
+            loading: false,
+            savedMessage: '',
+        },
         openDrawer(id) {
             this.selectedNotice = this.notices.find((item) => item.id === id) || null;
             this.drawer = !! this.selectedNotice;
@@ -62,9 +75,59 @@
         closeDrawer() {
             this.drawer = false;
         },
+        openPopupModal(notice) {
+            this.popupForm = {
+                id: notice.id,
+                title: notice.title,
+                is_popup: !!notice.is_popup,
+                popup_from_bs: notice.popup_from_bs || '{{ bsDate(now(), "Y-m-d") }}',
+                popup_to_bs: notice.popup_to_bs || '{{ bsDate(now()->addDays(7), "Y-m-d") }}',
+                show_at_main_site: (notice.main_site_status === 'approved' || !notice.department_id),
+                is_department: !!notice.department_id,
+                url: notice.toggle_popup_url,
+                loading: false,
+                savedMessage: '',
+            };
+            this.popupModal = true;
+        },
+        closePopupModal() {
+            this.popupModal = false;
+        },
+        async submitPopupSettings() {
+            this.popupForm.loading = true;
+            this.popupForm.savedMessage = '';
+            try {
+                const res = await fetch(this.popupForm.url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        is_popup: this.popupForm.is_popup ? 1 : 0,
+                        popup_from_bs: this.popupForm.popup_from_bs,
+                        popup_to_bs: this.popupForm.popup_to_bs,
+                        show_at_main_site: this.popupForm.show_at_main_site ? 1 : 0,
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    this.popupForm.savedMessage = 'Saved successfully!';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 400);
+                } else {
+                    this.popupForm.loading = false;
+                }
+            } catch (err) {
+                console.error(err);
+                this.popupForm.loading = false;
+            }
+        },
     }"
     class="space-y-6"
-    @keydown.escape.window="closeDrawer()"
+    @keydown.escape.window="closeDrawer(); closePopupModal()"
 >
     <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
@@ -219,63 +282,50 @@
                                     <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $status['badge'] }}">{{ $status['label'] }}</span>
                                 </td>
                                 <td class="px-4 py-3.5 text-center">
-                                    <div class="flex flex-col items-center justify-center gap-1" x-data="{
-                                        isPopup: @js((bool) $notice->is_popup),
-                                        popupFromBs: @js($notice->popup_from_bs),
-                                        popupToBs: @js($notice->popup_to_bs),
-                                        loading: false,
-                                        togglePopup() {
-                                            if (this.loading) return;
-                                            this.loading = true;
-                                            const nextState = !this.isPopup;
-                                            
-                                            fetch('{{ route('admin.notices.toggle-popup', $notice) }}', {
-                                                method: 'PATCH',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                                    'Accept': 'application/json'
-                                                },
-                                                body: JSON.stringify({ is_popup: nextState })
-                                            })
-                                            .then(res => res.json())
-                                            .then(data => {
-                                                if (data.success) {
-                                                    this.isPopup = data.is_popup;
-                                                    this.popupFromBs = data.popup_from_bs;
-                                                    this.popupToBs = data.popup_to_bs;
-                                                }
-                                                this.loading = false;
-                                            })
-                                            .catch(() => {
-                                                this.loading = false;
-                                            });
-                                        }
-                                    }">
+                                    <div class="flex flex-col items-center justify-center gap-1">
                                         <button type="button"
-                                                @click="togglePopup()"
-                                                :disabled="loading"
-                                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-                                                :class="{ 'bg-blue-600': isPopup, 'bg-slate-200': !isPopup, 'opacity-50 cursor-wait': loading }"
-                                                :title="isPopup ? 'Popup Active (Click to disable)' : 'Click to enable as popup'">
+                                                @click="openPopupModal(@js([
+                                                    'id' => $notice->id,
+                                                    'title' => $notice->title,
+                                                    'is_popup' => (bool) $notice->is_popup,
+                                                    'popup_from_bs' => $notice->popup_from_bs,
+                                                    'popup_to_bs' => $notice->popup_to_bs,
+                                                    'main_site_status' => $notice->main_site_status,
+                                                    'department_id' => $notice->department_id,
+                                                    'toggle_popup_url' => route('admin.notices.toggle-popup', $notice)
+                                                ]))"
+                                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 {{ $notice->is_popup ? 'bg-blue-600' : 'bg-slate-200' }}"
+                                                title="Configure popup dates and main site display">
                                             <span class="sr-only">Toggle Popup</span>
                                             <span aria-hidden="true"
-                                                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                                                  :class="isPopup ? 'translate-x-5' : 'translate-x-0'"></span>
+                                                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $notice->is_popup ? 'translate-x-5' : 'translate-x-0' }}"></span>
                                         </button>
-                                        <template x-if="isPopup && popupFromBs">
-                                            <a href="{{ route('admin.notices.edit', $notice) }}?popup=1#popup-settings"
-                                               class="text-[10px] text-blue-600 hover:underline font-semibold tracking-tight"
-                                               :title="'Active BS Range: ' + popupFromBs + ' to ' + (popupToBs || 'Open')"
-                                               x-text="popupFromBs">
-                                            </a>
-                                        </template>
+                                        @if($notice->is_popup && $notice->popup_from_bs)
+                                            <button type="button"
+                                                    @click="openPopupModal(@js([
+                                                        'id' => $notice->id,
+                                                        'title' => $notice->title,
+                                                        'is_popup' => (bool) $notice->is_popup,
+                                                        'popup_from_bs' => $notice->popup_from_bs,
+                                                        'popup_to_bs' => $notice->popup_to_bs,
+                                                        'main_site_status' => $notice->main_site_status,
+                                                        'department_id' => $notice->department_id,
+                                                        'toggle_popup_url' => route('admin.notices.toggle-popup', $notice)
+                                                    ]))"
+                                                    class="text-[10px] text-blue-600 hover:underline font-semibold tracking-tight"
+                                                    title="Active BS Range: {{ $notice->popup_from_bs }} to {{ $notice->popup_to_bs ?: 'Open' }}">
+                                                {{ $notice->popup_from_bs }}
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-4 py-3.5 text-xs text-slate-500">{{ $publishedLabel ?: 'N/A' }}</td>
                                 <td class="px-4 py-3.5 text-center">
-                                    @if(($notice->attachments_count ?? 0) > 0)
-                                        <span class="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-sky-700 ring-1 ring-sky-200">{{ $notice->attachments_count }}</span>
+                                    @php
+                                        $filesCount = ($notice->attachments_count ?? 0) ?: (!empty($notice->attachment) ? 1 : 0);
+                                    @endphp
+                                    @if($filesCount > 0)
+                                        <span class="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-sky-700 ring-1 ring-sky-200">{{ $filesCount }}</span>
                                     @else
                                         <span class="text-xs text-slate-300">N/A</span>
                                     @endif
@@ -585,6 +635,120 @@
                 </section>
             </div>
         </aside>
+    </div>
+
+    {{-- Popup & Main Website Settings Modal --}}
+    <div
+        x-show="popupModal"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+    >
+        <div
+            class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-200"
+            @click.away="closePopupModal()"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+        >
+            <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Popup & Main Website Settings</h3>
+                    <p class="text-xs text-slate-500 mt-0.5" x-text="popupForm.title"></p>
+                </div>
+                <button
+                    type="button"
+                    @click="closePopupModal()"
+                    class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+                >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <form @submit.prevent="submitPopupSettings()" class="mt-5 space-y-4">
+                {{-- 1. Popup Switch --}}
+                <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/70">
+                    <div>
+                        <span class="text-sm font-bold text-slate-800">Display as Popup Screen</span>
+                        <p class="text-xs text-slate-500">Show this notice in the main home page popup modal</p>
+                    </div>
+                    <label class="relative inline-flex cursor-pointer items-center">
+                        <input type="checkbox" x-model="popupForm.is_popup" class="peer sr-only">
+                        <div class="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-blue-600 after:absolute after:top-0.5 after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+                {{-- 2. Display Interval (Only if is_popup is enabled) --}}
+                <div x-show="popupForm.is_popup" class="space-y-3 p-3.5 rounded-xl border border-blue-100 bg-blue-50/40">
+                    <p class="text-xs font-bold uppercase tracking-wider text-blue-900">Popup Active Interval (BS Dates)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Start Date (B.S.)</label>
+                            <input
+                                type="text"
+                                x-model="popupForm.popup_from_bs"
+                                placeholder="YYYY-MM-DD (e.g. 2083-05-18)"
+                                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">End Date (B.S.)</label>
+                            <input
+                                type="text"
+                                x-model="popupForm.popup_to_bs"
+                                placeholder="YYYY-MM-DD (e.g. 2083-05-25)"
+                                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 3. Show at Main Website Home Page --}}
+                <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/70">
+                    <div>
+                        <span class="text-sm font-bold text-slate-800">Show on Main Website Home Page</span>
+                        <p class="text-xs text-slate-500">Feature this notice in the main home page noticeboard</p>
+                    </div>
+                    <label class="relative inline-flex cursor-pointer items-center">
+                        <input type="checkbox" x-model="popupForm.show_at_main_site" class="peer sr-only">
+                        <div class="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-emerald-600 after:absolute after:top-0.5 after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+                {{-- Feedback messages --}}
+                <template x-if="popupForm.savedMessage">
+                    <p class="text-xs font-semibold text-emerald-600" x-text="popupForm.savedMessage"></p>
+                </template>
+
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                    <button
+                        type="button"
+                        @click="closePopupModal()"
+                        class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        :disabled="popupForm.loading"
+                        class="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2 text-xs font-bold text-white shadow-sm transition disabled:opacity-50 inline-flex items-center gap-1.5"
+                    >
+                        <span x-show="!popupForm.loading">Save & Apply</span>
+                        <span x-show="popupForm.loading">Saving...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection

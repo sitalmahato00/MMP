@@ -57,7 +57,7 @@
                 <x-form-field label="Target Semester" name="semester">
                     <x-select name="semester">
                         <option value="">All Semesters</option>
-                        @for($i = 1; $i <= 8; $i++)
+                        @for($i = 1; $i <= 6; $i++)
                             <option value="{{ $i }}" @selected(old('semester', $notice->semester) == $i)>Semester {{ $i }}</option>
                         @endfor
                     </x-select>
@@ -95,6 +95,51 @@
                 </p>
             </x-form-field>
         </x-form-row>
+    </x-form-section>
+
+    {{-- ── 3. MAIN WEBSITE & POPUP REQUEST ──────────────── --}}
+    <x-form-section title="Main Website & Popup Request" subtitle="Request administration to display this notice on the public home page and as a popup modal.">
+        <div class="space-y-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/40 dark:bg-blue-950/20">
+            @if($notice->main_site_status === 'approved')
+                <div class="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 text-xs font-semibold">
+                    <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Approved by Administrator for Main Website Display {{ $notice->is_popup ? '(and Active as Popup)' : '' }}
+                </div>
+            @elseif($notice->main_site_status === 'pending')
+                <div class="flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-amber-800 text-xs font-semibold">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Pending Administrator Review for Main Website Display
+                </div>
+            @endif
+
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" name="request_main_site" value="1" @checked(old('request_main_site', $notice->main_site_requested))
+                       class="h-4 w-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Request Display on Main Website</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Send a request to the college administration to feature this department notice on the public homepage noticeboard.</p>
+                </div>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer pl-7">
+                <input type="checkbox" name="request_as_popup" value="1" @checked(old('request_as_popup', $notice->request_as_popup))
+                       class="h-4 w-4 mt-0.5 rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                <div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Also Request as Main Homepage Popup Modal</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Request administration to display this as an urgent popup screen to visitors on the main website.</p>
+                </div>
+            </label>
+
+            <div class="pl-7 pt-2">
+                <x-form-field label="Request Note for Administrator (Optional)" name="request_note" span="full">
+                    <x-input name="request_note" :value="old('request_note', $notice->request_note)" placeholder="e.g., Urgent examination announcement for all engineering students"/>
+                </x-form-field>
+            </div>
+        </div>
     </x-form-section>
 
     <div class="flex items-center gap-3 pb-6">

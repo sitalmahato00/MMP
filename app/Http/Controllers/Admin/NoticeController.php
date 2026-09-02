@@ -139,41 +139,57 @@ class NoticeController extends Controller
 
     public function togglePopup(Request $request, Notice $notice)
     {
-        $this->ensureOwnership($notice);
-
-        $isPopup = $request->boolean('is_popup', ! $notice->is_popup);
+        $isPopup = $request->boolean('is_popup');
         $popupFromBs = $request->input('popup_from_bs', $notice->popup_from_bs);
         $popupToBs = $request->input('popup_to_bs', $notice->popup_to_bs);
 
         if ($isPopup && empty($popupFromBs)) {
             $popupFromBs = bsDate(now(), 'Y-m-d');
+        }
+        if ($isPopup && empty($popupToBs)) {
             $popupToBs = bsDate(now()->addDays(7), 'Y-m-d');
         }
 
         $popupFrom = $popupFromBs ? NepaliDateHelper::toAD($popupFromBs) : null;
         $popupTo = $popupToBs ? NepaliDateHelper::toAD($popupToBs) : null;
 
-        $notice->update([
+        $updateData = [
             'is_popup' => $isPopup,
             'popup_from_bs' => $isPopup ? $popupFromBs : null,
             'popup_to_bs' => $isPopup ? $popupToBs : null,
             'popup_from' => $isPopup ? $popupFrom : null,
             'popup_to' => $isPopup ? $popupTo : null,
-        ]);
+        ];
+
+        if ($request->has('show_at_main_site')) {
+            $showAtMain = $request->boolean('show_at_main_site');
+            if ($showAtMain) {
+                $updateData['main_site_status'] = 'approved';
+                $updateData['main_site_approved_at'] = now();
+                $updateData['main_site_approved_by'] = auth()->id();
+            } else {
+                if ($notice->department_id) {
+                    $updateData['main_site_status'] = 'rejected';
+                }
+            }
+        }
+
+        $notice->update($updateData);
 
         PublicDataService::invalidate('*');
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'is_popup' => $notice->is_popup,
+                'is_popup' => (bool) $notice->is_popup,
                 'popup_from_bs' => $notice->popup_from_bs,
                 'popup_to_bs' => $notice->popup_to_bs,
-                'message' => $notice->is_popup ? 'Notice set as website popup.' : 'Website popup disabled.',
+                'main_site_status' => $notice->main_site_status,
+                'message' => 'Popup and main website settings updated successfully.',
             ]);
         }
 
-        return back()->with('success', $notice->is_popup ? 'Notice set as website popup.' : 'Website popup disabled.');
+        return back()->with('success', 'Popup and main website settings updated successfully.');
     }
 
     private function storeWorkspaceItem(Request $request, bool $isNewsEvents)
@@ -518,9 +534,43 @@ class NoticeController extends Controller
             ? $notice->department->code . ' - ' . $notice->department->name
             : $notice->department?->name;
 
-        // Separate media (images/videos) from documents
-        $media = $notice->attachments->filter(fn($att) => $att->is_image || in_array(strtolower($att->file_type ?? ''), ['mp4', 'webm', 'mov']));
-        $documents = $notice->attachments->filter(fn($att) => !$att->is_image && !in_array(strtolower($att->file_type ?? ''), ['mp4', 'webm', 'mov']));
+        $attachmentsList = collect();
+
+        if ($notice->attachments->isNotEmpty()) {
+            foreach ($notice->attachments as $att) {
+                $ext = strtolower((string) ($att->file_type ?? ''));
+                $isImg = $att->is_image || in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+                $isVid = in_array($ext, ['mp4', 'webm', 'mov']);
+                $attachmentsList->push([
+                    'id' => $att->id,
+                    'name' => $att->file_name ?: basename($att->file_path),
+                    'url' => $att->url,
+                    'is_image' => $isImg,
+                    'is_video' => $isVid,
+                    'extension' => $ext ? strtoupper($ext) : 'FILE',
+                    'meta' => trim(collect([
+                        strtoupper($ext),
+                        $this->formatFileSize($att->file_size),
+                    ])->filter()->implode(' | ')),
+                ]);
+            }
+        } elseif (! empty($notice->attachment)) {
+            $ext = strtolower(pathinfo($notice->attachment, PATHINFO_EXTENSION));
+            $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+            $isVid = in_array($ext, ['mp4', 'webm', 'mov']);
+            $attachmentsList->push([
+                'id' => 0,
+                'name' => basename($notice->attachment),
+                'url' => asset('storage/' . $notice->attachment),
+                'is_image' => $isImg,
+                'is_video' => $isVid,
+                'extension' => $ext ? strtoupper($ext) : 'FILE',
+                'meta' => strtoupper($ext),
+            ]);
+        }
+
+        $media = $attachmentsList->filter(fn($a) => $a['is_image'] || $a['is_video'])->values();
+        $documents = $attachmentsList->filter(fn($a) => !$a['is_image'] && !$a['is_video'])->values();
 
         return [
             'id' => $notice->id,
@@ -536,38 +586,13 @@ class NoticeController extends Controller
             'published_bs' => $publishedAt ? bsDateTime($publishedAt, 'Y, F d', 'h:i A') : null,
             'created_bs' => $notice->created_at ? bsDateTime($notice->created_at, 'Y, F d', 'h:i A') : null,
             'updated_bs' => $notice->updated_at ? bsDateTime($notice->updated_at, 'Y, F d', 'h:i A') : null,
-            'attachments_count' => $notice->attachments_count ?? $notice->attachments->count(),
+            'attachments_count' => $attachmentsList->count(),
             'created_by' => $notice->created_by,
             'has_media' => $media->isNotEmpty(),
             'media_count' => $media->count(),
-            'media' => $media->map(fn (NoticeAttachment $attachment) => [
-                'id' => $attachment->id,
-                'name' => $attachment->file_name,
-                'url' => $attachment->url,
-                'is_image' => $attachment->is_image,
-                'is_video' => in_array(strtolower($attachment->file_type ?? ''), ['mp4', 'webm', 'mov']),
-                'extension' => $attachment->file_type ? strtoupper((string) $attachment->file_type) : 'FILE',
-            ])->values(),
-            'documents' => $documents->map(fn (NoticeAttachment $attachment) => [
-                'id' => $attachment->id,
-                'name' => $attachment->file_name,
-                'url' => $attachment->url,
-                'extension' => $attachment->file_type ? strtoupper((string) $attachment->file_type) : 'FILE',
-                'meta' => trim(collect([
-                    strtoupper((string) $attachment->file_type),
-                    $this->formatFileSize($attachment->file_size),
-                ])->filter()->implode(' | ')),
-            ])->values(),
-            'attachments' => $notice->attachments->map(fn (NoticeAttachment $attachment) => [
-                'id' => $attachment->id,
-                'name' => $attachment->file_name,
-                'url' => $attachment->url,
-                'extension' => $attachment->file_type ? strtoupper((string) $attachment->file_type) : 'FILE',
-                'meta' => trim(collect([
-                    strtoupper((string) $attachment->file_type),
-                    $this->formatFileSize($attachment->file_size),
-                ])->filter()->implode(' | ')),
-            ])->values(),
+            'media' => $media,
+            'documents' => $documents,
+            'attachments' => $attachmentsList,
             'is_popup' => (bool) $notice->is_popup,
             'popup_from_bs' => $notice->popup_from_bs,
             'popup_to_bs' => $notice->popup_to_bs,
@@ -602,6 +627,64 @@ class NoticeController extends Controller
             'event' => 'Event',
             default => Str::headline($type),
         };
+    }
+
+    public function approveMainSite(Request $request, Notice $notice)
+    {
+        $asPopup = $request->boolean('is_popup') || $request->boolean('as_popup') || $notice->request_as_popup;
+        
+        $updateData = [
+            'main_site_status' => 'approved',
+            'main_site_approved_at' => now(),
+            'main_site_approved_by' => auth()->id(),
+        ];
+
+        if ($asPopup) {
+            $updateData['is_popup'] = true;
+            if ($request->filled('popup_from_bs')) {
+                $updateData['popup_from_bs'] = $request->popup_from_bs;
+                $updateData['popup_from'] = NepaliDateHelper::toAD($request->popup_from_bs);
+            }
+            if ($request->filled('popup_to_bs')) {
+                $updateData['popup_to_bs'] = $request->popup_to_bs;
+                $updateData['popup_to'] = NepaliDateHelper::toAD($request->popup_to_bs);
+            }
+        }
+
+        $notice->update($updateData);
+
+        PublicDataService::invalidate('*');
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Notice approved for main website' . ($asPopup ? ' and set as popup.' : '.'),
+                'notice' => $notice->fresh(),
+            ]);
+        }
+
+        return back()->with('success', 'Notice approved for main website' . ($asPopup ? ' as popup.' : '.'));
+    }
+
+    public function rejectMainSite(Request $request, Notice $notice)
+    {
+        $notice->update([
+            'main_site_status' => 'rejected',
+            'main_site_approved_at' => null,
+            'main_site_approved_by' => auth()->id(),
+        ]);
+
+        PublicDataService::invalidate('*');
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Notice request rejected.',
+                'notice' => $notice->fresh(),
+            ]);
+        }
+
+        return back()->with('info', 'Notice request rejected.');
     }
 
     private function formatFileSize(?int $bytes): ?string

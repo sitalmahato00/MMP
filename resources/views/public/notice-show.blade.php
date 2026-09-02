@@ -24,6 +24,16 @@
         <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
 
+                {{-- Featured Cover Image at Top --}}
+                @php
+                    $primaryCoverImage = $images->first()?->url ?? ($notice->attachment && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $notice->attachment) ? asset('storage/' . $notice->attachment) : null);
+                @endphp
+                @if($primaryCoverImage)
+                    <div class="w-full bg-slate-900 border-b border-gray-200 overflow-hidden flex items-center justify-center max-h-[440px]">
+                        <img src="{{ $primaryCoverImage }}" alt="{{ $notice->title }}" class="w-full h-auto max-h-[440px] object-contain">
+                    </div>
+                @endif
+
                 {{-- Header --}}
                 <div class="px-6 py-4 border-b border-gray-200">
                     <div class="flex items-center gap-2 mb-3 flex-wrap">
