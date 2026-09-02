@@ -150,4 +150,23 @@ class Notice extends Model
                 }
             });
     }
+
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        $imageAttachment = $this->attachments?->firstWhere('is_image', true);
+        if ($imageAttachment) {
+            return $imageAttachment->url;
+        }
+
+        if ($this->attachment && preg_match('/\.(jpg|jpeg|png|webp|gif|svg)$/i', $this->attachment)) {
+            return asset('storage/' . $this->attachment);
+        }
+
+        return null;
+    }
+
+    public function getGalleryImagesAttribute()
+    {
+        return $this->attachments?->filter(fn($a) => $a->is_image) ?? collect();
+    }
 }

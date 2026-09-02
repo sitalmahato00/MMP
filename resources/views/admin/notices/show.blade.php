@@ -75,6 +75,12 @@
         </div>
     </section>
 
+    @if($notice->cover_image_url)
+        <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-900 shadow-md flex items-center justify-center max-h-[460px]">
+            <img src="{{ $notice->cover_image_url }}" alt="{{ $notice->title }}" class="w-full h-auto max-h-[460px] object-contain">
+        </section>
+    @endif
+
     <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article class="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Audience</p>

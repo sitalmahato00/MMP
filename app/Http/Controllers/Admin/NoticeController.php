@@ -395,6 +395,8 @@ class NoticeController extends Controller
             'type' => "required|in:{$allowedTypes}",
             'department_id' => $isNewsEvents ? 'nullable' : 'nullable|required_if:type,department|exists:departments,id',
             'published_at' => 'nullable|string|max:20',
+            'cover_image' => 'nullable|file|max:20480',
+            'attachment' => 'nullable|file|max:20480',
             'is_popup' => 'nullable|boolean',
             'popup_from_bs' => 'nullable|string|max:20',
             'popup_to_bs' => 'nullable|string|max:20',
@@ -425,24 +427,39 @@ class NoticeController extends Controller
             ? ($data['department_id'] ?? null)
             : null;
 
-        unset($data['attachments']);
+        unset($data['attachments'], $data['cover_image'], $data['attachment']);
 
         return $data;
     }
 
     private function storeAttachments(Request $request, Notice $notice): void
     {
-        if (! $request->hasFile('attachments')) {
-            return;
+        $coverFile = $request->file('cover_image') ?? $request->file('attachment');
+        if ($coverFile) {
+            $path = $coverFile->store('notices', 'public');
+            $notice->update(['attachment' => $path]);
+            $notice->attachments()->create([
+                'file_path' => $path,
+                'file_name' => $coverFile->getClientOriginalName(),
+                'file_type' => strtolower($coverFile->getClientOriginalExtension()),
+                'file_size' => $coverFile->getSize(),
+            ]);
         }
 
-        foreach ($request->file('attachments') as $file) {
-            $notice->attachments()->create([
-                'file_path' => $file->store('notices', 'public'),
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => $file->getClientOriginalExtension(),
-                'file_size' => $file->getSize(),
-            ]);
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('notices', 'public');
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (! $notice->attachment && in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'])) {
+                    $notice->update(['attachment' => $path]);
+                }
+                $notice->attachments()->create([
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $ext,
+                    'file_size' => $file->getSize(),
+                ]);
+            }
         }
     }
 
@@ -596,6 +613,7 @@ class NoticeController extends Controller
             'is_popup' => (bool) $notice->is_popup,
             'popup_from_bs' => $notice->popup_from_bs,
             'popup_to_bs' => $notice->popup_to_bs,
+            'cover_image_url' => $notice->cover_image_url,
             'toggle_popup_url' => route('admin.notices.toggle-popup', $notice),
             'show_url' => route("{$routePrefix}.show", $notice),
             'edit_url' => route("{$routePrefix}.edit", $notice),

@@ -90,16 +90,14 @@
                             @foreach($items as $item)
                                 <tr class="group hover:bg-slate-50/60 transition-colors">
                                     <td class="px-5 py-3.5">
-                                        <div class="min-w-0">
-                                            <div class="flex items-center gap-2">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            @if($item->cover_image_url)
+                                                <img src="{{ $item->cover_image_url }}" alt="{{ $item->title }}" class="h-10 w-14 object-cover rounded-xl border border-slate-200 flex-shrink-0 shadow-xs">
+                                            @endif
+                                            <div class="min-w-0">
                                                 <p class="font-semibold text-slate-900 truncate text-sm">{{ $item->title }}</p>
-                                                @if($item->attachment || $item->attachments->count() > 0)
-                                                    <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="Has attachments">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                                                    </svg>
-                                                @endif
+                                                <p class="text-[11px] text-slate-400 truncate">{{ \Illuminate\Support\Str::limit(strip_tags((string) $item->content), 70) }}</p>
                                             </div>
-                                            <p class="text-[11px] text-slate-400 truncate">{{ \Illuminate\Support\Str::limit(strip_tags((string) $item->content), 70) }}</p>
                                         </div>
                                     </td>
                                     <td class="px-5 py-3.5">
@@ -150,24 +148,24 @@
             @else
                 <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     @foreach($items as $item)
-                        <div class="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150">
-                            <div class="flex flex-col items-center text-center">
-                                <span class="rounded-lg px-2 py-0.5 text-[11px] font-semibold {{ $item->type === 'event' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700' }}">{{ ucfirst($item->type) }}</span>
-                                <div class="flex items-center justify-center gap-2 mt-3">
-                                    <h3 class="text-sm font-bold text-slate-900 leading-tight text-center line-clamp-2">{{ $item->title }}</h3>
-                                    @if($item->attachment || $item->attachments->count() > 0)
-                                        <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="Has attachments">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                                        </svg>
-                                    @endif
+                        <div class="group relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150 flex flex-col justify-between">
+                            <div>
+                                @if($item->cover_image_url)
+                                    <div class="w-full h-32 rounded-xl overflow-hidden bg-slate-900 mb-3 border border-slate-100 flex items-center justify-center">
+                                        <img src="{{ $item->cover_image_url }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    </div>
+                                @endif
+                                <div class="flex flex-col items-center text-center">
+                                    <span class="rounded-lg px-2 py-0.5 text-[11px] font-semibold {{ $item->type === 'event' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700' }}">{{ ucfirst($item->type) }}</span>
+                                    <h3 class="mt-2 text-sm font-bold text-slate-900 leading-tight text-center line-clamp-2">{{ $item->title }}</h3>
+                                    <p class="mt-1 text-[11px] text-slate-400 line-clamp-2 text-center">{{ \Illuminate\Support\Str::limit(strip_tags((string) $item->content), 90) }}</p>
                                 </div>
-                                <p class="mt-1 text-[11px] text-slate-400 line-clamp-2">{{ \Illuminate\Support\Str::limit(strip_tags((string) $item->content), 90) }}</p>
                             </div>
                             <div class="mt-3 text-center">
                                 <p class="text-xs text-slate-600 font-medium truncate">{{ $item->program?->name ?? 'All Programs' }}</p>
                                 <p class="text-[11px] text-slate-400">{{ bsDate($item->published_at ?? $item->created_at, 'Y, F d') }}</p>
                             </div>
-                            <div class="mt-4 grid grid-cols-1 gap-2">
+                            <div class="mt-4 grid grid-cols-2 gap-2">
                                 <a href="{{ route('hod.news-events.show', $item) }}" class="rounded-lg border border-slate-200 py-1.5 text-center text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">View</a>
                                 @if($item->created_by === auth()->id())
                                     <a href="{{ route('hod.news-events.edit', $item) }}" class="rounded-lg bg-slate-900 py-1.5 text-center text-xs font-bold text-white hover:bg-slate-700 transition">Edit</a>

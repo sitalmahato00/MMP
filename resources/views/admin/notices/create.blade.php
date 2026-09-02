@@ -30,15 +30,41 @@
             <x-form-field label="Content" name="content" :required="true">
                 <x-textarea name="content" rows="6" :placeholder="$workspace['is_news_events'] ? 'Full post content...' : 'Full notice content...'" />
             </x-form-field>
-            <x-form-field label="Attachments" name="attachments">
+            {{-- Cover Image (Featured Image for Top Hero / Popups / Cards) --}}
+            <x-form-field label="Cover Image / Featured Photo (Optional)" name="cover_image">
+                <div x-data="{ preview: null }" class="space-y-2">
+                    <label class="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-blue-200 bg-blue-50/30 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50/60 overflow-hidden relative">
+                        <template x-if="!preview">
+                            <div class="flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+                                <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-blue-900">Upload Cover Image (JPG, PNG, WebP, GIF)</p>
+                                <p class="text-[11px] text-slate-400">Displayed at the very top of popups, detail pages, and cards</p>
+                            </div>
+                        </template>
+                        <template x-if="preview">
+                            <div class="relative w-full h-full flex items-center justify-center bg-slate-900">
+                                <img :src="preview" alt="Cover Preview" class="h-full w-auto object-contain">
+                                <span class="absolute bottom-1 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">Change Cover</span>
+                            </div>
+                        </template>
+                        <input type="file" name="cover_image" accept="image/*" class="hidden"
+                               @change="const file = $event.target.files[0]; if (file) { const r = new FileReader(); r.onload = e => preview = e.target.result; r.readAsDataURL(file); }">
+                    </label>
+                </div>
+            </x-form-field>
+
+            {{-- Additional Attachments / Documents / Gallery --}}
+            <x-form-field label="Additional Images & Documents (Optional)" name="attachments">
                 <div class="space-y-2">
                     <label for="attachments"
-                           class="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-all duration-200 group hover:border-[#8B0000]/40 hover:bg-gray-100">
-                        <div class="flex flex-col items-center justify-center gap-2 px-4 text-center">
-                            <svg class="h-6 w-6 text-gray-300 transition-colors group-hover:text-[#8B0000]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-all duration-200 group hover:border-[#8B0000]/40 hover:bg-gray-100">
+                        <div class="flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+                            <svg class="h-5 w-5 text-gray-400 transition-colors group-hover:text-[#8B0000]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
-                            <p class="text-xs text-gray-400 transition-colors group-hover:text-gray-600">Upload images, PDFs, or videos (multiple allowed, max 10 files)</p>
+                            <p class="text-xs text-gray-500 transition-colors group-hover:text-gray-700">Upload additional files, gallery images, PDFs, or videos (multiple allowed)</p>
                         </div>
                         <input type="file" id="attachments" name="attachments[]" accept="image/*,.pdf,video/*" multiple class="hidden">
                     </label>

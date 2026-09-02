@@ -66,33 +66,44 @@
         </div>
     </x-form-section>
 
-    {{-- ── 2. CONTENT ─────────────────────────────────────── --}}
-    <x-form-section title="Content" subtitle="Notice content and attachment.">
+    {{-- ── 2. CONTENT & IMAGES ──────────────────────────── --}}
+    <x-form-section title="Content & Media" subtitle="Notice body, cover photo, and gallery attachments.">
         <x-form-row>
             <x-form-field label="Notice Content" name="content" :required="true" span="full">
-                <x-textarea name="content" rows="8" :required="true" 
+                <x-textarea name="content" rows="7" :required="true" 
                            placeholder="Write your notice content here...">{{ old('content', $notice->content) }}</x-textarea>
             </x-form-field>
 
-            <x-form-field label="Attachment" name="attachment" span="full">
-                @if($notice->attachment)
-                    <div class="mb-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                        <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                        </svg>
-                        <span class="text-sm text-slate-700">Current attachment</span>
-                        <a href="{{ asset('storage/' . $notice->attachment) }}" target="_blank"
-                           class="text-sm text-blue-600 hover:text-blue-800">View</a>
-                    </div>
-                @endif
-                <x-file-input name="attachment" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" 
-                             label="Upload new attachment (max 10 MB)"/>
-                <p class="mt-1.5 text-xs text-slate-500">
-                    @if($notice->attachment)
-                        Leave empty to keep current attachment. 
-                    @endif
-                    Supported: PDF, DOC, DOCX, JPG, PNG
-                </p>
+            {{-- Dedicated Cover Image --}}
+            <x-form-field label="Cover Image / Featured Photo (Optional)" name="cover_image" span="full">
+                <div x-data="{ preview: @js($notice->cover_image_url) }" class="space-y-2">
+                    <label class="flex h-36 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-blue-200 bg-blue-50/30 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50/60 overflow-hidden relative">
+                        <template x-if="!preview">
+                            <div class="flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+                                <svg class="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-blue-900">Upload Cover Image (JPG, PNG, WebP, GIF)</p>
+                                <p class="text-[11px] text-slate-400">Displayed at the very top of popups, detail pages, and cards</p>
+                            </div>
+                        </template>
+                        <template x-if="preview">
+                            <div class="relative w-full h-full flex items-center justify-center bg-slate-900">
+                                <img :src="preview" alt="Cover Preview" class="h-full w-auto object-contain">
+                                <span class="absolute bottom-1 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">Change Cover</span>
+                            </div>
+                        </template>
+                        <input type="file" name="cover_image" accept="image/*" class="hidden"
+                               @change="const file = $event.target.files[0]; if (file) { const r = new FileReader(); r.onload = e => preview = e.target.result; r.readAsDataURL(file); }">
+                    </label>
+                </div>
+            </x-form-field>
+
+            {{-- Additional Files / Documents / Gallery --}}
+            <x-form-field label="Add More Gallery Images & Documents (Optional)" name="attachments" span="full">
+                <input type="file" name="attachments[]" multiple accept="image/*,.pdf,.doc,.docx"
+                       class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
+                <p class="mt-1 text-[11px] text-slate-400">Upload multiple photos, documents, or PDF routines</p>
             </x-form-field>
         </x-form-row>
     </x-form-section>

@@ -338,7 +338,10 @@ class NoticeController extends HodController
             'type' => 'required|in:general,department,program',
             'program_id' => 'nullable|exists:programs,id',
             'semester' => 'nullable|integer|min:1|max:6',
-            'attachment' => 'nullable|file|max:10240', // 10MB
+            'cover_image' => 'nullable|file|max:10240',
+            'attachment' => 'nullable|file|max:10240',
+            'attachments' => 'nullable|array|max:10',
+            'attachments.*' => 'file|max:10240',
             'is_published' => 'nullable|boolean',
         ]);
 
@@ -349,9 +352,10 @@ class NoticeController extends HodController
                 ->firstOrFail();
         }
 
+        $coverFile = $request->file('cover_image') ?? $request->file('attachment');
         $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('notices', 'public');
+        if ($coverFile) {
+            $attachmentPath = $coverFile->store('notices', 'public');
         }
 
         $notice = Notice::create([
@@ -372,15 +376,27 @@ class NoticeController extends HodController
             'request_note' => $request->input('request_note'),
         ]);
 
-        if ($request->hasFile('attachment') && $attachmentPath) {
-            $file = $request->file('attachment');
+        if ($coverFile && $attachmentPath) {
             NoticeAttachment::create([
                 'notice_id' => $notice->id,
                 'file_path' => $attachmentPath,
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => strtolower($file->getClientOriginalExtension()),
-                'file_size' => $file->getSize(),
+                'file_name' => $coverFile->getClientOriginalName(),
+                'file_type' => strtolower($coverFile->getClientOriginalExtension()),
+                'file_size' => $coverFile->getSize(),
             ]);
+        }
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('notices', 'public');
+                NoticeAttachment::create([
+                    'notice_id' => $notice->id,
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => strtolower($file->getClientOriginalExtension()),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
         }
         app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 
@@ -456,7 +472,10 @@ class NoticeController extends HodController
             'type' => 'required|in:department,program',
             'program_id' => 'nullable|exists:programs,id',
             'semester' => 'nullable|integer|min:1|max:6',
+            'cover_image' => 'nullable|file|max:10240',
             'attachment' => 'nullable|file|max:10240',
+            'attachments' => 'nullable|array|max:10',
+            'attachments.*' => 'file|max:10240',
             'is_published' => 'nullable|boolean',
         ]);
 
@@ -467,12 +486,13 @@ class NoticeController extends HodController
                 ->firstOrFail();
         }
 
-        if ($request->hasFile('attachment')) {
+        $coverFile = $request->file('cover_image') ?? $request->file('attachment');
+        if ($coverFile) {
             // Delete old attachment
             if ($notice->attachment && Storage::disk('public')->exists($notice->attachment)) {
                 Storage::disk('public')->delete($notice->attachment);
             }
-            $data['attachment'] = $request->file('attachment')->store('notices', 'public');
+            $data['attachment'] = $coverFile->store('notices', 'public');
         } else {
             unset($data['attachment']);
         }
@@ -495,15 +515,27 @@ class NoticeController extends HodController
             'request_note' => $request->input('request_note'),
         ] + (isset($data['attachment']) ? ['attachment' => $data['attachment']] : []));
 
-        if ($request->hasFile('attachment') && isset($data['attachment'])) {
-            $file = $request->file('attachment');
+        if ($coverFile && isset($data['attachment'])) {
             NoticeAttachment::create([
                 'notice_id' => $notice->id,
                 'file_path' => $data['attachment'],
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => strtolower($file->getClientOriginalExtension()),
-                'file_size' => $file->getSize(),
+                'file_name' => $coverFile->getClientOriginalName(),
+                'file_type' => strtolower($coverFile->getClientOriginalExtension()),
+                'file_size' => $coverFile->getSize(),
             ]);
+        }
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('notices', 'public');
+                NoticeAttachment::create([
+                    'notice_id' => $notice->id,
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => strtolower($file->getClientOriginalExtension()),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
         }
         app(\App\Services\PortalNotificationService::class)->dispatchNoticePublished($notice);
 

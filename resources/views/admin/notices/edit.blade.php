@@ -31,14 +31,39 @@
                 <x-textarea name="content" rows="6" :required="true">{{ $notice->content }}</x-textarea>
             </x-form-field>
 
+            {{-- Cover Image --}}
+            <x-form-field label="Cover Image / Featured Photo" name="cover_image">
+                <div x-data="{ preview: @js($notice->cover_image_url) }" class="space-y-2">
+                    <label class="flex h-36 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-blue-200 bg-blue-50/30 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50/60 overflow-hidden relative">
+                        <template x-if="!preview">
+                            <div class="flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+                                <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-blue-900">Upload Cover Image (JPG, PNG, WebP, GIF)</p>
+                                <p class="text-[11px] text-slate-400">Displayed at top of popups, detail pages, and cards</p>
+                            </div>
+                        </template>
+                        <template x-if="preview">
+                            <div class="relative w-full h-full flex items-center justify-center bg-slate-900">
+                                <img :src="preview" alt="Cover Preview" class="h-full w-auto object-contain">
+                                <span class="absolute bottom-1 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">Change Cover</span>
+                            </div>
+                        </template>
+                        <input type="file" name="cover_image" accept="image/*" class="hidden"
+                               @change="const file = $event.target.files[0]; if (file) { const r = new FileReader(); r.onload = e => preview = e.target.result; r.readAsDataURL(file); }">
+                    </label>
+                </div>
+            </x-form-field>
+
             @if($notice->attachments->count() || $notice->attachment)
-                <x-form-field label="Current Attachments" name="_existing">
+                <x-form-field label="Current Gallery & Files" name="_existing">
                     <div class="space-y-2">
                         @if($notice->attachment)
                             <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm">
                                 <svg class="h-4 w-4 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                                 <a href="{{ asset('storage/' . $notice->attachment) }}" target="_blank" class="truncate text-[#8B0000] hover:underline">{{ basename($notice->attachment) }}</a>
-                                <span class="ml-auto text-xs text-gray-400">(legacy)</span>
+                                <span class="ml-auto text-xs text-gray-400">(primary cover)</span>
                             </div>
                         @endif
 
@@ -61,15 +86,15 @@
                 </x-form-field>
             @endif
 
-            <x-form-field label="Add More Attachments" name="attachments">
+            <x-form-field label="Add More Gallery Images & Documents" name="attachments">
                 <div class="space-y-2">
                     <label for="attachments"
-                           class="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-all duration-200 group hover:border-[#8B0000]/40 hover:bg-gray-100">
-                        <div class="flex flex-col items-center justify-center gap-2 px-4 text-center">
-                            <svg class="h-6 w-6 text-gray-300 transition-colors group-hover:text-[#8B0000]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-all duration-200 group hover:border-[#8B0000]/40 hover:bg-gray-100">
+                        <div class="flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+                            <svg class="h-5 w-5 text-gray-400 transition-colors group-hover:text-[#8B0000]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
-                            <p class="text-xs text-gray-400 transition-colors group-hover:text-gray-600">Upload more images, PDFs, or videos (multiple allowed)</p>
+                            <p class="text-xs text-gray-500 transition-colors group-hover:text-gray-700">Upload more images, gallery photos, PDFs, or videos</p>
                         </div>
                         <input type="file" id="attachments" name="attachments[]" accept="image/*,.pdf,video/*" multiple class="hidden">
                     </label>

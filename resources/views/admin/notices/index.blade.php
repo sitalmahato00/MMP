@@ -268,10 +268,15 @@
                             @endphp
                             <tr class="border-l-4 {{ $type['accent'] }} transition hover:bg-slate-50/70">
                                 <td class="px-4 py-3.5">
-                                    <button type="button" @click="openDrawer({{ $notice->id }})" class="block text-left">
-                                        <p class="font-semibold text-slate-900 transition hover:text-[#8B0000]">{{ $notice->title }}</p>
-                                        <p class="mt-1 text-xs text-slate-500">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $notice->content)), 120) }}</p>
-                                        <p class="mt-2 text-[11px] text-slate-400">By {{ $authorName }}</p>
+                                    <button type="button" @click="openDrawer({{ $notice->id }})" class="flex items-start gap-3 text-left group">
+                                        @if($notice->cover_image_url)
+                                            <img src="{{ $notice->cover_image_url }}" alt="{{ $notice->title }}" class="h-12 w-16 object-cover rounded-lg border border-slate-200 flex-shrink-0 shadow-xs">
+                                        @endif
+                                        <div class="min-w-0">
+                                            <p class="font-semibold text-slate-900 transition group-hover:text-[#8B0000]">{{ $notice->title }}</p>
+                                            <p class="mt-1 text-xs text-slate-500">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $notice->content)), 120) }}</p>
+                                            <p class="mt-2 text-[11px] text-slate-400">By {{ $authorName }}</p>
+                                        </div>
                                     </button>
                                 </td>
                                 <td class="px-4 py-3.5">
@@ -474,10 +479,15 @@
                 @endphp
                 <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm border-l-4 {{ $type['accent'] }}">
                     <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <h3 class="font-semibold text-slate-900">{{ $notice->title }}</h3>
-                            <p class="mt-1 text-xs text-slate-500">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $notice->content)), 120) }}</p>
-                            <p class="mt-2 text-[11px] text-slate-400">{{ $notice->author?->name ?? 'System' }} | {{ bsDateTime($notice->published_at ?? $notice->created_at, 'Y, F d', 'h:i A') }}</p>
+                        <div class="flex items-start gap-3">
+                            @if($notice->cover_image_url)
+                                <img src="{{ $notice->cover_image_url }}" alt="{{ $notice->title }}" class="h-14 w-20 object-cover rounded-xl border border-slate-200 flex-shrink-0 shadow-xs">
+                            @endif
+                            <div>
+                                <h3 class="font-semibold text-slate-900">{{ $notice->title }}</h3>
+                                <p class="mt-1 text-xs text-slate-500">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $notice->content)), 120) }}</p>
+                                <p class="mt-2 text-[11px] text-slate-400">{{ $notice->author?->name ?? 'System' }} | {{ bsDateTime($notice->published_at ?? $notice->created_at, 'Y, F d', 'h:i A') }}</p>
+                            </div>
                         </div>
                         <div class="text-right">
                             <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $status['badge'] }}">{{ $status['label'] }}</span>
@@ -528,6 +538,13 @@
             </div>
 
             <div class="space-y-5 p-5" x-show="selectedNotice">
+                {{-- Cover Image Hero Banner at Drawer Top --}}
+                <template x-if="selectedNotice?.cover_image_url">
+                    <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-sm flex items-center justify-center max-h-60">
+                        <img :src="selectedNotice.cover_image_url" :alt="selectedNotice.title" class="w-full h-auto max-h-60 object-contain">
+                    </div>
+                </template>
+
                 <section class="grid gap-4 md:grid-cols-2">
                     <article class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <h4 class="text-sm font-black text-slate-900">{{ $workspace['detail_heading'] }}</h4>

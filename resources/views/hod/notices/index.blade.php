@@ -173,11 +173,15 @@
                     <tr class="group hover:bg-slate-50/60 transition-colors">
                         <td class="px-5 py-3.5">
                             <div class="flex items-center gap-3 min-w-0">
-                                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
-                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                                    </svg>
-                                </div>
+                                @if($notice->cover_image_url)
+                                    <img src="{{ $notice->cover_image_url }}" alt="{{ $notice->title }}" class="h-10 w-14 object-cover rounded-xl border border-slate-200 flex-shrink-0 shadow-xs">
+                                @else
+                                    <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                        </svg>
+                                    </div>
+                                @endif
                                 <div class="min-w-0">
                                     <p class="font-semibold text-slate-900 truncate text-sm">{{ $notice->title }}</p>
                                     <p class="text-[11px] text-slate-400 truncate">{{ Str::limit(strip_tags($notice->content), 60) }}</p>
@@ -254,16 +258,24 @@
         @else
         <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @foreach($notices as $notice)
-            <div class="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150">
-                {{-- Icon --}}
-                <div class="flex flex-col items-center text-center">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
-                    </div>
-                    <h3 class="mt-3 text-sm font-bold text-slate-900 leading-tight text-center line-clamp-2">{{ $notice->title }}</h3>
-                    <p class="mt-1 text-[11px] text-slate-400 line-clamp-2">{{ Str::limit(strip_tags($notice->content), 80) }}</p>
+            <div class="group relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150 flex flex-col justify-between">
+                <div>
+                    {{-- Cover Image or Icon --}}
+                    @if($notice->cover_image_url)
+                        <div class="w-full h-32 rounded-xl overflow-hidden bg-slate-900 mb-3 border border-slate-100 flex items-center justify-center">
+                            <img src="{{ $notice->cover_image_url }}" alt="{{ $notice->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                    @else
+                        <div class="flex flex-col items-center text-center pt-2">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                            </div>
+                        </div>
+                    @endif
+                    <h3 class="mt-1 text-sm font-bold text-slate-900 leading-tight text-center line-clamp-2">{{ $notice->title }}</h3>
+                    <p class="mt-1 text-[11px] text-slate-400 line-clamp-2 text-center">{{ Str::limit(strip_tags($notice->content), 80) }}</p>
                 </div>
                 {{-- Badges --}}
                 <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5">

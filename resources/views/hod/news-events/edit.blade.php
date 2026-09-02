@@ -54,12 +54,37 @@
     <x-form-section title="Content" subtitle="Update the full post and attachments.">
         <x-form-row>
             <x-form-field label="Content" name="content" :required="true" span="full">
-                <x-textarea name="content" rows="8" :required="true" placeholder="Write the update here...">{{ old('content', $notice->content) }}</x-textarea>
+                <x-textarea name="content" rows="7" :required="true" placeholder="Write the update here...">{{ old('content', $notice->content) }}</x-textarea>
+            </x-form-field>
+
+            {{-- Dedicated Cover Image --}}
+            <x-form-field label="Cover Image / Featured Photo" name="cover_image" span="full">
+                <div x-data="{ preview: @js($notice->cover_image_url) }" class="space-y-2">
+                    <label class="flex h-36 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-blue-200 bg-blue-50/30 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50/60 overflow-hidden relative">
+                        <template x-if="!preview">
+                            <div class="flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+                                <svg class="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-blue-900">Upload Cover Image (JPG, PNG, WebP, GIF)</p>
+                                <p class="text-[11px] text-slate-400">Main banner shown at top of post and cards</p>
+                            </div>
+                        </template>
+                        <template x-if="preview">
+                            <div class="relative w-full h-full flex items-center justify-center bg-slate-900">
+                                <img :src="preview" alt="Cover Preview" class="h-full w-auto object-contain">
+                                <span class="absolute bottom-1 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">Change Cover</span>
+                            </div>
+                        </template>
+                        <input type="file" name="cover_image" accept="image/*" class="hidden"
+                               @change="const file = $event.target.files[0]; if (file) { const r = new FileReader(); r.onload = e => preview = e.target.result; r.readAsDataURL(file); }">
+                    </label>
+                </div>
             </x-form-field>
 
             {{-- Existing attachments --}}
             @if($notice->attachments->isNotEmpty())
-            <x-form-field label="Current Attachments" name="delete_attachments" span="full">
+            <x-form-field label="Current Gallery Photos & Attachments" name="delete_attachments" span="full">
                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     @foreach($notice->attachments as $att)
                     <div class="relative rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
