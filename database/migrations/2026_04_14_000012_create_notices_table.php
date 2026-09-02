@@ -24,12 +24,29 @@ return new class extends Migration
             $table->boolean('is_published')->default(true);
             $table->timestamp('published_at')->nullable();
 
+            // Website Popup Modal fields
+            $table->boolean('is_popup')->default(false);
+            $table->string('popup_from_bs', 20)->nullable();
+            $table->string('popup_to_bs', 20)->nullable();
+            $table->date('popup_from')->nullable();
+            $table->date('popup_to')->nullable();
+
+            // Department -> Main Site & Popup Request fields
+            $table->boolean('main_site_requested')->default(false);
+            $table->string('main_site_status', 30)->nullable(); // 'pending', 'approved', 'rejected'
+            $table->boolean('request_as_popup')->default(false);
+            $table->text('request_note')->nullable();
+            $table->timestamp('main_site_approved_at')->nullable();
+            $table->foreignId('main_site_approved_by')->nullable()->constrained('users')->nullOnDelete();
+
             $table->timestamps();
             $table->softDeletes();
 
             // Performance indexes
             $table->index(['is_published', 'type'], 'idx_notices_published_type');
             $table->index(['department_id', 'is_published'], 'idx_notices_dept_published');
+            $table->index(['is_popup', 'is_published'], 'idx_notices_popup_published');
+            $table->index(['main_site_requested', 'main_site_status'], 'idx_notices_main_site_request');
         });
 
         Schema::create('notice_attachments', function (Blueprint $table) {
