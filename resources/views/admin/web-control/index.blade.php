@@ -144,6 +144,42 @@
                         </x-form-field>
                     </div>
                 </x-card>
+
+                {{-- ── Homepage Stats Overrides ──────────────────────────────── --}}
+                <x-card>
+                    <div class="mb-4">
+                        <h3 class="text-sm font-semibold text-gray-800">Homepage Stats (Overrides)</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            These numbers appear in the blue counter bar on the landing page.<br>
+                            <strong>Leave blank</strong> to show the live count from the database.
+                            Fill in a number to show a fixed value — useful at launch before real data is entered.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach([
+                            'stat_graduates'     => 'Graduates',
+                            'stat_students'      => 'Current Students',
+                            'stat_faculty_staff' => 'Faculty & Staff',
+                            'stat_placements'    => 'Placements',
+                            'stat_programs'      => 'Diploma Programs',
+                        ] as $statKey => $statLabel)
+                            @php $ss = $allSettings->get($statKey); @endphp
+                            <x-form-field :label="$statLabel" :name="$statKey" span="1"
+                                          hint="Leave empty to count from DB">
+                                <x-input :name="$statKey"
+                                         :value="old($statKey, $ss?->value)"
+                                         placeholder="e.g. 150"
+                                         inputmode="numeric"
+                                         pattern="[0-9]*"
+                                         maxlength="6" />
+                            </x-form-field>
+                        @endforeach
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-3">
+                        <svg class="inline w-3 h-3 mr-0.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Years of Excellence is calculated automatically from the Established Year above and cannot be overridden here.
+                    </p>
+                </x-card>
             </div>
         </div>
 

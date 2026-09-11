@@ -1046,15 +1046,32 @@ class PublicDataService
             $currentBsYear = (int) bsDate(now(), 'Y');
             $yearsOfExperience = max(0, $currentBsYear - $establishYear);
 
+            // Fetch stat override values from admin settings (null / '' = not set → use live DB)
+            $overrides = SiteSetting::whereIn('key', [
+                'stat_graduates', 'stat_students', 'stat_faculty_staff', 'stat_placements', 'stat_programs',
+            ])->pluck('value', 'key');
+
+            $override = fn (string $key): ?int =>
+                ($v = trim((string) ($overrides[$key] ?? ''))) !== '' && ctype_digit($v) ? (int) $v : null;
+
+            // Use override if set, otherwise count from DB
+            $graduates   = $override('stat_graduates')    ?? Alumni::verified()->count();
+            $students    = $override('stat_students')     ?? Student::active()->count();
+            $facultyStaff= $override('stat_faculty_staff')?? Teacher::active()->count() + Staff::where('is_active', true)->count();
+            $placements  = $override('stat_placements')   ?? 0;
+            $programs    = $override('stat_programs')     ?? Program::active()->count();
+
             return [
-                'graduates'     => Alumni::verified()->count(),
-                'students'      => Student::active()->count(),
-                'faculty_staff' => Teacher::active()->count() + Staff::where('is_active', true)->count(),
-                'programs'      => Program::active()->count(),
+                'graduates'     => $graduates,
+                'students'      => $students,
+                'faculty_staff' => $facultyStaff,
+                'placements'    => $placements,
+                'programs'      => $programs,
                 'years'         => $yearsOfExperience,
             ];
         });
     }
+
 
     public function getSiteSettings(): \Illuminate\Database\Eloquent\Collection
     {

@@ -18,6 +18,14 @@ class SiteSetting extends Model
             ['key' => 'college_affiliation', 'group' => 'about', 'label' => 'Affiliated To (e.g. CTEVT)', 'type' => 'text', 'value' => 'CTEVT'],
             ['key' => 'establish_year', 'group' => 'about', 'label' => 'Established Year (BS)', 'type' => 'text', 'value' => '2065'],
             ['key' => 'academic_year', 'group' => 'about', 'label' => 'Current Academic Year (BS)', 'type' => 'text', 'value' => '2081'],
+            // ── Homepage Stats Overrides ───────────────────────────────────────────
+            // When set, these values replace the live DB count shown in the stats bar.
+            // Leave blank to show the real count from the database.
+            ['key' => 'stat_graduates',    'group' => 'stats', 'label' => 'Stat Override – Graduates',       'type' => 'text', 'value' => ''],
+            ['key' => 'stat_students',     'group' => 'stats', 'label' => 'Stat Override – Current Students', 'type' => 'text', 'value' => ''],
+            ['key' => 'stat_faculty_staff','group' => 'stats', 'label' => 'Stat Override – Faculty & Staff',  'type' => 'text', 'value' => ''],
+            ['key' => 'stat_placements',   'group' => 'stats', 'label' => 'Stat Override – Placements',       'type' => 'text', 'value' => ''],
+            ['key' => 'stat_programs',     'group' => 'stats', 'label' => 'Stat Override – Diploma Programs', 'type' => 'text', 'value' => ''],
             ['key' => 'what_is_mmp', 'group' => 'about', 'label' => 'What is MMP', 'type' => 'richtext', 'value' => 'Manmohan Memorial Polytechnic...'],
             ['key' => 'objectives', 'group' => 'about', 'label' => 'Objectives', 'type' => 'richtext', 'value' => 'Our objectives are...'],
             ['key' => 'welcome_message', 'group' => 'about', 'label' => 'Welcome Message', 'type' => 'richtext', 'value' => 'Welcome to MMP...'],

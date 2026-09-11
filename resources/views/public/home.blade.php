@@ -429,7 +429,7 @@
                 <div class="w-10 h-10 mx-auto flex items-center justify-center text-yellow-400">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 </div>
-                <div class="text-2xl font-black">0+</div>
+                <div class="text-2xl font-black">{{ number_format($s['placements'] ?? 0) }}+</div>
                 <div class="text-[10px] font-bold uppercase tracking-widest text-blue-200"><P>PLACEMENTS</P></div>
             </div>
 
@@ -438,7 +438,7 @@
                 <div class="w-10 h-10 mx-auto flex items-center justify-center text-yellow-400">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
                 </div>
-                <div class="text-2xl font-black">5</div>
+                <div class="text-2xl font-black">{{ number_format($s['programs'] ?? 0) }}</div>
                 <div class="text-[10px] font-bold uppercase tracking-widest text-blue-200">DIPLOMA PROGRAMS</div>
             </div>
 
