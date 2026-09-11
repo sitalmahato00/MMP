@@ -39,6 +39,7 @@
 }
 html { scroll-behavior: smooth; }
 html, body { border-radius: 0 !important; }
+
 :root {
   color-scheme: light;
   --page-bg: #F4F7FB;

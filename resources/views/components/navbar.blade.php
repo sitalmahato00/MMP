@@ -37,7 +37,7 @@
     $sessionName = $navActiveSession->name ?? '2081-2082';
 @endphp
 
-<header class="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 bg-white dark:bg-[#0D1B35] border-b-2 border-[#FF6600] shadow-xs transition-colors">
+<header class="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 bg-white dark:bg-[#0D1B35] border-b-2 border-[#FF6600] shadow-xs">
 
     {{-- ── LEFT: Red Hamburger + Search ─────────────────────────────── --}}
     <div class="flex items-center gap-3 sm:gap-4 min-w-0">
@@ -122,12 +122,6 @@
 
             <!-- Notifications Dropdown Panel (positioned properly below header) -->
             <div x-show="notificationsOpen"
-                 x-transition:enter="transition ease-out duration-150"
-                 x-transition:enter-start="opacity-0 translate-y-1"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-100"
-                 x-transition:leave-start="opacity-100 translate-y-0"
-                 x-transition:leave-end="opacity-0 translate-y-1"
                  class="absolute right-0 top-full mt-2 w-80 overflow-hidden bg-white dark:bg-[#132044] shadow-2xl border border-gray-200 dark:border-slate-700 rounded-xl z-50"
                  style="position: absolute; top: calc(100% + 8px); right: 0; z-index: 50;"
                  x-cloak>
@@ -209,12 +203,6 @@
 
             <!-- User Menu Dropdown Panel (positioned properly below header) -->
             <div x-show="userMenuOpen"
-                 x-transition:enter="transition ease-out duration-150"
-                 x-transition:enter-start="opacity-0 translate-y-1"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-100"
-                 x-transition:leave-start="opacity-100 translate-y-0"
-                 x-transition:leave-end="opacity-0 translate-y-1"
                  class="absolute right-0 top-full mt-2 w-64 overflow-hidden bg-white dark:bg-[#132044] shadow-2xl border border-gray-200 dark:border-slate-700 rounded-xl z-50"
                  style="position: absolute; top: calc(100% + 8px); right: 0; z-index: 50;"
                  x-cloak>

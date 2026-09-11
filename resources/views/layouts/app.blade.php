@@ -203,12 +203,6 @@
 
     {{-- Mobile sidebar overlay — semi-transparent, correct color --}}
     <div x-show="sidebarOpen"
-         x-transition:enter="transition-opacity duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition-opacity duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
          class="fixed inset-0 z-[49] lg:hidden"
          style="background-color: rgba(11,46,107,0.45);"
          x-cloak
@@ -240,7 +234,7 @@
         <x-sidebar />
 
         {{-- RIGHT MAIN COLUMN (Sticky Header + Scrollable Content) --}}
-        <div class="flex flex-col min-h-screen transition-[padding] duration-300 ease-out"
+        <div class="flex flex-col min-h-screen"
              :style="!isMobile
                  ? (sidebarCollapsed ? 'padding-left: 4.75rem;' : 'padding-left: 16.5rem;')
                  : ''">
