@@ -135,11 +135,11 @@
     <div x-show="mobileMenuOpen" 
          x-cloak
          x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="-translate-x-full"
-         x-transition:enter-end="translate-x-0"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
          x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="translate-x-0"
-         x-transition:leave-end="-translate-x-full"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
          class="fixed left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl overflow-hidden z-50 lg:hidden flex flex-col"
          style="margin-top: calc(env(safe-area-inset-top) + 3.5rem);">
         {{-- Drawer Header --}}

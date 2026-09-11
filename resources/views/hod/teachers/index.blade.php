@@ -303,12 +303,12 @@
      @keydown.escape.window="closeDrawer()">
     <div class="absolute inset-0 bg-black/20" @click="closeDrawer()"></div>
     <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl"
-         x-transition:enter="transform transition ease-in-out duration-300"
-         x-transition:enter-start="translate-x-full"
-         x-transition:enter-end="translate-x-0"
-         x-transition:leave="transform transition ease-in-out duration-300"
-         x-transition:leave-start="translate-x-0"
-         x-transition:leave-end="translate-x-full">
+         x-transition:enter="transition ease-in-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in-out duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
         <div class="flex h-full flex-col">
             <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
                 <h2 class="text-lg font-bold text-slate-900">Teacher Details</h2>
