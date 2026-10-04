@@ -133,7 +133,7 @@
                 </div>
                 <div class="min-w-0 flex-1 leading-tight">
                     <p class="text-sm sm:text-base font-bold font-serif text-[#003D82] dark:text-blue-400 leading-snug truncate">{{ $siteName }}</p>
-                    <p class="text-xs sm:text-sm font-semibold text-[#D97706] dark:text-orange-400 leading-snug truncate">{{ $nepaliCollegeName }}</p>
+                    <p class="text-xs sm:text-sm font-semibold leading-snug truncate text-amber-500 dark:text-yellow-400" style="color: #DAA520 !important;">{{ $nepaliCollegeName }}</p>
                 </div>
             </a>
 
@@ -185,7 +185,7 @@
                     </div>
                     <div class="min-w-0 flex-1 leading-tight">
                         <p class="text-sm font-bold font-serif text-[#003D82] dark:text-blue-400 truncate">{{ $siteName }}</p>
-                        <p class="text-[11px] font-semibold text-[#D97706] dark:text-orange-400 truncate">{{ $nepaliCollegeName }}</p>
+                        <p class="text-[11px] font-semibold truncate text-amber-500 dark:text-yellow-400" style="color: #DAA520 !important;">{{ $nepaliCollegeName }}</p>
                     </div>
                 </a>
 
