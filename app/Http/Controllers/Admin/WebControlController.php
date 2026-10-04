@@ -50,12 +50,37 @@ class WebControlController extends Controller
         $fileKeys  = $settings->filter(fn ($setting) => $setting->type === 'file')->keys()->all();
         $uploadKeys = array_merge($imageKeys, $fileKeys);
 
-        $imageRules = collect($imageKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'image', 'max:4096']])->all();
-        // 20 MB max for video/file uploads — matches typical production PHP post_max_size limits
-        $fileRules  = collect($fileKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov,pdf', 'max:20480']])->all();
+        // Detect any PHP-level upload errors (e.g. cPanel upload_max_filesize / post_max_size exceeded)
+        $serverUploadMax = ini_get('upload_max_filesize') ?: '2M';
+        $serverPostMax   = ini_get('post_max_size') ?: '8M';
+        foreach ($uploadKeys as $uploadKey) {
+            $rawFile = $request->file($uploadKey);
+            if ($rawFile && !$rawFile->isValid()) {
+                $errCode = $rawFile->getError();
+                $fieldTitle = ucwords(str_replace('_', ' ', $uploadKey));
+
+                if ($errCode === UPLOAD_ERR_INI_SIZE || $errCode === UPLOAD_ERR_FORM_SIZE) {
+                    $msg = "The {$fieldTitle} exceeds the server's upload limit (upload_max_filesize: {$serverUploadMax}, post_max_size: {$serverPostMax}). In cPanel, go to 'Select PHP Version' -> 'Options' and set upload_max_filesize & post_max_size to 128M.";
+                    return response()->json(['message' => $msg, 'errors' => [$uploadKey => [$msg]]], 422);
+                }
+
+                if ($errCode !== UPLOAD_ERR_NO_FILE) {
+                    $msg = "The {$fieldTitle} failed to upload (PHP upload error code: {$errCode}). Check server temporary directory or upload permissions.";
+                    return response()->json(['message' => $msg, 'errors' => [$uploadKey => [$msg]]], 422);
+                }
+            }
+        }
+
+        $imageRules = collect($imageKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'image', 'max:8192']])->all();
+        // 100 MB max for video/file uploads (expanded from 20 MB)
+        $fileRules  = collect($fileKeys)->mapWithKeys(fn ($key) => [$key => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov,m4v,avi,pdf', 'max:102400']])->all();
         $allRules   = array_merge($imageRules, $fileRules);
         if ($allRules !== []) {
-            $request->validate($allRules);
+            $request->validate($allRules, [
+                '*.uploaded' => "The :attribute failed to upload. The file may exceed your server's upload_max_filesize ({$serverUploadMax}). Please increase it in cPanel -> Select PHP Version -> Options.",
+                '*.max'      => 'The :attribute may not be greater than :max kilobytes.',
+                '*.mimes'    => 'The :attribute must be a file of type: :values.',
+            ]);
         }
 
         $settings_data = Arr::except($request->all(), array_merge(['_token', '_method'], $uploadKeys));

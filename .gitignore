@@ -15,6 +15,7 @@
 /node_modules
 /public/*
 !/public/.htaccess
+!/public/.user.ini
 !/public/index.php
 !/public/robots.txt
 !/public/favicon.ico

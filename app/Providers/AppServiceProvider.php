@@ -94,7 +94,9 @@ class AppServiceProvider extends ServiceProvider
                 $appDomain = parse_url($appUrl, PHP_URL_HOST) ?? $appUrl;
 
                 return [
-                    'site_name' => $settings->get('college_name')
+                    'site_name'    => $settings->get('college_name')
+                                ?? config('seo.site_name', 'Manmohan Memorial Polytechnic'),
+                    'college_name' => $settings->get('college_name')
                                 ?? config('seo.site_name', 'Manmohan Memorial Polytechnic'),
                     'email'     => $settings->get('contact_email')
                                 ?? config('seo.organization.email', ''),

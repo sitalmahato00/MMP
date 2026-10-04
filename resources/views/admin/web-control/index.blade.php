@@ -260,7 +260,7 @@
                             <div class="mb-3 flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
                                 @if(in_array($mext, ['jpg','jpeg','png','gif','webp']))
                                     <img src="{{ asset('storage/'.$pmedia->value) }}" class="w-24 h-16 object-cover rounded border">
-                                @elseif(in_array($mext, ['mp4','webm','mov']))
+                                @elseif(in_array($mext, ['mp4','webm','mov','m4v','avi']))
                                     <video src="{{ asset('storage/'.$pmedia->value) }}" class="w-36 h-20 rounded border bg-black" muted></video>
                                 @elseif($mext === 'pdf')
                                     <div class="w-10 h-12 bg-red-50 border border-red-200 rounded flex items-center justify-center shrink-0">
@@ -285,7 +285,7 @@
                                 </div>
                             </div>
                         @endif
-                        <x-file-input name="principal_message_media" accept="image/*,video/mp4,video/webm,.pdf" :current="$pmedia?->value" label="Upload image, video (MP4/WebM) or PDF" />
+                        <x-file-input name="principal_message_media" accept="image/*,video/mp4,video/webm,video/quicktime,.mov,.m4v,.avi,.pdf" :current="$pmedia?->value" label="Upload image, video (MP4/WebM/MOV up to 100MB) or PDF" />
                     </x-form-field>
                 </x-card>
             </div>
@@ -837,9 +837,9 @@
 
         form.addEventListener('submit', function (e) {
             // Validate all file inputs client-side before sending
-            const MAX_IMAGE_BYTES = 4 * 1024 * 1024;   // 4 MB
-            const MAX_FILE_BYTES  = 20 * 1024 * 1024;  // 20 MB
-            const VIDEO_EXTS = ['mp4', 'webm', 'mov'];
+            const MAX_IMAGE_BYTES = 8 * 1024 * 1024;   // 8 MB
+            const MAX_FILE_BYTES  = 100 * 1024 * 1024; // 100 MB
+            const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'm4v', 'avi'];
 
             let errors = [];
             form.querySelectorAll('input[type="file"]').forEach(function (input) {
@@ -901,7 +901,20 @@
                     let msg = 'Upload failed (HTTP ' + xhr.status + ').';
                     try {
                         const json = JSON.parse(xhr.responseText);
-                        if (json.message) msg = json.message;
+                        if (json.errors) {
+                            let errList = [];
+                            for (let k in json.errors) {
+                                if (Array.isArray(json.errors[k])) {
+                                    errList = errList.concat(json.errors[k]);
+                                } else {
+                                    errList.push(json.errors[k]);
+                                }
+                            }
+                            if (errList.length) msg = errList.join('\n');
+                            else if (json.message) msg = json.message;
+                        } else if (json.message) {
+                            msg = json.message;
+                        }
                     } catch (_) {}
                     alert(msg);
                 }
