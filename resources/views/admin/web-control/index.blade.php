@@ -862,7 +862,15 @@
             </div>`;
         document.body.appendChild(overlay);
 
+        let isSubmitting = false;
+
         form.addEventListener('submit', function (e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+
+            const submitBtn = document.querySelector('button[form="web-control-form"]') || form.querySelector('button[type="submit"]');
             const MAX_IMAGE_BYTES = 8 * 1024 * 1024;   // 8 MB
             const MAX_FILE_BYTES  = 100 * 1024 * 1024; // 100 MB
             const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'm4v', 'avi'];
@@ -906,6 +914,11 @@
             }
 
             e.preventDefault();
+            isSubmitting = true;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
 
             // Prepare UI state
             const uploadBar     = document.getElementById('upload-bar');
@@ -1012,6 +1025,11 @@
                         setTimeout(function () { window.location.reload(); }, 300);
                     }, 400);
                 } else {
+                    isSubmitting = false;
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                    }
                     overlay.style.display = 'none';
                     let msg = 'Upload failed (HTTP ' + xhr.status + ').';
                     try {
@@ -1036,15 +1054,30 @@
             });
 
             xhr.addEventListener('error', function () {
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                }
                 overlay.style.display = 'none';
                 alert('Network error during upload. Please check your internet connection or server upload limits and try again.');
             });
 
             xhr.addEventListener('abort', function () {
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                }
                 overlay.style.display = 'none';
             });
 
             xhr.addEventListener('timeout', function () {
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                }
                 overlay.style.display = 'none';
                 alert('Upload timed out. The server took too long to respond. Please check server max_execution_time.');
             });

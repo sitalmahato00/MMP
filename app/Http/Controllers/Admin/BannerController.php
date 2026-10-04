@@ -23,6 +23,12 @@ class BannerController extends Controller
 
     public function store(Request $request)
     {
+        // Prevent duplicate concurrent / rapid double submissions within 10 seconds
+        $lockKey = 'banner_create_' . (auth()->id() ?? 'guest') . '_' . md5(($request->title ?? '') . '_' . ($request->order ?? 0));
+        if (!cache()->add($lockKey, true, 10)) {
+            return redirect()->route('admin.banners.index')->with('success', 'Banner added.');
+        }
+
         $serverUploadMax = ini_get('upload_max_filesize') ?: '2M';
         if ($request->hasFile('image') && !$request->file('image')->isValid()) {
             $errCode = $request->file('image')->getError();

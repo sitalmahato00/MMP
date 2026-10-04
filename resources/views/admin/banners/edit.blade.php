@@ -106,9 +106,26 @@
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 
+    let isSubmitting = false;
+
     form.addEventListener('submit', function(e) {
+        if (isSubmitting) {
+            e.preventDefault();
+            return false;
+        }
+
         const fileInput = form.querySelector('input[type="file"][name="image"]');
-        if (!fileInput || !fileInput.files || !fileInput.files[0]) return; // regular submit if no new file
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+            isSubmitting = true;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+            return; // regular submit if no new file
+        }
+
         const file = fileInput.files[0];
         if (file.size > 100 * 1024 * 1024) {
             e.preventDefault();
@@ -117,6 +134,12 @@
         }
 
         e.preventDefault();
+        isSubmitting = true;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+        }
+
         overlay.style.display = 'flex';
         fileP.textContent = file.name + ' (' + fmt(file.size) + ')';
         size.textContent = '0 B / ' + fmt(file.size);
@@ -169,6 +192,11 @@
                     window.location.href = xhr.responseURL || '{{ route('admin.banners.index') }}';
                 }, 300);
             } else {
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                }
                 overlay.style.display = 'none';
                 let msg = 'Upload failed (HTTP ' + xhr.status + ').';
                 try {
@@ -186,6 +214,11 @@
         });
 
         xhr.addEventListener('error', function() {
+            isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            }
             overlay.style.display = 'none';
             alert('Network error during upload. Please check connection and try again.');
         });
