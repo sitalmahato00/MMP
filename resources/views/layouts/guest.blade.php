@@ -409,10 +409,10 @@
                 </div>
                 <div class="min-w-0 leading-tight">
                     <div class="text-base sm:text-xl font-semibold font-serif leading-tight text-[#003D82] line-clamp-1">{{ $siteName }}</div>
-                    <div class="text-[11px] sm:text-sm font-normal text-[#DAA520] line-clamp-1">Best Technical College in Koshi Province</div>
-                    <div class="hidden sm:block text-xs text-gray-500 font-normal">A Constituent College of Manmohan Technical University</div>
+                    <div class="text-base sm:text-l font-semibold text-[#DAA520] line-clamp-1">मनमोहन स्मृति पोलिटेक्निक</div>
+                    <div class="hidden sm:block text-xs text-gray-500 font-normal">Best Technical College in Koshi Province</div>
                     <div class="sm:hidden text-[10px] font-normal text-gray-500">{{ $appDomain }}</div>
-                </div>
+                </div> 
             </a>
         </div>
     </div>
