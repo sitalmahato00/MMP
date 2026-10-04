@@ -262,7 +262,7 @@
                     <li class="py-1">
                         <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-3.5 p-3 rounded-lg hover:bg-blue-50/60 dark:hover:bg-slate-700/50 transition-all duration-200 group border border-transparent hover:border-blue-100 dark:hover:border-slate-600">
                             {{-- Date Badge --}}
-                            <div class="w-12 h-14 bg-gradient-to-b from-[#003D82] to-[#002855] text-white flex flex-col items-center justify-center rounded-md flex-shrink-0 text-center shadow-xs py-1">
+                            <div class="w-12 h-14 text-white flex flex-col items-center justify-center rounded-md flex-shrink-0 text-center py-1" style="background-color: #003D82 !important;">
                                 <span class="text-[8px] font-bold uppercase tracking-wider text-blue-200 leading-tight">{{ bsDate($noticeDate, 'F') }}</span>
                                 <span class="text-base font-black leading-none my-0.5 text-white">{{ bsDate($noticeDate, 'd') }}</span>
                                 <span class="text-[8px] font-medium text-blue-200/90 leading-tight">{{ bsDate($noticeDate, 'Y') }}</span>
@@ -322,7 +322,7 @@
                     <li class="py-1">
                         <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-3.5 p-3 rounded-lg hover:bg-blue-50/60 dark:hover:bg-slate-700/50 transition-all duration-200 group border border-transparent hover:border-blue-100 dark:hover:border-slate-600">
                             {{-- Date Badge --}}
-                            <div class="w-12 h-14 bg-gradient-to-b from-[#003D82] to-[#002855] text-white flex flex-col items-center justify-center rounded-md flex-shrink-0 text-center shadow-xs py-1">
+                            <div class="w-12 h-14 text-white flex flex-col items-center justify-center rounded-md flex-shrink-0 text-center py-1" style="background-color: #003D82 !important;">
                                 <span class="text-[8px] font-bold uppercase tracking-wider text-blue-200 leading-tight">{{ bsDate($noticeDate, 'F') }}</span>
                                 <span class="text-base font-black leading-none my-0.5 text-white">{{ bsDate($noticeDate, 'd') }}</span>
                                 <span class="text-[8px] font-medium text-blue-200/90 leading-tight">{{ bsDate($noticeDate, 'Y') }}</span>
