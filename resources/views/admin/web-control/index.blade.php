@@ -285,7 +285,7 @@
                                 </div>
                             </div>
                         @endif
-                        <x-file-input name="principal_message_media" accept="image/*,video/mp4,video/webm,video/quicktime,.mov,.m4v,.avi,.pdf" :current="$pmedia?->value" label="Upload image, video (MP4/WebM/MOV up to 100MB) or PDF" />
+                        <x-file-input name="principal_message_media" accept="image/*,video/mp4,video/webm,video/quicktime,.mov,.m4v,.avi,.pdf" :current="$pmedia?->value" label="Upload image, video (MP4/WebM/MOV up to 100MB) or PDF" :maxMb="100" />
                     </x-form-field>
                 </x-card>
             </div>
@@ -391,7 +391,16 @@
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex items-center gap-4 pr-4">
                 <div class="w-36 shrink-0 bg-gray-50 overflow-hidden" style="height:88px">
                     @if($banner->image)
-                        <img src="{{ asset('storage/'.$banner->image) }}" class="w-full h-full object-cover">
+                        @if($banner->is_video)
+                            <div class="relative w-full h-full">
+                                <video src="{{ asset('storage/'.$banner->image) }}" class="w-full h-full object-cover bg-black" muted preload="metadata"></video>
+                                <span class="absolute inset-0 flex items-center justify-center bg-black/30">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </span>
+                            </div>
+                        @else
+                            <img src="{{ asset('storage/'.$banner->image) }}" class="w-full h-full object-cover">
+                        @endif
                     @else
                         <div class="w-full h-full flex items-center justify-center text-gray-200">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -798,59 +807,90 @@
             });
     }
 
-    // ── XHR upload with progress bar ──────────────────────────
+    // ── XHR upload with reliable progress bar ──────────────────
     (function () {
         const form = document.getElementById('web-control-form');
         if (!form) return;
 
-        // Create the overlay once
-        const overlay = document.createElement('div');
-        overlay.id = 'upload-overlay';
-        overlay.innerHTML = `
-            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 text-center">
-                    <div class="w-14 h-14 rounded-full bg-[#8B0000]/10 flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-7 h-7 text-[#8B0000] animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-gray-800 text-lg mb-1">Uploading…</h3>
-                    <p id="upload-filename" class="text-xs text-gray-400 mb-5 truncate"></p>
-                    <div class="w-full bg-gray-100 rounded-full h-3 mb-2 overflow-hidden">
-                        <div id="upload-bar" class="h-3 rounded-full bg-gradient-to-r from-[#8B0000] to-red-400 transition-all duration-150" style="width:0%"></div>
-                    </div>
-                    <div class="flex justify-between text-xs text-gray-400 mt-1">
-                        <span id="upload-pct">0%</span>
-                        <span id="upload-size"></span>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-4">Please wait — do not close this tab.</p>
-                </div>
-            </div>`;
-        overlay.style.display = 'none';
-        document.body.appendChild(overlay);
-
         function formatBytes(bytes) {
+            if (!bytes || isNaN(bytes) || bytes <= 0) return '0 B';
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
+        // Create the overlay modal
+        const overlay = document.createElement('div');
+        overlay.id = 'upload-overlay';
+        overlay.style.display = 'none';
+        overlay.innerHTML = `
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-sm text-center">
+                    <div id="upload-icon-container" class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 border" style="background-color: #FEE2E2; border-color: #FECACA;">
+                        <svg id="upload-icon-arrow" class="w-7 h-7 text-[#8B0000] animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <svg id="upload-icon-spinner" class="w-7 h-7 text-[#8B0000] animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                    </div>
+
+                    <h3 id="upload-status-title" class="font-bold text-gray-800 text-lg mb-1">Uploading Media…</h3>
+                    <p id="upload-filename" class="text-xs text-gray-600 font-medium mb-4 truncate px-2" title=""></p>
+
+                    <div class="w-full bg-gray-200 rounded-full h-3.5 mb-2 overflow-hidden shadow-inner p-0.5" style="background-color: #E2E8F0;">
+                        <div id="upload-bar" class="h-full rounded-full transition-all duration-150"
+                             style="width: 0%; min-width: 6px; background-color: #8B0000; background-image: linear-gradient(90deg, #8B0000 0%, #DC2626 100%);"></div>
+                    </div>
+
+                    <div class="flex justify-between text-xs font-semibold text-gray-700 mt-1">
+                        <span id="upload-pct">0%</span>
+                        <span id="upload-size" class="text-gray-500 font-normal"></span>
+                    </div>
+
+                    <div id="upload-speed" class="text-[11px] text-gray-400 mt-1 font-mono"></div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-center gap-1.5 text-xs text-gray-400">
+                        <svg class="w-3.5 h-3.5 text-amber-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        <span>Please wait — do not close this tab.</span>
+                    </div>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
+
         form.addEventListener('submit', function (e) {
-            // Validate all file inputs client-side before sending
             const MAX_IMAGE_BYTES = 8 * 1024 * 1024;   // 8 MB
             const MAX_FILE_BYTES  = 100 * 1024 * 1024; // 100 MB
             const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'm4v', 'avi'];
 
             let errors = [];
+            let totalFileBytes = 0;
+            let primaryFileName = '';
+            let fileCount = 0;
+
             form.querySelectorAll('input[type="file"]').forEach(function (input) {
-                if (!input.files || !input.files[0]) return;
-                const file = input.files[0];
-                const ext = file.name.split('.').pop().toLowerCase();
-                const isVideo = VIDEO_EXTS.includes(ext) || file.type.startsWith('video/');
-                const limit = isVideo ? MAX_FILE_BYTES : MAX_IMAGE_BYTES;
-                if (file.size > limit) {
-                    const limitMb = (limit / (1024 * 1024)).toFixed(0);
-                    errors.push(`"${file.name}" is ${formatBytes(file.size)} — max allowed is ${limitMb} MB.`);
+                if (!input.files || input.files.length === 0) return;
+                for (let i = 0; i < input.files.length; i++) {
+                    const file = input.files[i];
+                    if (!file || file.size === 0) continue;
+
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const isVideo = VIDEO_EXTS.includes(ext) || file.type.startsWith('video/');
+                    const limit = isVideo ? MAX_FILE_BYTES : MAX_IMAGE_BYTES;
+                    if (file.size > limit) {
+                        const limitMb = (limit / (1024 * 1024)).toFixed(0);
+                        errors.push(`"${file.name}" is ${formatBytes(file.size)} — max allowed is ${limitMb} MB.`);
+                    }
+
+                    totalFileBytes += file.size;
+                    fileCount++;
+                    if (!primaryFileName || file.size > 0) {
+                        primaryFileName = file.name;
+                    }
                 }
             });
 
@@ -860,44 +900,119 @@
                 return;
             }
 
-            // Check if any file is being uploaded — if not, let the normal form submit handle it
-            let hasFiles = false;
-            form.querySelectorAll('input[type="file"]').forEach(function (input) {
-                if (input.files && input.files[0]) hasFiles = true;
-            });
-
-            if (!hasFiles) return; // No files — regular submit is fine, no progress needed
+            // If no files are attached, allow regular browser form submit
+            if (fileCount === 0 || totalFileBytes === 0) {
+                return;
+            }
 
             e.preventDefault();
 
-            const formData = new FormData(form);
-            const xhr = new XMLHttpRequest();
+            // Prepare UI state
+            const uploadBar     = document.getElementById('upload-bar');
+            const uploadPct     = document.getElementById('upload-pct');
+            const uploadSize    = document.getElementById('upload-size');
+            const uploadSpeed   = document.getElementById('upload-speed');
+            const uploadTitle   = document.getElementById('upload-status-title');
+            const uploadFileP   = document.getElementById('upload-filename');
+            const arrowIcon     = document.getElementById('upload-icon-arrow');
+            const spinnerIcon   = document.getElementById('upload-icon-spinner');
 
-            // Detect the video filename for display
-            let uploadName = 'files';
-            form.querySelectorAll('input[type="file"]').forEach(function (input) {
-                if (input.files && input.files[0]) uploadName = input.files[0].name;
-            });
+            const displayName = fileCount > 1 
+                ? `${primaryFileName} (+${fileCount - 1} more file${fileCount > 2 ? 's' : ''})`
+                : primaryFileName;
 
-            document.getElementById('upload-filename').textContent = uploadName;
+            uploadFileP.textContent = `${displayName} (${formatBytes(totalFileBytes)})`;
+            uploadFileP.title = displayName;
+            uploadTitle.textContent = 'Uploading Media…';
+            uploadPct.textContent = '0%';
+            uploadSize.textContent = `0 B / ${formatBytes(totalFileBytes)}`;
+            uploadSpeed.textContent = 'Starting upload…';
+            uploadBar.style.width = '2%';
+            uploadBar.style.backgroundColor = '#8B0000';
+            uploadBar.style.backgroundImage = 'linear-gradient(90deg, #8B0000 0%, #DC2626 100%)';
+            arrowIcon.classList.remove('hidden');
+            spinnerIcon.classList.add('hidden');
+
             overlay.style.display = '';
 
-            xhr.upload.addEventListener('progress', function (evt) {
-                if (!evt.lengthComputable) return;
-                const pct = Math.round((evt.loaded / evt.total) * 100);
-                document.getElementById('upload-bar').style.width = pct + '%';
-                document.getElementById('upload-pct').textContent = pct + '%';
-                document.getElementById('upload-size').textContent =
-                    formatBytes(evt.loaded) + ' / ' + formatBytes(evt.total);
-            });
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+            const startTime = Date.now();
+
+            function onProgress(evt) {
+                const total = (evt && evt.lengthComputable && evt.total > 0) ? evt.total : totalFileBytes;
+                const loaded = (evt && typeof evt.loaded === 'number') ? evt.loaded : 0;
+
+                let pct = 0;
+                if (total > 0) {
+                    pct = Math.round((loaded / total) * 100);
+                }
+
+                // Cap visual progress at 99% until server responds with 200/302
+                const displayPct = Math.min(99, Math.max(1, pct));
+                uploadBar.style.width = displayPct + '%';
+                uploadPct.textContent = displayPct + '%';
+
+                if (total > 0) {
+                    uploadSize.textContent = `${formatBytes(loaded)} / ${formatBytes(total)}`;
+                } else if (loaded > 0) {
+                    uploadSize.textContent = `${formatBytes(loaded)} uploaded`;
+                }
+
+                // Calculate transfer rate & ETA
+                const elapsed = (Date.now() - startTime) / 1000;
+                if (elapsed > 0.5 && loaded > 0) {
+                    const speed = loaded / elapsed;
+                    const speedStr = formatBytes(speed) + '/s';
+                    if (total > loaded && speed > 0) {
+                        const remainingSec = Math.max(1, Math.round((total - loaded) / speed));
+                        const etaStr = remainingSec > 60 
+                            ? `${Math.ceil(remainingSec / 60)} min left` 
+                            : `${remainingSec}s left`;
+                        uploadSpeed.textContent = `${speedStr} • ${etaStr}`;
+                    } else {
+                        uploadSpeed.textContent = speedStr;
+                    }
+                }
+
+                if (pct >= 99) {
+                    uploadTitle.textContent = 'Saving file on server…';
+                    uploadSpeed.textContent = 'Uploaded — writing to storage…';
+                    arrowIcon.classList.add('hidden');
+                    spinnerIcon.classList.remove('hidden');
+                }
+            }
+
+            // Attach progress listeners on xhr.upload
+            if (xhr.upload) {
+                xhr.upload.onprogress = onProgress;
+                xhr.upload.addEventListener('progress', onProgress);
+                xhr.upload.onload = function () {
+                    // All bytes transferred to the server; now server is executing PHP script
+                    uploadBar.style.width = '100%';
+                    uploadBar.style.backgroundColor = '#16A34A';
+                    uploadBar.style.backgroundImage = 'linear-gradient(90deg, #16A34A 0%, #22C55E 100%)';
+                    uploadPct.textContent = '100%';
+                    uploadTitle.textContent = 'Saving on server…';
+                    uploadSpeed.textContent = 'Finalizing settings and files…';
+                    arrowIcon.classList.add('hidden');
+                    spinnerIcon.classList.remove('hidden');
+                };
+            }
 
             xhr.addEventListener('load', function () {
-                overlay.style.display = 'none';
                 if (xhr.status >= 200 && xhr.status < 400) {
-                    // Server redirected back — follow it
-                    window.location.href = xhr.responseURL || window.location.href;
+                    uploadTitle.textContent = 'Success!';
+                    uploadSpeed.textContent = 'Reloading page…';
+                    uploadBar.style.width = '100%';
+                    uploadBar.style.backgroundColor = '#16A34A';
+                    uploadBar.style.backgroundImage = 'linear-gradient(90deg, #16A34A 0%, #22C55E 100%)';
+                    setTimeout(function () {
+                        window.location.href = xhr.responseURL || window.location.href;
+                        setTimeout(function () { window.location.reload(); }, 300);
+                    }, 400);
                 } else {
-                    // Try to surface a Laravel validation error
+                    overlay.style.display = 'none';
                     let msg = 'Upload failed (HTTP ' + xhr.status + ').';
                     try {
                         const json = JSON.parse(xhr.responseText);
@@ -922,14 +1037,22 @@
 
             xhr.addEventListener('error', function () {
                 overlay.style.display = 'none';
-                alert('Network error during upload. Please check your connection and try again.');
+                alert('Network error during upload. Please check your internet connection or server upload limits and try again.');
             });
 
             xhr.addEventListener('abort', function () {
                 overlay.style.display = 'none';
             });
 
-            xhr.open('POST', form.action);
+            xhr.addEventListener('timeout', function () {
+                overlay.style.display = 'none';
+                alert('Upload timed out. The server took too long to respond. Please check server max_execution_time.');
+            });
+
+            // 15-minute timeout for large files on slower uplinks
+            xhr.timeout = 900000;
+
+            xhr.open('POST', form.action, true);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             xhr.send(formData);
         });

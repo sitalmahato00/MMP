@@ -15,4 +15,13 @@ class Banner extends Model
     {
         return $this->image ? publicStorageUrl($this->image) : null;
     }
+
+    public function getIsVideoAttribute(): bool
+    {
+        if (!$this->image) {
+            return false;
+        }
+        $ext = strtolower(pathinfo($this->image, PATHINFO_EXTENSION));
+        return in_array($ext, ['mp4', 'webm', 'mov', 'm4v', 'avi'], true);
+    }
 }

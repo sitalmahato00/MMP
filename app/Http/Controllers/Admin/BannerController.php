@@ -23,14 +23,28 @@ class BannerController extends Controller
 
     public function store(Request $request)
     {
+        $serverUploadMax = ini_get('upload_max_filesize') ?: '2M';
+        if ($request->hasFile('image') && !$request->file('image')->isValid()) {
+            $errCode = $request->file('image')->getError();
+            if ($errCode === UPLOAD_ERR_INI_SIZE || $errCode === UPLOAD_ERR_FORM_SIZE) {
+                return back()->withInput()->withErrors([
+                    'image' => "The uploaded banner file exceeds the server upload limit ({$serverUploadMax}). Please increase it in cPanel -> Select PHP Version -> Options.",
+                ]);
+            }
+        }
+
         $data = $request->validate([
             'title'       => 'nullable|string|max:255',
             'subtitle'    => 'nullable|string|max:255',
-            'image'       => 'required|image|max:5120', // 5MB max
+            'image'       => 'required|file|mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov,m4v,avi|max:102400', // 100MB max
             'order'       => 'integer|min:0',
             'is_active'   => 'boolean',
             'button_text' => 'nullable|string|max:50',
             'button_link' => 'nullable|url|max:255',
+        ], [
+            'image.uploaded' => "The banner file failed to upload. It may exceed your server's upload_max_filesize ({$serverUploadMax}).",
+            'image.max'      => 'The banner file may not be greater than 100MB.',
+            'image.mimes'    => 'The banner must be an image (JPG, PNG, WebP) or video (MP4, WebM, MOV, M4V, AVI).',
         ]);
 
         unset($data['image']);
@@ -56,14 +70,28 @@ class BannerController extends Controller
 
     public function update(Request $request, Banner $banner)
     {
+        $serverUploadMax = ini_get('upload_max_filesize') ?: '2M';
+        if ($request->hasFile('image') && !$request->file('image')->isValid()) {
+            $errCode = $request->file('image')->getError();
+            if ($errCode === UPLOAD_ERR_INI_SIZE || $errCode === UPLOAD_ERR_FORM_SIZE) {
+                return back()->withInput()->withErrors([
+                    'image' => "The uploaded banner file exceeds the server upload limit ({$serverUploadMax}). Please increase it in cPanel -> Select PHP Version -> Options.",
+                ]);
+            }
+        }
+
         $data = $request->validate([
             'title'       => 'nullable|string|max:255',
             'subtitle'    => 'nullable|string|max:255',
-            'image'       => 'nullable|image|max:5120',
+            'image'       => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov,m4v,avi|max:102400',
             'order'       => 'integer|min:0',
             'is_active'   => 'boolean',
             'button_text' => 'nullable|string|max:50',
             'button_link' => 'nullable|url|max:255',
+        ], [
+            'image.uploaded' => "The banner file failed to upload. It may exceed your server's upload_max_filesize ({$serverUploadMax}).",
+            'image.max'      => 'The banner file may not be greater than 100MB.',
+            'image.mimes'    => 'The banner must be an image (JPG, PNG, WebP) or video (MP4, WebM, MOV, M4V, AVI).',
         ]);
 
         if ($request->hasFile('image')) {

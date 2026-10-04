@@ -26,26 +26,55 @@
         total: {{ $hasSlides ? $bannerSlides->count() : 1 }},
         autoplay: null,
         init() {
-            this.autoplay = setInterval(() => { this.next() }, 5000);
+            this.resetAutoplay();
+            this.syncVideos();
+        },
+        resetAutoplay() {
+            clearInterval(this.autoplay);
+            this.autoplay = setInterval(() => { this.next() }, 6500);
         },
         next() {
             this.current = (this.current + 1) % this.total;
+            this.syncVideos();
         },
         prev() {
             this.current = (this.current - 1 + this.total) % this.total;
+            this.syncVideos();
         },
         goTo(i) {
             this.current = i;
-            clearInterval(this.autoplay);
-            this.autoplay = setInterval(() => { this.next() }, 5000);
+            this.resetAutoplay();
+            this.syncVideos();
+        },
+        syncVideos() {
+            this.$nextTick(() => {
+                const slides = this.$el.querySelectorAll('.hero-slide');
+                slides.forEach((slide, idx) => {
+                    const vid = slide.querySelector('video');
+                    if (vid) {
+                        if (idx === this.current) {
+                            vid.currentTime = 0;
+                            vid.play().catch(() => {});
+                        } else {
+                            vid.pause();
+                        }
+                    }
+                });
+            });
         }
     }">
 
     @if($hasSlides)
         @foreach($bannerSlides as $i => $banner)
-            <div class="absolute inset-0 transition-opacity duration-700"
+            <div class="hero-slide absolute inset-0 transition-opacity duration-700"
                  :class="current === {{ $i }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-                <img src="{{ $banner->image_url ?? asset('assets/image.png') }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
+                @if($banner->is_video)
+                    <video src="{{ $banner->image_url }}"
+                           class="w-full h-full object-cover"
+                           autoplay loop muted playsinline preload="auto"></video>
+                @else
+                    <img src="{{ $banner->image_url ?? asset('assets/image.png') }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
+                @endif
                 <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/30"></div>
                 <div class="absolute inset-0 flex flex-col justify-center">
                     <div class="w-full px-4 md:px-8 xl:px-16 2xl:px-24 mx-auto text-white">
@@ -64,9 +93,15 @@
                                 <span>Electronics Engineering</span>
                             </div>
                             <div class="flex flex-wrap gap-3">
-                                <a href="{{ route('public.page', 'what-is-mmp') }}" class="border-2 border-white/80 hover:border-white hover:bg-white/10 text-white px-5 py-2.5 text-xs sm:text-sm font-bold inline-flex items-center gap-2 rounded-xs transition-all">
-                                    Learn More <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                </a>
+                                @if($banner->button_link && $banner->button_text)
+                                    <a href="{{ $banner->button_link }}" class="border-2 border-white/80 hover:border-white hover:bg-white/10 text-white px-5 py-2.5 text-xs sm:text-sm font-bold inline-flex items-center gap-2 rounded-xs transition-all">
+                                        {{ $banner->button_text }} <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </a>
+                                @else
+                                    <a href="{{ route('public.page', 'what-is-mmp') }}" class="border-2 border-white/80 hover:border-white hover:bg-white/10 text-white px-5 py-2.5 text-xs sm:text-sm font-bold inline-flex items-center gap-2 rounded-xs transition-all">
+                                        Learn More <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -105,10 +140,10 @@
     @endif
 
     @if($hasSlides && $bannerSlides->count() > 1)
-        <button @click="prev(); clearInterval(autoplay); autoplay = setInterval(() => next(), 5000)" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/70 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
+        <button @click="prev(); resetAutoplay()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/70 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
-        <button @click="next(); clearInterval(autoplay); autoplay = setInterval(() => next(), 5000)" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/70 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
+        <button @click="next(); resetAutoplay()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/70 text-white rounded-full flex items-center justify-center z-20 transition-colors backdrop-blur-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
     @endif

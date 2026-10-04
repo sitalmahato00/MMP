@@ -18,7 +18,16 @@
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex items-center gap-4 pr-4">
         <div class="w-32 h-20 flex-shrink-0 bg-gray-50 overflow-hidden">
             @if($banner->image)
-                <img src="{{ asset('storage/'.$banner->image) }}" class="w-full h-full object-cover"/>
+                @if($banner->is_video)
+                    <div class="relative w-full h-full">
+                        <video src="{{ asset('storage/'.$banner->image) }}" class="w-full h-full object-cover bg-black" muted preload="metadata"></video>
+                        <span class="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </span>
+                    </div>
+                @else
+                    <img src="{{ asset('storage/'.$banner->image) }}" class="w-full h-full object-cover"/>
+                @endif
             @else
                 <div class="w-full h-full flex items-center justify-center text-gray-200">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -23,8 +23,8 @@
     }
     $showCurrentPreview = $currentUrl && preg_match('/\.(jpe?g|png|gif|webp|bmp|svg)$/i', $currentUrl);
     // Determine if this field accepts video (to show the right size limit)
-    $acceptsVideo = str_contains($accept, 'video') || str_contains($accept, 'mp4') || str_contains($accept, 'webm');
-    $resolvedMaxMb = $maxMb ?? ($acceptsVideo ? 20 : 4);
+    $acceptsVideo = str_contains($accept, 'video') || str_contains($accept, 'mp4') || str_contains($accept, 'webm') || str_contains($accept, 'mov') || str_contains($accept, 'avi');
+    $resolvedMaxMb = $maxMb ?? ($acceptsVideo ? 100 : 4);
     $xData = json_encode([
         'fileName'      => $currentName,
         'hasFile'       => (bool) $current,
