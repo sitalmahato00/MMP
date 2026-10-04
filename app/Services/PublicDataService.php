@@ -41,9 +41,9 @@ class PublicDataService
                                 ->whereNull('program_id');
                         })->orWhere('main_site_status', 'approved');
                     })
-                    ->with(['department:id,name,code', 'program:id,name,code'])
-                    ->latest()
-                    ->take(6)
+                    ->with(['department:id,name,code', 'program:id,name,code', 'attachments'])
+                    ->orderByRaw('COALESCE(published_at, created_at) DESC')
+                    ->take(8)
                     ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
                 'examNotices' => Notice::published()
                     ->where('type', 'exam')
@@ -53,9 +53,9 @@ class PublicDataService
                                 ->whereNull('program_id');
                         })->orWhere('main_site_status', 'approved');
                     })
-                    ->with(['department:id,name,code', 'program:id,name,code'])
-                    ->latest()
-                    ->take(6)
+                    ->with(['department:id,name,code', 'program:id,name,code', 'attachments'])
+                    ->orderByRaw('COALESCE(published_at, created_at) DESC')
+                    ->take(8)
                     ->get(['id', 'title', 'slug', 'type', 'department_id', 'program_id', 'semester', 'attachment', 'published_at', 'created_at']),
             ];
         });

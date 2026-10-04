@@ -252,43 +252,137 @@
                     Exam & Results
                 </button>
             </div>
-            <div class="flex-1 overflow-y-auto p-2 min-h-[480px]">
-                <ul class="divide-y divide-slate-100 dark:divide-slate-700" x-show="activeNoticeTab === 'general'">
-                    @forelse(($notices ?? collect())->take(4) as $notice)
-                    <li>
-                        <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition-colors group">
-                            @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
-                            <div class="w-10 h-11 bg-[#003D82] text-white flex flex-col items-center justify-center rounded flex-shrink-0 text-center">
-                                <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
-                                <span class="text-xs font-extrabold leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
+            <div class="flex-1 overflow-y-auto p-2.5 sm:p-3 min-h-[480px]">
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/70" x-show="activeNoticeTab === 'general'">
+                    @forelse($notices ?? collect() as $notice)
+                    @php
+                        $noticeDate = $notice->published_at ?? $notice->created_at;
+                        $hasAttachment = ($notice->attachments && $notice->attachments->count() > 0) || !empty($notice->attachment);
+                        $isRecent = $noticeDate && \Carbon\Carbon::parse($noticeDate)->gt(now()->subDays(7));
+                    @endphp
+                    <li class="py-1">
+                        <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-3.5 p-3 rounded-lg hover:bg-blue-50/60 dark:hover:bg-slate-700/50 transition-all duration-200 group border border-transparent hover:border-blue-100 dark:hover:border-slate-600">
+                            {{-- Date Badge --}}
+                            <div class="w-12 h-13 bg-gradient-to-b from-[#003D82] to-[#002855] text-white flex flex-col items-center justify-center rounded-md flex-shrink-0 text-center shadow-xs">
+                                <span class="text-[8px] font-bold uppercase tracking-wider text-blue-200 leading-tight">{{ bsDate($noticeDate, 'F') }}</span>
+                                <span class="text-base font-black leading-none my-0.5 text-white">{{ bsDate($noticeDate, 'd') }}</span>
+                                <span class="text-[8px] font-medium text-blue-200/90 leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
                             </div>
+
+                            {{-- Notice Details --}}
                             <div class="flex-1 min-w-0">
-                                <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#003D82] truncate">{{ $notice->title }}</h4>
-                                <span class="text-[10px] text-slate-400">{{ bsDate($noticeDate, 'Y, F d') }}</span>
+                                <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                    <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-xs {{ $notice->type === 'exam' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-blue-100 text-[#003D82] dark:bg-blue-900/40 dark:text-blue-300' }}">
+                                        {{ ucfirst($notice->type ?? 'Notice') }}
+                                    </span>
+                                    @if($notice->department)
+                                        <span class="text-[9px] font-medium px-2 py-0.5 rounded-xs bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 truncate max-w-[160px]">
+                                            {{ $notice->department->name }}
+                                        </span>
+                                    @elseif($notice->program)
+                                        <span class="text-[9px] font-medium px-2 py-0.5 rounded-xs bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 truncate max-w-[160px]">
+                                            {{ $notice->program->name }}
+                                        </span>
+                                    @endif
+                                    @if($hasAttachment)
+                                        <span class="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-xs bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                            File
+                                        </span>
+                                    @endif
+                                    @if($isRecent)
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs text-[8px] font-extrabold bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+                                            NEW
+                                        </span>
+                                    @endif
+                                </div>
+                                <h4 class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#003D82] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
+                                    {{ $notice->title }}
+                                </h4>
+                                <div class="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        {{ bsDate($noticeDate, 'Y, F d') }}
+                                    </span>
+                                    <span class="text-[#003D82] dark:text-blue-400 font-semibold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                                        Read Notice
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </span>
+                                </div>
                             </div>
                         </a>
                     </li>
                     @empty
-                    <li class="py-12 text-center text-slate-400 text-xs">No notices online/offline.</li>
+                    <li class="py-16 text-center text-slate-400">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <p class="text-xs">No notices online/offline.</p>
+                    </li>
                     @endforelse
                 </ul>
-                <ul class="divide-y divide-slate-100 dark:divide-slate-700" x-show="activeNoticeTab === 'exam'" x-cloak>
-                    @forelse(($examNotices ?? collect())->take(4) as $notice)
-                    <li>
-                        <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition-colors group">
-                            @php $noticeDate = $notice->published_at ?? $notice->created_at; @endphp
-                            <div class="w-10 h-11 bg-[#003D82] text-white flex flex-col items-center justify-center rounded flex-shrink-0 text-center">
-                                <span class="text-[7px] font-bold uppercase leading-none">{{ bsDate($noticeDate, 'F') }}</span>
-                                <span class="text-xs font-extrabold leading-tight">{{ bsDate($noticeDate, 'd') }}</span>
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/70" x-show="activeNoticeTab === 'exam'" x-cloak>
+                    @forelse($examNotices ?? collect() as $notice)
+                    @php
+                        $noticeDate = $notice->published_at ?? $notice->created_at;
+                        $hasAttachment = ($notice->attachments && $notice->attachments->count() > 0) || !empty($notice->attachment);
+                        $isRecent = $noticeDate && \Carbon\Carbon::parse($noticeDate)->gt(now()->subDays(7));
+                    @endphp
+                    <li class="py-1">
+                        <a href="{{ route('public.notice.show', $notice->slug) }}" class="flex items-start gap-3.5 p-3 rounded-lg hover:bg-blue-50/60 dark:hover:bg-slate-700/50 transition-all duration-200 group border border-transparent hover:border-blue-100 dark:hover:border-slate-600">
+                            {{-- Date Badge --}}
+                            <div class="w-12 h-13 bg-gradient-to-b from-[#003D82] to-[#002855] text-white flex flex-col items-center justify-center rounded-md flex-shrink-0 text-center shadow-xs">
+                                <span class="text-[8px] font-bold uppercase tracking-wider text-blue-200 leading-tight">{{ bsDate($noticeDate, 'F') }}</span>
+                                <span class="text-base font-black leading-none my-0.5 text-white">{{ bsDate($noticeDate, 'd') }}</span>
+                                <span class="text-[8px] font-medium text-blue-200/90 leading-none">{{ bsDate($noticeDate, 'Y') }}</span>
                             </div>
+
+                            {{-- Notice Details --}}
                             <div class="flex-1 min-w-0">
-                                <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#003D82] truncate">{{ $notice->title }}</h4>
-                                <span class="text-[10px] text-slate-400">{{ bsDate($noticeDate, 'Y, F d') }}</span>
+                                <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                    <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-xs bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                                        Exam & Result
+                                    </span>
+                                    @if($notice->department)
+                                        <span class="text-[9px] font-medium px-2 py-0.5 rounded-xs bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 truncate max-w-[160px]">
+                                            {{ $notice->department->name }}
+                                        </span>
+                                    @elseif($notice->program)
+                                        <span class="text-[9px] font-medium px-2 py-0.5 rounded-xs bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 truncate max-w-[160px]">
+                                            {{ $notice->program->name }}
+                                        </span>
+                                    @endif
+                                    @if($hasAttachment)
+                                        <span class="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-xs bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                            File
+                                        </span>
+                                    @endif
+                                    @if($isRecent)
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs text-[8px] font-extrabold bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+                                            NEW
+                                        </span>
+                                    @endif
+                                </div>
+                                <h4 class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#003D82] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
+                                    {{ $notice->title }}
+                                </h4>
+                                <div class="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        {{ bsDate($noticeDate, 'Y, F d') }}
+                                    </span>
+                                    <span class="text-[#003D82] dark:text-blue-400 font-semibold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                                        Read Notice
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </span>
+                                </div>
                             </div>
                         </a>
                     </li>
                     @empty
-                    <li class="py-12 text-center text-slate-400 text-xs">No exam result notices currently.</li>
+                    <li class="py-16 text-center text-slate-400">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <p class="text-xs">No exam result notices currently.</p>
+                    </li>
                     @endforelse
                 </ul>
             </div>
