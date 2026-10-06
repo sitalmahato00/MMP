@@ -71,8 +71,8 @@ class ParentSeeder extends Seeder
 
             $user->syncRoles(['parent']);
 
-            // Create parent profile
-            ParentModel::withTrashed()->updateOrCreate(
+            // Create parent profile (ParentModel does not use SoftDeletes)
+            ParentModel::updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'occupation' => $parentData['occupation'],

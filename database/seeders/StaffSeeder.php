@@ -72,8 +72,8 @@ class StaffSeeder extends Seeder
 
             $user->syncRoles(['staff']);
 
-            // Create staff profile
-            Staff::withTrashed()->updateOrCreate(
+            // Create staff profile (Staff model does not use SoftDeletes)
+            Staff::updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'staff_code' => 'STAFF' . $user->id,

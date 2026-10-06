@@ -95,7 +95,7 @@ class TeacherSeeder extends Seeder
                     'designation' => $teacherData['designation'],
                     'qualification' => $teacherData['qualification'],
                     'specialization' => $teacherData['specialization'],
-                    'employment_type' => 'Full-time',
+                    'employment_type' => 'permanent',
                     'is_active' => true,
                 ]
             );
