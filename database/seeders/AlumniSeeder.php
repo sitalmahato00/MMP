@@ -5,12 +5,28 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Alumni;
 use App\Models\Department;
+use App\Models\Program;
 use Illuminate\Database\Seeder;
 
 class AlumniSeeder extends Seeder
 {
     public function run(): void
     {
+        // Get or create the program (same one used by StudentSeeder)
+        $itDepartment = Department::where('code', 'IT')->first();
+        $program = Program::firstOrCreate(
+            ['code' => 'B.Tech'],
+            [
+                'name' => 'Bachelor of Technology',
+                'slug' => 'bachelor-of-technology',
+                'department_id' => $itDepartment?->id ?? 1,
+                'description' => 'Bachelor of Technology Program',
+                'total_semesters' => 8,
+                'duration_years' => 4,
+                'is_active' => true,
+            ]
+        );
+
         $alumni = [
             [
                 'name' => 'Arjun Poudel',
@@ -90,15 +106,17 @@ class AlumniSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'department_id' => $department?->id,
-                    'admission_year' => $alumniData['graduation_year'] - 4,
-                    'graduation_year' => $alumniData['graduation_year'],
+                    'program_id' => $program->id,
+                    'admission_year' => (string) ($alumniData['graduation_year'] - 4),
+                    'graduation_year' => (string) $alumniData['graduation_year'],
                     'graduation_date' => now()->setYear($alumniData['graduation_year'])->setMonth(5)->setDay(31),
-                    'current_status' => 'Employed',
+                    'current_status' => 'employed',
                     'current_job' => $alumniData['position'],
                     'company_name' => $alumniData['company'],
                     'work_location' => 'Kathmandu, Nepal',
                     'employment_status' => 'employed',
                     'is_active' => true,
+                    'is_verified' => true,
                 ]
             );
         }
