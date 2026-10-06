@@ -23,14 +23,18 @@ class StudentSeeder extends Seeder
             ]
         );
 
-        // Get or create a program
+        // Get or create a program (must include department_id and slug; no duration_months column)
+        $itDepartment = \App\Models\Department::where('code', 'IT')->first();
+
         $program = Program::firstOrCreate(
-            ['name' => 'Bachelor of Technology'],
+            ['code' => 'B.Tech'],
             [
-                'code' => 'B.Tech',
+                'name' => 'Bachelor of Technology',
+                'slug' => 'bachelor-of-technology',
+                'department_id' => $itDepartment?->id ?? 1,
                 'description' => 'Bachelor of Technology Program',
                 'total_semesters' => 8,
-                'duration_months' => 48,
+                'duration_years' => 4,
                 'is_active' => true,
             ]
         );
