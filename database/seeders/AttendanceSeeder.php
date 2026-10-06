@@ -2,89 +2,67 @@
 
 namespace Database\Seeders;
 
-use App\Models\AcademicSession;
-use App\Models\Attendance;
 use App\Models\AttendanceSession;
-use App\Models\Department;
+use App\Models\Attendance;
+use App\Models\AcademicSession;
 use App\Models\Program;
-use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Database\Seeder;
 
-/**
- * Seeds: 2 weeks of attendance sessions + records for all students.
- */
 class AttendanceSeeder extends Seeder
 {
     public function run(): void
     {
-        $session = AcademicSession::where('is_active', true)->first();
-        if (!$session) {
-            $this->command->warn('No active academic session — skipping AttendanceSeeder.');
+        $session  = AcademicSession::where('is_active', true)->first();
+        $program  = Program::where('code', 'DIT')->first();
+        $teacher  = Teacher::first();
+        $subjects = Subject::where('program_id', $program?->id)->where('semester', 1)->take(3)->get();
+        $students = Student::all();
+
+        if (!$session || !$program || !$teacher || $subjects->isEmpty()) {
+            $this->command->warn('Missing prerequisites. Run earlier seeders first.');
             return;
         }
 
-        $programs = Program::whereIn('code', ['DIT', 'DCE', 'DEEE', 'DME'])->get();
+        // Create attendance sessions for past 5 days per subject
+        foreach ($subjects as $subject) {
+            for ($i = 5; $i >= 1; $i--) {
+                $date = now()->subDays($i)->toDateString();
 
-        foreach ($programs as $program) {
-            $department = Department::find($program->department_id);
-            $teacher    = Teacher::where('department_id', $department?->id)->first();
-            $semester   = 1;
-            $subjects   = Subject::where('program_id', $program->id)
-                                  ->where('semester', $semester)
-                                  ->whereIn('type', ['theory', 'both'])
-                                  ->take(2) // 2 subjects per day to keep seed size manageable
-                                  ->get();
-            $students   = Student::where('program_id', $program->id)
-                                  ->where('current_semester', $semester)
-                                  ->where('status', 'active')
-                                  ->get();
+                $attSession = AttendanceSession::firstOrCreate(
+                    [
+                        'teacher_id' => $teacher->id,
+                        'subject_id' => $subject->id,
+                        'date'       => $date,
+                    ],
+                    [
+                        'academic_session_id' => $session->id,
+                        'program_id'          => $program->id,
+                        'semester'            => 1,
+                        'section'             => 'A',
+                        'period'              => '1st',
+                    ]
+                );
 
-            if (!$teacher || $subjects->isEmpty() || $students->isEmpty()) continue;
-
-            // 10 working days in the past
-            $workingDays = [];
-            $date = now()->subDays(14);
-            while (count($workingDays) < 10) {
-                // Skip Saturday (6) — Nepal has Sun-Fri work week
-                if ($date->dayOfWeek !== 6) {
-                    $workingDays[] = $date->format('Y-m-d');
-                }
-                $date->addDay();
-            }
-
-            foreach ($workingDays as $day) {
-                foreach ($subjects as $subject) {
-                    $attSession = AttendanceSession::firstOrCreate(
+                // Mark attendance for each student
+                foreach ($students as $student) {
+                    Attendance::firstOrCreate(
                         [
-                            'academic_session_id' => $session->id,
-                            'teacher_id'          => $teacher->id,
-                            'subject_id'          => $subject->id,
-                            'program_id'          => $program->id,
-                            'semester'            => $semester,
-                            'date'                => $day,
-                            'section'             => 'A',
+                            'attendance_session_id' => $attSession->id,
+                            'student_id'            => $student->id,
                         ],
-                        ['period' => '1st Period']
+                        [
+                            // 80% present, 20% absent
+                            'status'  => rand(1, 10) <= 8 ? 'present' : 'absent',
+                            'remarks' => null,
+                        ]
                     );
-
-                    foreach ($students as $student) {
-                        // 85% attendance rate realistically
-                        $status = (rand(1, 100) <= 85) ? 'present' : 'absent';
-
-                        Attendance::firstOrCreate(
-                            [
-                                'attendance_session_id' => $attSession->id,
-                                'student_id'            => $student->id,
-                            ],
-                            ['status' => $status]
-                        );
-                    }
                 }
             }
         }
 
-        $this->command->info('Attendance seeded successfully (10 days × programs × subjects).');
+        $this->command->info('Attendance seeded successfully.');
     }
 }

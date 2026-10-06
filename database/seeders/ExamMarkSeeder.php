@@ -2,122 +2,104 @@
 
 namespace Database\Seeders;
 
-use App\Models\AcademicSession;
-use App\Models\Department;
 use App\Models\Exam;
 use App\Models\Mark;
+use App\Models\AcademicSession;
+use App\Models\Department;
 use App\Models\Program;
-use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\ExamSubjectMarkingScheme;
 use Illuminate\Database\Seeder;
 
-/**
- * Seeds: exams (1 assessment + 1 final), marks for all students × subjects.
- */
 class ExamMarkSeeder extends Seeder
 {
     public function run(): void
     {
-        $session = AcademicSession::where('is_active', true)->first();
-        if (!$session) {
-            $this->command->warn('No active academic session found — skipping ExamMarkSeeder.');
+        $session    = AcademicSession::where('is_active', true)->first();
+        $department = Department::where('code', 'IT')->first();
+        $program    = Program::where('code', 'DIT')->first();
+        $teacher    = Teacher::first();
+
+        if (!$session || !$program || !$teacher) {
+            $this->command->warn('Missing session/program/teacher. Run earlier seeders first.');
             return;
         }
 
-        $programs = Program::with('subjects')->whereIn('code', ['DIT', 'DCE', 'DEEE', 'DME'])->get();
+        // Create an exam
+        $exam = Exam::firstOrCreate(
+            [
+                'academic_session_id' => $session->id,
+                'name'                => 'First Semester Assessment',
+            ],
+            [
+                'department_id'     => $department?->id,
+                'type'              => 'assessment',
+                'category'          => 'monthly_assessment',
+                'assessment_number' => 1,
+                'assessment_full_marks' => 100,
+                'assessment_pass_marks' => 40,
+                'start_date'        => now()->subDays(7),
+                'end_date'          => now()->subDays(5),
+                'status'            => 'completed',
+                'marks_open'        => true,
+                'is_published'      => true,
+                'published_at'      => now()->subDays(3),
+            ]
+        );
 
-        foreach ($programs as $program) {
-            $department  = Department::find($program->department_id);
-            $semester    = 1;
-            $subjects    = $program->subjects()->where('semester', $semester)->get();
-            $students    = Student::where('program_id', $program->id)
-                                  ->where('current_semester', $semester)
-                                  ->where('status', 'active')
-                                  ->get();
+        // Link exam to program/semester
+        $exam->programs()->syncWithoutDetaching([
+            $program->id => ['semester' => 1],
+        ]);
 
-            if ($students->isEmpty() || $subjects->isEmpty()) continue;
+        $subjects = Subject::where('program_id', $program->id)
+                           ->where('semester', 1)
+                           ->take(4)
+                           ->get();
 
-            // ── Monthly Assessment 1 ─────────────────────────────────────────
-            $assessment = Exam::firstOrCreate(
+        $students = Student::where('department_id', $department?->id)->get();
+
+        foreach ($subjects as $subject) {
+            // Create marking scheme
+            ExamSubjectMarkingScheme::firstOrCreate(
+                ['exam_id' => $exam->id, 'subject_id' => $subject->id],
                 [
-                    'academic_session_id' => $session->id,
-                    'department_id'       => $department->id,
-                    'name'                => 'First Monthly Assessment 2081 - ' . $program->code,
-                    'type'                => 'assessment',
-                ],
-                [
-                    'category'               => 'monthly_assessment',
-                    'assessment_number'      => 1,
-                    'assessment_full_marks'  => 25,
-                    'assessment_pass_marks'  => 10,
-                    'start_date'             => '2024-08-15',
-                    'end_date'               => '2024-08-20',
-                    'status'                 => 'results_published',
-                    'marks_open'             => true,
-                    'is_published'           => true,
-                    'published_at'           => now()->subDays(20),
+                    'full_marks_internal_theory'   => 20,
+                    'pass_marks_internal_theory'   => 8,
+                    'full_marks_external_theory'   => 80,
+                    'pass_marks_external_theory'   => 32,
+                    'full_marks_internal_practical'  => 0,
+                    'pass_marks_internal_practical'  => 0,
+                    'full_marks_external_practical'  => 0,
+                    'pass_marks_external_practical'  => 0,
                 ]
             );
 
-            // Link exam to program+semester
-            $assessment->programs()->syncWithoutDetaching([
-                $program->id => ['semester' => $semester]
-            ]);
-
-            // ── Final / Board Exam ───────────────────────────────────────────
-            $finalExam = Exam::firstOrCreate(
-                [
-                    'academic_session_id' => $session->id,
-                    'department_id'       => $department->id,
-                    'name'                => 'CTEVT First Semester Examination 2081 - ' . $program->code,
-                    'type'                => 'final',
-                ],
-                [
-                    'category'       => 'ctevt_final',
-                    'start_date'     => '2024-10-01',
-                    'end_date'       => '2024-10-15',
-                    'status'         => 'ongoing',
-                    'marks_open'     => false,
-                    'is_published'   => false,
-                ]
-            );
-
-            $finalExam->programs()->syncWithoutDetaching([
-                $program->id => ['semester' => $semester]
-            ]);
-
-            // ── Marks for Assessment ─────────────────────────────────────────
+            // Seed marks for each student
             foreach ($students as $student) {
-                $teacher = Teacher::where('department_id', $department->id)->first();
+                $internal = rand(14, 20);
+                $external = rand(55, 80);
 
-                foreach ($subjects as $subject) {
-                    $fullMarks = 25;
-                    $obtained  = rand(12, 25); // realistic marks
-
-                    Mark::firstOrCreate(
-                        [
-                            'exam_id'    => $assessment->id,
-                            'student_id' => $student->id,
-                            'subject_id' => $subject->id,
-                        ],
-                        [
-                            'program_id'                    => $program->id,
-                            'teacher_id'                    => $teacher?->id,
-                            'semester'                      => $semester,
-                            'assessment_full_marks'         => $fullMarks,
-                            'assessment_pass_marks'         => 10,
-                            'assessment_obtained_marks'     => $obtained,
-                            'assessment_attendance_percent' => rand(75, 100),
-                            'marks_obtained'                => $obtained,
-                            'total_marks'                   => $fullMarks,
-                            'pass_marks'                    => 10,
-                            'is_absent'                     => false,
-                            'is_withheld'                   => false,
-                            'status'                        => 'published',
-                        ]
-                    );
-                }
+                Mark::firstOrCreate(
+                    [
+                        'exam_id'    => $exam->id,
+                        'student_id' => $student->id,
+                        'subject_id' => $subject->id,
+                    ],
+                    [
+                        'program_id'              => $program->id,
+                        'teacher_id'              => $teacher->id,
+                        'semester'                => 1,
+                        'internal_theory_marks'   => $internal,
+                        'external_theory_marks'   => $external,
+                        'marks_obtained'          => $internal + $external,
+                        'total_marks'             => 100,
+                        'pass_marks'              => 40,
+                        'status'                  => 'published',
+                    ]
+                );
             }
         }
 
