@@ -19,7 +19,7 @@ class ExamMarkSeeder extends Seeder
     {
         $session    = AcademicSession::where('is_active', true)->first();
         $department = Department::where('code', 'IT')->first();
-        $program    = Program::where('code', 'DIT')->first();
+        $program    = Program::where('code', 'B.Tech')->first();
         $teacher    = Teacher::first();
 
         if (!$session || !$program || !$teacher) {
@@ -59,7 +59,7 @@ class ExamMarkSeeder extends Seeder
                            ->take(4)
                            ->get();
 
-        $students = Student::where('department_id', $department?->id)->get();
+        $students = Student::whereHas('program', fn($q) => $q->where('code', 'B.Tech'))->get();
 
         foreach ($subjects as $subject) {
             // Create marking scheme

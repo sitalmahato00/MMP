@@ -10,9 +10,9 @@ class SubjectSeeder extends Seeder
 {
     public function run(): void
     {
-        $program = Program::where('code', 'DIT')->first();
+        $program = Program::where('code', 'B.Tech')->first();
         if (!$program) {
-            $this->command->warn('No DIT program found. Run StudentSeeder first.');
+            $this->command->warn('No B.Tech program found. Run StudentSeeder first.');
             return;
         }
 

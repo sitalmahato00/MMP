@@ -15,7 +15,7 @@ class TimetableSeeder extends Seeder
     public function run(): void
     {
         $session = AcademicSession::where('is_active', true)->first();
-        $program = Program::where('code', 'DIT')->first();
+        $program = Program::where('code', 'B.Tech')->first();
 
         if (!$session || !$program) {
             $this->command->warn('Missing session or program. Run AcademicSeeder and StudentSeeder first.');

@@ -14,7 +14,7 @@ class AssignmentSeeder extends Seeder
 {
     public function run(): void
     {
-        $program  = Program::where('code', 'DIT')->first();
+        $program  = Program::where('code', 'B.Tech')->first();
         $teacher  = Teacher::first();
         $subjects = Subject::where('program_id', $program?->id)->where('semester', 1)->take(3)->get();
         $students = Student::all();
