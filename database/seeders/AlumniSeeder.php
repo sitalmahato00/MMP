@@ -30,7 +30,7 @@ class AlumniSeeder extends Seeder
         $alumni = [
             [
                 'name' => 'Arjun Poudel',
-                'email' => 'arjun.poudel@alumni.mtu.edu.np',
+                'email' => 'alumni@mmp.edu.np',
                 'phone' => '9841235001',
                 'department_code' => 'IT',
                 'graduation_year' => 2020,
@@ -39,7 +39,7 @@ class AlumniSeeder extends Seeder
             ],
             [
                 'name' => 'Bindiya Devi',
-                'email' => 'bindiya.devi@alumni.mtu.edu.np',
+                'email' => 'alumni2@mmp.edu.np',
                 'phone' => '9841235002',
                 'department_code' => 'IT',
                 'graduation_year' => 2021,
@@ -48,7 +48,7 @@ class AlumniSeeder extends Seeder
             ],
             [
                 'name' => 'Chandra Mohan',
-                'email' => 'chandra.mohan@alumni.mtu.edu.np',
+                'email' => 'alumni.civil@mmp.edu.np',
                 'phone' => '9841235003',
                 'department_code' => 'CIVIL',
                 'graduation_year' => 2019,
@@ -57,7 +57,7 @@ class AlumniSeeder extends Seeder
             ],
             [
                 'name' => 'Divya Rana',
-                'email' => 'divya.rana@alumni.mtu.edu.np',
+                'email' => 'alumni.electrical@mmp.edu.np',
                 'phone' => '9841235004',
                 'department_code' => 'ELECTRICAL',
                 'graduation_year' => 2020,
@@ -66,7 +66,7 @@ class AlumniSeeder extends Seeder
             ],
             [
                 'name' => 'Esa Thapa',
-                'email' => 'esa.thapa@alumni.mtu.edu.np',
+                'email' => 'alumni.mechanical@mmp.edu.np',
                 'phone' => '9841235005',
                 'department_code' => 'MECHANICAL',
                 'graduation_year' => 2021,
@@ -84,7 +84,7 @@ class AlumniSeeder extends Seeder
                     'name' => $alumniData['name'],
                     'email' => $alumniData['email'],
                     'phone' => $alumniData['phone'],
-                    'gender' => strpos($alumniData['name'], 'a') !== false ? 'Female' : 'Male',
+                    'gender' => 'Male',
                     'address' => 'Kathmandu, Nepal',
                     'department_id' => $department?->id,
                     'password' => bcrypt('password'),
@@ -101,7 +101,6 @@ class AlumniSeeder extends Seeder
 
             $user->syncRoles(['alumnus']);
 
-            // Create alumni profile
             Alumni::withTrashed()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -122,5 +121,6 @@ class AlumniSeeder extends Seeder
         }
 
         $this->command->info('Alumni seeded successfully.');
+        $this->command->info('Primary Alumni Email: alumni@mmp.edu.np | Password: password');
     }
 }

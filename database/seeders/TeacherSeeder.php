@@ -14,7 +14,7 @@ class TeacherSeeder extends Seeder
         $teachers = [
             [
                 'name' => 'Mr. Hari Prasad Kafle',
-                'email' => 'hari.kafle@mtu.edu.np',
+                'email' => 'teacher@mmp.edu.np',
                 'phone' => '9841234601',
                 'department_code' => 'IT',
                 'designation' => 'Lecturer',
@@ -23,7 +23,7 @@ class TeacherSeeder extends Seeder
             ],
             [
                 'name' => 'Ms. Anita Gautam',
-                'email' => 'anita.gautam@mtu.edu.np',
+                'email' => 'teacher2@mmp.edu.np',
                 'phone' => '9841234602',
                 'department_code' => 'IT',
                 'designation' => 'Assistant Professor',
@@ -32,7 +32,7 @@ class TeacherSeeder extends Seeder
             ],
             [
                 'name' => 'Mr. Ravi Sharma',
-                'email' => 'ravi.sharma@mtu.edu.np',
+                'email' => 'teacher.civil@mmp.edu.np',
                 'phone' => '9841234603',
                 'department_code' => 'CIVIL',
                 'designation' => 'Lecturer',
@@ -41,7 +41,7 @@ class TeacherSeeder extends Seeder
             ],
             [
                 'name' => 'Mr. Sanjay Mishra',
-                'email' => 'sanjay.mishra@mtu.edu.np',
+                'email' => 'teacher.electrical@mmp.edu.np',
                 'phone' => '9841234604',
                 'department_code' => 'ELECTRICAL',
                 'designation' => 'Lecturer',
@@ -50,7 +50,7 @@ class TeacherSeeder extends Seeder
             ],
             [
                 'name' => 'Mr. Vijay Kumar Singh',
-                'email' => 'vijay.singh@mtu.edu.np',
+                'email' => 'teacher.mechanical@mmp.edu.np',
                 'phone' => '9841234605',
                 'department_code' => 'MECHANICAL',
                 'designation' => 'Lecturer',
@@ -86,7 +86,6 @@ class TeacherSeeder extends Seeder
 
             $user->syncRoles(['teacher']);
 
-            // Create teacher profile
             Teacher::withTrashed()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -102,5 +101,6 @@ class TeacherSeeder extends Seeder
         }
 
         $this->command->info('Teachers seeded successfully.');
+        $this->command->info('Primary Teacher Email: teacher@mmp.edu.np | Password: password');
     }
 }

@@ -10,10 +10,10 @@ class PrincipalSeeder extends Seeder
     public function run(): void
     {
         $principal = User::withTrashed()->updateOrCreate(
-            ['email' => 'principal@mtu.edu.np'],
+            ['email' => 'principal@mmp.edu.np'],
             [
                 'name' => 'Dr. Raj Kumar Singh',
-                'email' => 'principal@mtu.edu.np',
+                'email' => 'principal@mmp.edu.np',
                 'phone' => '9841234567',
                 'gender' => 'Male',
                 'address' => 'Kathmandu, Nepal',
@@ -32,6 +32,6 @@ class PrincipalSeeder extends Seeder
         $principal->syncRoles(['principal', 'admin']);
 
         $this->command->info('Principal seeded successfully.');
-        $this->command->info('Email: principal@mtu.edu.np | Password: password');
+        $this->command->info('Email: principal@mmp.edu.np | Password: password');
     }
 }

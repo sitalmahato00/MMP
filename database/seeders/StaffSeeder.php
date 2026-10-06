@@ -13,35 +13,35 @@ class StaffSeeder extends Seeder
         $staffMembers = [
             [
                 'name' => 'Keshav Shumsher',
-                'email' => 'keshav.shumsher@mtu.edu.np',
+                'email' => 'staff@mmp.edu.np',
                 'phone' => '9841234901',
                 'designation' => 'Administrative Officer',
                 'department' => 'Administration',
             ],
             [
                 'name' => 'Nirupa Adhikari',
-                'email' => 'nirupa.adhikari@mtu.edu.np',
+                'email' => 'staff2@mmp.edu.np',
                 'phone' => '9841234902',
                 'designation' => 'Finance Officer',
                 'department' => 'Finance',
             ],
             [
                 'name' => 'Suresh Tamang',
-                'email' => 'suresh.tamang@mtu.edu.np',
+                'email' => 'staff3@mmp.edu.np',
                 'phone' => '9841234903',
                 'designation' => 'IT Support',
                 'department' => 'IT',
             ],
             [
                 'name' => 'Geeta Shrestha',
-                'email' => 'geeta.shrestha@mtu.edu.np',
+                'email' => 'staff4@mmp.edu.np',
                 'phone' => '9841234904',
                 'designation' => 'Librarian',
                 'department' => 'Library',
             ],
             [
                 'name' => 'Ram Bahadur Limbu',
-                'email' => 'ram.limbu@mtu.edu.np',
+                'email' => 'staff5@mmp.edu.np',
                 'phone' => '9841234905',
                 'designation' => 'Security Officer',
                 'department' => 'Security',
@@ -72,7 +72,7 @@ class StaffSeeder extends Seeder
 
             $user->syncRoles(['staff']);
 
-            // Create staff profile (Staff model does not use SoftDeletes)
+            // Staff model does not use SoftDeletes
             Staff::updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -91,5 +91,6 @@ class StaffSeeder extends Seeder
         }
 
         $this->command->info('Staff seeded successfully.');
+        $this->command->info('Primary Staff Email: staff@mmp.edu.np | Password: password');
     }
 }

@@ -13,28 +13,28 @@ class HodSeeder extends Seeder
         $hods = [
             [
                 'name' => 'Prof. Ashok Paudel',
-                'email' => 'hod.it@mtu.edu.np',
+                'email' => 'hod@mmp.edu.np',
                 'phone' => '9841234501',
                 'department_code' => 'IT',
                 'designation' => 'Head of Department',
             ],
             [
                 'name' => 'Prof. Ramesh Baral',
-                'email' => 'hod.civil@mtu.edu.np',
+                'email' => 'hod.civil@mmp.edu.np',
                 'phone' => '9841234502',
                 'department_code' => 'CIVIL',
                 'designation' => 'Head of Department',
             ],
             [
                 'name' => 'Prof. Sumit Thapa',
-                'email' => 'hod.electrical@mtu.edu.np',
+                'email' => 'hod.electrical@mmp.edu.np',
                 'phone' => '9841234503',
                 'department_code' => 'ELECTRICAL',
                 'designation' => 'Head of Department',
             ],
             [
                 'name' => 'Prof. Deepak Sharma',
-                'email' => 'hod.mechanical@mtu.edu.np',
+                'email' => 'hod.mechanical@mmp.edu.np',
                 'phone' => '9841234504',
                 'department_code' => 'MECHANICAL',
                 'designation' => 'Head of Department',
@@ -70,5 +70,6 @@ class HodSeeder extends Seeder
         }
 
         $this->command->info('HODs seeded successfully.');
+        $this->command->info('Primary HOD Email: hod@mmp.edu.np | Password: password');
     }
 }

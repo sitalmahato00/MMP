@@ -13,35 +13,35 @@ class ParentSeeder extends Seeder
         $parents = [
             [
                 'name' => 'Ramesh Paudel',
-                'email' => 'ramesh.paudel@mtu.edu.np',
+                'email' => 'parent@mmp.edu.np',
                 'phone' => '9841234801',
                 'occupation' => 'Engineer',
                 'relation' => 'Father',
             ],
             [
                 'name' => 'Priya Sharma',
-                'email' => 'priya.sharma@mtu.edu.np',
+                'email' => 'parent2@mmp.edu.np',
                 'phone' => '9841234802',
                 'occupation' => 'Doctor',
                 'relation' => 'Mother',
             ],
             [
                 'name' => 'Manoj Niroula',
-                'email' => 'manoj.niroula@mtu.edu.np',
+                'email' => 'parent3@mmp.edu.np',
                 'phone' => '9841234803',
                 'occupation' => 'Business',
                 'relation' => 'Father',
             ],
             [
                 'name' => 'Sushila Baniya',
-                'email' => 'sushila.baniya@mtu.edu.np',
+                'email' => 'parent4@mmp.edu.np',
                 'phone' => '9841234804',
                 'occupation' => 'Teacher',
                 'relation' => 'Mother',
             ],
             [
                 'name' => 'Ahmed Khan',
-                'email' => 'ahmed.khan@mtu.edu.np',
+                'email' => 'parent5@mmp.edu.np',
                 'phone' => '9841234805',
                 'occupation' => 'Businessman',
                 'relation' => 'Father',
@@ -55,7 +55,7 @@ class ParentSeeder extends Seeder
                     'name' => $parentData['name'],
                     'email' => $parentData['email'],
                     'phone' => $parentData['phone'],
-                    'gender' => strpos($parentData['name'], 'a') !== false ? 'Female' : 'Male',
+                    'gender' => 'Male',
                     'address' => 'Kathmandu, Nepal',
                     'password' => bcrypt('password'),
                     'email_verified_at' => now(),
@@ -71,7 +71,7 @@ class ParentSeeder extends Seeder
 
             $user->syncRoles(['parent']);
 
-            // Create parent profile (ParentModel does not use SoftDeletes)
+            // ParentModel does not use SoftDeletes
             ParentModel::updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -82,5 +82,6 @@ class ParentSeeder extends Seeder
         }
 
         $this->command->info('Parents seeded successfully.');
+        $this->command->info('Primary Parent Email: parent@mmp.edu.np | Password: password');
     }
 }

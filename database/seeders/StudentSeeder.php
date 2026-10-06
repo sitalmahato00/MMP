@@ -23,8 +23,8 @@ class StudentSeeder extends Seeder
             ]
         );
 
-        // Get or create a program (must include department_id and slug; no duration_months column)
-        $itDepartment = \App\Models\Department::where('code', 'IT')->first();
+        // Get or create a program (must include department_id and slug)
+        $itDepartment = Department::where('code', 'IT')->first();
 
         $program = Program::firstOrCreate(
             ['code' => 'B.Tech'],
@@ -42,7 +42,7 @@ class StudentSeeder extends Seeder
         $students = [
             [
                 'name' => 'Aarav Paudel',
-                'email' => 'aarav.paudel@student.mtu.edu.np',
+                'email' => 'student@mmp.edu.np',
                 'phone' => '9841234701',
                 'department_code' => 'IT',
                 'student_no' => 'STU001',
@@ -52,7 +52,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'name' => 'Bhavna Sharma',
-                'email' => 'bhavna.sharma@student.mtu.edu.np',
+                'email' => 'student2@mmp.edu.np',
                 'phone' => '9841234702',
                 'department_code' => 'IT',
                 'student_no' => 'STU002',
@@ -62,7 +62,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'name' => 'Chetan Niroula',
-                'email' => 'chetan.niroula@student.mtu.edu.np',
+                'email' => 'student.civil@mmp.edu.np',
                 'phone' => '9841234703',
                 'department_code' => 'CIVIL',
                 'student_no' => 'STU003',
@@ -72,7 +72,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'name' => 'Deepika Baniya',
-                'email' => 'deepika.baniya@student.mtu.edu.np',
+                'email' => 'student.electrical@mmp.edu.np',
                 'phone' => '9841234704',
                 'department_code' => 'ELECTRICAL',
                 'student_no' => 'STU004',
@@ -82,7 +82,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'name' => 'Emad Khan',
-                'email' => 'emad.khan@student.mtu.edu.np',
+                'email' => 'student.mechanical@mmp.edu.np',
                 'phone' => '9841234705',
                 'department_code' => 'MECHANICAL',
                 'student_no' => 'STU005',
@@ -101,7 +101,7 @@ class StudentSeeder extends Seeder
                     'name' => $studentData['name'],
                     'email' => $studentData['email'],
                     'phone' => $studentData['phone'],
-                    'gender' => rand(0, 1) ? 'Male' : 'Female',
+                    'gender' => 'Male',
                     'address' => 'Kathmandu, Nepal',
                     'department_id' => $department?->id,
                     'password' => bcrypt('password'),
@@ -118,7 +118,6 @@ class StudentSeeder extends Seeder
 
             $user->syncRoles(['student']);
 
-            // Create student profile
             Student::withTrashed()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -140,5 +139,6 @@ class StudentSeeder extends Seeder
         }
 
         $this->command->info('Students seeded successfully.');
+        $this->command->info('Primary Student Email: student@mmp.edu.np | Password: password');
     }
 }
