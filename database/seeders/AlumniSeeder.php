@@ -90,13 +90,15 @@ class AlumniSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'department_id' => $department?->id,
-                    'enrollment_number' => 'ALM' . $user->id,
+                    'admission_year' => $alumniData['graduation_year'] - 4,
                     'graduation_year' => $alumniData['graduation_year'],
-                    'batch' => $alumniData['graduation_year'] - 4,
-                    'company' => $alumniData['company'],
-                    'position' => $alumniData['position'],
-                    'industry' => 'Technology',
-                    'status' => 'active',
+                    'graduation_date' => now()->setYear($alumniData['graduation_year'])->setMonth(5)->setDay(31),
+                    'current_status' => 'Employed',
+                    'current_job' => $alumniData['position'],
+                    'company_name' => $alumniData['company'],
+                    'work_location' => 'Kathmandu, Nepal',
+                    'employment_status' => 'employed',
+                    'is_active' => true,
                 ]
             );
         }

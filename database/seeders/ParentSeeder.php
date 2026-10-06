@@ -76,9 +76,7 @@ class ParentSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'occupation' => $parentData['occupation'],
-                    'relation' => $parentData['relation'],
-                    'education_level' => 'Bachelor',
-                    'income_bracket' => 'Middle',
+                    'relation_to_student' => $parentData['relation'],
                 ]
             );
         }

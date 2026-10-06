@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\Department;
+use App\Models\Program;
 use App\Models\AcademicSession;
 use Illuminate\Database\Seeder;
 
@@ -18,6 +19,18 @@ class StudentSeeder extends Seeder
             [
                 'start_date' => '2024-01-01',
                 'end_date' => '2024-12-31',
+                'is_active' => true,
+            ]
+        );
+
+        // Get or create a program
+        $program = Program::firstOrCreate(
+            ['name' => 'Bachelor of Technology'],
+            [
+                'code' => 'B.Tech',
+                'description' => 'Bachelor of Technology Program',
+                'total_semesters' => 8,
+                'duration_months' => 48,
                 'is_active' => true,
             ]
         );
@@ -106,11 +119,13 @@ class StudentSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'department_id' => $department?->id,
+                    'program_id' => $program->id,
                     'academic_session_id' => $academicSession->id,
                     'student_no' => $studentData['student_no'],
                     'registration_number' => $studentData['registration_number'],
                     'current_semester' => $studentData['current_semester'],
                     'batch' => $studentData['batch'],
+                    'section' => 'A',
                     'admission_date' => now(),
                     'guardian_name' => $studentData['name'] . ' Guardian',
                     'guardian_phone' => $studentData['phone'],

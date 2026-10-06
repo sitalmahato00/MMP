@@ -76,11 +76,15 @@ class StaffSeeder extends Seeder
             Staff::withTrashed()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'employee_id' => 'EMP' . $user->id,
+                    'staff_code' => 'STAFF' . $user->id,
+                    'name' => $staffData['name'],
+                    'email' => $staffData['email'],
+                    'phone' => $staffData['phone'],
                     'designation' => $staffData['designation'],
                     'department' => $staffData['department'],
                     'employment_type' => 'Full-time',
-                    'employment_date' => now()->subYears(rand(1, 10)),
+                    'employment_status' => 'active',
+                    'join_date' => now()->subYears(rand(1, 10)),
                     'is_active' => true,
                 ]
             );
