@@ -52,7 +52,7 @@ class ExecutiveController extends Controller
             'end_date_bs' => 'nullable|string|max:10',
             'message' => 'nullable|string',
             'order' => 'required|integer',
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image',
         ]);
 
         $data['is_current'] = $request->has('is_current');
@@ -82,7 +82,7 @@ class ExecutiveController extends Controller
             'end_date_bs' => 'nullable|string|max:10',
             'message' => 'nullable|string',
             'order' => 'required|integer',
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image',
         ]);
 
         $data['is_current'] = $request->has('is_current');

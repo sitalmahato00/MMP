@@ -48,7 +48,7 @@ class HodController extends Controller
             'gender'        => 'nullable|in:male,female,other',
             'dob'           => 'nullable|string|max:10',
             'address'       => 'nullable|string',
-            'avatar'        => 'nullable|image|max:2048',
+            'avatar'        => 'nullable|image',
             'department_id' => 'nullable|exists:departments,id',
             'is_active'     => 'boolean',
         ]);
@@ -126,7 +126,7 @@ class HodController extends Controller
             'gender'        => 'nullable|in:male,female,other',
             'dob'           => 'nullable|string|max:10',
             'address'       => 'nullable|string',
-            'avatar'        => 'nullable|image|max:2048',
+            'avatar'        => 'nullable|image',
             'department_id' => 'nullable|exists:departments,id',
             'is_active'     => 'boolean',
         ]);

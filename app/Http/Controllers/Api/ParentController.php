@@ -505,7 +505,7 @@ class ParentController extends Controller
                 'name'       => 'sometimes|string|max:255',
                 'phone'      => 'sometimes|nullable|string|max:20',
                 'address'    => 'sometimes|nullable|string|max:500',
-                'avatar'     => 'sometimes|nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'avatar'     => 'sometimes|nullable|image|mimes:jpg,jpeg,png,webp',
                 'occupation' => 'sometimes|nullable|string|max:100',
             ]);
 

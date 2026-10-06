@@ -114,7 +114,7 @@ class StudentController extends Controller
             'gender'              => 'nullable|in:male,female,other',
             'dob'                 => 'nullable|string|max:10',
             'address'             => 'nullable|string',
-            'avatar'              => 'nullable|image|max:2048',
+            'avatar'              => 'nullable|image',
             // Enrollment
             'student_no'          => 'required|string|max:50|unique:students,student_no',
             'registration_number' => 'nullable|string|max:50',
@@ -308,7 +308,7 @@ class StudentController extends Controller
             'gender'              => 'nullable|in:male,female,other',
             'dob'                 => 'nullable|string|max:10',
             'address'             => 'nullable|string',
-            'avatar'              => 'nullable|image|max:2048',
+            'avatar'              => 'nullable|image',
             'student_no'          => ['required', 'string', 'max:50', Rule::unique('students')->ignore($student->id)],
             'registration_number' => 'nullable|string|max:50',
             'program_id'          => 'nullable|exists:programs,id',

@@ -112,7 +112,7 @@ class StudentController extends HodController
             'gender'              => 'nullable|in:male,female,other',
             'dob'                 => 'nullable|string|max:10',
             'address'             => 'nullable|string',
-            'avatar'              => 'nullable|image|max:2048',
+            'avatar'              => 'nullable|image',
             // Enrollment
             'student_no'          => 'required|string|max:50|unique:students,student_no',
             'roll_number'         => 'nullable|string|max:20',
@@ -350,7 +350,7 @@ class StudentController extends HodController
             'gender'              => 'nullable|in:male,female,other',
             'dob'                 => 'nullable|string|max:10',
             'address'             => 'nullable|string',
-            'avatar'              => 'nullable|image|max:2048',
+            'avatar'              => 'nullable|image',
             'student_no'          => ['required', 'string', 'max:50', Rule::unique('students')->ignore($student->id)],
             'roll_number'         => ['nullable', 'string', 'max:20'],
             'registration_number' => 'nullable|string|max:50',

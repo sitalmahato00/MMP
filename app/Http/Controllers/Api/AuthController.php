@@ -319,7 +319,7 @@ class AuthController extends Controller
             'gender' => ['sometimes', 'nullable', Rule::in(['male', 'female', 'other'])],
             'dob'    => ['sometimes', 'nullable', 'date'],
             'address'=> ['sometimes', 'nullable', 'string', 'max:500'],
-            'avatar' => ['sometimes', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'avatar' => ['sometimes', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', ],
         ]);
 
         // Handle avatar upload separately — always check hasFile directly

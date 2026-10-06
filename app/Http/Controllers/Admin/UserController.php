@@ -62,7 +62,7 @@ class UserController extends Controller
             'gender'   => 'nullable|in:male,female,other',
             'dob'      => 'nullable|string|max:10',
             'address'  => 'nullable|string',
-            'avatar'   => 'nullable|image|max:2048',
+            'avatar'   => 'nullable|image',
             'role'     => 'required|in:principal,hod,teacher,student,parent,alumni',
             'is_active'=> 'boolean',
         ]);
@@ -112,7 +112,7 @@ class UserController extends Controller
             'gender'    => 'nullable|in:male,female,other',
             'dob'       => 'nullable|string|max:10',
             'address'   => 'nullable|string',
-            'avatar'    => 'nullable|image|max:2048',
+            'avatar'    => 'nullable|image',
             'role'      => 'required|in:principal,hod,teacher,student,parent,alumni',
             'is_active' => 'boolean',
         ]);

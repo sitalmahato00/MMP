@@ -101,7 +101,7 @@ class TeacherController extends HodController
             'gender' => 'required|in:male,female,other', // Made mandatory
             'dob' => 'nullable|string|max:10',
             'address' => 'nullable|string',
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image',
             // Professional
             'employee_id' => 'required|string|max:50|unique:teachers,employee_id', // Already required
             'designation' => 'required|in:Teacher', // HODs can only create regular teachers
@@ -282,7 +282,7 @@ class TeacherController extends HodController
             'gender' => 'required|in:male,female,other', // Made mandatory
             'dob' => 'nullable|string|max:10',
             'address' => 'nullable|string',
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image',
             'employee_id' => ['required', 'string', 'max:50', Rule::unique('teachers')->ignore($teacher->id)], // Already required
             'designation' => 'required|in:Teacher', // HODs can only manage regular teachers
             'qualification' => 'nullable|string|max:255',

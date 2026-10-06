@@ -1014,7 +1014,7 @@ class StudentController extends Controller
                 'name' => 'sometimes|string|max:255',
                 'phone' => 'sometimes|string|max:20',
                 'address' => 'nullable|string|max:500',
-                'avatar' => 'nullable|image|max:2048',
+                'avatar' => 'nullable|image',
                 'guardian_name' => 'nullable|string|max:255',
                 'guardian_phone' => 'nullable|string|max:20',
             ]);

@@ -23,7 +23,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image',
             'bio' => 'nullable|string|max:2000',
             'skills' => 'nullable|string|max:1000',
             'linkedin_url' => 'nullable|url|max:255',
