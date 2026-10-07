@@ -933,7 +933,7 @@ class AttendanceController extends Controller
         $programs = Program::orderBy('name')->get();
         $subjects = Subject::orderBy('name')->get();
         $teachers = Teacher::with('user')->where('is_active', true)->get();
-        $academicSessions = AcademicSession::orderByDesc('is_current')->get();
+        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
 
         return view('admin.attendance.sessions', compact(
             'sessions', 'departments', 'programs', 'subjects', 'teachers', 'academicSessions'
@@ -1143,7 +1143,7 @@ class AttendanceController extends Controller
     {
         $departments = Department::orderBy('name')->get();
         $programs = Program::orderBy('name')->get();
-        $academicSessions = AcademicSession::orderByDesc('is_current')->get();
+        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
 
         $students = Student::query()
             ->with(['user:id,name,email,avatar', 'program:id,name,code', 'department:id,name,code'])

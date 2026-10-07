@@ -64,7 +64,7 @@ class TimetableController extends Controller
         // Dropdowns
         $departments = Department::orderBy('name')->get();
         $programs = Program::orderBy('name')->get();
-        $academicSessions = AcademicSession::orderByDesc('is_current')->orderBy('name')->get();
+        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
 
         return view('admin.timetable.index', compact(
             'timetables',
@@ -84,7 +84,7 @@ class TimetableController extends Controller
     {
         $departments = Department::with('programs')->orderBy('name')->get();
         $programs = Program::with('department')->orderBy('name')->get();
-        $academicSessions = AcademicSession::orderByDesc('is_current')->orderBy('name')->get();
+        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
 
         return view('admin.timetable.create', compact('departments', 'programs', 'academicSessions'));
     }
@@ -166,7 +166,7 @@ class TimetableController extends Controller
         $timetable->load(['academicSession', 'program.department']);
         $departments = Department::orderBy('name')->get();
         $programs = Program::orderBy('name')->get();
-        $academicSessions = AcademicSession::orderByDesc('is_current')->orderBy('name')->get();
+        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
 
         return view('admin.timetable.edit', compact('timetable', 'departments', 'programs', 'academicSessions'));
     }
