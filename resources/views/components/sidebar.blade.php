@@ -7,7 +7,7 @@
     $user = auth()->user();
     $role = $user?->getRoleNames()->first() ?? 'guest';
 
-    $isAdmin = $user?->isPrincipal();
+    $isAdmin = $user?->isAdmin() || $user?->isPrincipal();
     $isHod = $user?->isHod();
     $isTeacher = $user?->isTeacher();
     $isStudent = $user?->isStudent();
@@ -78,10 +78,14 @@
         [
             'label' => 'Academics',
             'items' => [
-                ['label' => 'Programs',     'iconName' => 'book-open',       'href' => route('admin.programs.index'),          'isActive' => $active('admin.programs.*')],
+                ['label' => 'Programs',     'iconName' => 'office-building', 'href' => route('admin.programs.index'),          'isActive' => $active('admin.programs.*')],
+                ['label' => 'Subjects',     'iconName' => 'book-open',       'href' => route('admin.subjects.index'),          'isActive' => $active('admin.subjects.*')],
+                ['label' => 'Timetable',    'iconName' => 'calendar',        'href' => route('admin.timetable.index'),         'isActive' => $active('admin.timetable.*')],
+                ['label' => 'Assignments',  'iconName' => 'doc-text',        'href' => route('admin.assignments.index'),       'isActive' => $active('admin.assignments.*')],
                 ['label' => 'Sessions',     'iconName' => 'calendar',        'href' => route('admin.academic-sessions.index'), 'isActive' => $active('admin.academic-sessions.*')],
                 ['label' => 'Attendance',   'iconName' => 'clipboard-check', 'href' => route('admin.attendance.index'),        'isActive' => $active('admin.attendance.*')],
-                ['label' => 'Examinations', 'iconName' => 'doc-text',        'href' => route('admin.exams.index'),             'isActive' => $active(['admin.exams.*', 'admin.marks.*'])],
+                ['label' => 'Examinations', 'iconName' => 'chart-bar',       'href' => route('admin.exams.index'),             'isActive' => $active(['admin.exams.*', 'admin.marks.*'])],
+                ['label' => 'Reports Center', 'iconName' => 'doc-report',   'href' => route('admin.reports.index'),           'isActive' => $active('admin.reports.*')],
             ],
         ],
 

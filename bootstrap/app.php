@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             // Role-based route files
-            Route::middleware(['web', 'auth', 'role:principal'])
+            Route::middleware(['web', 'auth', 'role:principal,admin'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
@@ -38,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->name('parent.')
                 ->group(base_path('routes/parent.php'));
 
-            Route::middleware(['web', 'auth', 'role:alumni'])
+            Route::middleware(['web', 'auth', 'role:alumni,alumnus'])
                 ->prefix('alumni')
                 ->name('alumni.')
                 ->group(base_path('routes/alumni.php'));

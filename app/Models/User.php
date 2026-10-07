@@ -109,9 +109,14 @@ class User extends Authenticatable
             : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=4f46e5&color=fff';
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin') || $this->hasRole('principal');
+    }
+
     public function isPrincipal(): bool
     {
-        return $this->hasRole('principal');
+        return $this->hasRole('principal') || $this->hasRole('admin');
     }
 
     public function isHod(): bool
@@ -136,7 +141,7 @@ class User extends Authenticatable
 
     public function isAlumni(): bool
     {
-        return $this->hasRole('alumni');
+        return $this->hasRole('alumni') || $this->hasRole('alumnus');
     }
 
     public function primaryRole(): ?string
@@ -147,12 +152,12 @@ class User extends Authenticatable
     public function getPanelType(): string
     {
         return match (true) {
-            $this->hasRole('principal') => 'admin',
+            $this->hasRole('principal') || $this->hasRole('admin') => 'admin',
             $this->hasRole('hod') => 'hod',
             $this->hasRole('teacher') => 'teacher',
             $this->hasRole('student') => 'student',
             $this->hasRole('parent') => 'parent',
-            $this->hasRole('alumni') => 'alumni',
+            $this->hasRole('alumni') || $this->hasRole('alumnus') => 'alumni',
             default => 'guest',
         };
     }

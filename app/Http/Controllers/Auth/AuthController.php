@@ -242,12 +242,12 @@ class AuthController extends Controller
         $user = auth()->user();
 
         return match (true) {
-            $user->hasRole('principal') => route('admin.dashboard'),
+            $user->hasRole('principal') || $user->hasRole('admin') => route('admin.dashboard'),
             $user->hasRole('hod') => route('hod.dashboard'),
             $user->hasRole('teacher') => route('teacher.dashboard'),
             $user->hasRole('student') => route('student.dashboard'),
             $user->hasRole('parent') => route('parent.dashboard'),
-            $user->hasRole('alumni') => route('alumni.dashboard'),
+            $user->hasRole('alumni') || $user->hasRole('alumnus') => route('alumni.dashboard'),
             default => route('home'),
         };
     }

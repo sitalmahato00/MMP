@@ -10,7 +10,7 @@
     $selectedMarksOpen = old('marks_open', $exam?->marks_open ?? false);
 @endphp
 
-<form method="POST" action="{{ $action }}" class="space-y-6">
+<form method="POST" action="{{ $action }}" class="space-y-6" x-data="{ deptScope: '{{ (string)$selectedDepartmentId }}' }">
     @csrf
     @if($method !== 'POST')
         @method($method)
@@ -99,7 +99,7 @@
 
                     <label class="space-y-2">
                         <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Department Scope</span>
-                        <select name="department_id" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
+                        <select name="department_id" x-model="deptScope" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#8B0000] focus:bg-white focus:ring-2 focus:ring-rose-100">
                             <option value="" @selected($selectedDepartmentId === '' || $selectedDepartmentId === null)>All departments</option>
                             @foreach($departments as $department)
                                 <option value="{{ $department->id }}" @selected((string) $selectedDepartmentId === (string) $department->id)>
@@ -128,7 +128,7 @@
                                 @php
                                     $checked = in_array($program->id, $selectedPrograms, true);
                                 @endphp
-                                <label class="group flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition {{ $checked ? 'border-[#8B0000] bg-rose-50/70 shadow-sm' : 'border-slate-200 bg-slate-50/70 hover:border-slate-300 hover:bg-white' }}">
+                                <label x-show="!deptScope || deptScope == '{{ $program->department_id }}'" class="group flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition {{ $checked ? 'border-[#8B0000] bg-rose-50/70 shadow-sm' : 'border-slate-200 bg-slate-50/70 hover:border-slate-300 hover:bg-white' }}">
                                     <input type="checkbox" name="program_ids[]" value="{{ $program->id }}" class="mt-1 h-4 w-4 rounded border-slate-300 text-[#8B0000] focus:ring-rose-200" @checked($checked)>
                                     <div class="min-w-0">
                                         <p class="font-semibold text-slate-900">{{ $program->name }}</p>

@@ -34,12 +34,25 @@ class RoleMiddleware
             $userRoles = [$user->role];
         }
 
-        // Check if user has any of the required roles
+        // Check if user has any of the required roles (with principal/admin and alumni/alumnus aliases)
         $hasRole = false;
         foreach ($roles as $required) {
-            if (in_array($required, $userRoles) || (method_exists($user, 'hasRole') && $user->hasRole($required))) {
-                $hasRole = true;
-                break;
+            $requiredRoles = [$required];
+            if ($required === 'alumni') {
+                $requiredRoles[] = 'alumnus';
+            } elseif ($required === 'alumnus') {
+                $requiredRoles[] = 'alumni';
+            } elseif ($required === 'admin') {
+                $requiredRoles[] = 'principal';
+            } elseif ($required === 'principal') {
+                $requiredRoles[] = 'admin';
+            }
+
+            foreach ($requiredRoles as $roleToCheck) {
+                if (in_array($roleToCheck, $userRoles) || (method_exists($user, 'hasRole') && $user->hasRole($roleToCheck))) {
+                    $hasRole = true;
+                    break 2;
+                }
             }
         }
 
@@ -52,7 +65,19 @@ class RoleMiddleware
                     'user_roles' => $userRoles,
                 ], 403);
             }
-            abort(403, 'Unauthorized. You do not have the required role.');
+
+            // Redirect user strictly to their own assigned portal
+            $ownDashboard = match (true) {
+                in_array('principal', $userRoles) || in_array('admin', $userRoles) => route('admin.dashboard'),
+                in_array('hod', $userRoles) => route('hod.dashboard'),
+                in_array('teacher', $userRoles) => route('teacher.dashboard'),
+                in_array('student', $userRoles) => route('student.dashboard'),
+                in_array('parent', $userRoles) => route('parent.dashboard'),
+                in_array('alumni', $userRoles) || in_array('alumnus', $userRoles) => route('alumni.dashboard'),
+                default => route('home'),
+            };
+
+            return redirect($ownDashboard)->with('error', 'Access restricted: You can only access your own portal.');
         }
 
         return $next($request);

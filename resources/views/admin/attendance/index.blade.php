@@ -12,8 +12,20 @@
 @endphp
 
 <div class="space-y-5">
-    <x-page-header title="Attendance" subtitle="Monitor attendance sessions, teacher completion, and student records.">
+    <x-page-header title="Attendance" subtitle="Monitor institutional attendance sessions, mark class headcounts, and analyze student records across all departments.">
         <x-slot name="actions">
+            <x-btn href="{{ route('admin.attendance.mark') }}" class="bg-[#8B0000] text-white hover:bg-[#6b0000]">
+                <svg class="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Mark Attendance
+            </x-btn>
+            <x-btn href="{{ route('admin.attendance.sessions') }}" variant="secondary">
+                <svg class="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                Session Logs
+            </x-btn>
+            <x-btn href="{{ route('admin.attendance.reports') }}" variant="secondary">
+                <svg class="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Reports
+            </x-btn>
             <x-btn href="{{ route('admin.attendance.index', ['export' => 'csv']) }}" variant="secondary">Export CSV</x-btn>
         </x-slot>
     </x-page-header>
@@ -47,8 +59,51 @@
         @endforeach
     </div>
 
-    {{-- Filters --}}
-    <form method="GET" action="{{ route('admin.attendance.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <form method="GET" action="{{ route('admin.attendance.index') }}"
+          x-data="{
+              deptId: '{{ (string)($filters['departmentId'] ?? '') }}',
+              progId: '{{ (string)($filters['programId'] ?? '') }}',
+              teacherId: '{{ (string)($filters['teacherId'] ?? '') }}',
+              allPrograms: @js($programs->map(fn($p) => ['id' => $p->id, 'name' => ($p->code ? $p->code . ' - ' : '') . $p->name, 'department_id' => $p->department_id])),
+              allTeachers: @js($teachers->map(fn($t) => ['id' => $t->id, 'name' => $t->user?->name ?? 'Teacher', 'department_id' => $t->department_id])),
+              filterOptions() {
+                  const progSel = this.$refs.progSelect;
+                  if (progSel) {
+                      const curP = this.progId;
+                      while (progSel.options.length > 1) { progSel.remove(1); }
+                      const pList = !this.deptId ? this.allPrograms : this.allPrograms.filter(p => String(p.department_id) === String(this.deptId));
+                      pList.forEach(p => {
+                          const opt = new Option(p.name, p.id);
+                          if (String(p.id) === String(curP)) opt.selected = true;
+                          progSel.add(opt);
+                      });
+                      if (curP && !pList.some(p => String(p.id) === String(curP))) {
+                          this.progId = '';
+                          progSel.selectedIndex = 0;
+                      }
+                  }
+                  const teachSel = this.$refs.teacherSelect;
+                  if (teachSel) {
+                      const curT = this.teacherId;
+                      while (teachSel.options.length > 1) { teachSel.remove(1); }
+                      const tList = !this.deptId ? this.allTeachers : this.allTeachers.filter(t => String(t.department_id) === String(this.deptId));
+                      tList.forEach(t => {
+                          const opt = new Option(t.name, t.id);
+                          if (String(t.id) === String(curT)) opt.selected = true;
+                          teachSel.add(opt);
+                      });
+                      if (curT && !tList.some(t => String(t.id) === String(curT))) {
+                          this.teacherId = '';
+                          teachSel.selectedIndex = 0;
+                      }
+                  }
+              },
+              init() {
+                  this.filterOptions();
+                  this.$watch('deptId', () => this.filterOptions());
+              }
+          }"
+          class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <input type="hidden" name="session_id" value="{{ $selectedSession?->id }}">
         
         <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -60,7 +115,7 @@
                        class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
             </div>
 
-            <select name="department_id" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="department_id" x-model="deptId" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Departments</option>
                 @foreach($departments as $department)
                     <option value="{{ $department->id }}" @selected($filters['departmentId'] === $department->id)>
@@ -69,7 +124,7 @@
                 @endforeach
             </select>
 
-            <select name="program_id" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="program_id" x-ref="progSelect" x-model="progId" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Programs</option>
                 @foreach($programs as $program)
                     <option value="{{ $program->id }}" @selected($filters['programId'] === $program->id)>
@@ -85,7 +140,7 @@
                 @endfor
             </select>
 
-            <select name="teacher_id" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="teacher_id" x-ref="teacherSelect" x-model="teacherId" class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All Teachers</option>
                 @foreach($teachers as $teacher)
                     <option value="{{ $teacher->id }}" @selected($filters['teacherId'] === $teacher->id)>

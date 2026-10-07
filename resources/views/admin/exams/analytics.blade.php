@@ -61,7 +61,33 @@
                 </div>
             </div>
 
-            <form method="GET" action="{{ route('admin.exams.analytics') }}" class="mt-6 rounded-[1.5rem] border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur">
+            <form method="GET" action="{{ route('admin.exams.analytics') }}"
+                  x-data="{
+                      deptId: '{{ (string)($filters['departmentId'] ?? '') }}',
+                      progId: '{{ (string)($filters['programId'] ?? '') }}',
+                      allPrograms: @js($programs->map(fn($p) => ['id' => $p->id, 'name' => ($p->code ? $p->code . ' - ' : '') . $p->name, 'department_id' => $p->department_id])),
+                      filterPrograms() {
+                          const sel = this.$refs.progSelect;
+                          if (!sel) return;
+                          const cur = this.progId;
+                          while (sel.options.length > 1) { sel.remove(1); }
+                          const list = !this.deptId ? this.allPrograms : this.allPrograms.filter(p => String(p.department_id) === String(this.deptId));
+                          list.forEach(p => {
+                              const opt = new Option(p.name, p.id);
+                              if (String(p.id) === String(cur)) opt.selected = true;
+                              sel.add(opt);
+                          });
+                          if (cur && !list.some(p => String(p.id) === String(cur))) {
+                              this.progId = '';
+                              sel.selectedIndex = 0;
+                          }
+                      },
+                      init() {
+                          this.filterPrograms();
+                          this.$watch('deptId', () => this.filterPrograms());
+                      }
+                  }"
+                  class="mt-6 rounded-[1.5rem] border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur">
                 <div class="grid gap-3 xl:grid-cols-7">
                     <div class="xl:col-span-2">
                         <label class="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Search</label>
@@ -81,7 +107,7 @@
                     </div>
                     <div>
                         <label class="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Department</label>
-                        <select name="department_id" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-rose-100">
+                        <select name="department_id" x-model="deptId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-rose-100">
                             <option value="">All departments</option>
                             @foreach($departments as $department)
                                 <option value="{{ $department->id }}" @selected(($filters['departmentId'] ?? null) === $department->id)>
@@ -92,7 +118,7 @@
                     </div>
                     <div>
                         <label class="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Program</label>
-                        <select name="program_id" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-rose-100">
+                        <select name="program_id" x-ref="progSelect" x-model="progId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-[#8B0000] focus:ring-2 focus:ring-rose-100">
                             <option value="">All programs</option>
                             @foreach($programs as $program)
                                 <option value="{{ $program->id }}" @selected(($filters['programId'] ?? null) === $program->id)>

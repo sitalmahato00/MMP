@@ -25,6 +25,10 @@ use App\Http\Controllers\Admin\HodController;
 // Application feature removed
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\IdCardController;
+use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\TimetableController;
+use App\Http\Controllers\Admin\AssignmentController;
+use App\Http\Controllers\Admin\ReportController;
 
 // ── Dashboard ──────────────────────────────────────────────
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -53,12 +57,41 @@ Route::get('academic-sessions/{academicSession}/preview-advance', [AcademicSessi
 Route::post('academic-sessions/{academicSession}/advance', [AcademicSessionController::class, 'advanceSemesters'])
     ->name('academic-sessions.advance');
 
-Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-Route::get('attendance/sessions/{attendanceSession}', [AttendanceController::class, 'session'])->name('attendance.sessions.show');
+// ── Attendance Operations ──────────────────────────────────
+Route::prefix('attendance')->name('attendance.')->group(function () {
+    Route::get('/', [AttendanceController::class, 'index'])->name('index');
+    Route::get('/sessions', [AttendanceController::class, 'sessions'])->name('sessions');
+    Route::get('/mark', [AttendanceController::class, 'mark'])->name('mark');
+    Route::post('/load-students', [AttendanceController::class, 'loadStudents'])->name('load-students');
+    Route::post('/store', [AttendanceController::class, 'store'])->name('store');
+    Route::get('/reports', [AttendanceController::class, 'reports'])->name('reports');
+    Route::get('/sessions/{attendanceSession}', [AttendanceController::class, 'session'])->name('sessions.show');
+    Route::get('/sessions/{attendanceSession}/edit', [AttendanceController::class, 'edit'])->name('sessions.edit');
+    Route::put('/sessions/{attendanceSession}', [AttendanceController::class, 'update'])->name('sessions.update');
+    Route::delete('/sessions/{attendanceSession}', [AttendanceController::class, 'destroy'])->name('sessions.destroy');
+    Route::patch('/records/{attendance}/toggle', [AttendanceController::class, 'toggleStatus'])->name('records.toggle');
+});
 
 Route::resource('departments', DepartmentController::class);
 Route::resource('programs', ProgramController::class);
 Route::post('programs/bulk-action', [ProgramController::class, 'bulkAction'])->name('programs.bulk-action');
+
+// ── Academic Subjects ──────────────────────────────────────
+Route::resource('subjects', SubjectController::class);
+Route::get('subjects/{subject}/drawer', [SubjectController::class, 'drawer'])->name('subjects.drawer');
+Route::post('subjects/{subject}/assign-teacher', [SubjectController::class, 'assignTeacher'])->name('subjects.assign-teacher');
+Route::delete('subjects/{subject}/teachers/{teacher}', [SubjectController::class, 'removeTeacher'])->name('subjects.remove-teacher');
+
+// ── Timetable Management ───────────────────────────────────
+Route::resource('timetable', TimetableController::class);
+Route::post('timetable/{timetable}/slots', [TimetableController::class, 'storeSlot'])->name('timetable.slots.store');
+Route::delete('timetable/{timetable}/slots/{slot}', [TimetableController::class, 'destroySlot'])->name('timetable.slots.destroy');
+Route::get('timetable/{timetable}/export', [TimetableController::class, 'export'])->name('timetable.export');
+Route::post('timetable/{timetable}/check-teacher-conflicts', [TimetableController::class, 'checkTeacherConflicts'])->name('timetable.check-teacher-conflicts');
+
+// ── Assignments Management ─────────────────────────────────
+Route::resource('assignments', AssignmentController::class);
+Route::post('assignments/{assignment}/submissions/{submission}/grade', [AssignmentController::class, 'gradeSubmission'])->name('assignments.submissions.grade');
 
 // ── People Management ──────────────────────────────────────
 Route::resource('students', StudentController::class);
@@ -97,6 +130,9 @@ Route::prefix('id-cards')->name('id-cards.')->group(function () {
 // ── Examinations & Results ─────────────────────────────────
 Route::get('exams/analytics', [ExamController::class, 'analytics'])->name('exams.analytics');
 Route::get('exams/export/{format}', [ExamController::class, 'export'])->name('exams.export');
+Route::get('exams/fill-marks', [ExamController::class, 'fillMarks'])->name('exams.fill-marks');
+Route::post('exams/save-marks', [ExamController::class, 'saveMarks'])->name('exams.save-marks');
+Route::post('exams/verify-marks', [ExamController::class, 'verifyMarks'])->name('exams.verify-marks');
 Route::get('exams/{exam}/marks/export/{format}', [ExamController::class, 'exportSubjectMarks'])->name('exams.marks.export');
 Route::get('exams/{exam}/subjects/{subject}/marks', [ExamController::class, 'showSubjectMarks'])->name('exams.subjects.marks');
 Route::patch('exams/{exam}/subjects/{subject}/marking-scheme', [ExamController::class, 'updateSubjectMarkingScheme'])->name('exams.subjects.marking-scheme.update');
@@ -139,6 +175,13 @@ Route::post('web-control', [WebControlController::class, 'update'])->name('web-c
 Route::delete('web-control/file/{key}', [WebControlController::class, 'clearFile'])->name('web-control.clear-file');
 
 // Application feature removed
+
+// ── Central Reports Hub ───────────────────────────────────
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::get('/', [ReportController::class, 'index'])->name('index');
+    Route::get('/export-csv', [ReportController::class, 'exportCsv'])->name('export.csv');
+    Route::get('/export-print', [ReportController::class, 'exportPrint'])->name('export.print');
+});
 
 // ── Security & Audit ───────────────────────────────────────
 Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');

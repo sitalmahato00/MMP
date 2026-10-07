@@ -2280,4 +2280,111 @@ class ExamController extends Controller
 
         fwrite($handle, implode($separator, $escaped) . "\n");
     }
+
+    public function fillMarks(Request $request)
+    {
+        $examId = $request->exam_id;
+        if (!$examId) {
+            return redirect()->route('admin.exams.index')->with('error', 'Please select an exam to fill marks.');
+        }
+
+        $exam = Exam::with(['academicSession:id,name', 'programs'])->findOrFail($examId);
+        $programs = $exam->programs;
+
+        $programId = $request->program_id ?: ($programs->first()?->id);
+        $semester = $request->semester ?: ($programs->where('id', $programId)->first()?->pivot->semester ?? 1);
+        $subjectId = $request->subject_id;
+
+        $subjects = Subject::where('program_id', $programId)
+            ->where('semester', $semester)
+            ->orderBy('name')
+            ->get();
+
+        if (!$subjectId && $subjects->isNotEmpty()) {
+            $subjectId = $subjects->first()->id;
+        }
+
+        $subject = $subjectId ? Subject::find($subjectId) : null;
+
+        $students = collect();
+        $existingMarks = collect();
+
+        if ($subject) {
+            $students = Student::where('program_id', $programId)
+                ->where('current_semester', $semester)
+                ->with('user')
+                ->orderBy('roll_number')
+                ->get();
+
+            $existingMarks = Mark::where('exam_id', $examId)
+                ->where('subject_id', $subjectId)
+                ->get()
+                ->keyBy('student_id');
+        }
+
+        return view('admin.exams.fill-marks', compact(
+            'exam', 'programs', 'programId', 'semester', 'subjects', 'subjectId', 'subject', 'students', 'existingMarks'
+        ));
+    }
+
+    public function saveMarks(Request $request)
+    {
+        $validated = $request->validate([
+            'exam_id' => 'required|exists:exams,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'program_id' => 'required|exists:programs,id',
+            'semester' => 'required|integer|min:1|max:6',
+            'marks' => 'required|array',
+            'marks.*.student_id' => 'required|exists:students,id',
+            'marks.*.is_absent' => 'nullable|boolean',
+            'marks.*.internal_theory_marks' => 'nullable|numeric|min:0',
+            'marks.*.external_theory_marks' => 'nullable|numeric|min:0',
+            'marks.*.internal_practical_marks' => 'nullable|numeric|min:0',
+            'marks.*.external_practical_marks' => 'nullable|numeric|min:0',
+            'marks.*.remarks' => 'nullable|string|max:500',
+        ]);
+
+        $exam = Exam::findOrFail($validated['exam_id']);
+        $subject = Subject::findOrFail($validated['subject_id']);
+
+        foreach ($validated['marks'] as $markData) {
+            $isAbsent = !empty($markData['is_absent']);
+
+            Mark::updateOrCreate(
+                [
+                    'exam_id' => $exam->id,
+                    'student_id' => $markData['student_id'],
+                    'subject_id' => $subject->id,
+                ],
+                [
+                    'program_id' => $validated['program_id'],
+                    'semester' => $validated['semester'],
+                    'is_absent' => $isAbsent,
+                    'status' => 'submitted',
+                    'internal_theory_marks' => $isAbsent ? null : ($markData['internal_theory_marks'] ?? null),
+                    'external_theory_marks' => $isAbsent ? null : ($markData['external_theory_marks'] ?? null),
+                    'internal_practical_marks' => $isAbsent ? null : ($markData['internal_practical_marks'] ?? null),
+                    'external_practical_marks' => $isAbsent ? null : ($markData['external_practical_marks'] ?? null),
+                    'remarks' => $markData['remarks'] ?? null,
+                ]
+            );
+        }
+
+        return redirect()->route('admin.exams.subjects.marks', ['exam' => $exam->id, 'subject' => $subject->id])
+            ->with('success', 'Marks saved successfully.');
+    }
+
+    public function verifyMarks(Request $request)
+    {
+        $request->validate([
+            'exam_id' => 'required|exists:exams,id',
+            'subject_id' => 'required|exists:subjects,id',
+        ]);
+
+        Mark::where('exam_id', $request->exam_id)
+            ->where('subject_id', $request->subject_id)
+            ->update(['status' => 'approved']);
+
+        return back()->with('success', 'Marks verified and approved successfully.');
+    }
 }

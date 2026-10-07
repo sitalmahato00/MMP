@@ -474,7 +474,7 @@ class AcademicSessionController extends Controller
         }
 
         $semesterNumber = (int) $filter;
-        return $semesterNumber >= 1 && $semesterNumber <= 8 ? $semesterNumber : null;
+        return $semesterNumber >= 1 && $semesterNumber <= 6 ? $semesterNumber : null;
     }
 
     private function resolveSemesterStatusFilter(string $filter): string

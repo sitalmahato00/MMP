@@ -129,9 +129,9 @@ class ExamController extends HodController
         foreach ($validated['programs'] as $index => $programId) {
             $semesterValue = $validated['semesters'][$index] ?? '1';
             
-            // If "all" is selected, attach all semesters (1-8)
+            // If "all" is selected, attach all semesters (1-6)
             if ($semesterValue === 'all') {
-                for ($sem = 1; $sem <= 8; $sem++) {
+                for ($sem = 1; $sem <= 6; $sem++) {
                     $exam->programs()->attach($programId, ['semester' => $sem]);
                 }
             } else {
@@ -226,9 +226,9 @@ class ExamController extends HodController
         foreach ($validated['programs'] as $index => $programId) {
             $semesterValue = $validated['semesters'][$index] ?? '1';
             
-            // If "all" is selected, attach all semesters (1-8)
+            // If "all" is selected, attach all semesters (1-6)
             if ($semesterValue === 'all') {
-                for ($sem = 1; $sem <= 8; $sem++) {
+                for ($sem = 1; $sem <= 6; $sem++) {
                     $exam->programs()->attach($programId, ['semester' => $sem]);
                 }
             } else {

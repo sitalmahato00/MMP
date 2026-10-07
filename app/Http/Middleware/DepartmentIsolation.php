@@ -39,9 +39,11 @@ class DepartmentIsolation
             ]);
         }
 
+        $isAdminOrPrincipal = $user->hasRole('principal') || $user->hasRole('admin');
+
         // Allow HODs to access dashboard even without department (they'll see a helpful message)
-        // For other routes, enforce department requirement
-        if (!$departmentId && !$user->hasRole('principal')) {
+        // For other routes, enforce department requirement (except for principal/admin)
+        if (!$departmentId && !$isAdminOrPrincipal) {
             // Allow HOD to access their dashboard to see the "no department" message
             if ($user->hasRole('hod') && $request->routeIs('hod.dashboard')) {
                 $request->merge(['department_id' => null]);
@@ -72,6 +74,13 @@ class DepartmentIsolation
             }
             
             abort(403, 'You are not assigned to any department.');
+        }
+
+        // For admin/principal, if no department assigned, use requested department_id or first available department
+        if ($isAdminOrPrincipal && !$departmentId) {
+            $departmentId = $request->get('department_id') 
+                ? (int) $request->get('department_id') 
+                : (\App\Models\Department::first()?->id ?? 1);
         }
 
         $request->merge(['department_id' => $departmentId]);

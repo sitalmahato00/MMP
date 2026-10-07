@@ -160,7 +160,7 @@ class IdCardController extends Controller
 
     public function reports(Request $request): \Illuminate\View\View
     {
-        $programs    = \App\Models\Program::orderBy('name')->get(['id', 'name']);
+        $programs    = \App\Models\Program::orderBy('name')->get(['id', 'name', 'department_id']);
         $departments = \App\Models\Department::orderBy('name')->get(['id', 'name']);
         $sessions    = \App\Models\AcademicSession::orderByDesc('id')->limit(10)->get(['id', 'name']);
 

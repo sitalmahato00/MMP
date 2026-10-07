@@ -48,22 +48,54 @@
 
     {{-- ── Filters ─────────────────────────────────────────────── --}}
     <form method="GET" id="filter-form"
+          x-data="{
+              deptId: '{{ (string)request('department_id', '') }}',
+              progId: '{{ (string)request('program_id', '') }}',
+              allPrograms: @js($programs->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'department_id' => $p->department_id])),
+              filterPrograms() {
+                  const sel = this.$refs.progSelect;
+                  if (!sel) return;
+                  const cur = this.progId;
+                  while (sel.options.length > 1) { sel.remove(1); }
+                  const list = !this.deptId ? this.allPrograms : this.allPrograms.filter(p => String(p.department_id) === String(this.deptId));
+                  list.forEach(p => {
+                      const opt = new Option(p.name, p.id);
+                      if (String(p.id) === String(cur)) opt.selected = true;
+                      sel.add(opt);
+                  });
+                  if (cur && !list.some(p => String(p.id) === String(cur))) {
+                      this.progId = '';
+                      sel.selectedIndex = 0;
+                  }
+              },
+              init() {
+                  this.filterPrograms();
+                  this.$watch('deptId', () => this.filterPrograms());
+              }
+          }"
           class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name / student ID…"
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name / ID…"
                 class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
-            <select name="program_id"
+            <select name="department_id" x-model="deptId"
+                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-300">
+                <option value="">All Departments</option>
+                @foreach($departments as $d)
+                <option value="{{ $d->id }}" @selected(request('department_id') == $d->id)>{{ $d->name }}</option>
+                @endforeach
+            </select>
+            <select name="program_id" x-ref="progSelect" x-model="progId"
                 class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-300">
                 <option value="">All Programs</option>
                 @foreach($programs as $p)
                 <option value="{{ $p->id }}" @selected(request('program_id') == $p->id)>{{ $p->name }}</option>
                 @endforeach
             </select>
-            <select name="department_id"
+            <select name="semester"
                 class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-300">
-                <option value="">All Departments</option>
-                @foreach($departments as $d)
-                <option value="{{ $d->id }}" @selected(request('department_id') == $d->id)>{{ $d->name }}</option>
+                <option value="">All Semesters</option>
+                @foreach(range(1, 6) as $sem)
+                <option value="{{ $sem }}" @selected(request('semester') == $sem)>Semester {{ $sem }}</option>
                 @endforeach
             </select>
             <select name="academic_session_id"

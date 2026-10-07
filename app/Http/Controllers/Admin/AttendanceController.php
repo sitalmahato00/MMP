@@ -892,4 +892,321 @@ class AttendanceController extends Controller
             ['value' => 'custom', 'label' => 'Custom Range'],
         ];
     }
+
+    /**
+     * List all attendance sessions with full filter and pagination.
+     */
+    public function sessions(Request $request)
+    {
+        $query = AttendanceSession::with([
+            'academicSession',
+            'program.department',
+            'subject',
+            'teacher.user',
+        ])->withCount('attendances');
+
+        if ($request->filled('academic_session_id')) {
+            $query->where('academic_session_id', $request->academic_session_id);
+        }
+        if ($request->filled('department_id')) {
+            $query->whereHas('program', fn ($q) => $q->where('department_id', $request->department_id));
+        }
+        if ($request->filled('program_id')) {
+            $query->where('program_id', $request->program_id);
+        }
+        if ($request->filled('semester')) {
+            $query->where('semester', $request->semester);
+        }
+        if ($request->filled('subject_id')) {
+            $query->where('subject_id', $request->subject_id);
+        }
+        if ($request->filled('teacher_id')) {
+            $query->where('teacher_id', $request->teacher_id);
+        }
+        if ($request->filled('date')) {
+            $query->whereDate('date', $request->date);
+        }
+
+        $sessions = $query->latest('date')->paginate(20)->withQueryString();
+
+        $departments = Department::orderBy('name')->get();
+        $programs = Program::orderBy('name')->get();
+        $subjects = Subject::orderBy('name')->get();
+        $teachers = Teacher::with('user')->where('is_active', true)->get();
+        $academicSessions = AcademicSession::orderByDesc('is_current')->get();
+
+        return view('admin.attendance.sessions', compact(
+            'sessions', 'departments', 'programs', 'subjects', 'teachers', 'academicSessions'
+        ));
+    }
+
+    /**
+     * Show form to mark attendance.
+     */
+    public function mark(Request $request)
+    {
+        $departments = Department::with('programs')->orderBy('name')->get();
+        $programs = Program::with('department')->orderBy('name')->get();
+        $subjects = Subject::where('is_active', true)->orderBy('name')->get();
+        $teachers = Teacher::with('user', 'department')->where('is_active', true)->get();
+        $academicSession = AcademicSession::current() ?? AcademicSession::first();
+
+        $students = collect();
+        if ($request->filled('program_id') && $request->filled('semester')) {
+            $studentsQuery = Student::with('user')
+                ->where('program_id', $request->program_id)
+                ->where('current_semester', $request->semester)
+                ->where('status', 'studying');
+
+            if ($request->filled('section')) {
+                $studentsQuery->where('section', $request->section);
+            }
+
+            $students = $studentsQuery->orderBy('roll_number')->get();
+        }
+
+        return view('admin.attendance.mark', compact(
+            'departments', 'programs', 'subjects', 'teachers', 'academicSession', 'students'
+        ));
+    }
+
+    /**
+     * AJAX endpoint to load students for attendance marking.
+     */
+    public function loadStudents(Request $request)
+    {
+        $request->validate([
+            'program_id' => 'required|exists:programs,id',
+            'semester'   => 'required|integer',
+            'section'    => 'nullable|string',
+        ]);
+
+        $query = Student::with('user')
+            ->where('program_id', $request->program_id)
+            ->where('current_semester', $request->semester)
+            ->where('status', 'studying');
+
+        if ($request->filled('section')) {
+            $query->where('section', $request->section);
+        }
+
+        $students = $query->orderBy('roll_number')->get();
+
+        return response()->json($students);
+    }
+
+    /**
+     * Store new attendance session and student attendance records.
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'academic_session_id' => 'required|exists:academic_sessions,id',
+            'program_id'          => 'required|exists:programs,id',
+            'subject_id'          => 'required|exists:subjects,id',
+            'teacher_id'          => 'required|exists:teachers,id',
+            'semester'            => 'required|integer|min:1|max:6',
+            'section'             => 'nullable|string|max:10',
+            'date'                => 'required|string',
+            'period'              => 'required|string|max:50',
+            'attendance_type'     => 'nullable|in:class,lab',
+            'attendances'         => 'required|array',
+            'attendances.*'       => 'required|in:present,absent,late,excused',
+            'remarks'             => 'nullable|array',
+            'remarks.*'           => 'nullable|string|max:255',
+        ]);
+
+        // Support both BS and AD dates
+        $dateStr = $data['date'];
+        if (preg_match('/^20[789]\d/', $dateStr)) {
+            $ad = \App\Helpers\NepaliDateHelper::toAD($dateStr);
+            if ($ad) {
+                $dateStr = $ad->format('Y-m-d');
+            }
+        }
+        $data['date'] = $dateStr;
+
+        $periodLabel = $data['period'];
+        if (!empty($data['attendance_type'])) {
+            $periodLabel .= ' (' . ucfirst($data['attendance_type']) . ')';
+        }
+
+        $sessionId = null;
+        \DB::transaction(function () use ($data, $periodLabel, &$sessionId) {
+            $attendanceSession = AttendanceSession::create([
+                'academic_session_id' => $data['academic_session_id'],
+                'teacher_id'          => $data['teacher_id'],
+                'subject_id'          => $data['subject_id'],
+                'program_id'          => $data['program_id'],
+                'semester'            => $data['semester'],
+                'section'             => $data['section'] ?? null,
+                'date'                => $data['date'],
+                'period'              => $periodLabel,
+            ]);
+
+            $sessionId = $attendanceSession->id;
+
+            foreach ($data['attendances'] as $studentId => $status) {
+                Attendance::create([
+                    'attendance_session_id' => $attendanceSession->id,
+                    'student_id'            => $studentId,
+                    'status'                => $status,
+                    'remarks'               => $data['remarks'][$studentId] ?? null,
+                ]);
+            }
+        });
+
+        return redirect()->route('admin.attendance.sessions.show', $sessionId)
+            ->with('success', 'Attendance marked and saved successfully.');
+    }
+
+    /**
+     * Show form to edit an existing attendance session.
+     */
+    public function edit(AttendanceSession $attendanceSession)
+    {
+        $attendanceSession->load([
+            'subject',
+            'program.department',
+            'teacher.user',
+            'attendances.student.user',
+        ]);
+
+        $teachers = Teacher::with('user')->where('is_active', true)->get();
+
+        return view('admin.attendance.edit', compact('attendanceSession', 'teachers'));
+    }
+
+    /**
+     * Update an attendance session and student attendance records.
+     */
+    public function update(Request $request, AttendanceSession $attendanceSession)
+    {
+        $data = $request->validate([
+            'teacher_id'    => 'required|exists:teachers,id',
+            'date'          => 'required|string',
+            'period'        => 'required|string|max:50',
+            'attendances'   => 'required|array',
+            'attendances.*' => 'required|in:present,absent,late,excused',
+            'remarks'       => 'nullable|array',
+            'remarks.*'     => 'nullable|string|max:255',
+        ]);
+
+        $dateStr = $data['date'];
+        if (preg_match('/^20[789]\d/', $dateStr)) {
+            $ad = \App\Helpers\NepaliDateHelper::toAD($dateStr);
+            if ($ad) {
+                $dateStr = $ad->format('Y-m-d');
+            }
+        }
+        $data['date'] = $dateStr;
+
+        \DB::transaction(function () use ($data, $attendanceSession) {
+            $attendanceSession->update([
+                'teacher_id' => $data['teacher_id'],
+                'date'       => $data['date'],
+                'period'     => $data['period'],
+            ]);
+
+            Attendance::where('attendance_session_id', $attendanceSession->id)->delete();
+
+            foreach ($data['attendances'] as $studentId => $status) {
+                Attendance::create([
+                    'attendance_session_id' => $attendanceSession->id,
+                    'student_id'            => $studentId,
+                    'status'                => $status,
+                    'remarks'               => $data['remarks'][$studentId] ?? null,
+                ]);
+            }
+        });
+
+        return redirect()->route('admin.attendance.sessions.show', $attendanceSession)
+            ->with('success', 'Attendance updated successfully.');
+    }
+
+    /**
+     * Delete an attendance session and all associated attendance records.
+     */
+    public function destroy(AttendanceSession $attendanceSession)
+    {
+        $attendanceSession->attendances()->delete();
+        $attendanceSession->delete();
+
+        return redirect()->route('admin.attendance.index')
+            ->with('success', 'Attendance session deleted successfully.');
+    }
+
+    /**
+     * Attendance reports and analytics.
+     */
+    public function reports(Request $request)
+    {
+        $departments = Department::orderBy('name')->get();
+        $programs = Program::orderBy('name')->get();
+        $academicSessions = AcademicSession::orderByDesc('is_current')->get();
+
+        $students = Student::query()
+            ->with(['user:id,name,email,avatar', 'program:id,name,code', 'department:id,name,code'])
+            ->withCount([
+                'attendances as total_sessions',
+                'attendances as present_sessions' => fn ($q) => $q->where('status', 'present'),
+                'attendances as absent_sessions' => fn ($q) => $q->where('status', 'absent'),
+                'attendances as late_sessions' => fn ($q) => $q->where('status', 'late'),
+            ])
+            ->when($request->filled('department_id'), fn ($q) => $q->where('department_id', $request->department_id))
+            ->when($request->filled('program_id'), fn ($q) => $q->where('program_id', $request->program_id))
+            ->when($request->filled('semester'), fn ($q) => $q->where('current_semester', $request->semester))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $term = trim((string) $request->search);
+                $q->where(function ($sq) use ($term) {
+                    $sq->whereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$term}%")->orWhere('email', 'like', "%{$term}%"))
+                       ->orWhere('student_no', 'like', "%{$term}%")
+                       ->orWhere('registration_number', 'like', "%{$term}%")
+                       ->orWhere('roll_number', 'like', "%{$term}%");
+                });
+            })
+            ->paginate(25)
+            ->withQueryString();
+
+        $students->getCollection()->transform(function ($student) {
+            $student->attendance_rate = $student->total_sessions > 0
+                ? round(($student->present_sessions / $student->total_sessions) * 100, 1)
+                : 0;
+            return $student;
+        });
+
+        // Summary KPI stats
+        $totalSessionsCount = AttendanceSession::count();
+        $totalPresentCount = Attendance::where('status', 'present')->count();
+        $totalRecordsCount = Attendance::count();
+        $overallRate = $totalRecordsCount > 0 ? round(($totalPresentCount / $totalRecordsCount) * 100, 1) : 0;
+
+        return view('admin.attendance.reports', compact(
+            'departments', 'programs', 'academicSessions', 'students', 'totalSessionsCount', 'totalPresentCount', 'totalRecordsCount', 'overallRate'
+        ));
+    }
+
+    /**
+     * Inline toggle of individual attendance record status.
+     */
+    public function toggleStatus(Request $request, Attendance $attendance)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:present,absent,late,excused',
+        ]);
+
+        $attendance->update([
+            'status' => $validated['status'],
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'status' => $attendance->status,
+                'message' => 'Status updated successfully.',
+            ]);
+        }
+
+        return back()->with('success', 'Attendance record updated.');
+    }
 }

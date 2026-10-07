@@ -55,7 +55,32 @@ $alumniKpis = [
 </div>
 
 {{-- Filter Bar --}}
-<div class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+<div class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+     x-data="{
+         deptId: '{{ (string)request('department_id', '') }}',
+         progId: '{{ (string)request('program_id', '') }}',
+         allPrograms: @js($programs->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'department_id' => $p->department_id])),
+         filterPrograms() {
+             const sel = this.$refs.progSelect;
+             if (!sel) return;
+             const cur = this.progId;
+             while (sel.options.length > 1) { sel.remove(1); }
+             const list = !this.deptId ? this.allPrograms : this.allPrograms.filter(p => String(p.department_id) === String(this.deptId));
+             list.forEach(p => {
+                 const opt = new Option(p.name, p.id);
+                 if (String(p.id) === String(cur)) opt.selected = true;
+                 sel.add(opt);
+             });
+             if (cur && !list.some(p => String(p.id) === String(cur))) {
+                 this.progId = '';
+                 sel.selectedIndex = 0;
+             }
+         },
+         init() {
+             this.filterPrograms();
+             this.$watch('deptId', () => this.filterPrograms());
+         }
+     }">
     <form method="GET" action="{{ route('admin.alumni.index') }}" class="flex flex-wrap items-end gap-3">
         <div class="flex-1 min-w-[200px]">
             <label class="text-xs font-semibold text-slate-500 mb-1 block">Search</label>
@@ -64,7 +89,7 @@ $alumniKpis = [
         </div>
         <div class="w-40">
             <label class="text-xs font-semibold text-slate-500 mb-1 block">Department</label>
-            <select name="department_id" class="w-full rounded-xl border border-slate-200 py-2 px-3 text-sm outline-none focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="department_id" x-model="deptId" class="w-full rounded-xl border border-slate-200 py-2 px-3 text-sm outline-none focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All</option>
                 @foreach($departments as $d)
                     <option value="{{ $d->id }}" @selected(request('department_id') == $d->id)>{{ $d->name }}</option>
@@ -73,7 +98,7 @@ $alumniKpis = [
         </div>
         <div class="w-40">
             <label class="text-xs font-semibold text-slate-500 mb-1 block">Program</label>
-            <select name="program_id" class="w-full rounded-xl border border-slate-200 py-2 px-3 text-sm outline-none focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
+            <select name="program_id" x-ref="progSelect" x-model="progId" class="w-full rounded-xl border border-slate-200 py-2 px-3 text-sm outline-none focus:border-[#8B0000] focus:ring-2 focus:ring-red-100">
                 <option value="">All</option>
                 @foreach($programs as $p)
                     <option value="{{ $p->id }}" @selected(request('program_id') == $p->id)>{{ $p->name }}</option>
