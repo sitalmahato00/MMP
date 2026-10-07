@@ -956,13 +956,27 @@ class AttendanceController extends Controller
             $studentsQuery = Student::with('user')
                 ->where('program_id', $request->program_id)
                 ->where('current_semester', $request->semester)
-                ->where('status', 'studying');
+                ->where(function ($q) {
+                    $q->whereIn('status', ['active', 'studying'])
+                      ->orWhereNull('status');
+                });
 
-            if ($request->filled('section')) {
-                $studentsQuery->where('section', $request->section);
+            if ($request->filled('department_id')) {
+                $studentsQuery->where('department_id', $request->department_id);
             }
 
-            $students = $studentsQuery->orderBy('roll_number')->get();
+            if ($request->filled('section')) {
+                $sec = trim((string) $request->section);
+                if ($sec !== '') {
+                    $studentsQuery->where(function ($q) use ($sec) {
+                        $q->where('section', $sec)
+                          ->orWhere('section', strtoupper($sec))
+                          ->orWhere('section', strtolower($sec));
+                    });
+                }
+            }
+
+            $students = $studentsQuery->orderBy('roll_number')->orderBy('id')->get();
         }
 
         return view('admin.attendance.mark', compact(
@@ -984,13 +998,27 @@ class AttendanceController extends Controller
         $query = Student::with('user')
             ->where('program_id', $request->program_id)
             ->where('current_semester', $request->semester)
-            ->where('status', 'studying');
+            ->where(function ($q) {
+                $q->whereIn('status', ['active', 'studying'])
+                  ->orWhereNull('status');
+            });
 
-        if ($request->filled('section')) {
-            $query->where('section', $request->section);
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
         }
 
-        $students = $query->orderBy('roll_number')->get();
+        if ($request->filled('section')) {
+            $sec = trim((string) $request->section);
+            if ($sec !== '') {
+                $query->where(function ($q) use ($sec) {
+                    $q->where('section', $sec)
+                      ->orWhere('section', strtoupper($sec))
+                      ->orWhere('section', strtolower($sec));
+                });
+            }
+        }
+
+        $students = $query->orderBy('roll_number')->orderBy('id')->get();
 
         return response()->json($students);
     }

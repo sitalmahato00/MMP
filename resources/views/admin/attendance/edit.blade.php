@@ -41,9 +41,9 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Date *</label>
-                    <input type="date" name="date" value="{{ $attendanceSession->date?->format('Y-m-d') }}" required
-                           class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Date (BS) *</label>
+                    <x-bs-date-picker name="date" :value="old('date', $attendanceSession->date ? bsDate($attendanceSession->date, 'Y-m-d') : '')" :required="true" placeholder="YYYY-MM-DD"
+                                      class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Period *</label>

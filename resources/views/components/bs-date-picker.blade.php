@@ -37,7 +37,7 @@
             @focus="openCalendar()"
             @input="onManualInput()"
             autocomplete="off"
-            {{ $attributes->merge(['class' => 'w-full border border-gray-200 rounded-lg pl-3.5 pr-10 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-600 transition-all duration-150' . ($errors->has($name) ? ' border-red-400 bg-red-50' : '')]) }}
+            {{ $attributes->merge(['class' => 'w-full border border-gray-200 rounded-lg pl-3.5 pr-10 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-600 transition-all duration-150' . ((isset($errors) && $errors->has($name)) ? ' border-red-400 bg-red-50' : '')]) }}
         >
         <button type="button" @click.stop="toggleCalendar()" tabindex="-1" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600 transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
