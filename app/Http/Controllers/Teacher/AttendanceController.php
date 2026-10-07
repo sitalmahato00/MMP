@@ -191,6 +191,7 @@ class AttendanceController extends Controller
             }
 
             // Get subject with program
+            $subject = Subject::findOrFail($data['subject_id']);
             $typeLabel = in_array(strtolower($data['category'] ?? ''), ['lab', 'practical']) ? 'Lab' : 'Theory';
             $cleanPeriod = trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $data['period'] ?? 'Period 1'));
             $periodLabel = $cleanPeriod . ' (' . $typeLabel . ')';
