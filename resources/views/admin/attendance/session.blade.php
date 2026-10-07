@@ -83,7 +83,17 @@
             </div>
             <div>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Class & Period</label>
-                <p class="text-base font-bold text-slate-900 dark:text-white">{{ $attendanceSession->period ?? 'Period 1' }} · {{ $attendanceSession->section ? 'Section ' . $attendanceSession->section : 'All Sections' }}</p>
+                @php
+                    $isLabSession = stripos($attendanceSession->period, 'lab') !== false || stripos($attendanceSession->period, 'practical') !== false || $attendanceSession->subject?->type === 'practical';
+                @endphp
+                <p class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+                    <span>{{ $attendanceSession->period ?? 'Period 1' }}</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold {{ $isLabSession ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300' }}">
+                        {{ $isLabSession ? 'Lab Session' : 'Theory Session' }}
+                    </span>
+                    <span class="text-slate-400 font-normal">·</span>
+                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">{{ $attendanceSession->section ? 'Sec ' . $attendanceSession->section : 'All Sections' }}</span>
+                </p>
                 <p class="text-xs text-slate-500 dark:text-slate-400">{{ $attendanceSession->program?->name ?? 'Program' }} (Sem {{ $attendanceSession->semester }})</p>
             </div>
         </div>

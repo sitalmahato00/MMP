@@ -29,7 +29,7 @@
         {{-- Session Settings --}}
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4">Session Info</h2>
-            <div class="grid gap-4 sm:grid-cols-3">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Teacher *</label>
                     <select name="teacher_id" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
@@ -47,8 +47,19 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Period *</label>
-                    <input type="text" name="period" value="{{ $attendanceSession->period }}" required
+                    <input type="text" name="period" value="{{ trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $attendanceSession->period)) }}" required
                            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Session Type *</label>
+                    @php
+                        $isLab = stripos($attendanceSession->period, 'lab') !== false || stripos($attendanceSession->period, 'practical') !== false || $attendanceSession->subject?->type === 'practical';
+                    @endphp
+                    <select name="attendance_type" required
+                            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                        <option value="theory" {{ !$isLab ? 'selected' : '' }}>Theory Session</option>
+                        <option value="lab" {{ $isLab ? 'selected' : '' }}>Lab / Practical Session</option>
+                    </select>
                 </div>
             </div>
         </div>

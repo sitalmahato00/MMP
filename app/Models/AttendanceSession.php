@@ -11,11 +11,11 @@ class AttendanceSession extends Model
 
     protected $fillable = [
         'academic_session_id', 'teacher_id', 'subject_id', 'program_id',
-        'semester', 'section', 'date', 'period',
+        'semester', 'section', 'date', 'period', 'class_type',
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'date'     => 'date',
         'semester' => 'integer',
     ];
 

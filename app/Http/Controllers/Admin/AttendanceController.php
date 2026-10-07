@@ -926,6 +926,25 @@ class AttendanceController extends Controller
         if ($request->filled('date')) {
             $query->whereDate('date', $request->date);
         }
+        if ($request->filled('type')) {
+            $t = strtolower($request->type);
+            if (in_array($t, ['lab', 'practical'])) {
+                $query->where(function ($q) {
+                    $q->where('period', 'LIKE', '%(Lab)%')
+                      ->orWhere('period', 'LIKE', '%(Practical)%')
+                      ->orWhereHas('subject', fn ($sq) => $sq->where('type', 'practical'));
+                });
+            } elseif (in_array($t, ['theory', 'class'])) {
+                $query->where(function ($q) {
+                    $q->where('period', 'LIKE', '%(Theory)%')
+                      ->orWhere('period', 'LIKE', '%(Class)%')
+                      ->orWhere(function ($subQ) {
+                          $subQ->where('period', 'NOT LIKE', '%(Lab)%')
+                               ->where('period', 'NOT LIKE', '%(Practical)%');
+                      });
+                });
+            }
+        }
 
         $sessions = $query->latest('date')->paginate(20)->withQueryString();
 
@@ -947,9 +966,50 @@ class AttendanceController extends Controller
     {
         $departments = Department::with('programs')->orderBy('name')->get();
         $programs = Program::with('department')->orderBy('name')->get();
-        $subjects = Subject::where('is_active', true)->orderBy('name')->get();
+
+        $subjectsQuery = Subject::with('program:id,name,department_id')->where('is_active', true);
+        if ($request->filled('type')) {
+            $t = strtolower($request->type);
+            if ($t === 'theory') {
+                $subjectsQuery->whereIn('type', ['theory', 'both']);
+            } elseif (in_array($t, ['lab', 'practical'])) {
+                $subjectsQuery->whereIn('type', ['practical', 'both']);
+            }
+        }
+        $subjects = $subjectsQuery->orderBy('name')->get();
+
+        // Map teachers assigned to subjects via timetable slots or subject_teacher
+        $timetableTeacherMap = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('timetable_slots')) {
+            $timetableTeacherMap = \DB::table('timetable_slots')
+                ->whereNotNull('subject_id')
+                ->whereNotNull('teacher_id')
+                ->get(['subject_id', 'teacher_id'])
+                ->groupBy('subject_id')
+                ->map(fn($slots) => $slots->pluck('teacher_id')->unique()->values()->all());
+        }
+
+        $subjectTeacherMap = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('subject_teacher')) {
+            $subjectTeacherMap = \DB::table('subject_teacher')
+                ->whereNotNull('subject_id')
+                ->whereNotNull('teacher_id')
+                ->get(['subject_id', 'teacher_id'])
+                ->groupBy('subject_id')
+                ->map(fn($rows) => $rows->pluck('teacher_id')->unique()->values()->all());
+        }
+
+        $subjects->each(function ($s) use ($timetableTeacherMap, $subjectTeacherMap) {
+            $tIds = array_unique(array_merge(
+                $timetableTeacherMap->get($s->id, []),
+                $subjectTeacherMap->get($s->id, [])
+            ));
+            $s->teacher_ids = array_values($tIds);
+        });
+
         $teachers = Teacher::with('user', 'department')->where('is_active', true)->get();
-        $academicSession = AcademicSession::current() ?? AcademicSession::first();
+        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
+        $academicSession = AcademicSession::current() ?? $academicSessions->first();
 
         $students = collect();
         if ($request->filled('program_id') && $request->filled('semester')) {
@@ -980,7 +1040,7 @@ class AttendanceController extends Controller
         }
 
         return view('admin.attendance.mark', compact(
-            'departments', 'programs', 'subjects', 'teachers', 'academicSession', 'students'
+            'departments', 'programs', 'subjects', 'teachers', 'academicSession', 'academicSessions', 'students'
         ));
     }
 
@@ -1037,7 +1097,7 @@ class AttendanceController extends Controller
             'section'             => 'nullable|string|max:10',
             'date'                => 'required|string',
             'period'              => 'required|string|max:50',
-            'attendance_type'     => 'nullable|in:class,lab',
+            'attendance_type'     => 'nullable|in:class,lab,theory,practical',
             'attendances'         => 'required|array',
             'attendances.*'       => 'required|in:present,absent,late,excused',
             'remarks'             => 'nullable|array',
@@ -1056,7 +1116,9 @@ class AttendanceController extends Controller
 
         $periodLabel = $data['period'];
         if (!empty($data['attendance_type'])) {
-            $periodLabel .= ' (' . ucfirst($data['attendance_type']) . ')';
+            $typeLabel = in_array(strtolower($data['attendance_type']), ['lab', 'practical']) ? 'Lab' : 'Theory';
+            $cleanPeriod = trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $periodLabel));
+            $periodLabel = $cleanPeriod . ' (' . $typeLabel . ')';
         }
 
         $sessionId = null;
@@ -1111,13 +1173,14 @@ class AttendanceController extends Controller
     public function update(Request $request, AttendanceSession $attendanceSession)
     {
         $data = $request->validate([
-            'teacher_id'    => 'required|exists:teachers,id',
-            'date'          => 'required|string',
-            'period'        => 'required|string|max:50',
-            'attendances'   => 'required|array',
-            'attendances.*' => 'required|in:present,absent,late,excused',
-            'remarks'       => 'nullable|array',
-            'remarks.*'     => 'nullable|string|max:255',
+            'teacher_id'      => 'required|exists:teachers,id',
+            'date'            => 'required|string',
+            'period'          => 'required|string|max:50',
+            'attendance_type' => 'nullable|in:class,lab,theory,practical',
+            'attendances'     => 'required|array',
+            'attendances.*'   => 'required|in:present,absent,late,excused',
+            'remarks'         => 'nullable|array',
+            'remarks.*'       => 'nullable|string|max:255',
         ]);
 
         $dateStr = $data['date'];
@@ -1129,11 +1192,18 @@ class AttendanceController extends Controller
         }
         $data['date'] = $dateStr;
 
-        \DB::transaction(function () use ($data, $attendanceSession) {
+        $periodLabel = $data['period'];
+        if (!empty($data['attendance_type'])) {
+            $typeLabel = in_array(strtolower($data['attendance_type']), ['lab', 'practical']) ? 'Lab' : 'Theory';
+            $cleanPeriod = trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $periodLabel));
+            $periodLabel = $cleanPeriod . ' (' . $typeLabel . ')';
+        }
+
+        \DB::transaction(function () use ($data, $periodLabel, $attendanceSession) {
             $attendanceSession->update([
                 'teacher_id' => $data['teacher_id'],
                 'date'       => $data['date'],
-                'period'     => $data['period'],
+                'period'     => $periodLabel,
             ]);
 
             Attendance::where('attendance_session_id', $attendanceSession->id)->delete();

@@ -55,7 +55,7 @@
              }
          }">
         <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4">1. Select Class & Subject</h2>
-        <form method="GET" action="{{ route('admin.attendance.mark') }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end">
+        <form method="GET" action="{{ route('admin.attendance.mark') }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6 items-end">
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Department</label>
                 <select name="department_id" x-model="deptId" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
@@ -88,6 +88,14 @@
                        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
             </div>
             <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Subject Type</label>
+                <select name="type" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                    <option value="">All Types (Theory & Lab)</option>
+                    <option value="theory" {{ request('type') == 'theory' ? 'selected' : '' }}>Theory Only</option>
+                    <option value="practical" {{ in_array(request('type'), ['practical', 'lab']) ? 'selected' : '' }}>Lab / Practical Only</option>
+                </select>
+            </div>
+            <div>
                 <button type="submit" class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800 dark:bg-slate-700">
                     Load Students
                 </button>
@@ -110,40 +118,214 @@
             <input type="hidden" name="semester" value="{{ request('semester') }}">
             <input type="hidden" name="section" value="{{ request('section') }}">
 
+            @php
+                $matchedSubjects = $subjects->filter(fn($subj) => (string)$subj->program_id === (string)request('program_id') && (string)$subj->semester === (string)request('semester'));
+                if ($matchedSubjects->isEmpty()) {
+                    $matchedSubjects = $subjects->filter(fn($subj) => (string)$subj->program_id === (string)request('program_id'));
+                }
+                if ($matchedSubjects->isEmpty()) {
+                    $matchedSubjects = $subjects;
+                }
+            @endphp
+
             {{-- Session Details --}}
-            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4">2. Session Details</h2>
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                 x-data="{
+                     academicSessionId: '{{ (string)old('academic_session_id', $academicSession?->id) }}',
+                     subjectId: '{{ (string)old('subject_id', (count($matchedSubjects) === 1 ? $matchedSubjects->first()->id : '')) }}',
+                     attendanceType: '{{ old('attendance_type', request('type') === 'practical' ? 'lab' : 'theory') }}',
+                     teacherId: '{{ (string)old('teacher_id', '') }}',
+
+                     allSubjects: @js($matchedSubjects->map(fn($s) => [
+                         'id' => (string)$s->id,
+                         'name' => $s->name,
+                         'code' => $s->code,
+                         'type' => $s->type ?? 'theory',
+                         'department_id' => (string)($s->program?->department_id ?? $activeDeptId),
+                         'teacher_ids' => array_map('strval', $s->teacher_ids ?? []),
+                     ])->values()),
+
+                     allTeachers: @js($teachers->map(fn($t) => [
+                         'id' => (string)$t->id,
+                         'name' => $t->user?->name ?? 'Teacher',
+                         'department_id' => (string)$t->department_id,
+                         'designation' => $t->designation,
+                     ])->values()),
+
+                     defaultDeptId: '{{ (string)$activeDeptId }}',
+
+                     get currentSubject() {
+                         return this.allSubjects.find(s => String(s.id) === String(this.subjectId));
+                     },
+
+                     get isSubjectSelected() {
+                         return Boolean(this.subjectId && this.currentSubject);
+                     },
+
+                     get filteredTeachers() {
+                         if (!this.currentSubject) {
+                             if (this.defaultDeptId) {
+                                 const list = this.allTeachers.filter(t => String(t.department_id) === String(this.defaultDeptId));
+                                 if (list.length > 0) return list;
+                             }
+                             return this.allTeachers;
+                         }
+
+                         const subj = this.currentSubject;
+                         const targetDeptId = subj.department_id || this.defaultDeptId;
+
+                         // Prioritize teachers assigned to this subject in timetable/allocation
+                         const assigned = this.allTeachers.filter(t => subj.teacher_ids && subj.teacher_ids.includes(String(t.id)));
+
+                         // Teachers belonging to this subject's department
+                         const deptTeachers = targetDeptId
+                             ? this.allTeachers.filter(t => String(t.department_id) === String(targetDeptId))
+                             : [];
+
+                         const combined = [...assigned];
+                         deptTeachers.forEach(t => {
+                             if (!combined.some(c => String(c.id) === String(t.id))) {
+                                 combined.push(t);
+                             }
+                         });
+
+                         return combined.length > 0 ? combined : this.allTeachers;
+                     },
+
+                     updateSessionTypes() {
+                         const sel = this.$refs.sessionTypeSelect;
+                         if (!sel) return;
+                         const cur = this.attendanceType;
+                         while (sel.options.length > 0) { sel.remove(0); }
+
+                         if (!this.currentSubject) {
+                             sel.add(new Option('Select Subject First', ''));
+                             this.attendanceType = '';
+                             return;
+                         }
+
+                         const t = this.currentSubject.type;
+                         if (t === 'theory') {
+                             sel.add(new Option('Theory Session', 'theory'));
+                             this.attendanceType = 'theory';
+                         } else if (t === 'practical') {
+                             sel.add(new Option('Lab / Practical Session', 'lab'));
+                             this.attendanceType = 'lab';
+                         } else {
+                             // Subject supports both
+                             sel.add(new Option('Theory Session', 'theory'));
+                             sel.add(new Option('Lab / Practical Session', 'lab'));
+                             if (cur === 'lab') {
+                                 this.attendanceType = 'lab';
+                             } else {
+                                 this.attendanceType = 'theory';
+                             }
+                         }
+                         sel.value = this.attendanceType;
+                     },
+
+                     filterTeachersDropdown() {
+                         const sel = this.$refs.teacherSelect;
+                         if (!sel) return;
+                         const cur = this.teacherId;
+                         while (sel.options.length > 1) { sel.remove(1); }
+
+                         const list = this.filteredTeachers;
+                         list.forEach(t => {
+                             const label = t.name + (t.designation ? ' (' + t.designation + ')' : '');
+                             const opt = new Option(label, t.id);
+                             if (String(t.id) === String(cur)) {
+                                 opt.selected = true;
+                             }
+                             sel.add(opt);
+                         });
+
+                         if (cur && !list.some(t => String(t.id) === String(cur))) {
+                             this.teacherId = '';
+                             sel.selectedIndex = 0;
+                         } else if (cur) {
+                             sel.value = cur;
+                         }
+                     },
+
+                     onSubjectChange() {
+                         this.updateSessionTypes();
+                         this.filterTeachersDropdown();
+                     },
+
+                     init() {
+                         this.updateSessionTypes();
+                         this.filterTeachersDropdown();
+                         this.$watch('subjectId', () => this.onSubjectChange());
+                     }
+                 }">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Academic Session *</label>
-                        <select name="academic_session_id" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                            <option value="{{ $academicSession?->id }}">{{ $academicSession?->name }}</option>
-                        </select>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">2. Session Details</h2>
+                        <p class="text-xs text-slate-500">Choose subject to restrict session type and assigned teachers.</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Subject *</label>
-                        <select name="subject_id" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                            <option value="">Select Subject</option>
+                        <template x-if="attendanceType === 'lab'">
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                                Lab / Practical Session
+                            </span>
+                        </template>
+                        <template x-if="attendanceType === 'theory'">
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                                Theory / Lecture Session
+                            </span>
+                        </template>
+                        <template x-if="!attendanceType">
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                Select Subject First
+                            </span>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Academic Session *</label>
+                        <select name="academic_session_id" x-model="academicSessionId" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                             @php
-                                $matchedSubjects = $subjects->filter(fn($subj) => (string)$subj->program_id === (string)request('program_id') && (string)$subj->semester === (string)request('semester'));
-                                if ($matchedSubjects->isEmpty()) {
-                                    $matchedSubjects = $subjects->filter(fn($subj) => (string)$subj->program_id === (string)request('program_id'));
-                                }
-                                if ($matchedSubjects->isEmpty()) {
-                                    $matchedSubjects = $subjects;
-                                }
+                                $sessionsList = $academicSessions ?? ($academicSession ? collect([$academicSession]) : \App\Models\AcademicSession::all());
                             @endphp
-                            @foreach($matchedSubjects as $subj)
-                                <option value="{{ $subj->id }}">{{ $subj->code }} - {{ $subj->name }}</option>
+                            @foreach($sessionsList as $as)
+                                <option value="{{ $as->id }}" {{ (string)old('academic_session_id', $academicSession?->id) === (string)$as->id ? 'selected' : '' }}>
+                                    {{ $as->name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
                     <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Subject *</label>
+                        <select name="subject_id" x-ref="subjSelect" x-model="subjectId" @change="onSubjectChange()" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                            <option value="">Select Subject</option>
+                            @foreach($matchedSubjects as $subj)
+                                <option value="{{ $subj->id }}" {{ (string)old('subject_id') === (string)$subj->id ? 'selected' : '' }}>
+                                    {{ $subj->code }} - {{ $subj->name }} ({{ ucfirst($subj->type ?? 'theory') }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Session Type *</label>
+                        <select name="attendance_type" x-ref="sessionTypeSelect" x-model="attendanceType" required
+                                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                            <option value="theory">Theory Session</option>
+                            <option value="lab">Lab / Practical Session</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Teacher *</label>
-                        <select name="teacher_id" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                            <option value="">Select Teacher</option>
+                        <select name="teacher_id" x-ref="teacherSelect" x-model="teacherId" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                            <option value="" x-text="!isSubjectSelected ? 'Select Subject First' : 'Select Teacher'"></option>
                             @foreach($filteredTeachers as $t)
-                                <option value="{{ $t->id }}">{{ $t->user?->name }}</option>
+                                <option value="{{ $t->id }}" {{ (string)old('teacher_id') === (string)$t->id ? 'selected' : '' }}>
+                                    {{ $t->user?->name }}{{ $t->designation ? ' (' . $t->designation . ')' : '' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -154,7 +336,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Period / Time *</label>
-                        <input type="text" name="period" value="Period 1" required
+                        <input type="text" name="period" value="{{ old('period', 'Period 1') }}" required
                                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                     </div>
                 </div>
