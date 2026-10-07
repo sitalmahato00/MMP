@@ -33,11 +33,26 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Teacher *</label>
                     <select name="teacher_id" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                        @foreach($teachers as $t)
-                            <option value="{{ $t->id }}" {{ $attendanceSession->teacher_id == $t->id ? 'selected' : '' }}>
-                                {{ $t->user?->name }}
-                            </option>
-                        @endforeach
+                        @if(isset($assignedTeachers) && $assignedTeachers->isNotEmpty())
+                            @foreach($assignedTeachers as $t)
+                                <option value="{{ $t->id }}" {{ $attendanceSession->teacher_id == $t->id ? 'selected' : '' }}>
+                                    {{ $t->user?->name }}{{ $t->designation ? ' (' . $t->designation . ')' : '' }}
+                                </option>
+                            @endforeach
+                            @if(!$assignedTeachers->contains('id', $attendanceSession->teacher_id) && $attendanceSession->teacher)
+                                <option value="{{ $attendanceSession->teacher->id }}" selected>
+                                    {{ $attendanceSession->teacher->user?->name }} (Currently Recorded)
+                                </option>
+                            @endif
+                        @else
+                            @if($attendanceSession->teacher)
+                                <option value="{{ $attendanceSession->teacher->id }}" selected>
+                                    {{ $attendanceSession->teacher->user?->name }} (Currently Recorded)
+                                </option>
+                            @else
+                                <option value="">No teacher assigned to this subject</option>
+                            @endif
+                        @endif
                     </select>
                 </div>
                 <div>

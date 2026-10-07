@@ -978,38 +978,41 @@ class AttendanceController extends Controller
         }
         $subjects = $subjectsQuery->orderBy('name')->get();
 
-        // Map teachers assigned to subjects via timetable slots or subject_teacher
-        $timetableTeacherMap = collect();
-        if (\Illuminate\Support\Facades\Schema::hasTable('timetable_slots')) {
-            $timetableTeacherMap = \DB::table('timetable_slots')
-                ->whereNotNull('subject_id')
-                ->whereNotNull('teacher_id')
-                ->get(['subject_id', 'teacher_id'])
-                ->groupBy('subject_id')
-                ->map(fn($slots) => $slots->pluck('teacher_id')->unique()->values()->all());
-        }
+        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
+        $academicSession = AcademicSession::current() ?? $academicSessions->first();
 
+        // Authoritative teacher assignments strictly from subject_teacher pivot table
         $subjectTeacherMap = collect();
         if (\Illuminate\Support\Facades\Schema::hasTable('subject_teacher')) {
             $subjectTeacherMap = \DB::table('subject_teacher')
                 ->whereNotNull('subject_id')
                 ->whereNotNull('teacher_id')
-                ->get(['subject_id', 'teacher_id'])
-                ->groupBy('subject_id')
-                ->map(fn($rows) => $rows->pluck('teacher_id')->unique()->values()->all());
+                ->get(['subject_id', 'teacher_id', 'academic_session_id', 'role'])
+                ->groupBy('subject_id');
         }
 
-        $subjects->each(function ($s) use ($timetableTeacherMap, $subjectTeacherMap) {
-            $tIds = array_unique(array_merge(
-                $timetableTeacherMap->get($s->id, []),
-                $subjectTeacherMap->get($s->id, [])
-            ));
-            $s->teacher_ids = array_values($tIds);
+        $subjects->each(function ($s) use ($subjectTeacherMap) {
+            $assigned = [];
+
+            // From subject_teacher pivot ONLY
+            if ($subjectTeacherMap->has($s->id)) {
+                foreach ($subjectTeacherMap->get($s->id) as $row) {
+                    $tId = (string) $row->teacher_id;
+                    $role = strtolower(trim((string) $row->role));
+                    $assigned[] = [
+                        'teacher_id' => $tId,
+                        'academic_session_id' => (string) $row->academic_session_id,
+                        'role' => $role ?: 'both',
+                    ];
+                }
+            }
+
+            $s->assigned_teachers = $assigned;
+            $s->assigned_teacher_ids = array_values(array_unique(array_map(fn($a) => (string)$a['teacher_id'], $assigned)));
+            $s->teacher_ids = $s->assigned_teacher_ids;
         });
 
         $teachers = Teacher::with('user', 'department')->where('is_active', true)->get();
-        $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
-        $academicSession = AcademicSession::current() ?? $academicSessions->first();
 
         $students = collect();
         if ($request->filled('program_id') && $request->filled('semester')) {
@@ -1162,9 +1165,28 @@ class AttendanceController extends Controller
             'attendances.student.user',
         ]);
 
-        $teachers = Teacher::with('user')->where('is_active', true)->get();
+        $subjectId = $attendanceSession->subject_id;
+        $deptId = $attendanceSession->program?->department_id;
 
-        return view('admin.attendance.edit', compact('attendanceSession', 'teachers'));
+        $assignedTeacherIds = collect();
+        if ($subjectId) {
+            $assignedTeacherIds = \DB::table('subject_teacher')
+                ->where('subject_id', $subjectId)
+                ->pluck('teacher_id')
+                ->map(fn($id) => (string)$id)
+                ->unique()
+                ->values();
+        }
+
+        $allTeachers = Teacher::with('user', 'department')->where('is_active', true)->get();
+        $assignedTeachers = $allTeachers->filter(fn($t) => $assignedTeacherIds->contains((string)$t->id));
+        $otherDeptTeachers = $deptId
+            ? $allTeachers->filter(fn($t) => (string)$t->department_id === (string)$deptId && !$assignedTeacherIds->contains((string)$t->id))
+            : $allTeachers->filter(fn($t) => !$assignedTeacherIds->contains((string)$t->id));
+
+        return view('admin.attendance.edit', compact(
+            'attendanceSession', 'allTeachers', 'assignedTeachers', 'otherDeptTeachers', 'assignedTeacherIds'
+        ));
     }
 
     /**

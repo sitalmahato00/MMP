@@ -135,6 +135,8 @@
                      subjectId: '{{ (string)old('subject_id', (count($matchedSubjects) === 1 ? $matchedSubjects->first()->id : '')) }}',
                      attendanceType: '{{ old('attendance_type', request('type') === 'practical' ? 'lab' : 'theory') }}',
                      teacherId: '{{ (string)old('teacher_id', '') }}',
+                     teacherStatusText: '',
+                     isAssignedTeacher: false,
 
                      allSubjects: @js($matchedSubjects->map(fn($s) => [
                          'id' => (string)$s->id,
@@ -142,7 +144,7 @@
                          'code' => $s->code,
                          'type' => $s->type ?? 'theory',
                          'department_id' => (string)($s->program?->department_id ?? $activeDeptId),
-                         'teacher_ids' => array_map('strval', $s->teacher_ids ?? []),
+                         'assigned_teacher_ids' => array_map('strval', $s->assigned_teacher_ids ?? []),
                      ])->values()),
 
                      allTeachers: @js($teachers->map(fn($t) => [
@@ -162,34 +164,26 @@
                          return Boolean(this.subjectId && this.currentSubject);
                      },
 
-                     get filteredTeachers() {
+                     updateTeacherStatus() {
                          if (!this.currentSubject) {
-                             if (this.defaultDeptId) {
-                                 const list = this.allTeachers.filter(t => String(t.department_id) === String(this.defaultDeptId));
-                                 if (list.length > 0) return list;
-                             }
-                             return this.allTeachers;
+                             this.isAssignedTeacher = false;
+                             this.teacherStatusText = 'Select subject to view assigned teacher';
+                             return;
                          }
-
                          const subj = this.currentSubject;
-                         const targetDeptId = subj.department_id || this.defaultDeptId;
-
-                         // Prioritize teachers assigned to this subject in timetable/allocation
-                         const assigned = this.allTeachers.filter(t => subj.teacher_ids && subj.teacher_ids.includes(String(t.id)));
-
-                         // Teachers belonging to this subject's department
-                         const deptTeachers = targetDeptId
-                             ? this.allTeachers.filter(t => String(t.department_id) === String(targetDeptId))
-                             : [];
-
-                         const combined = [...assigned];
-                         deptTeachers.forEach(t => {
-                             if (!combined.some(c => String(c.id) === String(t.id))) {
-                                 combined.push(t);
-                             }
-                         });
-
-                         return combined.length > 0 ? combined : this.allTeachers;
+                         const assignedIds = subj.assigned_teacher_ids || [];
+                         if (assignedIds.length === 0) {
+                             this.isAssignedTeacher = false;
+                             this.teacherStatusText = 'No teacher assigned to ' + subj.name;
+                             return;
+                         }
+                         if (this.teacherId && assignedIds.includes(String(this.teacherId))) {
+                             this.isAssignedTeacher = true;
+                             this.teacherStatusText = 'Assigned teacher for ' + subj.name;
+                         } else {
+                             this.isAssignedTeacher = false;
+                             this.teacherStatusText = '';
+                         }
                      },
 
                      updateSessionTypes() {
@@ -228,24 +222,52 @@
                          const sel = this.$refs.teacherSelect;
                          if (!sel) return;
                          const cur = this.teacherId;
-                         while (sel.options.length > 1) { sel.remove(1); }
+                         sel.innerHTML = '';
 
-                         const list = this.filteredTeachers;
-                         list.forEach(t => {
+                         if (!this.currentSubject) {
+                             sel.add(new Option('Select Subject First', ''));
+                             this.teacherId = '';
+                             this.updateTeacherStatus();
+                             return;
+                         }
+
+                         const subj = this.currentSubject;
+                         const assignedIds = subj.assigned_teacher_ids || [];
+                         const assignedTeachers = this.allTeachers.filter(t => assignedIds.includes(String(t.id)));
+
+                         if (assignedTeachers.length === 0) {
+                             // If not assigned then empty
+                             sel.add(new Option('No teacher assigned to this subject', ''));
+                             this.teacherId = '';
+                             this.updateTeacherStatus();
+                             return;
+                         }
+
+                         // Only show the assigned teacher(s) of the selected subject
+                         if (assignedTeachers.length > 1) {
+                             sel.add(new Option('Select Assigned Teacher', ''));
+                         }
+
+                         assignedTeachers.forEach(t => {
                              const label = t.name + (t.designation ? ' (' + t.designation + ')' : '');
                              const opt = new Option(label, t.id);
                              if (String(t.id) === String(cur)) {
                                  opt.selected = true;
                              }
-                             sel.add(opt);
+                             sel.appendChild(opt);
                          });
 
-                         if (cur && !list.some(t => String(t.id) === String(cur))) {
-                             this.teacherId = '';
-                             sel.selectedIndex = 0;
-                         } else if (cur) {
-                             sel.value = cur;
+                         const validIds = assignedTeachers.map(t => String(t.id));
+                         if (cur && validIds.includes(String(cur))) {
+                             this.teacherId = String(cur);
+                             sel.value = this.teacherId;
+                         } else {
+                             // Auto-select the assigned teacher
+                             this.teacherId = String(assignedTeachers[0].id);
+                             sel.value = this.teacherId;
                          }
+
+                         this.updateTeacherStatus();
                      },
 
                      onSubjectChange() {
@@ -257,6 +279,7 @@
                          this.updateSessionTypes();
                          this.filterTeachersDropdown();
                          this.$watch('subjectId', () => this.onSubjectChange());
+                         this.$watch('teacherId', () => this.updateTeacherStatus());
                      }
                  }">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -320,14 +343,20 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Teacher *</label>
-                        <select name="teacher_id" x-ref="teacherSelect" x-model="teacherId" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                            <option value="" x-text="!isSubjectSelected ? 'Select Subject First' : 'Select Teacher'"></option>
-                            @foreach($filteredTeachers as $t)
-                                <option value="{{ $t->id }}" {{ (string)old('teacher_id') === (string)$t->id ? 'selected' : '' }}>
-                                    {{ $t->user?->name }}{{ $t->designation ? ' (' . $t->designation . ')' : '' }}
-                                </option>
-                            @endforeach
+                        <select name="teacher_id" x-ref="teacherSelect" x-model="teacherId" @change="updateTeacherStatus()" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                            <option value="">Select Subject First</option>
                         </select>
+                        <div class="mt-1 min-h-[18px]">
+                            <template x-if="isAssignedTeacher">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    <span x-text="teacherStatusText"></span>
+                                </span>
+                            </template>
+                            <template x-if="!isAssignedTeacher && teacherStatusText">
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400" x-text="teacherStatusText"></span>
+                            </template>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Date (BS) *</label>
