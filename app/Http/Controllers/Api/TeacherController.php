@@ -106,16 +106,55 @@ class TeacherController extends Controller
         try {
             $user = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+            $session = \App\Models\AcademicSession::current();
 
-            $subjects = $teacher->subjects ?? collect();
+            $subjectsQuery = $teacher->subjects()->with('program:id,name,code,department_id');
+            if ($session) {
+                $sessionSubjects = (clone $subjectsQuery)->wherePivot('academic_session_id', $session->id)->get();
+                $subjects = $sessionSubjects->isNotEmpty() ? $sessionSubjects : $subjectsQuery->get();
+            } else {
+                $subjects = $subjectsQuery->get();
+            }
 
             return response()->json([
                 'success' => true,
-                'data' => $subjects->map(fn($subject) => [
-                    'id' => $subject->id,
-                    'name' => $subject->name,
-                    'code' => $subject->code,
-                ])
+                'data' => $subjects->map(function ($subject) {
+                    $type = strtolower($subject->type ?? 'theory');
+                    $allowedTypes = match ($type) {
+                        'practical' => ['lab'],
+                        'both'      => ['theory', 'lab'],
+                        default     => ['theory'],
+                    };
+
+                    $role = strtolower(trim((string)($subject->pivot->role ?? '')));
+                    if (in_array($role, ['lab', 'practical'])) {
+                        $allowedTypes = array_intersect($allowedTypes, ['lab']);
+                    } elseif (in_array($role, ['theory', 'class'])) {
+                        $allowedTypes = array_intersect($allowedTypes, ['theory']);
+                    }
+                    if (empty($allowedTypes)) {
+                        $allowedTypes = match ($type) {
+                            'practical' => ['lab'],
+                            'both'      => ['theory', 'lab'],
+                            default     => ['theory'],
+                        };
+                    }
+
+                    return [
+                        'id'            => $subject->id,
+                        'name'          => $subject->name,
+                        'code'          => $subject->code,
+                        'type'          => $type, // 'theory' | 'practical' | 'both'
+                        'allowed_types' => array_values($allowedTypes), // ['theory'], ['lab'], or ['theory', 'lab']
+                        'has_theory'    => in_array('theory', $allowedTypes),
+                        'has_lab'       => in_array('lab', $allowedTypes),
+                        'semester'      => $subject->semester,
+                        'program_id'    => $subject->program_id,
+                        'program_name'  => $subject->program?->name,
+                        'credit_hours'  => $subject->credit_hours,
+                        'assigned_role' => $subject->pivot->role ?? 'Teacher',
+                    ];
+                })->values()
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -126,23 +165,59 @@ class TeacherController extends Controller
     }
 
     /**
-     * Get or create an attendance session for a given subject + date.
+     * Get or create an attendance session for a given subject + date + type (Theory or Lab).
      * Returns the session so the app can take attendance against it.
      */
     public function startAttendanceSession(Request $request): JsonResponse
     {
         try {
             $validated = $request->validate([
-                'subject_id' => 'required|integer|exists:subjects,id',
-                'date'       => 'nullable|date_format:Y-m-d',
-                'period'     => 'nullable|string|max:50',
+                'subject_id'      => 'required|integer|exists:subjects,id',
+                'attendance_type' => 'nullable|string|in:theory,lab,class,practical',
+                'type'            => 'nullable|string|in:theory,lab,class,practical',
+                'date'            => 'nullable|string',
+                'period'          => 'nullable|string|max:50',
             ]);
 
             $user    = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
             $subject = \App\Models\Subject::findOrFail($validated['subject_id']);
-            $date    = $validated['date'] ?? now()->toDateString();
+
+            $dateStr = $validated['date'] ?? now()->toDateString();
+            if (preg_match('/^20[789]\d/', $dateStr)) {
+                $adDate = \App\Helpers\NepaliDateHelper::toAD($dateStr);
+                if ($adDate) {
+                    $dateStr = $adDate->format('Y-m-d');
+                }
+            }
+            $date = $dateStr;
+
             $session = \App\Models\AcademicSession::current();
+
+            // Determine attendance type (theory vs lab)
+            $rawType = strtolower($validated['attendance_type'] ?? $validated['type'] ?? '');
+            if (in_array($rawType, ['lab', 'practical'])) {
+                $attendanceType = 'lab';
+            } elseif (in_array($rawType, ['theory', 'class'])) {
+                $attendanceType = 'theory';
+            } else {
+                $attendanceType = ($subject->type === 'practical') ? 'lab' : 'theory';
+            }
+
+            // Validate that subject supports this attendance type
+            if ($attendanceType === 'lab' && !in_array($subject->type, ['practical', 'both'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Subject {$subject->name} does not support Lab/Practical attendance.",
+                ], 422);
+            }
+
+            $typeLabel = $attendanceType === 'lab' ? 'Lab' : 'Theory';
+
+            // Clean period and format period with (Theory) or (Lab)
+            $basePeriod = $validated['period'] ?? 'Period 1';
+            $cleanPeriod = trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $basePeriod));
+            $formattedPeriod = $cleanPeriod . ' (' . $typeLabel . ')';
 
             // Find existing session or create new one
             $attendanceSession = \App\Models\AttendanceSession::firstOrCreate(
@@ -150,7 +225,7 @@ class TeacherController extends Controller
                     'teacher_id' => $teacher->id,
                     'subject_id' => $subject->id,
                     'date'       => $date,
-                    'period'     => $validated['period'] ?? null,
+                    'period'     => $formattedPeriod,
                 ],
                 [
                     'academic_session_id' => $session?->id,
@@ -165,16 +240,21 @@ class TeacherController extends Controller
             return response()->json([
                 'success' => true,
                 'data'    => [
-                    'session_id'  => $attendanceSession->id,
-                    'subject'     => $subject->name,
-                    'subject_code'=> $subject->code,
-                    'date'        => $attendanceSession->date->toDateString(),
-                    'period'      => $attendanceSession->period,
-                    'is_existing' => !$attendanceSession->wasRecentlyCreated,
-                    'attendance_count' => $attendances->count(),
-                    'existing_attendance' => $attendances->map(fn($a) => [
+                    'session_id'           => $attendanceSession->id,
+                    'subject_id'           => $subject->id,
+                    'subject'              => $subject->name,
+                    'subject_code'         => $subject->code,
+                    'subject_type'         => $subject->type ?? 'theory',
+                    'attendance_type'      => $attendanceType, // 'theory' | 'lab'
+                    'attendance_type_label'=> $typeLabel . ' Session',
+                    'date'                 => $attendanceSession->date->toDateString(),
+                    'period'               => $attendanceSession->period,
+                    'is_existing'          => !$attendanceSession->wasRecentlyCreated,
+                    'attendance_count'     => $attendances->count(),
+                    'existing_attendance'  => $attendances->map(fn($a) => [
                         'student_id' => $a->student_id,
                         'status'     => $a->status,
+                        'remarks'    => $a->remarks,
                     ])->values(),
                 ],
             ], 200);
@@ -199,18 +279,29 @@ class TeacherController extends Controller
                 ->where('teacher_id', $teacher->id)
                 ->findOrFail($session);
 
+            $isLab = stripos($attendanceSession->period, 'lab') !== false ||
+                     stripos($attendanceSession->period, 'practical') !== false ||
+                     $attendanceSession->subject?->type === 'practical';
+            $attendanceType = $isLab ? 'lab' : 'theory';
+
             return response()->json([
                 'success' => true,
                 'data'    => [
-                    'session_id'  => $attendanceSession->id,
-                    'subject'     => $attendanceSession->subject?->name,
-                    'subject_code'=> $attendanceSession->subject?->code,
-                    'date'        => $attendanceSession->date->toDateString(),
-                    'period'      => $attendanceSession->period,
-                    'students'    => $attendanceSession->attendances->map(fn($a) => [
+                    'session_id'           => $attendanceSession->id,
+                    'subject_id'           => $attendanceSession->subject_id,
+                    'subject'              => $attendanceSession->subject?->name,
+                    'subject_code'         => $attendanceSession->subject?->code,
+                    'subject_type'         => $attendanceSession->subject?->type ?? 'theory',
+                    'attendance_type'      => $attendanceType,
+                    'attendance_type_label'=> ($isLab ? 'Lab' : 'Theory') . ' Session',
+                    'date'                 => $attendanceSession->date->toDateString(),
+                    'period'               => $attendanceSession->period,
+                    'total_students'       => $attendanceSession->attendances->count(),
+                    'students'             => $attendanceSession->attendances->map(fn($a) => [
                         'id'         => $a->student_id,
                         'name'       => $a->student?->user?->name,
                         'student_no' => $a->student?->student_no,
+                        'roll_number'=> $a->student?->roll_number,
                         'avatar_url' => $a->student?->user?->avatar_url,
                         'status'     => $a->status,
                         'remarks'    => $a->remarks,
@@ -234,7 +325,7 @@ class TeacherController extends Controller
             $validated = $request->validate([
                 'attendance_session_id' => 'required|integer|exists:attendance_sessions,id',
                 'student_id'            => 'required|integer|exists:students,id',
-                'status'                => 'required|in:present,absent,late',
+                'status'                => 'required|in:present,absent,late,excused',
                 'remarks'               => 'nullable|string|max:255',
             ]);
 
@@ -277,7 +368,7 @@ class TeacherController extends Controller
                 'attendance_session_id'          => 'required|integer|exists:attendance_sessions,id',
                 'attendance'                     => 'required|array|min:1',
                 'attendance.*.student_id'        => 'required|integer|exists:students,id',
-                'attendance.*.status'            => 'required|in:present,absent,late',
+                'attendance.*.status'            => 'required|in:present,absent,late,excused',
                 'attendance.*.remarks'           => 'nullable|string|max:255',
             ]);
 
@@ -312,7 +403,7 @@ class TeacherController extends Controller
     }
 
     /**
-     * Attendance History — list of attendance sessions taken by this teacher
+     * Attendance History — list of attendance sessions taken by this teacher (supports ?type=theory|lab)
      */
     public function attendanceHistory(Request $request): JsonResponse
     {
@@ -320,8 +411,35 @@ class TeacherController extends Controller
             $user    = $request->user();
             $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
 
-            $sessions = \App\Models\AttendanceSession::with(['subject'])
-                ->where('teacher_id', $teacher->id)
+            $query = \App\Models\AttendanceSession::with(['subject'])
+                ->where('teacher_id', $teacher->id);
+
+            // Filter by type: all, theory, or lab
+            if ($request->filled('type') && in_array(strtolower($request->type), ['theory', 'lab', 'practical', 'class'])) {
+                $t = strtolower($request->type);
+                if (in_array($t, ['lab', 'practical'])) {
+                    $query->where(function ($q) {
+                        $q->where('period', 'LIKE', '%(Lab)%')
+                          ->orWhere('period', 'LIKE', '%(Practical)%')
+                          ->orWhereHas('subject', fn ($sq) => $sq->where('type', 'practical'));
+                    });
+                } else {
+                    $query->where(function ($q) {
+                        $q->where('period', 'LIKE', '%(Theory)%')
+                          ->orWhere('period', 'LIKE', '%(Class)%')
+                          ->orWhere(function ($subQ) {
+                              $subQ->where('period', 'NOT LIKE', '%(Lab)%')
+                                   ->where('period', 'NOT LIKE', '%(Practical)%');
+                          });
+                    });
+                }
+            }
+
+            if ($request->filled('subject_id')) {
+                $query->where('subject_id', $request->subject_id);
+            }
+
+            $sessions = $query
                 ->withCount('attendances')
                 ->withCount(['attendances as present_count' => fn($q) => $q->where('status', 'present')])
                 ->withCount(['attendances as absent_count'  => fn($q) => $q->where('status', 'absent')])
@@ -330,16 +448,25 @@ class TeacherController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => $sessions->map(fn($s) => [
-                    'session_id'     => $s->id,
-                    'subject'        => $s->subject?->name,
-                    'subject_code'   => $s->subject?->code,
-                    'date'           => $s->date->toDateString(),
-                    'period'         => $s->period,
-                    'total_students' => $s->attendances_count,
-                    'present'        => $s->present_count,
-                    'absent'         => $s->absent_count,
-                ])->values(),
+                'data'    => $sessions->map(function ($s) {
+                    $isLab = stripos($s->period, 'lab') !== false ||
+                             stripos($s->period, 'practical') !== false ||
+                             $s->subject?->type === 'practical';
+
+                    return [
+                        'session_id'           => $s->id,
+                        'subject_id'           => $s->subject_id,
+                        'subject'              => $s->subject?->name,
+                        'subject_code'         => $s->subject?->code,
+                        'attendance_type'      => $isLab ? 'lab' : 'theory',
+                        'attendance_type_label'=> ($isLab ? 'Lab' : 'Theory') . ' Session',
+                        'date'                 => $s->date->toDateString(),
+                        'period'               => $s->period,
+                        'total_students'       => $s->attendances_count,
+                        'present'              => $s->present_count,
+                        'absent'               => $s->absent_count,
+                    ];
+                })->values(),
                 'pagination' => [
                     'current_page' => $sessions->currentPage(),
                     'last_page'    => $sessions->lastPage(),
@@ -1211,18 +1338,31 @@ class TeacherController extends Controller
             $students = \App\Models\Student::with('user')
                 ->where('program_id', $subjectModel->program_id)
                 ->where('current_semester', $subjectModel->semester)
-                ->where('status', 'active')
+                ->where(function ($q) {
+                    $q->whereIn('status', ['active', 'studying'])
+                      ->orWhereNull('status');
+                })
+                ->orderBy('roll_number')
                 ->get();
+
+            $type = strtolower($subjectModel->type ?? 'theory');
+            $allowedTypes = match ($type) {
+                'practical' => ['lab'],
+                'both'      => ['theory', 'lab'],
+                default     => ['theory'],
+            };
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'subject'   => $subjectModel->name,
-                    'code'      => $subjectModel->code,
-                    'program_id'=> $subjectModel->program_id,
-                    'semester'  => $subjectModel->semester,
-                    'total'     => $students->count(),
-                    'students'  => $students->map(fn($s) => [
+                    'subject'       => $subjectModel->name,
+                    'code'          => $subjectModel->code,
+                    'type'          => $type,
+                    'allowed_types' => $allowedTypes,
+                    'program_id'    => $subjectModel->program_id,
+                    'semester'      => $subjectModel->semester,
+                    'total'         => $students->count(),
+                    'students'      => $students->map(fn($s) => [
                         'id'          => $s->id,
                         'name'        => $s->user?->name,
                         'email'       => $s->user?->email,
@@ -1361,10 +1501,55 @@ class TeacherController extends Controller
     public function attendanceReport(Request $request): JsonResponse
     {
         try {
+            $user    = $request->user();
+            $teacher = Teacher::where('user_id', $user->id)->firstOrFail();
+            $session = \App\Models\AcademicSession::current();
+
+            $baseQuery = \App\Models\AttendanceSession::where('teacher_id', $teacher->id);
+            if ($session) {
+                $baseQuery->where('academic_session_id', $session->id);
+            }
+
+            if ($request->filled('subject_id')) {
+                $baseQuery->where('subject_id', $request->subject_id);
+            }
+
+            $allSessions = (clone $baseQuery)->withCount([
+                'attendances',
+                'attendances as present_count' => fn($q) => $q->where('status', 'present'),
+                'attendances as absent_count'  => fn($q) => $q->where('status', 'absent'),
+                'attendances as late_count'    => fn($q) => $q->where('status', 'late'),
+            ])->get();
+
+            $theorySessions = $allSessions->filter(fn($s) => stripos($s->period, 'lab') === false && stripos($s->period, 'practical') === false);
+            $labSessions = $allSessions->filter(fn($s) => stripos($s->period, 'lab') !== false || stripos($s->period, 'practical') !== false);
+
+            $calcRate = function ($collection) {
+                $totalRecs = $collection->sum('attendances_count');
+                $presentRecs = $collection->sum('present_count');
+                return $totalRecs > 0 ? round(($presentRecs / $totalRecs) * 100, 1) : 0;
+            };
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'report' => [],
+                    'total_sessions'       => $allSessions->count(),
+                    'overall_attendance_rate' => $calcRate($allSessions),
+                    'total_students_marked'=> $allSessions->sum('attendances_count'),
+                    'total_present'        => $allSessions->sum('present_count'),
+                    'total_absent'         => $allSessions->sum('absent_count'),
+                    'theory' => [
+                        'sessions_count'  => $theorySessions->count(),
+                        'attendance_rate' => $calcRate($theorySessions),
+                        'present'         => $theorySessions->sum('present_count'),
+                        'absent'          => $theorySessions->sum('absent_count'),
+                    ],
+                    'lab' => [
+                        'sessions_count'  => $labSessions->count(),
+                        'attendance_rate' => $calcRate($labSessions),
+                        'present'         => $labSessions->sum('present_count'),
+                        'absent'          => $labSessions->sum('absent_count'),
+                    ],
                 ]
             ], 200);
         } catch (\Exception $e) {

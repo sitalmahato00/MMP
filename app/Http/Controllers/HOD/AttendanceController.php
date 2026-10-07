@@ -56,6 +56,27 @@ class AttendanceController extends HodController
                 }
             });
 
+        $baseQuery = clone $query;
+
+        // Filter by Type (Theory vs Lab)
+        $currentType = strtolower((string)$request->type);
+        if (in_array($currentType, ['lab', 'practical'])) {
+            $query->where(function ($q) {
+                $q->where('period', 'LIKE', '%(Lab)%')
+                  ->orWhere('period', 'LIKE', '%(Practical)%')
+                  ->orWhereHas('subject', fn ($sq) => $sq->where('type', 'practical'));
+            });
+        } elseif (in_array($currentType, ['theory', 'class'])) {
+            $query->where(function ($q) {
+                $q->where('period', 'LIKE', '%(Theory)%')
+                  ->orWhere('period', 'LIKE', '%(Class)%')
+                  ->orWhere(function ($subQ) {
+                      $subQ->where('period', 'NOT LIKE', '%(Lab)%')
+                           ->where('period', 'NOT LIKE', '%(Practical)%');
+                  });
+            });
+        }
+
         $sessions = (clone $query)
             ->latest('date')
             ->latest('created_at')
@@ -63,9 +84,25 @@ class AttendanceController extends HodController
             ->withQueryString();
 
         // Stats
-        $totalSessions = (clone $query)->count();
-        $todaySessions = (clone $query)->whereDate('date', today())->count();
-        $thisWeekSessions = (clone $query)->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $totalSessions = (clone $baseQuery)->count();
+        $todaySessions = (clone $baseQuery)->whereDate('date', today())->count();
+        $thisWeekSessions = (clone $baseQuery)->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])->count();
+
+        // Theory and Lab session counts for tabs
+        $theorySessionsCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('period', 'LIKE', '%(Theory)%')
+              ->orWhere('period', 'LIKE', '%(Class)%')
+              ->orWhere(function ($subQ) {
+                  $subQ->where('period', 'NOT LIKE', '%(Lab)%')
+                       ->where('period', 'NOT LIKE', '%(Practical)%');
+              });
+        })->count();
+
+        $labSessionsCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('period', 'LIKE', '%(Lab)%')
+              ->orWhere('period', 'LIKE', '%(Practical)%')
+              ->orWhereHas('subject', fn ($sq) => $sq->where('type', 'practical'));
+        })->count();
 
         // Overall attendance rate for department
         $attendanceRate = DB::table('attendances')
@@ -93,7 +130,8 @@ class AttendanceController extends HodController
 
         return view('hod.attendance.index', compact(
             'sessions', 'department', 'subjects',
-            'totalSessions', 'todaySessions', 'thisWeekSessions', 'overallAttendanceRate'
+            'totalSessions', 'todaySessions', 'thisWeekSessions', 'overallAttendanceRate',
+            'currentType', 'theorySessionsCount', 'labSessionsCount'
         ));
     }
 
@@ -278,6 +316,10 @@ class AttendanceController extends HodController
         }
 
         DB::transaction(function () use ($data, $deptId) {
+            $typeLabel = in_array(strtolower($data['attendance_type'] ?? ''), ['lab', 'practical']) ? 'Lab' : 'Theory';
+            $cleanPeriod = trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $data['period']));
+            $periodLabel = $cleanPeriod . ' (' . $typeLabel . ')';
+
             // Check if attendance session already exists
             $existingSession = AttendanceSession::where([
                 'academic_session_id' => $data['academic_session_id'],
@@ -286,7 +328,7 @@ class AttendanceController extends HodController
                 'semester' => $data['semester'],
                 'section' => $data['section'],
                 'date' => $data['date'],
-                'period' => $data['period'] . ' (' . ucfirst($data['attendance_type']) . ')',
+                'period' => $periodLabel,
             ])->first();
 
             if ($existingSession) {
@@ -308,7 +350,7 @@ class AttendanceController extends HodController
                     'semester' => $data['semester'],
                     'section' => $data['section'],
                     'date' => $data['date'],
-                    'period' => $data['period'] . ' (' . ucfirst($data['attendance_type']) . ')',
+                    'period' => $periodLabel,
                 ]);
             }
 

@@ -926,6 +926,8 @@ class AttendanceController extends Controller
         if ($request->filled('date')) {
             $query->whereDate('date', $request->date);
         }
+        $baseQuery = clone $query;
+
         if ($request->filled('type')) {
             $t = strtolower($request->type);
             if (in_array($t, ['lab', 'practical'])) {
@@ -948,6 +950,21 @@ class AttendanceController extends Controller
 
         $sessions = $query->latest('date')->paginate(20)->withQueryString();
 
+        $totalSessionsCount = (clone $baseQuery)->count();
+        $theorySessionsCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('period', 'LIKE', '%(Theory)%')
+              ->orWhere('period', 'LIKE', '%(Class)%')
+              ->orWhere(function ($subQ) {
+                  $subQ->where('period', 'NOT LIKE', '%(Lab)%')
+                       ->where('period', 'NOT LIKE', '%(Practical)%');
+              });
+        })->count();
+        $labSessionsCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('period', 'LIKE', '%(Lab)%')
+              ->orWhere('period', 'LIKE', '%(Practical)%')
+              ->orWhereHas('subject', fn ($sq) => $sq->where('type', 'practical'));
+        })->count();
+
         $departments = Department::orderBy('name')->get();
         $programs = Program::orderBy('name')->get();
         $subjects = Subject::orderBy('name')->get();
@@ -955,7 +972,8 @@ class AttendanceController extends Controller
         $academicSessions = AcademicSession::orderByDesc('is_active')->orderBy('name')->get();
 
         return view('admin.attendance.sessions', compact(
-            'sessions', 'departments', 'programs', 'subjects', 'teachers', 'academicSessions'
+            'sessions', 'departments', 'programs', 'subjects', 'teachers', 'academicSessions',
+            'totalSessionsCount', 'theorySessionsCount', 'labSessionsCount'
         ));
     }
 

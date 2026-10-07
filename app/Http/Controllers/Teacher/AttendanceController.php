@@ -60,6 +60,27 @@ class AttendanceController extends Controller
                 }
             });
 
+        $baseQuery = clone $query;
+
+        // Filter by Type (Theory vs Lab)
+        $currentType = strtolower((string)$request->type);
+        if (in_array($currentType, ['lab', 'practical'])) {
+            $query->where(function ($q) {
+                $q->where('period', 'LIKE', '%(Lab)%')
+                  ->orWhere('period', 'LIKE', '%(Practical)%')
+                  ->orWhereHas('subject', fn ($sq) => $sq->where('type', 'practical'));
+            });
+        } elseif (in_array($currentType, ['theory', 'class'])) {
+            $query->where(function ($q) {
+                $q->where('period', 'LIKE', '%(Theory)%')
+                  ->orWhere('period', 'LIKE', '%(Class)%')
+                  ->orWhere(function ($subQ) {
+                      $subQ->where('period', 'NOT LIKE', '%(Lab)%')
+                           ->where('period', 'NOT LIKE', '%(Practical)%');
+                  });
+            });
+        }
+
         $sessions = (clone $query)
             ->latest('date')
             ->latest('created_at')
@@ -67,9 +88,25 @@ class AttendanceController extends Controller
             ->withQueryString();
 
         // Stats
-        $totalSessions = (clone $query)->count();
-        $todaySessions = (clone $query)->whereDate('date', today())->count();
-        $thisWeekSessions = (clone $query)->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $totalSessions = (clone $baseQuery)->count();
+        $todaySessions = (clone $baseQuery)->whereDate('date', today())->count();
+        $thisWeekSessions = (clone $baseQuery)->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])->count();
+
+        // Theory and Lab session counts for tabs
+        $theorySessionsCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('period', 'LIKE', '%(Theory)%')
+              ->orWhere('period', 'LIKE', '%(Class)%')
+              ->orWhere(function ($subQ) {
+                  $subQ->where('period', 'NOT LIKE', '%(Lab)%')
+                       ->where('period', 'NOT LIKE', '%(Practical)%');
+              });
+        })->count();
+
+        $labSessionsCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('period', 'LIKE', '%(Lab)%')
+              ->orWhere('period', 'LIKE', '%(Practical)%')
+              ->orWhereHas('subject', fn ($sq) => $sq->where('type', 'practical'));
+        })->count();
 
         // Overall attendance rate for teacher's subjects
         $attendanceRate = DB::table('attendances')
@@ -100,7 +137,8 @@ class AttendanceController extends Controller
 
         return view('teacher.attendance.index', compact(
             'sessions', 'subjects', 'session', 'teacher',
-            'totalSessions', 'todaySessions', 'thisWeekSessions', 'overallAttendanceRate'
+            'totalSessions', 'todaySessions', 'thisWeekSessions', 'overallAttendanceRate',
+            'currentType', 'theorySessionsCount', 'labSessionsCount'
         ));
     }
 
@@ -153,7 +191,9 @@ class AttendanceController extends Controller
             }
 
             // Get subject with program
-            $subject = Subject::findOrFail($data['subject_id']);
+            $typeLabel = in_array(strtolower($data['category'] ?? ''), ['lab', 'practical']) ? 'Lab' : 'Theory';
+            $cleanPeriod = trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $data['period'] ?? 'Period 1'));
+            $periodLabel = $cleanPeriod . ' (' . $typeLabel . ')';
 
             // Create attendance session
             $attendanceSession = AttendanceSession::create([
@@ -163,7 +203,7 @@ class AttendanceController extends Controller
                 'program_id' => $subject->program_id,
                 'semester' => $subject->semester,
                 'date' => $adDate->format('Y-m-d'),
-                'period' => $data['period'] ?? null,
+                'period' => $periodLabel,
             ]);
 
             // Create attendance records
@@ -239,6 +279,7 @@ class AttendanceController extends Controller
             $data = $request->validate([
                 'date' => 'required|string',
                 'period' => 'required|string',
+                'category' => 'nullable|in:class,lab,theory,practical',
                 'attendances' => 'required|array',
                 'attendances.*.student_id' => 'required|exists:students,id',
                 'attendances.*.status' => 'required|in:present,absent,late',
@@ -251,10 +292,18 @@ class AttendanceController extends Controller
                 return back()->withErrors(['date' => 'Invalid date format. Please use YYYY-MM-DD format.']);
             }
 
+            $currentIsLab = stripos($attendanceSession->period, 'lab') !== false || stripos($attendanceSession->period, 'practical') !== false;
+            $typeLabel = isset($data['category'])
+                ? (in_array(strtolower($data['category']), ['lab', 'practical']) ? 'Lab' : 'Theory')
+                : ($currentIsLab ? 'Lab' : 'Theory');
+
+            $cleanPeriod = trim(preg_replace('/\s*\((Theory|Lab|Class|Practical)\)/i', '', $data['period']));
+            $periodLabel = $cleanPeriod . ' (' . $typeLabel . ')';
+
             // Update session
             $attendanceSession->update([
                 'date' => $adDate->format('Y-m-d'),
-                'period' => $data['period'] ?? null,
+                'period' => $periodLabel,
             ]);
 
             // Delete old attendance records
