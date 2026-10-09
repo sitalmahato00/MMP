@@ -191,6 +191,14 @@ class ExamController extends Controller
     {
         abort_unless((int) $mark->exam_id === (int) $exam->id, 404);
 
+        if ($request->filled('exam_attendance_date')) {
+            $converted = adDate($request->input('exam_attendance_date'))?->format('Y-m-d')
+                ?? $request->input('exam_attendance_date_ad');
+            if ($converted) {
+                $request->merge(['exam_attendance_date' => $converted]);
+            }
+        }
+
         $data = $request->validate([
             'internal_theory_marks' => ['nullable', 'numeric', 'min:0'],
             'external_theory_marks' => ['nullable', 'numeric', 'min:0'],

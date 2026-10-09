@@ -94,6 +94,21 @@ class TimetableController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->filled('effective_from')) {
+            $converted = adDate($request->input('effective_from'))?->format('Y-m-d')
+                ?? $request->input('effective_from_ad');
+            if ($converted) {
+                $request->merge(['effective_from' => $converted]);
+            }
+        }
+        if ($request->filled('start_date')) {
+            $converted = adDate($request->input('start_date'))?->format('Y-m-d')
+                ?? $request->input('start_date_ad');
+            if ($converted) {
+                $request->merge(['start_date' => $converted]);
+            }
+        }
+
         $data = $request->validate([
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'program_id'          => 'required|exists:programs,id',
@@ -176,6 +191,21 @@ class TimetableController extends Controller
      */
     public function update(Request $request, Timetable $timetable)
     {
+        if ($request->filled('effective_from')) {
+            $converted = adDate($request->input('effective_from'))?->format('Y-m-d')
+                ?? $request->input('effective_from_ad');
+            if ($converted) {
+                $request->merge(['effective_from' => $converted]);
+            }
+        }
+        if ($request->filled('start_date')) {
+            $converted = adDate($request->input('start_date'))?->format('Y-m-d')
+                ?? $request->input('start_date_ad');
+            if ($converted) {
+                $request->merge(['start_date' => $converted]);
+            }
+        }
+
         $data = $request->validate([
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'program_id'          => 'required|exists:programs,id',

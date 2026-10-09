@@ -99,6 +99,14 @@ class AssignmentController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->filled('due_date')) {
+            $converted = adDate($request->input('due_date'))?->format('Y-m-d')
+                ?? $request->input('due_date_ad');
+            if ($converted) {
+                $request->merge(['due_date' => $converted]);
+            }
+        }
+
         $data = $request->validate([
             'teacher_id'  => 'required|exists:teachers,id',
             'subject_id'  => 'required|exists:subjects,id',
@@ -156,6 +164,14 @@ class AssignmentController extends Controller
      */
     public function update(Request $request, Assignment $assignment)
     {
+        if ($request->filled('due_date')) {
+            $converted = adDate($request->input('due_date'))?->format('Y-m-d')
+                ?? $request->input('due_date_ad');
+            if ($converted) {
+                $request->merge(['due_date' => $converted]);
+            }
+        }
+
         $data = $request->validate([
             'teacher_id'  => 'required|exists:teachers,id',
             'subject_id'  => 'required|exists:subjects,id',

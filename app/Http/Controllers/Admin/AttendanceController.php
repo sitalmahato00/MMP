@@ -924,7 +924,8 @@ class AttendanceController extends Controller
             $query->where('teacher_id', $request->teacher_id);
         }
         if ($request->filled('date')) {
-            $query->whereDate('date', $request->date);
+            $parsedDate = adDate($request->date)?->format('Y-m-d') ?: $request->date;
+            $query->whereDate('date', $parsedDate);
         }
         $baseQuery = clone $query;
 

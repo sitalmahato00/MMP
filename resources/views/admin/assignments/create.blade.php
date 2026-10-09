@@ -58,9 +58,8 @@
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Due Date *</label>
-                <input type="date" name="due_date" value="{{ old('due_date', date('Y-m-d', strtotime('+7 days'))) }}" required
-                       class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Due Date (BS) *</label>
+                <x-bs-date-picker name="due_date" :value="old('due_date', bsDate(now()->addDays(7)))" adName="due_date_ad" required />
                 @error('due_date') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
             <div>

@@ -120,8 +120,7 @@
                 </select>
             </div>
             <div>
-                <input type="date" name="date" value="{{ request('date') }}"
-                       class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                <x-bs-date-picker name="date" :value="request('date')" placeholder="Filter by BS date..." />
             </div>
         </div>
 
@@ -169,7 +168,7 @@
             <table class="w-full text-left text-sm">
                 <thead class="border-b border-slate-100 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
                     <tr>
-                        <th class="px-4 py-3">Date</th>
+                        <th class="px-4 py-3">Date (BS)</th>
                         <th class="px-4 py-3">Subject & Code</th>
                         <th class="px-4 py-3">Program & Sem</th>
                         <th class="px-4 py-3">Teacher</th>
@@ -185,7 +184,7 @@
                         @endphp
                         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
                             <td class="px-4 py-3 font-semibold text-slate-900 dark:text-white">
-                                {{ $s->date?->format('M d, Y') ?? '—' }}
+                                {{ $s->date ? bsDate($s->date) : '—' }}
                             </td>
                             <td class="px-4 py-3">
                                 <a href="{{ route('admin.attendance.sessions.show', $s) }}" class="font-bold text-slate-800 hover:text-red-700 dark:text-slate-200">

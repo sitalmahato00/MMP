@@ -124,7 +124,7 @@
                         <th class="px-4 py-3">Session</th>
                         <th class="px-4 py-3">Semester</th>
                         <th class="px-4 py-3">Section</th>
-                        <th class="px-4 py-3">Effective Date</th>
+                        <th class="px-4 py-3">Effective Date (BS)</th>
                         <th class="px-4 py-3">Slots</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3 text-right">Actions</th>
@@ -148,8 +148,8 @@
                             <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
                                 {{ $timetable->section ?? 'All Sections' }}
                             </td>
-                            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
-                                {{ $timetable->effective_from?->format('Y-m-d') ?? '—' }}
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-medium">
+                                {{ $timetable->effective_from ? bsDate($timetable->effective_from) : '—' }}
                             </td>
                             <td class="px-4 py-3">
                                 <span class="rounded bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">

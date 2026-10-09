@@ -22,7 +22,7 @@
                 @if($timetable->section) (Section {{ $timetable->section }}) @endif
             </h1>
             <p class="mt-0.5 text-sm text-slate-500">
-                Department: {{ $timetable->program?->department?->name ?? '—' }} &bull; Effective From: {{ $timetable->effective_from?->format('F d, Y') ?? '—' }}
+                Department: {{ $timetable->program?->department?->name ?? '—' }} &bull; Effective From: {{ $timetable->effective_from ? bsDate($timetable->effective_from, 'F d, Y') . ' (' . bsDate($timetable->effective_from) . ' BS)' : '—' }}
             </p>
         </div>
 

@@ -89,7 +89,7 @@
                         <th class="px-4 py-3">Assignment Title</th>
                         <th class="px-4 py-3">Subject & Program</th>
                         <th class="px-4 py-3">Assigned Teacher</th>
-                        <th class="px-4 py-3">Due Date</th>
+                        <th class="px-4 py-3">Due Date (BS)</th>
                         <th class="px-4 py-3">Submissions</th>
                         <th class="px-4 py-3 text-right">Actions</th>
                     </tr>
@@ -115,7 +115,7 @@
                             <td class="px-4 py-3">
                                 @if($assignment->due_date)
                                     <span class="font-medium {{ $assignment->due_date->isPast() ? 'text-rose-600' : 'text-slate-700 dark:text-slate-300' }}">
-                                        {{ $assignment->due_date->format('M d, Y') }}
+                                        {{ bsDate($assignment->due_date) }}
                                     </span>
                                 @else
                                     <span class="text-slate-400">—</span>

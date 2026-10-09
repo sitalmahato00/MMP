@@ -64,15 +64,15 @@
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Effective From Date *</label>
-                <input type="date" name="effective_from" value="{{ old('effective_from', $timetable->effective_from?->format('Y-m-d')) }}" required
-                       class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Effective From Date (BS) *</label>
+                <x-bs-date-picker name="effective_from" :value="old('effective_from', $timetable->effective_from ? bsDate($timetable->effective_from) : '')" adName="effective_from_ad" required />
+                @error('effective_from') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Start Date</label>
-                <input type="date" name="start_date" value="{{ old('start_date', $timetable->start_date?->format('Y-m-d')) }}"
-                       class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Start Date (BS)</label>
+                <x-bs-date-picker name="start_date" :value="old('start_date', $timetable->start_date ? bsDate($timetable->start_date) : '')" adName="start_date_ad" />
+                @error('start_date') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
 

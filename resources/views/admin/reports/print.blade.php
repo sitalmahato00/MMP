@@ -324,8 +324,8 @@
                     <span>{{ $semester ? "Semester {$semester}" : 'All Semesters' }} / {{ $session?->name ?? 'Current' }}</span>
                 </div>
                 <div class="meta-item">
-                    <strong>Generated Date</strong>
-                    <span>{{ now()->format('Y-m-d H:i') }}</span>
+                    <strong>Generated Date (BS)</strong>
+                    <span>{{ bsDateTime(now()) }}</span>
                 </div>
             </section>
 
@@ -404,7 +404,7 @@
                                 <th style="width: 25%;">Department</th>
                                 <th style="width: 15%;">Academic Session</th>
                                 <th class="text-center" style="width: 10%;">Type</th>
-                                <th class="text-center" style="width: 15%;">Date</th>
+                                <th class="text-center" style="width: 15%;">Date (BS)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -415,7 +415,7 @@
                                     <td>{{ $ex->department?->name ?? 'All Departments' }}</td>
                                     <td>{{ $ex->academicSession?->name ?? '—' }}</td>
                                     <td class="text-center uppercase font-bold">{{ $ex->type }}</td>
-                                    <td class="text-center">{{ $ex->exam_date ? \Carbon\Carbon::parse($ex->exam_date)->format('Y-m-d') : '—' }}</td>
+                                    <td class="text-center">{{ $ex->exam_date ? bsDate($ex->exam_date) : '—' }}</td>
                                 </tr>
                             @empty
                                 <tr><td colspan="6" class="text-center">No examinations found.</td></tr>

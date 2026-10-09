@@ -19,7 +19,7 @@
             <h1 class="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white">{{ $assignment->title }}</h1>
             <p class="mt-0.5 text-sm text-slate-500">
                 Assigned by: <strong class="text-slate-700 dark:text-slate-300">{{ $assignment->teacher?->user?->name ?? 'Teacher' }}</strong> &bull;
-                Due Date: <strong class="{{ $assignment->due_date && $assignment->due_date->isPast() ? 'text-rose-600' : 'text-slate-700 dark:text-slate-300' }}">{{ $assignment->due_date?->format('F d, Y') ?? '—' }}</strong>
+                Due Date (BS): <strong class="{{ $assignment->due_date && $assignment->due_date->isPast() ? 'text-rose-600' : 'text-slate-700 dark:text-slate-300' }}">{{ $assignment->due_date ? bsDate($assignment->due_date, 'F d, Y') . ' (' . bsDate($assignment->due_date) . ' BS)' : '—' }}</strong>
             </p>
         </div>
 
@@ -90,7 +90,7 @@
                                     {{ $sub->student?->roll_number ?? $sub->student?->student_no ?? '—' }}
                                 </td>
                                 <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
-                                    {{ $sub->created_at?->format('M d, Y h:i A') ?? '—' }}
+                                    {{ $sub->created_at ? bsDateTime($sub->created_at) : '—' }}
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($sub->attachment)

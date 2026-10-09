@@ -192,8 +192,8 @@
                             <h4 class="text-sm font-semibold text-green-900 mb-3">Exam Attendance Tracking</h4>
                             <div class="grid gap-4 md:grid-cols-3">
                                 <label class="space-y-2">
-                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-green-600">Exam Date</span>
-                                    <input type="date" name="exam_attendance_date" value="{{ old('exam_attendance_date', $mark->exam_attendance_date?->format('Y-m-d')) }}" class="w-full rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900 outline-none transition focus:border-green-400 focus:bg-white focus:ring-2 focus:ring-green-100">
+                                    <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-green-600">Exam Date (BS)</span>
+                                    <x-bs-date-picker name="exam_attendance_date" :value="old('exam_attendance_date', $mark->exam_attendance_date ? bsDate($mark->exam_attendance_date) : '')" adName="exam_attendance_date_ad" placeholder="YYYY-MM-DD"/>
                                     @error('exam_attendance_date')<p class="text-xs font-medium text-rose-600">{{ $message }}</p>@enderror
                                 </label>
                                 <label class="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-3">

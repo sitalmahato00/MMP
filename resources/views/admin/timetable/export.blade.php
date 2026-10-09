@@ -40,7 +40,7 @@
             <strong>Section:</strong> {{ $timetable->section ?? 'All' }} &bull;
             <strong>Session:</strong> {{ $timetable->academicSession?->name }}
         </p>
-        <p>Effective From: {{ $timetable->effective_from?->format('F d, Y') ?? '—' }}</p>
+        <p>Effective From: {{ $timetable->effective_from ? bsDate($timetable->effective_from, 'F d, Y') . ' (' . bsDate($timetable->effective_from) . ' BS)' : '—' }}</p>
     </div>
 
     <table>

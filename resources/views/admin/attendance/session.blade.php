@@ -69,7 +69,7 @@
             <div>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Date (BS & Day)</label>
                 <p class="text-base font-bold text-slate-900 dark:text-white">{{ bsDate($attendanceSession->date, 'F d, Y') }}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400">{{ bsDate($attendanceSession->date, 'l') }} ({{ \Carbon\Carbon::parse($attendanceSession->date)->format('M d, Y') }})</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ bsDate($attendanceSession->date, 'l') }} &bull; {{ bsDate($attendanceSession->date) }}</p>
             </div>
             <div>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Subject & Course</label>

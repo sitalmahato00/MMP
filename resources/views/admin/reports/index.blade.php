@@ -374,7 +374,7 @@
                             <th class="px-4 py-3">Department</th>
                             <th class="px-4 py-3">Academic Session</th>
                             <th class="px-4 py-3 text-center">Type</th>
-                            <th class="px-4 py-3 text-center">Exam Date</th>
+                            <th class="px-4 py-3 text-center">Exam Date (BS)</th>
                             <th class="px-4 py-3 text-center">Marks Recorded</th>
                             <th class="px-4 py-3 text-right">Publication</th>
                         </tr>
@@ -394,8 +394,8 @@
                                 <td class="px-4 py-3 text-center uppercase font-bold text-slate-700 dark:text-slate-300">
                                     {{ $ex->type ?? 'terminal' }}
                                 </td>
-                                <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">
-                                    {{ $ex->exam_date ? \Carbon\Carbon::parse($ex->exam_date)->format('M d, Y') : '—' }}
+                                <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300 font-medium">
+                                    {{ $ex->exam_date ? bsDate($ex->exam_date) : '—' }}
                                 </td>
                                 <td class="px-4 py-3 text-center font-bold text-blue-600">
                                     {{ number_format($ex->marks_count ?? 0) }} entries
