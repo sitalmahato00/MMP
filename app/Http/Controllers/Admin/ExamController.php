@@ -2291,19 +2291,41 @@ class ExamController extends Controller
 
     public function fillMarks(Request $request)
     {
+        $currentSession = AcademicSession::current();
+        $sessionId = $request->integer('session_id')
+            ?: $request->integer('year')
+            ?: ($request->filled('exam_id') ? null : $currentSession?->id);
+
+        if ($request->filled('exam_id')) {
+            $exam = Exam::with(['academicSession:id,name,name_bs', 'programs.department'])->find($request->exam_id);
+            if ($exam) {
+                $sessionId = $exam->academic_session_id;
+            }
+        } else {
+            $examQuery = Exam::query()
+                ->with(['academicSession:id,name,name_bs', 'programs.department'])
+                ->orderByDesc('start_date')
+                ->orderByDesc('id');
+
+            if ($sessionId) {
+                $examQuery->where('academic_session_id', $sessionId);
+            }
+
+            $exam = $examQuery->first();
+        }
+
         $allExams = Exam::query()
+            ->when($sessionId, fn ($q) => $q->where('academic_session_id', $sessionId))
             ->with(['academicSession:id,name,name_bs'])
             ->orderByDesc('start_date')
             ->orderByDesc('id')
             ->get();
 
-        $examId = $request->exam_id ?: $allExams->first()?->id;
-
-        if (!$examId) {
-            return redirect()->route('admin.exams.index')->with('error', 'Please create an exam first to enter marks.');
+        if (!$exam || $allExams->isEmpty()) {
+            return redirect()->route('admin.exams.index', array_filter(['year' => $sessionId]))
+                ->with('error', 'No exams found for the selected academic session. Please create an exam first to enter marks.');
         }
 
-        $exam = Exam::with(['academicSession:id,name,name_bs', 'programs.department'])->findOrFail($examId);
         $programs = $exam->programs;
 
         if ($programs->isEmpty()) {

@@ -108,7 +108,8 @@
 
             $assessmentFull = $exam->assessment_full_marks ?? 100;
             $assessmentPass = $exam->assessment_pass_marks ?? 40;
-            $hasExistingCount = $existingMarks->count();
+            $enrolledStudentIds = $students->pluck('id');
+            $hasExistingCount = $existingMarks->whereIn('student_id', $enrolledStudentIds)->count();
         @endphp
 
         {{-- Scheme Details --}}
