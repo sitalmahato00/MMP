@@ -2291,22 +2291,37 @@ class ExamController extends Controller
 
     public function fillMarks(Request $request)
     {
-        $examId = $request->exam_id;
+        $allExams = Exam::query()
+            ->with(['academicSession:id,name,name_bs'])
+            ->orderByDesc('start_date')
+            ->orderByDesc('id')
+            ->get();
+
+        $examId = $request->exam_id ?: $allExams->first()?->id;
+
         if (!$examId) {
-            return redirect()->route('admin.exams.index')->with('error', 'Please select an exam to fill marks.');
+            return redirect()->route('admin.exams.index')->with('error', 'Please create an exam first to enter marks.');
         }
 
-        $exam = Exam::with(['academicSession:id,name', 'programs'])->findOrFail($examId);
+        $exam = Exam::with(['academicSession:id,name,name_bs', 'programs.department'])->findOrFail($examId);
         $programs = $exam->programs;
 
+        if ($programs->isEmpty()) {
+            $programs = $exam->department_id
+                ? Program::where('department_id', $exam->department_id)->get()
+                : Program::orderBy('name')->get();
+        }
+
         $programId = $request->program_id ?: ($programs->first()?->id);
-        $semester = $request->semester ?: ($programs->where('id', $programId)->first()?->pivot->semester ?? 1);
+        $semester = $request->semester ?: ($programs->where('id', $programId)->first()?->pivot?->semester ?? 1);
         $subjectId = $request->subject_id;
 
-        $subjects = Subject::where('program_id', $programId)
-            ->where('semester', $semester)
-            ->orderBy('name')
-            ->get();
+        $subjects = $programId
+            ? Subject::where('program_id', $programId)
+                ->where('semester', $semester)
+                ->orderBy('name')
+                ->get()
+            : collect();
 
         if (!$subjectId && $subjects->isNotEmpty()) {
             $subjectId = $subjects->first()->id;
@@ -2331,7 +2346,7 @@ class ExamController extends Controller
         }
 
         return view('admin.exams.fill-marks', compact(
-            'exam', 'programs', 'programId', 'semester', 'subjects', 'subjectId', 'subject', 'students', 'existingMarks'
+            'allExams', 'exam', 'programs', 'programId', 'semester', 'subjects', 'subjectId', 'subject', 'students', 'existingMarks'
         ));
     }
 
@@ -2349,14 +2364,39 @@ class ExamController extends Controller
             'marks.*.external_theory_marks' => 'nullable|numeric|min:0',
             'marks.*.internal_practical_marks' => 'nullable|numeric|min:0',
             'marks.*.external_practical_marks' => 'nullable|numeric|min:0',
+            'marks.*.assessment_attendance_percent' => 'nullable|numeric|min:0|max:100',
+            'marks.*.assessment_full_marks' => 'nullable|numeric|min:0',
+            'marks.*.assessment_pass_marks' => 'nullable|numeric|min:0',
+            'marks.*.assessment_obtained_marks' => 'nullable|numeric|min:0',
             'marks.*.remarks' => 'nullable|string|max:500',
         ]);
 
         $exam = Exam::findOrFail($validated['exam_id']);
         $subject = Subject::findOrFail($validated['subject_id']);
+        $isAssessment = $exam->category === 'monthly_assessment';
 
         foreach ($validated['marks'] as $markData) {
             $isAbsent = !empty($markData['is_absent']);
+
+            $updatePayload = [
+                'program_id' => $validated['program_id'],
+                'semester' => $validated['semester'],
+                'is_absent' => $isAbsent,
+                'status' => 'submitted',
+                'remarks' => $markData['remarks'] ?? null,
+            ];
+
+            if ($isAssessment) {
+                $updatePayload['assessment_obtained_marks'] = $isAbsent ? null : ($markData['assessment_obtained_marks'] ?? null);
+                $updatePayload['assessment_attendance_percent'] = $markData['assessment_attendance_percent'] ?? null;
+                $updatePayload['assessment_full_marks'] = $markData['assessment_full_marks'] ?? $exam->assessment_full_marks ?? 100;
+                $updatePayload['assessment_pass_marks'] = $markData['assessment_pass_marks'] ?? $exam->assessment_pass_marks ?? 40;
+            } else {
+                $updatePayload['internal_theory_marks'] = $isAbsent ? null : ($markData['internal_theory_marks'] ?? null);
+                $updatePayload['external_theory_marks'] = $isAbsent ? null : ($markData['external_theory_marks'] ?? null);
+                $updatePayload['internal_practical_marks'] = $isAbsent ? null : ($markData['internal_practical_marks'] ?? null);
+                $updatePayload['external_practical_marks'] = $isAbsent ? null : ($markData['external_practical_marks'] ?? null);
+            }
 
             Mark::updateOrCreate(
                 [
@@ -2364,22 +2404,12 @@ class ExamController extends Controller
                     'student_id' => $markData['student_id'],
                     'subject_id' => $subject->id,
                 ],
-                [
-                    'program_id' => $validated['program_id'],
-                    'semester' => $validated['semester'],
-                    'is_absent' => $isAbsent,
-                    'status' => 'submitted',
-                    'internal_theory_marks' => $isAbsent ? null : ($markData['internal_theory_marks'] ?? null),
-                    'external_theory_marks' => $isAbsent ? null : ($markData['external_theory_marks'] ?? null),
-                    'internal_practical_marks' => $isAbsent ? null : ($markData['internal_practical_marks'] ?? null),
-                    'external_practical_marks' => $isAbsent ? null : ($markData['external_practical_marks'] ?? null),
-                    'remarks' => $markData['remarks'] ?? null,
-                ]
+                $updatePayload
             );
         }
 
         return redirect()->route('admin.exams.subjects.marks', ['exam' => $exam->id, 'subject' => $subject->id])
-            ->with('success', 'Marks saved successfully.');
+            ->with('success', "Marks for '{$subject->name}' have been saved successfully.");
     }
 
     public function verifyMarks(Request $request)

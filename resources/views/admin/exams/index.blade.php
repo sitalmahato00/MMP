@@ -24,8 +24,13 @@
             <p class="mt-0.5 text-sm text-slate-500">Track exam lifecycle from setup to mark entry, verification, and publishing.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('admin.exams.create') }}"
+            <a href="{{ route('admin.exams.fill-marks') }}"
                class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#7a0000] transition">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Enter / Edit Marks
+            </a>
+            <a href="{{ route('admin.exams.create') }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/></svg>
                 Create Exam
             </a>
@@ -224,6 +229,10 @@
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('admin.exams.fill-marks', ['exam_id' => $exam['exam']->id]) }}"
+                                       class="rounded-full border border-[#8B0000]/30 bg-[#8B0000]/5 px-3 py-2 text-xs font-semibold text-[#8B0000] transition hover:bg-[#8B0000] hover:text-white">
+                                        Marks
+                                    </a>
                                     <a href="{{ route('admin.exams.show', $exam['exam']) }}"
                                        class="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-[#8B0000] hover:text-[#8B0000]">
                                         View

@@ -33,11 +33,21 @@
         </div>
     </div>
 
-    {{-- Program / Semester / Subject Selector --}}
+    {{-- Exam / Program / Semester / Subject Selector --}}
     <form method="GET" action="{{ route('admin.exams.fill-marks') }}" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <input type="hidden" name="exam_id" value="{{ $exam->id }}">
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">Exam</label>
+                <select name="exam_id" onchange="this.form.submit()"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                    @foreach($allExams as $ex)
+                        <option value="{{ $ex->id }}" {{ $exam->id == $ex->id ? 'selected' : '' }}>
+                            {{ $ex->name }} ({{ $ex->academicSession?->name_bs ?: $ex->academicSession?->name ?: 'Session' }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">Program</label>
                 <select name="program_id" onchange="this.form.submit()"
@@ -80,6 +90,7 @@
 
     @if($subject)
         @php
+            $isMonthlyAssessment = ($exam->category ?? 'ctevt_final') === 'monthly_assessment';
             $scheme = \Illuminate\Support\Facades\DB::table('exam_subject_marking_schemes')
                 ->where('exam_id', $exam->id)
                 ->where('subject_id', $subject->id)
@@ -94,40 +105,78 @@
             $passIntPractical = $scheme->pass_marks_internal_practical ?? $subject->pass_marks_internal_practical ?? 0;
             $fullExtPractical = $scheme->full_marks_external_practical ?? $subject->full_marks_external_practical ?? 0;
             $passExtPractical = $scheme->pass_marks_external_practical ?? $subject->pass_marks_external_practical ?? 0;
+
+            $assessmentFull = $exam->assessment_full_marks ?? 100;
+            $assessmentPass = $exam->assessment_pass_marks ?? 40;
+            $hasExistingCount = $existingMarks->count();
         @endphp
 
         {{-- Scheme Details --}}
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800">
                 <div class="flex items-center gap-3">
                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-xs font-bold text-[#8B0000] dark:bg-red-950/40">
                         {{ $subject->code ?? 'SUB' }}
                     </span>
                     <div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ $subject->name }}</h3>
-                        <p class="text-xs text-slate-400">Marking Scheme Limits</p>
+                        <p class="text-xs text-slate-400">
+                            @if($isMonthlyAssessment)
+                                Monthly Assessment &bull; Assessment #{{ $exam->assessment_number ?? '1' }}
+                            @else
+                                {{ ucfirst($subject->type ?? 'Theory') }} &bull; Marking Scheme Limits
+                            @endif
+                        </p>
                     </div>
                 </div>
+                @if($hasExistingCount > 0)
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-200">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Editing Mode ({{ $hasExistingCount }} of {{ $students->count() }} marks recorded)
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200">
+                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                        New Entry Mode
+                    </span>
+                @endif
             </div>
 
-            <div class="mt-3 grid grid-cols-2 gap-4 text-xs sm:grid-cols-4">
-                <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
-                    <p class="font-bold text-slate-500">Internal Theory</p>
-                    <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullIntTheory }} &bull; Pass: {{ $passIntTheory }}</p>
+            @if($isMonthlyAssessment)
+                <div class="mt-3 grid grid-cols-2 gap-4 text-xs sm:grid-cols-3">
+                    <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
+                        <p class="font-bold text-slate-500">Assessment Full Marks</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">{{ $assessmentFull }}</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
+                        <p class="font-bold text-slate-500">Assessment Pass Marks</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">{{ $assessmentPass }}</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
+                        <p class="font-bold text-slate-500">Attendance Weightage</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Tracked (0 - 100%)</p>
+                    </div>
                 </div>
-                <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
-                    <p class="font-bold text-slate-500">External Theory</p>
-                    <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullExtTheory }} &bull; Pass: {{ $passExtTheory }}</p>
+            @else
+                <div class="mt-3 grid grid-cols-2 gap-4 text-xs sm:grid-cols-4">
+                    <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
+                        <p class="font-bold text-slate-500">Internal Theory</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullIntTheory }} &bull; Pass: {{ $passIntTheory }}</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
+                        <p class="font-bold text-slate-500">External Theory</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullExtTheory }} &bull; Pass: {{ $passExtTheory }}</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
+                        <p class="font-bold text-slate-500">Internal Practical</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullIntPractical }} &bull; Pass: {{ $passIntPractical }}</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
+                        <p class="font-bold text-slate-500">External Practical</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullExtPractical }} &bull; Pass: {{ $passExtPractical }}</p>
+                    </div>
                 </div>
-                <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
-                    <p class="font-bold text-slate-500">Internal Practical</p>
-                    <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullIntPractical }} &bull; Pass: {{ $passIntPractical }}</p>
-                </div>
-                <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/60">
-                    <p class="font-bold text-slate-500">External Practical</p>
-                    <p class="mt-1 text-sm font-black text-slate-900 dark:text-white">Full: {{ $fullExtPractical }} &bull; Pass: {{ $passExtPractical }}</p>
-                </div>
-            </div>
+            @endif
         </div>
 
         @if($students->isNotEmpty())
@@ -162,10 +211,15 @@
                             <thead class="border-b border-slate-100 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:border-slate-800 dark:bg-slate-800/70">
                                 <tr>
                                     <th class="px-4 py-3 sticky left-0 bg-slate-50 z-10 dark:bg-slate-800">Student</th>
-                                    <th class="px-3 py-3 text-center">Int Theory<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullIntTheory }})</span></th>
-                                    <th class="px-3 py-3 text-center">Ext Theory<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullExtTheory }})</span></th>
-                                    <th class="px-3 py-3 text-center">Int Practical<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullIntPractical }})</span></th>
-                                    <th class="px-3 py-3 text-center">Ext Practical<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullExtPractical }})</span></th>
+                                    @if($isMonthlyAssessment)
+                                        <th class="px-3 py-3 text-center">Obtained Marks<br><span class="text-[10px] lowercase text-slate-400">(max {{ $assessmentFull }})</span></th>
+                                        <th class="px-3 py-3 text-center">Attendance %<br><span class="text-[10px] lowercase text-slate-400">(optional)</span></th>
+                                    @else
+                                        <th class="px-3 py-3 text-center">Int Theory<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullIntTheory }})</span></th>
+                                        <th class="px-3 py-3 text-center">Ext Theory<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullExtTheory }})</span></th>
+                                        <th class="px-3 py-3 text-center">Int Practical<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullIntPractical }})</span></th>
+                                        <th class="px-3 py-3 text-center">Ext Practical<br><span class="text-[10px] lowercase text-slate-400">(max {{ $fullExtPractical }})</span></th>
+                                    @endif
                                     <th class="px-3 py-3">Remarks</th>
                                     <th class="px-3 py-3 text-center">Absent?</th>
                                 </tr>
@@ -175,44 +229,63 @@
                                     @php
                                         $existingMark = $existingMarks->get($student->id);
                                     @endphp
-                                    <tr class="hover:bg-slate-50 transition dark:hover:bg-slate-800/50" :class="students[{{ $index }}].isAbsent ? 'bg-red-50/40 dark:bg-red-950/20' : ''">
+                                    <tr id="student-{{ $student->id }}" class="hover:bg-slate-50 transition dark:hover:bg-slate-800/50" :class="students[{{ $index }}].isAbsent ? 'bg-red-50/40 dark:bg-red-950/20' : ''">
                                         <td class="px-4 py-3 sticky left-0 bg-white z-10 dark:bg-slate-900" :class="students[{{ $index }}].isAbsent ? 'bg-red-50/40 dark:bg-red-950/20' : ''">
                                             <input type="hidden" name="marks[{{ $index }}][student_id]" value="{{ $student->id }}">
                                             <div class="font-bold text-slate-900 dark:text-white">{{ $student->user?->name ?? 'N/A' }}</div>
                                             <div class="text-xs text-slate-400">Roll: {{ $student->roll_number ?? '-' }} &bull; Reg: {{ $student->registration_number ?? '-' }}</div>
                                         </td>
-                                        <td class="px-3 py-3">
-                                            <input type="number" step="0.01" min="0" max="{{ $fullIntTheory }}"
-                                                   name="marks[{{ $index }}][internal_theory_marks]"
-                                                   value="{{ $existingMark ? $existingMark->internal_theory_marks : '' }}"
-                                                   :disabled="students[{{ $index }}].isAbsent"
-                                                   placeholder="0.00"
-                                                   class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
-                                        </td>
-                                        <td class="px-3 py-3">
-                                            <input type="number" step="0.01" min="0" max="{{ $fullExtTheory }}"
-                                                   name="marks[{{ $index }}][external_theory_marks]"
-                                                   value="{{ $existingMark ? $existingMark->external_theory_marks : '' }}"
-                                                   :disabled="students[{{ $index }}].isAbsent"
-                                                   placeholder="0.00"
-                                                   class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
-                                        </td>
-                                        <td class="px-3 py-3">
-                                            <input type="number" step="0.01" min="0" max="{{ $fullIntPractical }}"
-                                                   name="marks[{{ $index }}][internal_practical_marks]"
-                                                   value="{{ $existingMark ? $existingMark->internal_practical_marks : '' }}"
-                                                   :disabled="students[{{ $index }}].isAbsent"
-                                                   placeholder="0.00"
-                                                   class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
-                                        </td>
-                                        <td class="px-3 py-3">
-                                            <input type="number" step="0.01" min="0" max="{{ $fullExtPractical }}"
-                                                   name="marks[{{ $index }}][external_practical_marks]"
-                                                   value="{{ $existingMark ? $existingMark->external_practical_marks : '' }}"
-                                                   :disabled="students[{{ $index }}].isAbsent"
-                                                   placeholder="0.00"
-                                                   class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
-                                        </td>
+                                        @if($isMonthlyAssessment)
+                                            <td class="px-3 py-3 text-center">
+                                                <input type="number" step="0.01" min="0" max="{{ $assessmentFull }}"
+                                                       name="marks[{{ $index }}][assessment_obtained_marks]"
+                                                       value="{{ $existingMark ? $existingMark->assessment_obtained_marks : '' }}"
+                                                       :disabled="students[{{ $index }}].isAbsent"
+                                                       placeholder="0.00"
+                                                       class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
+                                            </td>
+                                            <td class="px-3 py-3 text-center">
+                                                <input type="number" step="0.01" min="0" max="100"
+                                                       name="marks[{{ $index }}][assessment_attendance_percent]"
+                                                       value="{{ $existingMark ? $existingMark->assessment_attendance_percent : '' }}"
+                                                       :disabled="students[{{ $index }}].isAbsent"
+                                                       placeholder="%"
+                                                       class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
+                                            </td>
+                                        @else
+                                            <td class="px-3 py-3">
+                                                <input type="number" step="0.01" min="0" max="{{ $fullIntTheory }}"
+                                                       name="marks[{{ $index }}][internal_theory_marks]"
+                                                       value="{{ $existingMark ? $existingMark->internal_theory_marks : '' }}"
+                                                       :disabled="students[{{ $index }}].isAbsent"
+                                                       placeholder="0.00"
+                                                       class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
+                                            </td>
+                                            <td class="px-3 py-3">
+                                                <input type="number" step="0.01" min="0" max="{{ $fullExtTheory }}"
+                                                       name="marks[{{ $index }}][external_theory_marks]"
+                                                       value="{{ $existingMark ? $existingMark->external_theory_marks : '' }}"
+                                                       :disabled="students[{{ $index }}].isAbsent"
+                                                       placeholder="0.00"
+                                                       class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
+                                            </td>
+                                            <td class="px-3 py-3">
+                                                <input type="number" step="0.01" min="0" max="{{ $fullIntPractical }}"
+                                                       name="marks[{{ $index }}][internal_practical_marks]"
+                                                       value="{{ $existingMark ? $existingMark->internal_practical_marks : '' }}"
+                                                       :disabled="students[{{ $index }}].isAbsent"
+                                                       placeholder="0.00"
+                                                       class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
+                                            </td>
+                                            <td class="px-3 py-3">
+                                                <input type="number" step="0.01" min="0" max="{{ $fullExtPractical }}"
+                                                       name="marks[{{ $index }}][external_practical_marks]"
+                                                       value="{{ $existingMark ? $existingMark->external_practical_marks : '' }}"
+                                                       :disabled="students[{{ $index }}].isAbsent"
+                                                       placeholder="0.00"
+                                                       class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-center text-sm font-semibold focus:border-red-500 focus:outline-none disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/40">
+                                            </td>
+                                        @endif
                                         <td class="px-3 py-3">
                                             <input type="text"
                                                    name="marks[{{ $index }}][remarks]"

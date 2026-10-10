@@ -34,7 +34,12 @@
             <p class="mt-1 text-sm text-slate-500">All active students in {{ $subject->program?->name ?? 'the program' }} for semester {{ $subject->semester }}.</p>
         </div>
 
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('admin.exams.fill-marks', ['exam_id' => $exam->id, 'program_id' => $subject->program_id, 'semester' => $subject->semester, 'subject_id' => $subject->id]) }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#7a0000] transition">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Enter / Edit Marks
+            </a>
             <a href="{{ route('admin.exams.marks.export', ['exam' => $exam, 'format' => 'excel']) }}?subject_id={{ $subject->id }}"
                class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
                 Excel
@@ -61,6 +66,7 @@
                         <th class="px-4 py-3 text-right">Obtained</th>
                         <th class="px-4 py-3 text-center">Result</th>
                         <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -86,10 +92,24 @@
                                     {{ $row['status'] }}
                                 </span>
                             </td>
+                            <td class="px-4 py-4 text-right">
+                                @if($row['mark'])
+                                    <a href="{{ route('admin.exams.fill-marks', ['exam_id' => $exam->id, 'program_id' => $subject->program_id, 'semester' => $subject->semester, 'subject_id' => $subject->id]) }}#student-{{ $row['student']->id }}"
+                                       class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-[#8B0000] hover:text-[#8B0000] transition">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Edit
+                                    </a>
+                                @else
+                                    <a href="{{ route('admin.exams.fill-marks', ['exam_id' => $exam->id, 'program_id' => $subject->program_id, 'semester' => $subject->semester, 'subject_id' => $subject->id]) }}"
+                                       class="inline-flex items-center gap-1 rounded-full bg-[#8B0000] px-3 py-1 text-xs font-semibold text-white hover:bg-[#7a0000] transition">
+                                        Enter
+                                    </a>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-12 text-center text-slate-500">
+                            <td colspan="8" class="px-4 py-12 text-center text-slate-500">
                                 No student marks available for this subject yet.
                             </td>
                         </tr>

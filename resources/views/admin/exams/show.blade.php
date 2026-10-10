@@ -35,6 +35,38 @@
         subjects: @js($subjectRows->pluck('subject_name')->filter()->unique()->sort()->values()->all()),
         teachers: @js($subjectRows->pluck('teacher_name')->filter()->unique()->values()->all()),
     }">
+    {{-- Header --}}
+    <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.exams.index') }}" class="text-sm font-semibold text-slate-400 hover:text-slate-600">
+                    &larr; Back to Exams
+                </a>
+            </div>
+            <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-900">{{ $exam->name }}</h1>
+            <p class="mt-0.5 text-sm text-slate-500">
+                Session: {{ $exam->academicSession?->name_bs ?: $exam->academicSession?->name ?: 'Current' }} &bull;
+                {{ $typeLabel }} &bull;
+                {{ $departmentLabel }}
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('admin.exams.fill-marks', ['exam_id' => $exam->id]) }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-[#8B0000] px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#7a0000] transition">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Enter / Edit Marks
+            </a>
+            <a href="{{ route('admin.exams.edit', $exam) }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition">
+                Edit Exam
+            </a>
+            <a href="{{ route('admin.exams.export', ['format' => 'pdf', 'search' => $exam->name]) }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition">
+                Export PDF
+            </a>
+        </div>
+    </div>
+
     <section class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <article class="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
@@ -151,9 +183,9 @@
                                 @if(! empty($row['subject_mark_id']))
                                     <div class="flex flex-wrap justify-end gap-2">
                                         <a href="{{ route('admin.exams.subjects.marks', ['exam' => $exam, 'subject' => $row['subject_id']]) }}" class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100">View sheet</a>
+                                        <a href="{{ route('admin.exams.fill-marks', ['exam_id' => $exam->id, 'program_id' => $row['program_id'], 'semester' => $row['semester'], 'subject_id' => $row['subject_id']]) }}" class="inline-flex items-center rounded-full border border-[#8B0000] bg-rose-50 px-3 py-1.5 text-xs font-bold text-[#8B0000] transition hover:bg-[#8B0000] hover:text-white">Edit marks</a>
                                         <a href="{{ route('admin.exams.marks.export', ['exam' => $exam, 'format' => 'excel']) }}?subject_id={{ $row['subject_id'] }}" class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Excel</a>
                                         <a href="{{ route('admin.exams.marks.export', ['exam' => $exam, 'format' => 'pdf']) }}?subject_id={{ $row['subject_id'] }}" target="_blank" class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100">PDF</a>
-                                        <a href="{{ route('admin.exams.marks.edit', [$exam, $row['subject_mark_id']]) }}" class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Edit</a>
                                         <form method="POST" action="{{ route('admin.exams.marks.destroy', ['exam' => $exam, 'subject' => $row['subject_id']]) }}" class="m-0">
                                             @csrf
                                             @method('DELETE')
@@ -161,7 +193,11 @@
                                         </form>
                                     </div>
                                 @else
-                                    <span class="text-xs text-slate-400">No marks</span>
+                                    <a href="{{ route('admin.exams.fill-marks', ['exam_id' => $exam->id, 'program_id' => $row['program_id'], 'semester' => $row['semester'], 'subject_id' => $row['subject_id']]) }}"
+                                       class="inline-flex items-center gap-1 rounded-full bg-[#8B0000] px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#7a0000] transition">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        Enter marks
+                                    </a>
                                 @endif
                             </td>
                         </tr>
