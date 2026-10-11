@@ -2361,7 +2361,7 @@ class ExamController extends Controller
                 ->orderBy('roll_number')
                 ->get();
 
-            $existingMarks = Mark::where('exam_id', $examId)
+            $existingMarks = Mark::where('exam_id', $exam->id)
                 ->where('subject_id', $subjectId)
                 ->get()
                 ->keyBy('student_id');
