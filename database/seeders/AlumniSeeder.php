@@ -99,7 +99,7 @@ class AlumniSeeder extends Seeder
                 $user->restore();
             }
 
-            $user->syncRoles(['alumnus']);
+            $user->syncRoles(['alumni', 'alumnus']);
 
             Alumni::withTrashed()->updateOrCreate(
                 ['user_id' => $user->id],

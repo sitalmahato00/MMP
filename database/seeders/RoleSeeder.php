@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Create all roles
-        $roles = ['principal', 'admin', 'hod', 'teacher', 'student', 'parent', 'alumnus', 'staff', 'executive', 'visitor'];
+        $roles = ['principal', 'admin', 'hod', 'teacher', 'student', 'parent', 'alumni', 'alumnus', 'staff', 'executive', 'visitor'];
         
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
